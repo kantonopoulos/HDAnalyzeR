@@ -183,3 +183,49 @@ hd_widen_data <- function(dat, id = "DAid", names_from = "Assay", values_from = 
 
   return(wide_data)
 }
+
+
+#' Detect variable type
+#'
+#' `hd_detect_vartype()` detects the type of a variable based on its content.
+#' If a variable is a factor or character, it is considered categorical.
+#' If a variable is numeric and has less than or equal to `unique_threshold` unique values,
+#' it is considered categorical. Otherwise, it is considered continuous.
+#'
+#' @param var The variable (vector or dataframe column)to detect the type of.
+#' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
+#'
+#' @return The type of the variable as a string: "categorical", "continuous", or "unknown".
+#' @export
+#'
+#' @examples
+#' # Check categorical data
+#' category <- c("A", "B", "A", "C")
+#' hd_detect_vartype(category)
+#'
+#' # Check continuous data
+#' continuous <- c(1, 2, 3, 4, 5, 6)
+#' hd_detect_vartype(continuous)
+#'
+#' # Apply the function to each column of a dataframe
+#' example <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
+#'                            Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
+#'                            Mixed = c(1, "1", 2, 2, "3", 3))
+#'
+#' sapply(example, hd_detect_vartype)
+hd_detect_vartype <- function(var, unique_threshold = 5) {
+
+  if (is.factor(var) || is.character(var)) {
+    return("categorical")
+  } else if (is.numeric(var)) {
+    # Check number of unique values
+    if (length(unique(var)) <= unique_threshold) {
+      return("categorical")
+    } else {
+      return("continuous")
+    }
+  } else {
+    return("unknown")  # For unsupported or mixed types
+  }
+
+}

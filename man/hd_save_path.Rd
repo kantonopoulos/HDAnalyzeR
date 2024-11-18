@@ -4,14 +4,12 @@
 \alias{hd_save_path}
 \title{Create directory to save results}
 \usage{
-hd_save_path(path_name, date = FALSE, verbose = TRUE)
+hd_save_path(path_name, date = FALSE)
 }
 \arguments{
 \item{path_name}{The name of the directory to create.}
 
 \item{date}{If TRUE, a directory with the current date as name will be created inside the directory with \code{dir_name}.}
-
-\item{verbose}{A logical for logging results (other than warnings and errors, which are always shown).}
 }
 \value{
 The relative directory path as a string.

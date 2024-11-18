@@ -269,3 +269,56 @@ test_that("hd_widen_data works with non default values", {
     tidyr::pivot_wider(names_from = OlinkID, values_from = NPX)
   expect_equal(result, expected)
 })
+
+
+# Test hd_detect_vartype -------------------------------------------------------
+test_that("hd_detect_vartype detects categorical data", {
+  category <- c("A", "B", "A", "C")
+  result <- hd_detect_vartype(category)
+  expected <- "categorical"
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype detects continuous data", {
+  continuous <- c(1, 2, 3, 4, 5, 6)
+  result <- hd_detect_vartype(continuous)
+  expected <- "continuous"
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype detects continuous data with less categories than the threshold", {
+  continuous <- c(1, 2, 3, 4)
+  result <- hd_detect_vartype(continuous)
+  expected <- "categorical"
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype detects continuous data with equal categories with the threshold", {
+  continuous <- c(1, 2, 3, 4, 5)
+  result <- hd_detect_vartype(continuous)
+  expected <- "categorical"
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype detects mixed data", {
+  mixed <- c(1, "1", 2, 2, "3", 3)
+  result <- hd_detect_vartype(mixed)
+  expected <- "categorical"
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype works with dataframes", {
+  example <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
+                        Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
+                        Mixed = c(1, "1", 2, 2, "3", 3))
+  result <- sapply(example, hd_detect_vartype)
+  expected <- c(Category = "categorical", Continuous = "continuous", Mixed = "categorical")
+  expect_equal(result, expected)
+})
+
+test_that("hd_detect_vartype handles unknown data", {
+  unknown <- as.Date(c("2021-01-01", "2021-01-02", "2021-01-03"))
+  result <- hd_detect_vartype(unknown)
+  expected <- "unknown"
+  expect_equal(result, expected)
+})
