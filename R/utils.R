@@ -175,7 +175,7 @@ hd_import_data <- function(path_name) {
 hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
 
   wide_data <- dat |>
-    dplyr::select(all_of(c(exclude, names_from, values_from))) |>
+    dplyr::select(dplyr::all_of(c(exclude, names_from, values_from))) |>
     tidyr::pivot_wider(names_from = names_from, values_from = values_from)
 
   return(wide_data)
@@ -204,7 +204,7 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
 
   long_data <- dat |>
-    tidyr::pivot_longer(cols = -all_of(exclude), names_to = names_to, values_to = values_to)
+    tidyr::pivot_longer(cols = -dplyr::all_of(exclude), names_to = names_to, values_to = values_to)
 
   return(long_data)
 }
