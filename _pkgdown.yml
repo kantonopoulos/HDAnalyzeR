@@ -1,3 +1,6 @@
+build:
+  vignettes: false
+
 url: https://hda1472.github.io/HDAnalyzeR
 template:
   bootstrap: 5
