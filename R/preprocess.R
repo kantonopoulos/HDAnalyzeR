@@ -88,49 +88,49 @@ clean_data <- function(df_in,
 #'   - It keeps only the specified columns.
 #'   - It keeps only the data of the specified cohort.
 #'   - It removes rows with NAs in the DAid and Disease columns.
-#'   - It replaces the specified values with NA.
+#' #'   - It replaces the specified values with NA.
+#' #'
+#' #' @param df_in The input metadata.
+#' #' @param keep_cols The columns to keep in the output metadata.
+#' #' @param cohort The cohort to keep.
+#' #' @param remove_na_cols The columns to check for NAs and remove respective rows. Defaults is c("DAid", "Disease").
+#' #' @param replace_w_na The values to replace with NA. Default is c("Unknown", "unknown", "none", NA, "na").
+#' #'
+#' #' @return The preprocessed metadata.
+#' #' @export
+#' #'
+#' #' @examples
+#' #' # Unprocessed metadata
+#' #' example_metadata
+#' #'
+#' #' # Preprocessed metadata
+#' #' clean_metadata(example_metadata)
+#' clean_metadata <- function(df_in,
+#'                            keep_cols = c("DAid", "Disease", "Sex", "Age", "BMI"),
+#'                            cohort = NULL,
+#'                            remove_na_cols = c("DAid", "Disease"),
+#'                            replace_w_na = c("Unknown", "unknown", "none", NA, "na")) {
 #'
-#' @param df_in The input metadata.
-#' @param keep_cols The columns to keep in the output metadata.
-#' @param cohort The cohort to keep.
-#' @param remove_na_cols The columns to check for NAs and remove respective rows. Defaults is c("DAid", "Disease").
-#' @param replace_w_na The values to replace with NA. Default is c("Unknown", "unknown", "none", NA, "na").
+#'   df_out <- df_in |>
+#'     dplyr::filter(if ("Cohort" %in% colnames(df_in)) {
+#'       is.null(cohort) | Cohort %in% cohort
+#'     } else {
+#'       TRUE
+#'     }) |> dplyr::select(dplyr::any_of(keep_cols))
 #'
-#' @return The preprocessed metadata.
-#' @export
+#'   if (!is.null(replace_w_na)) {
+#'     df_out <- replace_with_na(df_out, replace_w_na)
+#'   }
 #'
-#' @examples
-#' # Unprocessed metadata
-#' example_metadata
+#'   if (!is.null(remove_na_cols)) {
+#'     rows_before <- nrow(df_out)
+#'     df_out <- df_out |>
+#'       dplyr::filter(dplyr::if_any(dplyr::any_of(remove_na_cols), ~!is.na(.)))
+#'     rows_after <- nrow(df_out)
+#'     if (rows_before != rows_after) {
+#'       message("Removed ", rows_before - rows_after, " rows with NAs based on ", remove_na_cols)
+#'     }
+#'   }
 #'
-#' # Preprocessed metadata
-#' clean_metadata(example_metadata)
-clean_metadata <- function(df_in,
-                           keep_cols = c("DAid", "Disease", "Sex", "Age", "BMI"),
-                           cohort = NULL,
-                           remove_na_cols = c("DAid", "Disease"),
-                           replace_w_na = c("Unknown", "unknown", "none", NA, "na")) {
-
-  df_out <- df_in |>
-    dplyr::filter(if ("Cohort" %in% colnames(df_in)) {
-      is.null(cohort) | Cohort %in% cohort
-    } else {
-      TRUE
-    }) |> dplyr::select(dplyr::any_of(keep_cols))
-
-  if (!is.null(replace_w_na)) {
-    df_out <- replace_with_na(df_out, replace_w_na)
-  }
-
-  if (!is.null(remove_na_cols)) {
-    rows_before <- nrow(df_out)
-    df_out <- df_out |>
-      dplyr::filter(dplyr::if_any(dplyr::any_of(remove_na_cols), ~!is.na(.)))
-    rows_after <- nrow(df_out)
-    if (rows_before != rows_after) {
-      message("Removed ", rows_before - rows_after, " rows with NAs based on ", remove_na_cols)
-    }
-  }
-
-  return(df_out)
-}
+#'   return(df_out)
+#' }
