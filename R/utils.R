@@ -1,152 +1,167 @@
-utils::globalVariables(c("DAid", "Assay", "NPX"))
-#' Create directory
+#' Create directory to save results
 #'
-#' `create_dir()` creates a directory with a specified name.
-#' The user can choose to create another inner directory with the current date as its name.
+#' `hd_save_path()` creates a directory with in a specified or the current path to save results.
+#' The user can optionally choose to create another inner directory named with the current date.
 #' If the directory already exists, a message is printed.
 #'
-#' @param dir_name The name of the directory to create.
+#' @param path_name The name of the directory to create.
 #' @param date If TRUE, a directory with the current date as name will be created inside the directory with `dir_name`.
 #'
-#' @return The relative file path of the created directory as a string.
+#' @return The relative directory path as a string.
 #' @export
 #'
 #' @examples
-#' # Create a directory with a specified name
-#' create_dir("my_directory", date = FALSE)
+#' # Create a directory
+#' hd_save_path("my_directory", date = FALSE)
 #' unlink("my_directory", recursive = TRUE)  # Clean up the created directory
 #'
-#' # Create a directory with a specified name and an inner directory with the current date as name
-#' create_dir("my_directory", date = TRUE)
-#' unlink("my_directory", recursive = TRUE)  # Clean up the created directory
+#' # Create a directory and an inner directory with the current date as name
+#' hd_save_path("my_directory", date = TRUE)
+#' unlink("my_directory", recursive = TRUE)
 #'
 #' # Create a directory inside another directory
-#' create_dir("outer_directory/inner_directory", date = FALSE)
-#' unlink("outer_directory", recursive = TRUE)  # Clean up the created directory
+#' hd_save_path("outer_directory/inner_directory", date = FALSE)
+#' unlink("outer_directory", recursive = TRUE)
 #'
 #' # Create a directory inside a pre existing one
-#' create_dir("outer_directory", date = FALSE)
-#' create_dir("outer_directory/inner_directory", date = FALSE)
-#' unlink("outer_directory", recursive = TRUE)  # Clean up the created directory
-create_dir <- function(dir_name, date = FALSE) {
+#' hd_save_path("outer_directory", date = FALSE)
+#' hd_save_path("outer_directory/inner_directory", date = FALSE)
+#' unlink("outer_directory", recursive = TRUE)
+#'
+#' # Create a directory with the current date as name inside a pre existing one
+#' hd_save_path("outer_directory", date = FALSE)
+#' hd_save_path("outer_directory", date = TRUE)
+#' unlink("outer_directory", recursive = TRUE)
+hd_save_path <- function(path_name, date = FALSE) {
 
-  if (date) {
-    current_date <- format(Sys.time(), "%Y_%m_%d")  # Get the current date
-    dir_name <- paste0(dir_name, "/", current_date)
+  if (isTRUE(date) && !is.null(path_name)) {
+    current_date <- format(Sys.Date(), "%Y_%m_%d")  # Get the current date
+    path_name <- paste0(path_name, "/", current_date)
   }
 
   # Check if the directory already exists
-  if (!dir.exists(dir_name)) {
-    dir.create(dir_name, recursive = TRUE)
+  if (!dir.exists(path_name)) {
+    dir.create(path_name, recursive = TRUE)
 
     # Check if the directory was created successfully
-    if (dir.exists(dir_name)) {
+    if (dir.exists(path_name)) {
     } else {
-      warning(paste("Failed to create directory", dir_name))
+      warning(paste("Failed to create directory", path_name))
     }
 
   } else {
-    message(paste("Directory", dir_name, "already exists."))
+    message(paste("Directory", path_name, "already exists."))
   }
 
-  return(dir_name)
+  return(path_name)
 }
 
 
-#' Save tibble as CSV, TSV, Excel or RDA file
+#' Save tibbles or R objects
 #'
-#' `save_df()` saves a dataframe in the specified format (csv, tsv, rda, or xlsx) in a
-#' specified directory. If the directory does not exist, it will be created.
-#' The recommended file type is RDA.
+#' `hd_save_data()` saves either a tibble as CSV, TSV, RDS, or XLSX, or an R object
+#' (for example a list) as RDS in a specified directory. If the directory does not exist,
+#' it will be created. The recommended file type for files that are going to be used mainly
+#' in R is RDS.
 #'
-#' @param df The dataframe to save.
-#' @param file_name The name of the file to save.
-#' @param dir_name The directory where the file will be saved.
-#' @param date If TRUE, a directory with the current date as name will be created in the directory with `dir_name`.
-#' @param file_type The type of file to save the dataframe as. Options are "csv", "tsv", "rda", or "xlsx".
+#' @param dat The data to save.
+#' @param path_name The name of the file to be saved. Extension options are "csv", "tsv", "rds", or "xlsx".
+#' If the data is anything else than a dataframe or tibble, the file extension should be "rds".
 #'
-#' @return NULL
+#' @return A message indicating if the file was saved successfully.
 #' @export
 #'
 #' @examples
-#' # Save a metadata dataframe as an RDA file
-#' save_df(example_metadata, "metadata", "my_data", file_type = "rda")
+#' # Save a metadata dataframe as an RDS file
+#' hd_save_data(example_metadata, "my_data/metadata.rds")
 #'
-#' file.exists("my_data/metadata.rda")  # Check if the file exists
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
-save_df <- function(df, file_name, dir_name, date = FALSE, file_type = c("csv", "tsv", "rda", "xlsx")) {
+hd_save_data <- function(dat, path_name) {
 
-  valid_file_types <- c("csv", "tsv", "rda", "xlsx")
+  dir_path <- dirname(path_name)
+  file_name <- basename(path_name)
+  file_ext <- sub(".*\\.", "", file_name)
 
-  if (!file_type %in% valid_file_types) {
-    stop("Unsupported file type: ", file_type)
+  valid_file_types <- c("csv", "tsv", "rds", "xlsx")
+
+  if (!file_ext %in% valid_file_types) {
+    stop("Unsupported file type: ", file_ext, ". Supported file types are: ", paste(valid_file_types, collapse = ", "))
   }
 
-  # Create the directory if it doesn't exist, else store the file in the existing directory
-  dir_name <- create_dir(dir_name, date = date)
+  # Create directory if it does not exist
+  dir_path <- hd_save_path(dir_path, date = FALSE, verbose = FALSE)
 
-  file_path <- file.path(dir_name, paste0(file_name, ".", file_type))
-
-  if (file_type == "csv") {
-    utils::write.csv(df, file_path, row.names = FALSE)
-  } else if (file_type == "tsv") {
-    utils::write.table(df, file_path, sep = "\t", row.names = FALSE, col.names = TRUE)
-  } else if (file_type == "rda") {
-    save(df, file = file_path)
-  } else if (file_type == "xlsx") {
-    writexl::write_xlsx(df, file_path)
+  if (file_ext == "csv") {
+    utils::write.csv(dat, path_name, row.names = FALSE)
+  } else if (file_ext == "tsv") {
+    utils::write.table(dat, path_name, sep = "\t", row.names = FALSE, col.names = TRUE)
+  } else if (file_ext == "rds") {
+    saveRDS(dat, path_name)
+  } else if (file_ext == "xlsx") {
+    writexl::write_xlsx(dat, path_name)
   }
 
-  invisible(NULL)
+  if (file.exists(path_name)) {
+    return(paste("File saved as", path_name))
+  } else {
+    stop(paste("Failed to save file as", path_name))
+  }
+
 }
 
 
-#' Import dataframe from file
+#' Import data from file
 #'
-#' `import_df()` imports a dataframe from a file. The file format can be CSV,
+#' `hd_import_data()` imports data from a file. The file format can be CSV,
 #' TSV, TXT, RDA, RDS, XLSX, or Parquet format. It recognizes the file format,
-#' reads it and returns it as a tibble.
+#' reads it and returns it as a tibble or an R object.
 #'
-#' @param file_path The path to the file to import.
+#' @param path_name The path to the file to import.
 #'
-#' @return The imported dataframe as a tibble.
+#' @return The imported data as a tibble or an R object.
 #' @export
 #'
 #' @examples
-#' # Save a dataframe as an RDA file
-#' save_df(example_metadata, "metadata", "my_data", file_type = "rda")
+#' # Save a dataframe as an RDS file
+#' hd_save_data(example_metadata, "my_data/metadata.rds")
 #'
-#' # Import the saved RDA file again as a tibble
-#' import_df("my_data/metadata.rda")
+#' # Import the saved RDS file again as a tibble
+#' hd_import_data("my_data/metadata.rds")
 #'
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
-import_df <- function(file_path) {
+hd_import_data <- function(path_name) {
 
   # Determine file extension from file path
-  file_extension <- tools::file_ext(file_path)
+  file_extension <- tools::file_ext(path_name)
 
-  df <- switch(tolower(file_extension),
-               csv = readr::read_csv(file_path),
-               tsv = readr::read_tsv(file_path),
-               txt = utils::read.table(file_path, header = TRUE, stringsAsFactors = FALSE),
-               rda = { load(file_path); get(ls()[1]) },
-               rds = readRDS(file_path),
-               xlsx = readxl::read_excel(file_path, guess_max=10000000),
-               parquet = arrow::read_parquet(file_path),
-               stop("Unsupported file type: ", file_extension))
+  dat <- switch(tolower(file_extension),
+                csv = readr::read_csv(path_name),
+                tsv = readr::read_tsv(path_name),
+                txt = utils::read.table(path_name, header = TRUE, stringsAsFactors = FALSE),
+                rda = { load(path_name); get(ls()[1]) },
+                rds = readRDS(path_name),
+                xlsx = readxl::read_excel(path_name, guess_max=10000000),
+                parquet = arrow::read_parquet(path_name),
+                stop("Unsupported file type: ", file_extension))
 
-  df <- tibble::as_tibble(df)
-  return(df)
+  dat <- tibble::as_tibble(dat)
+
+  return(dat)
 }
 
 
-#' Widen Olink data
+#' Widen omics data
 #'
-#' `widen_data()` transforms the data from long to wide format. It should be used to
-#' transform Olink data from long to wide format with Assays as columns names and NPX as values.
-#' The first column contains the DAids.
+#' `hd_widen_data()` transforms the data from long to wide format. It should be used to
+#' transform omics data from long to wide format with variables like different `Assays`
+#' as column names and expression values like `NPX` as values.
+#' The first column will contain the samples IDs, unless specified otherwise.
 #'
-#' @param olink_data A tibble containing Olink data to be transformed.
+#' @param dat A tibble containing data in long format.
+#' @param id The name of the column containing the sample IDs. If not specified (NULL),
+#' there will be no sample identifiers as a column.
+#' @param names_from The name of the column containing the variable names.
+#' @param values_from The name of the column containing the values.
 #'
 #' @return A tibble containing the data in wide format.
 #' @export
@@ -156,12 +171,15 @@ import_df <- function(file_path) {
 #' example_data
 #'
 #' # Transform Olink data in wide format
-#' widen_data(example_data)
-widen_data <- function(olink_data) {
+#' hd_widen_data(example_data)
+#'
+#' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
+#' hd_widen_data(example_data, id = "Sample", names_from = "OlinkID")
+hd_widen_data <- function(dat, id = "DAid", names_from = "Assay", values_from = "NPX") {
 
-  wide_data <- olink_data |>
-    dplyr::select(DAid, Assay, NPX) |>
-    tidyr::pivot_wider(names_from = Assay, values_from = NPX)
+  wide_data <- dat |>
+    dplyr::select(all_of(c(id, names_from, values_from))) |>
+    tidyr::pivot_wider(names_from = names_from, values_from = values_from)
 
   return(wide_data)
 }
