@@ -21,7 +21,6 @@ biocViews:
 Imports: 
     arrow,
     broom,
-    clusterProfiler,
     dials,
     doParallel,
     dplyr,
@@ -34,10 +33,8 @@ Imports:
     limma,
     mice,
     missForest,
-    org.Hs.eg.db,
     parsnip,
     purrr,
-    ReactomePA,
     readr,
     readxl,
     recipes,
@@ -56,7 +53,6 @@ Imports:
     UpSetR,
     utils,
     vip,
-    viridis,
     workflows,
     yardstick
 Suggests: 
@@ -65,8 +61,7 @@ Suggests:
     ranger,
     rmarkdown,
     testthat (>= 3.0.0),
-    writexl,
-    xgboost
+    writexl
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
