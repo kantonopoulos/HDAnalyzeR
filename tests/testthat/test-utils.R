@@ -16,7 +16,7 @@ test_that("Directory creation with date", {
   # Check that at least one directory with the expected prefix and date format exists
   expect_true(dir.exists(expected), "Directory with date should be created")
 
-  unlink(result, recursive = TRUE)
+  unlink(dir_prefix, recursive = TRUE)
 })
 
 test_that("Handling existing directory", {

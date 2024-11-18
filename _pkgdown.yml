@@ -90,10 +90,11 @@ reference:
   desc: |
     Functions that perform general tasks.
   contents:
-  - create_dir
-  - save_df
-  - import_df
-  - widen_data
+  - hd_save_path
+  - hd_save_data
+  - hd_import_data
+  - hd_widen_data
+  - hd_detect_vartype
 - title: Palettes and Themes
   desc: |
     Functions that customize the appearance of your plots.
