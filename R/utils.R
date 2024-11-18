@@ -89,7 +89,7 @@ hd_save_data <- function(dat, path_name) {
   }
 
   # Create directory if it does not exist
-  dir_path <- hd_save_path(dir_path, date = FALSE, verbose = FALSE)
+  dir_path <- hd_save_path(dir_path, date = FALSE)
 
   if (file_ext == "csv") {
     utils::write.csv(dat, path_name, row.names = FALSE)
@@ -150,16 +150,13 @@ hd_import_data <- function(path_name) {
 }
 
 
-#' Widen omics data
+#' Convert omics data to wide format
 #'
-#' `hd_widen_data()` transforms the data from long to wide format. It should be used to
-#' transform omics data from long to wide format with variables like different `Assays`
-#' as column names and expression values like `NPX` as values.
-#' The first column will contain the samples IDs, unless specified otherwise.
+#' `hd_widen_data()` transforms omics data from long to wide format with variables
+#' like different `Assays` as column names and expression values like `NPX` as values.
 #'
 #' @param dat A tibble containing data in long format.
-#' @param id The name of the column containing the sample IDs. If not specified (NULL),
-#' there will be no sample identifiers as a column.
+#' @param exclude The name of the columns to exclude from the transformation.
 #' @param names_from The name of the column containing the variable names.
 #' @param values_from The name of the column containing the values.
 #'
@@ -174,14 +171,42 @@ hd_import_data <- function(path_name) {
 #' hd_widen_data(example_data)
 #'
 #' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
-#' hd_widen_data(example_data, id = "Sample", names_from = "OlinkID")
-hd_widen_data <- function(dat, id = "DAid", names_from = "Assay", values_from = "NPX") {
+#' hd_widen_data(example_data, exclude = "Sample", names_from = "OlinkID")
+hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
 
   wide_data <- dat |>
-    dplyr::select(all_of(c(id, names_from, values_from))) |>
+    dplyr::select(all_of(c(exclude, names_from, values_from))) |>
     tidyr::pivot_wider(names_from = names_from, values_from = values_from)
 
   return(wide_data)
+}
+
+
+#' Convert omics data to long format
+#'
+#' `hd_long_data()` transforms omics data from wide to long format.
+#'
+#' @param dat A tibble containing data in wide format.
+#' @param exclude The name of the columns to exclude from the transformation.
+#' @param names_to The name of the column to create for the variable names.
+#' @param values_to The name of the column to create for the values.
+#'
+#' @return A tibble containing the data in long format.
+#' @export
+#'
+#' @examples
+#' # Olink data in wide format
+#' example_data_wide <- hd_widen_data(example_data)
+#' example_data_wide
+#'
+#' # Transform Olink data in long format
+#' hd_long_data(example_data_wide)
+hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
+
+  long_data <- dat |>
+    tidyr::pivot_longer(cols = -all_of(exclude), names_to = names_to, values_to = values_to)
+
+  return(long_data)
 }
 
 

@@ -263,13 +263,30 @@ test_that("hd_widen_data widens data properly", {
 })
 
 test_that("hd_widen_data works with non default values", {
-  result <- hd_widen_data(example_data, id = "Sample", names_from = "OlinkID")
+  result <- hd_widen_data(example_data, exclude = c("DAid", "Sample"), names_from = "OlinkID")
   expected <- example_data |>
-    dplyr::select(Sample, OlinkID, NPX) |>
+    dplyr::select(DAid, Sample, OlinkID, NPX) |>
     tidyr::pivot_wider(names_from = OlinkID, values_from = NPX)
   expect_equal(result, expected)
 })
 
+
+# Test hd_long_data ------------------------------------------------------------
+test_that("hd_long_data lengthens data properly", {
+  example_data_wide <- hd_widen_data(example_data, exclude = c("DAid", "Sample"), names_from = "OlinkID")
+  result <- hd_long_data(example_data_wide, exclude = c("DAid", "Sample"), names_to = "OlinkID")
+  expected <- example_data_wide |>
+    tidyr::pivot_longer(cols = -c("DAid", "Sample"), names_to = "OlinkID", values_to = "NPX")
+  expect_equal(result, expected)
+})
+
+test_that("hd_long_data works with non default values", {
+  example_data_wide <- hd_widen_data(example_data)
+  result <- hd_long_data(example_data_wide)
+  expected <- example_data_wide |>
+    tidyr::pivot_longer(cols = -DAid, names_to = "Assay", values_to = "NPX")
+  expect_equal(result, expected)
+})
 
 # Test hd_detect_vartype -------------------------------------------------------
 test_that("hd_detect_vartype detects categorical data", {
