@@ -35,6 +35,8 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
     }
 
     wide_data <- hd_widen_data(dat, exclude = sample_id, names_from = var_name, values_from = value_name)
+  } else {
+    wide_data <- dat
   }
 
   data_object <- list(data = wide_data,

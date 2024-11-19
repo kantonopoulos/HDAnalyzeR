@@ -1,3 +1,66 @@
+# Test hd_initialize -----------------------------------------------------------
+test_that("hd_initialize works correctly", {
+  # Create a mock dataset for testing
+  mock_data <- tibble::tibble(
+    DAid = c("Sample1", "Sample2", "Sample3"),
+    Assay = c("A", "B", "C"),
+    NPX = c(1.2, 3.4, 5.6)
+  )
+
+  # Create a mock metadata for testing
+  mock_metadata <- tibble::tibble(
+    DAid = c("Sample1", "Sample2", "Sample3"),
+    Group = c("Control", "Treatment", "Control")
+  )
+
+  # Test case 1: Initialize with basic arguments
+  hd_object <- hd_initialize(mock_data)
+  expect_s3_class(hd_object, "HDAnalyzeR")
+  expect_true("data" %in% names(hd_object))
+  expect_true("metadata" %in% names(hd_object))
+  expect_true("sample_id" %in% names(hd_object))
+  expect_true("var_name" %in% names(hd_object))
+  expect_true("value_name" %in% names(hd_object))
+
+  # Test case 2: Initialize with metadata and is_wide = FALSE
+  hd_object_with_metadata <- hd_initialize(mock_data, metadata = mock_metadata)
+  expect_s3_class(hd_object_with_metadata, "HDAnalyzeR")
+  expect_equal(hd_object_with_metadata$metadata, mock_metadata)
+
+  # Test case 3: Initialize with wide data format (is_wide = TRUE)
+  mock_data_wide <- tibble::tibble(
+    DAid = c("Sample1", "Sample2", "Sample3"),
+    A = c(1.2, 3.4, 5.6),
+    B = c(2.1, 4.3, 6.5),
+    C = c(3.3, 4.4, 5.5)
+  )
+  hd_object_wide <- hd_initialize(mock_data_wide, is_wide = TRUE)
+  expect_s3_class(hd_object_wide, "HDAnalyzeR")
+  expect_equal(hd_object_wide$data, mock_data_wide)
+
+  # Test case 4: Check for missing sample_id in data
+  expect_error(hd_initialize(mock_data, sample_id = "NonExistentSampleId"),
+               "Sample ID column must exist in dat.")
+
+  # Test case 5: Check for missing sample_id in metadata
+  expect_error(hd_initialize(mock_data, metadata = mock_metadata, sample_id = "NonExistentSampleId"),
+               "Sample ID column must exist in dat.")
+
+  # Test case 6: Check for missing variable name in data (when is_wide = FALSE)
+  mock_data_long <- tibble::tibble(
+    DAid = c("Sample1", "Sample2", "Sample3"),
+    Assay = c("A", "B", "C"),
+    NPX = c(1.2, 3.4, 5.6)
+  )
+  expect_error(hd_initialize(mock_data_long, is_wide = FALSE, var_name = "NonExistentVar"),
+               "Variable name column must exist in dat.")
+
+  # Test case 7: Check for missing value name in data (when is_wide = FALSE)
+  expect_error(hd_initialize(mock_data_long, is_wide = FALSE, value_name = "NonExistentValue"),
+               "Value column must exist in dat.")
+})
+
+
 # Test hd_save_path ------------------------------------------------------------
 test_that("Directory creation without date", {
   dir_name <- "test_directory_without_date"

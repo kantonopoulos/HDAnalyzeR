@@ -10,7 +10,6 @@
 get_hpa_palettes <- function() {
 
   palettes <- list(
-
     sex = c("F" = "red", "M" = "blue"),
 
     sex_hpa = c("F" = "#8a72be", "M" = "#A9D0EF"),
@@ -65,16 +64,15 @@ get_hpa_palettes <- function() {
                      "Low tissue specificity" = "grey40",
                      "not detected " = "grey"),
 
-  # Disease Atlas class
-  class = c("Healthy" = "#B3B3B3",
-            "Cardiovascular" = "#FC8D62",
-            "Metabolic" = "#E5C494",
-            "Cancer" = "#8DA0CB",
-            "Psychiatric" = "#66C2A5",
-            "Autoimmune" = "#E78AC3",
-            "Infection" = "#FFD92F",
-            "Pediatric" = "#A6D854")
-
+    # Disease Atlas class
+    class = c("Healthy" = "#B3B3B3",
+              "Cardiovascular" = "#FC8D62",
+              "Metabolic" = "#E5C494",
+              "Cancer" = "#8DA0CB",
+              "Psychiatric" = "#66C2A5",
+              "Autoimmune" = "#E78AC3",
+              "Infection" = "#FFD92F",
+              "Pediatric" = "#A6D854")
   )
 
   return(palettes)

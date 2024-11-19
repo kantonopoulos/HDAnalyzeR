@@ -66,18 +66,18 @@ hd_run_pca <- function(hd_object,
 
   wide_data <- hd_object$data
 
-  if (components > ncol(wide_data)-1) {
-    message(paste("The number of PCs to be calculated is higher than the number of features in the data.",
-                  ncol(wide_data)-1,
-                  "PCs will be used."))
-  }
-
   if (isFALSE(by_sample)) {
     var_name <- rlang::sym(hd_object$var_name)
     transposed_data <- wide_data |> tibble::column_to_rownames(var = hd_object$sample_id)
     wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
+  }
+
+  if (components > ncol(wide_data)-1) {
+    stop(paste("The number of PCs to be calculated is higher than the number of features in the data.",
+               ncol(wide_data)-1,
+               "PCs will be used."))
   }
 
   set.seed(seed)
@@ -481,18 +481,18 @@ hd_run_umap <- function(hd_object,
 
   wide_data <- hd_object$data
 
-  if (components > ncol(wide_data)-1) {
-    message(paste("The number of UMAPs to be calculated is higher than the number of features in the data.",
-                  ncol(wide_data)-1,
-                  "UMAPs will be used."))
-  }
-
   if (isFALSE(by_sample)) {
     var_name <- rlang::sym(hd_object$var_name)
     transposed_data <- wide_data |> tibble::column_to_rownames(var = hd_object$sample_id)
     wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
+  }
+
+  if (components > ncol(wide_data)-1) {
+    message(paste("The number of UMAPs to be calculated is higher than the number of features in the data.",
+                  ncol(wide_data)-1,
+                  "UMAPs will be used."))
   }
 
   set.seed(seed)
