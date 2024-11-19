@@ -150,7 +150,7 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_protei
     ggplot2::geom_col() +
     ggplot2::scale_fill_manual(values = c("TRUE" = "#C03830", "FALSE" = "#317EC2"),
                                labels=c("Positive", "Negative")) +
-    ggplot2::facet_wrap( ~ !!rlang::sym("component"), scales = "free_y") +
+    ggplot2::facet_wrap( ~ component, scales = "free_y") +
     tidytext::scale_y_reordered() +
     ggplot2::labs(x = "Absolute Value of Contribution",
                   y = NULL, fill = "Sign") +
