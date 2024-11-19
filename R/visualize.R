@@ -1,3 +1,31 @@
+#' Apply palette to plot
+#'
+#' `apply_palette` applies the color palette to the plot. It checks if the palette is a valid
+#' palette from the Human Protein Atlas (HPA) or a custom palette.
+#'
+#' @param plot The plot to apply the palette.
+#' @param palette The color palette to apply. It can be either a character with the name of the
+#' palette from the HPA or a custom palette (for example `c("red", "blue")`).
+#'
+#' @return The plot with the selected palette.
+#' @keywords internal
+apply_palette <- function(plot, palette) {
+
+  if (!is.null(palette)) {
+    if (is.null(names(palette))) {
+      if (!is.null(get_hpa_palettes()[[palette]])) {
+        plot <- plot + scale_color_hpa(palette)
+      } else {
+        stop("The color palette provided is not valid. Please provide one of the palettes from 'get_hpa_palettes()' or a valid custom palette.")
+      }
+    } else {
+      plot <- plot + ggplot2::scale_color_manual(values = palette)
+    }
+  }
+
+  return(plot)
+}
+
 #' utils::globalVariables(c("Value"))
 #' #' Plot protein boxplots
 #' #'

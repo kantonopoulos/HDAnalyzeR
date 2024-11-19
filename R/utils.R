@@ -1,3 +1,54 @@
+#' Initialize HDAnalyzeR object
+#'
+#' `hd_initialize()` initializes an HDAnalyzeR object with the data, metadata, and other parameters.
+#'
+#' @param dat A tibble containing the omics data.
+#' @param metadata A tibble containing the metadata. Default is NULL.
+#' @param is_wide A logical indicating if the data is in wide format. Default is FALSE.
+#' @param sample_id The name of the column containing the sample IDs. Default is "DAid".
+#' @param var_name The name of the column containing the variable names. Default is "Assay".
+#' @param value_name The name of the column containing the values. Default is "NPX".
+#'
+#' @return An HDAnalyzeR object.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object with long format data
+#' hd_initialize(example_data, example_metadata)
+hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DAid", var_name = "Assay", value_name = "NPX") {
+
+  if (!is.data.frame(dat)) stop("dat must be a data frame.")
+  if (!is.null(metadata) && !is.data.frame(metadata)) stop("metadata must be a data frame.")
+  if (!sample_id %in% colnames(dat)) {
+    stop("Sample ID column must exist in dat.")
+  }
+  if (!is.null(metadata) && !sample_id %in% colnames(metadata)) {
+    stop("Sample ID column must exist in metadata.")
+  }
+
+  if (isFALSE(is_wide)) {
+    if (!var_name %in% colnames(dat)) {
+      stop("Variable name column must exist in dat.")
+    }
+    if (!value_name %in% colnames(dat)) {
+      stop("Value column must exist in dat.")
+    }
+
+    wide_data <- hd_widen_data(dat, exclude = sample_id, names_from = var_name, values_from = value_name)
+  }
+
+  data_object <- list(data = wide_data,
+                      metadata = metadata,
+                      sample_id = sample_id,
+                      var_name = var_name,
+                      value_name = value_name)
+
+  class(data_object) <- "HDAnalyzeR"
+
+  return(data_object)
+}
+
+
 #' Create directory to save results
 #'
 #' `hd_save_path()` creates a directory with in a specified or the current path to save results.
