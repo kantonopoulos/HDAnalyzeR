@@ -6,7 +6,7 @@
 \usage{
 hd_plot_dim(
   dim_object,
-  hd_object,
+  metadata,
   x,
   y,
   color = NULL,
@@ -19,7 +19,7 @@ hd_plot_dim(
 \arguments{
 \item{dim_object}{A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by \code{hd_run_pca()} or \code{hd_run_umap()}.}
 
-\item{hd_object}{A HDAnalyzeR object containing the data and metadata. Created by \code{hd_initialize()}.}
+\item{metadata}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{x}{The name of the column in \code{dim_res} that contains the x-axis values.}
 

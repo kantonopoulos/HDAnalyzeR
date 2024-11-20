@@ -13,7 +13,7 @@ hd_cluster(
 )
 }
 \arguments{
-\item{dat}{The HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{distance_method}{The distance method to use. Default is "euclidean".
 Other options are "maximum", "manhattan", "canberra", "binary" or "minkowski".}

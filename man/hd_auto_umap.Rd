@@ -5,7 +5,7 @@
 \title{Run UMAP analysis and plot the results}
 \usage{
 hd_auto_umap(
-  hd_object,
+  dat,
   by_sample = TRUE,
   plot_x = "UMAP1",
   plot_y = "UMAP2",
@@ -14,7 +14,7 @@ hd_auto_umap(
 )
 }
 \arguments{
-\item{hd_object}{A HDAnalyzeR object containing the data to be used in the UMAP analysis.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
 

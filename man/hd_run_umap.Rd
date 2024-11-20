@@ -4,10 +4,10 @@
 \alias{hd_run_umap}
 \title{Run UMAP analysis}
 \usage{
-hd_run_umap(hd_object, by_sample = TRUE, components = 2, seed = 123)
+hd_run_umap(dat, by_sample = TRUE, components = 2, seed = 123)
 }
 \arguments{
-\item{hd_object}{A HDAnalyzeR object containing the data to be used in the UMAP analysis.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
 

@@ -4,7 +4,7 @@
 #' according to the hierarchical clustering of the rows and columns. This data
 #' can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
 #'
-#' @param dat The HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param distance_method The distance method to use. Default is "euclidean".
 #' Other options are "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param clustering_method The clustering method to use. Default is "ward.D2".

@@ -4,12 +4,12 @@
 \alias{prepare_plot_data}
 \title{Extract information from the HDAnalyzeR and PCA or UMAP object}
 \usage{
-prepare_plot_data(dim_object, hd_object, color, x, y)
+prepare_plot_data(dim_object, metadata, color, x, y)
 }
 \arguments{
 \item{dim_object}{A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by \code{hd_run_pca()} or \code{hd_run_umap()}.}
 
-\item{hd_object}{A HDAnalyzeR object containing the data and metadata. Created by \code{hd_initialize()}.}
+\item{metadata}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{color}{The name of the column that contains the variable to be used to plot the points color.}
 

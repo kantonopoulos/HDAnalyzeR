@@ -4,14 +4,14 @@
 \alias{hd_plot_pca_loadings}
 \title{Plot PCA loadings}
 \usage{
-hd_plot_pca_loadings(pca_object, displayed_pcs = 6, displayed_proteins = 15)
+hd_plot_pca_loadings(pca_object, displayed_pcs = 6, displayed_features = 15)
 }
 \arguments{
 \item{pca_object}{A PCA object containing the PCA loadings. Created by \code{hd_run_pca()}.}
 
 \item{displayed_pcs}{The number of PCs to be displayed. Default is 6.}
 
-\item{displayed_proteins}{The number of proteins to be displayed. Default is 15.}
+\item{displayed_features}{The number of features to be displayed. Default is 15.}
 }
 \value{
 A ggplot object

@@ -5,7 +5,7 @@
 \title{Run PCA analysis and plot the results}
 \usage{
 hd_auto_pca(
-  hd_object,
+  dat,
   components = 10,
   by_sample = TRUE,
   plot_x = "PC1",
@@ -15,7 +15,7 @@ hd_auto_pca(
 )
 }
 \arguments{
-\item{hd_object}{A HDAnalyzeR object containing the data to be used in the PCA analysis.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{components}{The number of PCs to be calculated. Default is 10.}
 

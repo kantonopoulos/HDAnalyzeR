@@ -38,7 +38,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #' to be calculated is defined by the user. The function returns a tibble with the PCA results.
 #'
 #'
-#' @param hd_object A HDAnalyzeR object containing the data to be used in the PCA analysis.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param seed The seed to be used in the PCA analysis. Default is 123.
@@ -55,20 +55,26 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #'
 #' # Run the PCA analysis by feature
 #' hd_run_pca(hd_object, components = 5, by_sample = FALSE, seed = 123)
-hd_run_pca <- function(hd_object,
+hd_run_pca <- function(dat,
                        components = 10,
                        by_sample = TRUE,
                        seed = 123) {
 
-  if (is.null(hd_object$data)) {
-    stop("The 'data' slot of the 'hd_object' object is empty. Please provide the data to run the PCA analysis.")
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
+    var_name <- dat[["var_name"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+    var_name <- "Features"
   }
 
-  wide_data <- hd_object$data
-
   if (isFALSE(by_sample)) {
-    var_name <- rlang::sym(hd_object$var_name)
-    transposed_data <- wide_data |> tibble::column_to_rownames(var = hd_object$sample_id)
+    transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
     wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
@@ -102,7 +108,7 @@ hd_run_pca <- function(hd_object,
 
   pca_res <-  recipes::juice(pca_prep)
   # Fix PC names if number of PCs is higher than 10
-  pca_res <- fix_components_names(pca_res, components, by_sample, hd_object$sample_id, hd_object$var_name, type = "pca")
+  pca_res <- fix_components_names(pca_res, components, by_sample, sample_id, var_name, type = "pca")
 
   pca_object <- list("pca_res" = pca_res,
                      "pca_loadings" = pca_loadings,
@@ -122,7 +128,7 @@ hd_run_pca <- function(hd_object,
 #'
 #' @param pca_object A PCA object containing the PCA loadings. Created by `hd_run_pca()`.
 #' @param displayed_pcs The number of PCs to be displayed. Default is 6.
-#' @param displayed_proteins The number of proteins to be displayed. Default is 15.
+#' @param displayed_features The number of features to be displayed. Default is 15.
 #'
 #' @return A ggplot object
 #' @export
@@ -135,12 +141,12 @@ hd_run_pca <- function(hd_object,
 #' pca_object <- hd_run_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
 #'   hd_plot_pca_loadings()
 #' pca_object$pca_loadings_plot
-hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_proteins = 15) {
+hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_features = 15) {
 
   loadings_plot <- pca_object[["pca_loadings"]] |>
     dplyr::filter(!!rlang::sym("component") %in% paste0("PC", 1:displayed_pcs)) |>
     dplyr::group_by(!!rlang::sym("component")) |>
-    dplyr::top_n(displayed_proteins, abs(!!rlang::sym("value"))) |>
+    dplyr::top_n(displayed_features, abs(!!rlang::sym("value"))) |>
     dplyr::ungroup() |>
     dplyr::mutate(terms = tidytext::reorder_within(!!rlang::sym("terms"),
                                                    abs(!!rlang::sym("value")),
@@ -214,14 +220,14 @@ hd_plot_pca_variance <- function(pca_object) {
 #' `prepare_plot_data()` extracts the PCA or UMAP results and metadata information from the respective objects.
 #'
 #' @param dim_object A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by `hd_run_pca()` or `hd_run_umap()`.
-#' @param hd_object A HDAnalyzeR object containing the data and metadata. Created by `hd_initialize()`.
+#' @param metadata An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param color The name of the column that contains the variable to be used to plot the points color.
 #' @param x The name of the column in `dim_object` that contains the x-axis values.
 #' @param y The name of the column in `dim_object` that contains the y-axis values.
 #'
 #' @return A tibble with the PCA or UMAP results and metadata information if available.
 #' @keywords internal
-prepare_plot_data <- function(dim_object, hd_object, color, x, y) {
+prepare_plot_data <- function(dim_object, metadata, color, x, y) {
   # Extract PCA or UMAP results
   if (inherits(dim_object, "hd_pca")) {
     dim_res <- dim_object[["pca_res"]]
@@ -231,19 +237,28 @@ prepare_plot_data <- function(dim_object, hd_object, color, x, y) {
   by_sample <- dim_object[["by_sample"]]
 
   # Handle metadata and color argument
-  if (!is.null(color)) {
-    metadata <- hd_object[["metadata"]]
-    if (is.null(metadata)) {
-      stop("The 'metadata' slot of the 'hd_object' object is empty. Please provide the metadata to plot the points color.")
+  if (inherits(metadata, "HDAnalyzeR")) {
+    sample_id <- metadata[["sample_id"]]
+    metadata <- metadata[["metadata"]]
+    if (!is.null(color)) {
+      if (is.null(metadata)) {
+        stop("The 'metadata' slot of the HDAnalyzeR object is empty. Please provide the metadata to plot the points color.")
+      }
     }
-    if (!color %in% colnames(metadata) && !color %in% colnames(dim_res)) {
-      stop("The column name provided in 'color' does not exist.")
-    }
-    if (isTRUE(by_sample)) {
+  } else {
+    sample_id <- colnames(metadata)[1]
+  }
+
+  if (!is.null(color) && !color %in% colnames(metadata) && !color %in% colnames(dim_res)) {
+    stop("The column name provided in 'color' does not exist.")
+  }
+
+  if (isTRUE(by_sample)) {
+    if (!is.null(metadata)) {
       dim_res <- dim_res |>
         dplyr::left_join(metadata |>
-                           dplyr::select(dplyr::any_of(c(hd_object[["sample_id"]], color))),
-                         by = hd_object[["sample_id"]])
+                           dplyr::select(dplyr::any_of(c(sample_id, color))),
+                         by = sample_id)
     }
   }
 
@@ -338,7 +353,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.
 #'
 #' @param dim_object A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by `hd_run_pca()` or `hd_run_umap()`.
-#' @param hd_object A HDAnalyzeR object containing the data and metadata. Created by `hd_initialize()`.
+#' @param metadata An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param x The name of the column in `dim_res` that contains the x-axis values.
 #' @param y The name of the column in `dim_res` that contains the y-axis values.
 #' @param color The name of the column in `dim_res` that contains the variable to be used to plot the points color.
@@ -358,7 +373,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' pca_object <- hd_run_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
 #'   hd_plot_dim(hd_object, x = "PC1", y = "PC2", color = "Disease", palette = "cancers12")
 hd_plot_dim <- function(dim_object,
-                        hd_object,
+                        metadata,
                         x,
                         y,
                         color = NULL,
@@ -368,7 +383,7 @@ hd_plot_dim <- function(dim_object,
                         axis_variance = TRUE) {
 
   # Prepare data for plotting
-  dim_res <- prepare_plot_data(dim_object, hd_object, color, x, y)
+  dim_res <- prepare_plot_data(dim_object, metadata, color, x, y)
 
   # Create basic plot with points
   dim_plot <- plot_points(dim_res, x, y, color)
@@ -413,7 +428,7 @@ hd_plot_dim <- function(dim_object,
 #'
 #' `hd_auto_pca()` runs a PCA analysis on the provided data and plots the PCA results.
 #'
-#' @param hd_object A HDAnalyzeR object containing the data to be used in the PCA analysis.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
@@ -430,12 +445,12 @@ hd_plot_dim <- function(dim_object,
 #'
 #' # Run the PCA analysis
 #' hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_pca <- function(hd_object, components = 10, by_sample = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
+hd_auto_pca <- function(dat, components = 10, by_sample = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
 
-  pca_object <- hd_run_pca(hd_object, components = components, by_sample = by_sample) |>
-    hd_plot_pca_loadings(displayed_pcs = 6, displayed_proteins = 15) |>
+  pca_object <- hd_run_pca(dat, components = components, by_sample = by_sample) |>
+    hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 15) |>
     hd_plot_pca_variance() |>
-    hd_plot_dim(hd_object, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+    hd_plot_dim(dat, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
 
   return(pca_object)
 }
@@ -448,7 +463,7 @@ hd_auto_pca <- function(hd_object, components = 10, by_sample = TRUE, plot_x = "
 #' to be calculated is defined by the user. The function returns a tibble with the UMAP results.
 #'
 #'
-#' @param hd_object A HDAnalyzeR object containing the data to be used in the UMAP analysis.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param components The number of components to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param seed The seed to be used in the UMAP analysis. Default is 123.
@@ -465,7 +480,7 @@ hd_auto_pca <- function(hd_object, components = 10, by_sample = TRUE, plot_x = "
 #'
 #' # Run the PCA analysis by feature
 #' hd_run_umap(hd_object, components = 5, by_sample = FALSE, seed = 123)
-hd_run_umap <- function(hd_object,
+hd_run_umap <- function(dat,
                         by_sample = TRUE,
                         components = 2,
                         seed = 123) {
@@ -475,15 +490,22 @@ hd_run_umap <- function(hd_object,
     stop("The 'umap' package is required but not installed. Please install it using install.packages('umap').")
   }
 
-  if (is.null(hd_object$data)) {
-    stop("The 'data' slot of the 'hd_object' object is empty. Please provide the data to run the PCA analysis.")
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
+    var_name <- dat[["var_name"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+    var_name <- "Features"
   }
 
-  wide_data <- hd_object$data
-
   if (isFALSE(by_sample)) {
-    var_name <- rlang::sym(hd_object$var_name)
-    transposed_data <- wide_data |> tibble::column_to_rownames(var = hd_object$sample_id)
+    var_name <- rlang::sym(var_name)
+    transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
     wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
@@ -508,7 +530,7 @@ hd_run_umap <- function(hd_object,
   umap_res <-  recipes::juice(umap_prep)
 
   # Fix UMAPs names if number of UMAPs is higher than 10
-  umap_res <- fix_components_names(umap_res, components, by_sample, hd_object$sample_id, hd_object$var_name, type = "umap")
+  umap_res <- fix_components_names(umap_res, components, by_sample, sample_id, var_name, type = "umap")
 
   umap_object <- list("umap_res" = umap_res, "by_sample" = by_sample)
   class(umap_object) <- "hd_umap"
@@ -521,7 +543,7 @@ hd_run_umap <- function(hd_object,
 #'
 #' `hd_auto_umap()` runs a UMAP analysis on the provided data and plots the UMAP results.
 #'
-#' @param hd_object A HDAnalyzeR object containing the data to be used in the UMAP analysis.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
 #' @param plot_y The name of the column in `dim_res` that contains the y-axis values. Default is "PC2".
@@ -537,10 +559,10 @@ hd_run_umap <- function(hd_object,
 #'
 #' # Run the UMAP analysis
 #' hd_auto_umap(hd_object, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_umap <- function(hd_object, by_sample = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
+hd_auto_umap <- function(dat, by_sample = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
 
-  umap_object <- hd_run_umap(hd_object, by_sample = by_sample) |>
-    hd_plot_dim(hd_object, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+  umap_object <- hd_run_umap(dat, by_sample = by_sample) |>
+    hd_plot_dim(dat, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
 
   return(umap_object)
 }

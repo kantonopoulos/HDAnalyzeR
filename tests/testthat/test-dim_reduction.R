@@ -137,11 +137,11 @@ test_that("hd_run_pca warns when components exceed available features", {
 test_that("hd_run_pca stops if hd_object$data is NULL", {
   # Create an invalid hd_object with NULL data
   hd_obj <- list(data = NULL, metadata = NULL)
-
+  class(hd_obj) <- "HDAnalyzeR"
   # Run PCA and expect an error
   expect_error(
     hd_run_pca(hd_obj),
-    "The 'data' slot of the 'hd_object' object is empty."
+    "The 'data' slot of the HDAnalyzeR object is empty."
   )
 })
 
@@ -184,7 +184,7 @@ test_that("hd_plot_pca_loadings generates loadings plot", {
   class(pca_object) <- "hd_pca"
 
   # Run the function
-  result <- hd_plot_pca_loadings(pca_object, displayed_pcs = 3, displayed_proteins = 10)
+  result <- hd_plot_pca_loadings(pca_object, displayed_pcs = 3, displayed_features = 10)
 
   # Check if pca_loadings_plot exists in the output
   expect_true("pca_loadings_plot" %in% names(result))
@@ -197,9 +197,9 @@ test_that("hd_plot_pca_loadings generates loadings plot", {
   unique_pcs <- unique(plot_data$PANEL)
   expect_equal(length(unique_pcs), 3) # 3 PCs as specified by displayed_pcs
 
-  # Check that the number of terms does not exceed displayed_proteins per PC
+  # Check that the number of terms does not exceed displayed_features per PC
   term_counts <- plot_data |> dplyr::count(PANEL)
-  expect_true(all(term_counts$n <= 10)) # Max 10 proteins as specified by displayed_proteins
+  expect_true(all(term_counts$n <= 10)) # Max 10 proteins as specified by displayed_features
 })
 
 
@@ -347,7 +347,7 @@ test_that("hd_plot_dim works correctly", {
     sample_id = "sample_id",
     var_name = "Group"
   )
-
+  class(hd_object) <- "HDAnalyzeR"
   pca_res <- tibble::tibble(
     sample_id = c("Sample1", "Sample2", "Sample3"),
     PC1 = c(1.5, -0.5, 0.2),
@@ -421,7 +421,7 @@ test_that("hd_auto_pca works correctly", {
     sample_id = "sample_id",
     var_name = "Group"
   )
-
+  class(hd_object) <- "HDAnalyzeR"
   # Test case 1: Basic PCA with default settings
   pca_result <- hd_auto_pca(hd_object, components = 2)
   expect_s3_class(pca_result, "hd_pca")
@@ -451,7 +451,6 @@ test_that("hd_run_umap performs UMAP correctly with by_sample = TRUE", {
     DAid = paste0("S", 1:10),
     Group = rep(c("A", "B"), 5)
   )
-
   # Initialize hd_object
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
@@ -517,7 +516,7 @@ test_that("hd_run_pca produces consistent results for fixed seed", {
 
 
 # hd_auto_umap -----------------------------------------------------------------
-test_that("hd_auto_pca works correctly", {
+test_that("hd_auto_umap works correctly", {
   # Mock data for hd_object
   hd_object <- list(
     data = tibble::tibble(
@@ -533,7 +532,7 @@ test_that("hd_auto_pca works correctly", {
     sample_id = "sample_id",
     var_name = "Group"
   )
-
+  class(hd_object) <- "HDAnalyzeR"
   # Test case 1: Basic UMAP with default settings
   umap_result <- hd_auto_umap(hd_object)
   expect_s3_class(umap_result, "hd_umap")

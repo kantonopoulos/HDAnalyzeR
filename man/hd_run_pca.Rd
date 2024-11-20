@@ -4,10 +4,10 @@
 \alias{hd_run_pca}
 \title{Run PCA analysis}
 \usage{
-hd_run_pca(hd_object, components = 10, by_sample = TRUE, seed = 123)
+hd_run_pca(dat, components = 10, by_sample = TRUE, seed = 123)
 }
 \arguments{
-\item{hd_object}{A HDAnalyzeR object containing the data to be used in the PCA analysis.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
 
 \item{components}{The number of PCs to be calculated. Default is 10.}
 
