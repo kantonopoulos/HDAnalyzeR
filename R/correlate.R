@@ -4,8 +4,8 @@
 #'
 #' @param x A numeric vector, matrix or tibble.
 #' @param y A numeric vector, matrix or tibble with compatible dimensions with `x`. Default is NULL.
-#' @param use  A character string. The method to use for computing correlations. Default is "pairwise.complete.obs".
-#' @param method A character string. The correlation method to use. Default is "pearson".
+#' @param use  A character string. The method to use for computing correlations. Default is "pairwise.complete.obs". Other options are "everything", "all.obs", "complete.obs", or "na.or.complete".
+#' @param method A character string. The correlation method to use. Default is "pearson". Other options are "kendall" or "spearman".
 #'
 #' @return A matrix of protein-protein correlations.
 #' @export
@@ -42,13 +42,20 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #'
 #' @param x A numeric vector, matrix or data frame.
 #' @param y A numeric vector, matrix or data frame with compatible dimensions with `x`. Default is NULL.
-#' @param use A character string. The method to use for computing correlations. Default is "pairwise.complete.obs".
-#' @param method A character string. The correlation method to use. Default is "pearson".
+#' @param use A character string. The method to use for computing correlations.
+#' Default is "pairwise.complete.obs". Other options are "everything", "all.obs", "
+#' complete.obs", or "na.or.complete".
+#' @param method A character string. The correlation method to use.
+#' Default is "pearson". Other options are "kendall" or "spearman".
 #' @param threshold The reporting protein-protein correlation threshold. Default is 0.8.
 #' @param cluster_rows Whether to cluster the rows. Default is TRUE.
 #' @param cluster_cols Whether to cluster the columns. Default is TRUE.
 #'
-#' @return A list containing the correlation matrix, the filtered pairs and their correlation values, and the heatmap
+#' @return A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap
+#' @details
+#' You can read more about the method for computing covariances in the presence of missing values
+#' and the coefficient that is calculated in the documentation of the `cor()` function in the `stats` package.
+#'
 #' @export
 #'
 #' @examples
@@ -105,5 +112,9 @@ hd_plot_cor_heatmap <- function(x,
                               treeheight_col = 20,
                               silent = TRUE))
 
-  return(list("cor_matrix" = cor_matrix, "cor_results" = cor_results, "cor_heatmap" = cor_plot))
+  corr_object <- list("cor_matrix" = cor_matrix,
+                      "cor_results" = cor_results,
+                      "cor_heatmap" = cor_plot)
+  class(corr_object) <- "hd_corr"
+  return(corr_object)
 }

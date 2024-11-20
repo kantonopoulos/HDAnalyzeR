@@ -11,9 +11,9 @@ hd_correlate(x, y = NULL, use = "pairwise.complete.obs", method = "pearson")
 
 \item{y}{A numeric vector, matrix or tibble with compatible dimensions with \code{x}. Default is NULL.}
 
-\item{use}{A character string. The method to use for computing correlations. Default is "pairwise.complete.obs".}
+\item{use}{A character string. The method to use for computing correlations. Default is "pairwise.complete.obs". Other options are "everything", "all.obs", "complete.obs", or "na.or.complete".}
 
-\item{method}{A character string. The correlation method to use. Default is "pearson".}
+\item{method}{A character string. The correlation method to use. Default is "pearson". Other options are "kendall" or "spearman".}
 }
 \value{
 A matrix of protein-protein correlations.

@@ -1,77 +1,102 @@
-#' utils::globalVariables(c("v1", "v2", "val", "x", "y"))
-#' #' Cluster data
-#' #'
-#' #' `cluster_data()` takes a dataset and returns the same dataset ordered
-#' #' according to the hierarchical clustering of the rows and columns. This data
-#' #' can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
-#' #'
-#' #' @param df The dataset to cluster.
-#' #' @param distance_method The distance method to use. Default is "euclidean".
-#' #' @param clustering_method The clustering method to use. Default is "ward.D2".
-#' #' @param cluster_rows Whether to cluster rows. Default is TRUE.
-#' #' @param cluster_cols Whether to cluster columns. Default is TRUE.
-#' #' @param wide Whether the data is wide or long. Default is TRUE.
-#' #'
-#' #' @return (list). A list with the following elements:
-#' #'  - clustered_data: A dataset ordered according to the hierarchical clustering of the rows and columns.
-#' #'  - hc_rows: The hierarchical clustering object for rows.
-#' #'  - hc_cols: The hierarchical clustering object for columns.
-#' #' @export
-#' #'
-#' #' @examples
-#' #' # Original data
-#' #' clean_df <- example_data |> dplyr::select(DAid, Assay, NPX)
-#' #' clean_df
-#' #'
-#' #' # Clustered data
-#' #' cluster_data(clean_df, wide = FALSE)
-#' cluster_data <- function(df,
-#'                          distance_method = "euclidean",
-#'                          clustering_method = "ward.D2",
-#'                          cluster_rows = TRUE,
-#'                          cluster_cols = TRUE,
-#'                          wide = TRUE) {
-#'   if (isFALSE(wide)) {
-#'     wide_data <- widen_data(df) |>
-#'         tibble::column_to_rownames(var = names(df)[1])
-#'   } else {
-#'     wide_data <- df |>
-#'       tibble::column_to_rownames(var = names(df)[1])
-#'   }
+#' Cluster data
 #'
-#'     order_row <- rownames(wide_data)
-#'     order_col <- colnames(wide_data)
+#' `hd_cluster()` takes a dataset and returns the same dataset ordered
+#' according to the hierarchical clustering of the rows and columns. This data
+#' can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
 #'
-#'     if(isTRUE(cluster_rows)) {
-#'       hc_rows <- wide_data |>
-#'         stats::dist(method = distance_method) |>
-#'         stats::hclust(method = clustering_method)
-#'       order1 <- hc_rows$labels[hc_rows$order]
-#'     } else {
-#'       hc_rows <- NULL
-#'       order1 <- order_row
-#'     }
+#' @param dat The HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param distance_method The distance method to use. Default is "euclidean".
+#' Other options are "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param clustering_method The clustering method to use. Default is "ward.D2".
+#' Other options are "ward.D", "single", "complete", "average" (= UPGMA), "mcquitty" (= WPGMA),
+#' "median" (= WPGMC) or "centroid" (= UPGMC)
+#' @param cluster_rows Whether to cluster rows. Default is TRUE.
+#' @param cluster_cols Whether to cluster columns. Default is TRUE.
 #'
-#'     if(isTRUE(cluster_cols)) {
-#'       hc_cols <- wide_data |>
-#'         t() |>
-#'         stats::dist(method = distance_method) |>
-#'         stats::hclust(method = clustering_method)
-#'       order2 <- hc_cols$labels[hc_cols$order]
-#'     } else {
-#'       hc_cols <- NULL
-#'       order2 <- order_col
-#'     }
+#' @return A list with the dataset ordered according to the clustering of the rows and columns and the hierarchical clustering object for rows and columns.
+#' @details
+#' You can read more about the distance and clustering methods in the documentation
+#' of the `dist()` and `hclust()` functions in the `stats` package.
 #'
-#'     clustering_results <- wide_data |>
-#'       tibble::rownames_to_column() |>
-#'       dplyr::rename(v1 = 1) |>
-#'       tidyr::gather(v2, val, -1) |>
-#'       dplyr::rename(x = v1, y = v2, value = val) |>
-#'       dplyr::mutate(x = factor(x, levels = order1),
-#'                     y = factor(y, levels = order2)) |>
-#'       dplyr::arrange(x, y)
+#' @export
 #'
-#'     clustered_data <- tibble::as_tibble(clustering_results)
-#'     return(list("clustered_data" = clustered_data, "hc_rows" = hc_rows, "hc_cols" = hc_cols))
-#' }
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Clustered data
+#' hd_cluster(hd_object)
+hd_cluster <- function(dat,
+                       distance_method = "euclidean",
+                       clustering_method = "ward.D2",
+                       cluster_rows = TRUE,
+                       cluster_cols = TRUE) {
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The HDAnalyzeR object does not contain any data.")
+    }
+    sample_id <- dat[["sample_id"]]
+    wide_data <- dat[["data"]] |> tibble::column_to_rownames(var = dat[["sample_id"]])
+  } else {
+    sample_id <- colnames(dat)[1]
+    wide_data <- dat |> tibble::column_to_rownames(var = names(dat)[1])
+  }
+
+  order_row <- rownames(wide_data)
+  order_col <- colnames(wide_data)
+
+  if(isTRUE(cluster_rows)) {
+    hc_rows <- wide_data |>
+      stats::dist(method = distance_method) |>
+      stats::hclust(method = clustering_method)
+    order1 <- hc_rows$labels[hc_rows$order]
+  } else {
+    hc_rows <- NULL
+    order1 <- order_row
+  }
+
+  if(isTRUE(cluster_cols)) {
+    hc_cols <- wide_data |>
+      t() |>
+      stats::dist(method = distance_method) |>
+      stats::hclust(method = clustering_method)
+    order2 <- hc_cols$labels[hc_cols$order]
+  } else {
+    hc_cols <- NULL
+    order2 <- order_col
+  }
+
+  clustering_results <- wide_data |>
+    tibble::rownames_to_column() |>
+    dplyr::rename(v1 = 1) |>
+    tidyr::gather(!!rlang::sym("v2"), !!rlang::sym("val"), -1) |>
+    dplyr::rename(x = !!rlang::sym("v1"),
+                  y = !!rlang::sym("v2"),
+                  value = !!rlang::sym("val"))
+
+  if (!is.null(order1)){
+    clustering_results <- clustering_results |>
+      dplyr::mutate(x = factor(!!rlang::sym("x"), levels = order1))
+  }
+
+  if (!is.null(order2)){
+    clustering_results <- clustering_results |>
+      dplyr::mutate(y = factor(!!rlang::sym("y"), levels = order2))
+  }
+
+  clustering_results <- clustering_results |>
+    dplyr::arrange(!!rlang::sym("x"), !!rlang::sym("y")) |>
+    tidyr::pivot_wider(names_from = !!rlang::sym("y"),
+                       values_from = !!rlang::sym("value")) |>
+    dplyr::rename(!!rlang::sym(sample_id) := !!rlang::sym("x"))
+
+  clustered_data <- tibble::as_tibble(clustering_results)
+
+  cluster_object <- list("cluster_res" = clustered_data,
+                         "cluster_rows" = hc_rows,
+                         "cluster_cols" = hc_cols)
+  class(cluster_object) <- "hd_cluster"
+
+  return(cluster_object)
+}
