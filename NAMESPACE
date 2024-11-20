@@ -2,10 +2,12 @@
 
 export(hd_auto_pca)
 export(hd_auto_umap)
+export(hd_correlate)
 export(hd_detect_vartype)
 export(hd_import_data)
 export(hd_initialize)
 export(hd_long_data)
+export(hd_plot_cor_heatmap)
 export(hd_plot_dim)
 export(hd_plot_pca_loadings)
 export(hd_plot_pca_variance)

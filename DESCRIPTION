@@ -28,6 +28,7 @@ Imports:
     embed,
     forcats,
     ggplot2,
+    ggplotify,
     ggrepel,
     ggridges,
     limma,
