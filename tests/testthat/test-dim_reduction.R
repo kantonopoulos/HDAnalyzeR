@@ -435,6 +435,18 @@ test_that("hd_auto_pca works correctly", {
   expect_s3_class(pca_result$pca_loadings, "tbl_df")
   expect_s3_class(pca_result$pca_variance, "tbl_df")
   expect_s3_class(pca_result$pca_plot, "ggplot")
+
+  # Edge Case: Non-HDAnalyzeR object input
+  pca_result <- hd_auto_pca(hd_object$data, hd_object$metadata, components = 2)
+  expect_s3_class(pca_result, "hd_pca")
+  expect_true("pca_res" %in% names(pca_result))
+  expect_true("pca_loadings" %in% names(pca_result))
+  expect_true("pca_variance" %in% names(pca_result))
+  expect_true("pca_plot" %in% names(pca_result))
+  expect_s3_class(pca_result$pca_res, "tbl_df")
+  expect_s3_class(pca_result$pca_loadings, "tbl_df")
+  expect_s3_class(pca_result$pca_variance, "tbl_df")
+  expect_s3_class(pca_result$pca_plot, "ggplot")
 })
 
 
@@ -533,6 +545,7 @@ test_that("hd_auto_umap works correctly", {
     var_name = "Group"
   )
   class(hd_object) <- "HDAnalyzeR"
+
   # Test case 1: Basic UMAP with default settings
   umap_result <- hd_auto_umap(hd_object)
   expect_s3_class(umap_result, "hd_umap")
@@ -540,6 +553,14 @@ test_that("hd_auto_umap works correctly", {
   expect_true("umap_plot" %in% names(umap_result))
 
   # Test case 2: Verify the UMAP result structure
+  expect_s3_class(umap_result$umap_res, "tbl_df")
+  expect_s3_class(umap_result$umap_plot, "ggplot")
+
+  # Edge Case: Non-HDAnalyzeR object input
+  umap_result <- hd_auto_umap(hd_object$data, hd_object$metadata)
+  expect_s3_class(umap_result, "hd_umap")
+  expect_true("umap_res" %in% names(umap_result))
+  expect_true("umap_plot" %in% names(umap_result))
   expect_s3_class(umap_result$umap_res, "tbl_df")
   expect_s3_class(umap_result$umap_plot, "ggplot")
 })
