@@ -4,13 +4,15 @@
 \alias{apply_palette}
 \title{Apply palette to plot}
 \usage{
-apply_palette(plot, palette)
+apply_palette(plot, palette, type = "color")
 }
 \arguments{
 \item{plot}{The plot to apply the palette.}
 
 \item{palette}{The color palette to apply. It can be either a character with the name of the
 palette from the HPA or a custom palette (for example \code{c("red", "blue")}).}
+
+\item{type}{The type of palette to apply. Default is "color". Other option is "fill".}
 }
 \value{
 The plot with the selected palette.

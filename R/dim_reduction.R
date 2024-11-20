@@ -154,7 +154,7 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_protei
     tidytext::scale_y_reordered() +
     ggplot2::labs(x = "Absolute Value of Contribution",
                   y = NULL, fill = "Sign") +
-    theme_hpa()
+    theme_hd()
 
   pca_object[["pca_loadings_plot"]] <- loadings_plot
 
@@ -200,7 +200,7 @@ hd_plot_pca_variance <- function(pca_object) {
     ggplot2::labs(x = "Components", y = "% Explained Variance") +
     ggplot2::scale_fill_manual(name = "", values = c("Individual Variance" = "#317EC2")) +
     ggplot2::scale_color_manual(name = "", values = c("Cumulative Variance" = "#C03830")) +
-    theme_hpa() +
+    theme_hd() +
     ggplot2::theme(legend.position = "top")
 
   pca_object[["pca_variance_plot"]] <- variance_plot
@@ -269,12 +269,12 @@ plot_points <- function(dim_res, x, y, color = NULL) {
       ggplot2::ggplot(ggplot2::aes(!!rlang::sym(x), !!rlang::sym(y))) +
       ggplot2::geom_point(ggplot2::aes(color = !!rlang::sym(color)), alpha = 0.7, size = 2) +
       ggplot2::labs(Color = color) +
-      theme_hpa()
+      theme_hd()
   } else {
     dim_plot <- dim_res |>
       ggplot2::ggplot(ggplot2::aes(!!rlang::sym(x), !!rlang::sym(y))) +
       ggplot2::geom_point(alpha = 0.7, size = 2) +
-      theme_hpa()
+      theme_hd()
   }
 
   return(dim_plot)
@@ -396,7 +396,7 @@ hd_plot_dim <- function(dim_object,
   }
 
   # Apply color palette if provided
-  dim_plot <- apply_palette(dim_plot, palette)
+  dim_plot <- apply_palette(dim_plot, palette, type = "color")
 
   # Save plot in the appropriate object slot
   if (inherits(dim_object, "hd_pca")) {

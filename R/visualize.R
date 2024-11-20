@@ -6,20 +6,35 @@
 #' @param plot The plot to apply the palette.
 #' @param palette The color palette to apply. It can be either a character with the name of the
 #' palette from the HPA or a custom palette (for example `c("red", "blue")`).
+#' @param type The type of palette to apply. Default is "color". Other option is "fill".
 #'
 #' @return The plot with the selected palette.
 #' @keywords internal
-apply_palette <- function(plot, palette) {
+apply_palette <- function(plot, palette, type = "color") {
 
-  if (!is.null(palette)) {
-    if (is.null(names(palette))) {
-      if (!is.null(get_hpa_palettes()[[palette]])) {
-        plot <- plot + scale_color_hpa(palette)
+  if (type == "color") {
+    if (!is.null(palette)) {
+      if (is.null(names(palette))) {
+        if (!is.null(hd_palettes()[[palette]])) {
+          plot <- plot + scale_color_hd(palette)
+        } else {
+          stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
+        }
       } else {
-        stop("The color palette provided is not valid. Please provide one of the palettes from 'get_hpa_palettes()' or a valid custom palette.")
+        plot <- plot + ggplot2::scale_color_manual(values = palette)
       }
-    } else {
-      plot <- plot + ggplot2::scale_color_manual(values = palette)
+    }
+  } else {
+    if (!is.null(palette)) {
+      if (is.null(names(palette))) {
+        if (!is.null(hd_palettes()[[palette]])) {
+          plot <- plot + scale_fill_hd(palette)
+        } else {
+          stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
+        }
+      } else {
+        plot <- plot + ggplot2::scale_fill_manual(values = palette)
+      }
     }
   }
 

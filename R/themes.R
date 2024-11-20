@@ -2,7 +2,7 @@
 #'
 #' `theme_hpa()` creates a theme for ggplot2 plots that is used by the Human Protein Atlas (HPA) project.
 #'
-#' @param angled If TRUE, the x-axis text is angled at 90 degrees. Default is FALSE.
+#' @param angled The angle of the x-axis text. Default is 0.
 #' @param axis_x If FALSE, the x-axis is removed. Default is TRUE.
 #' @param axis_y If FALSE, the y-axis is removed. Default is TRUE.
 #' @param facet_title If FALSE, the facet title is removed. Default is TRUE.
@@ -18,11 +18,8 @@
 #' plot
 #'
 #' # Apply the HPA theme
-#' plot + theme_hpa()
-theme_hpa <- function(angled = FALSE,
-                      axis_x = TRUE,
-                      axis_y = TRUE,
-                      facet_title = TRUE) {
+#' plot + theme_hd()
+theme_hd <- function(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRUE) {
 
     t <- ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
                panel.grid.minor = ggplot2::element_blank(),
@@ -47,11 +44,8 @@ theme_hpa <- function(angled = FALSE,
                legend.title = ggplot2::element_text(size = ggplot2::rel(1)),
                plot.margin = ggplot2::unit(c(10, 5, 5, 5), "mm"),
                strip.background = ggplot2::element_rect(colour = "grey90", fill = "grey90"),
-               strip.text = ggplot2::element_text(face = "bold"))
-
-    if (angled) {
-      t <- t + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1))
-    }
+               strip.text = ggplot2::element_text(face = "bold")) +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = angled, vjust = 0.5, hjust = 1))
 
     if (axis_x == F) {
       t <- t + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
