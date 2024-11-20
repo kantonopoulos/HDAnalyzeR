@@ -307,3 +307,59 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
   }
 
 }
+
+
+#' Bin columns
+#'
+#' `hd_bin_columns()` bins continuous columns and labels them with ranges.
+#'
+#' @param dat The data to bin.
+#' @param column_types A vector containing the type of each column in the dataframe.
+#' @param bins The number of bins to create. Default is 5.
+#' @param round_digits The number of digits to round the bin ranges to. Default is 0.
+#'
+#' @return The data with binned continuous columns.
+#' @export
+#'
+#' @examples
+#' # Example dataframe
+#' test_data <- data.frame(
+#'   age = c(25, 35, 45, 55, 65),
+#'   BMI = c(25, 35, 30, 32, 28),
+#'   sex = c("M", "F", "M", "F", "M")
+#' )
+#'
+#' column_types <- c("continuous", "continuous", "categorical")
+#' hd_bin_columns(test_data, column_types, bins = 3)
+hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
+  # Ensure inputs are valid
+  if (!is.data.frame(dat)) stop("data must be a dataframe.")
+  if (length(column_types) != ncol(dat)) stop("column_types length must match the number of columns in data.")
+  if (!all(column_types %in% c("categorical", "continuous"))) {
+    stop("column_types must contain only 'categorical' or 'continuous'.")
+  }
+
+  # Create a copy of the data to modify
+  binned_data <- dat
+
+  for (i in seq_along(column_types)) {
+    if (column_types[i] == "continuous") {
+      # Bin continuous columns and label with ranges
+      breaks <- seq(
+        from = min(binned_data[[i]], na.rm = TRUE),
+        to = max(binned_data[[i]], na.rm = TRUE),
+        length.out = bins + 1
+      )
+      binned_data[[i]] <- cut(
+        binned_data[[i]],
+        breaks = breaks,
+        include.lowest = TRUE,
+        labels = paste0(utils::head(round(breaks, round_digits), -1),
+                        "-",
+                        utils::tail(round(breaks, round_digits), -1))
+      )
+    }
+  }
+
+  return(binned_data)
+}

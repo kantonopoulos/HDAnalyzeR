@@ -54,7 +54,7 @@ remove_batch_effects <- function(wide_data,
 #' `remove_batch_effects()`, that utilizes limma package. For scaling, it uses the `scale()`
 #' from base R.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param metadata A dataset containing the metadata information. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param center A logical value indicating whether to center the data. Default is TRUE.
 #' @param scale A logical value indicating whether to scale the data. Default is TRUE.

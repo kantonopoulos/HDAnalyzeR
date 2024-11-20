@@ -14,7 +14,7 @@ normalize_data(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
 
 \item{metadata}{A dataset containing the metadata information. If a HDAnalyzeR object is provided, this parameter is not needed.}
 

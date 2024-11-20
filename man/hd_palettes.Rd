@@ -12,4 +12,6 @@ List of HPA color palettes.
 \description{
 \code{hd_palettes()} returns a list of color palettes used by the Human Protein Atlas (HPA) project.
 }
-\keyword{internal}
+\examples{
+hd_palettes()
+}

@@ -38,7 +38,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #' to be calculated is defined by the user. The function returns a tibble with the PCA results.
 #'
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param seed The seed to be used in the PCA analysis. Default is 123.
@@ -220,7 +220,7 @@ hd_plot_pca_variance <- function(pca_object) {
 #' `prepare_plot_data()` extracts the PCA or UMAP results and metadata information from the respective objects.
 #'
 #' @param dim_object A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by `hd_run_pca()` or `hd_run_umap()`.
-#' @param metadata An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param metadata An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param color The name of the column that contains the variable to be used to plot the points color.
 #' @param x The name of the column in `dim_object` that contains the x-axis values.
 #' @param y The name of the column in `dim_object` that contains the y-axis values.
@@ -353,7 +353,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.
 #'
 #' @param dim_object A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by `hd_run_pca()` or `hd_run_umap()`.
-#' @param metadata An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param metadata An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param x The name of the column in `dim_res` that contains the x-axis values.
 #' @param y The name of the column in `dim_res` that contains the y-axis values.
 #' @param color The name of the column in `dim_res` that contains the variable to be used to plot the points color.
@@ -428,7 +428,7 @@ hd_plot_dim <- function(dim_object,
 #'
 #' `hd_auto_pca()` runs a PCA analysis on the provided data and plots the PCA results.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
@@ -470,7 +470,7 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #' to be calculated is defined by the user. The function returns a tibble with the UMAP results.
 #'
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param components The number of components to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param seed The seed to be used in the UMAP analysis. Default is 123.
@@ -550,7 +550,7 @@ hd_run_umap <- function(dat,
 #'
 #' `hd_auto_umap()` runs a UMAP analysis on the provided data and plots the UMAP results.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".

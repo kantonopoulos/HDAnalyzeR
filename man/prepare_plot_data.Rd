@@ -9,7 +9,7 @@ prepare_plot_data(dim_object, metadata, color, x, y)
 \arguments{
 \item{dim_object}{A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by \code{hd_run_pca()} or \code{hd_run_umap()}.}
 
-\item{metadata}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
+\item{metadata}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{color}{The name of the column that contains the variable to be used to plot the points color.}
 
