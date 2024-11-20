@@ -6,6 +6,7 @@
 \usage{
 hd_auto_umap(
   dat,
+  metadata = NULL,
   by_sample = TRUE,
   plot_x = "UMAP1",
   plot_y = "UMAP2",
@@ -15,6 +16,8 @@ hd_auto_umap(
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
+
+\item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
 

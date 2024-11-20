@@ -6,6 +6,7 @@
 \usage{
 hd_auto_pca(
   dat,
+  metadata = NULL,
   components = 10,
   by_sample = TRUE,
   plot_x = "PC1",
@@ -16,6 +17,8 @@ hd_auto_pca(
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and its first column is the sample ID.}
+
+\item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
 \item{components}{The number of PCs to be calculated. Default is 10.}
 
