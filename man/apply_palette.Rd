@@ -10,7 +10,7 @@ apply_palette(plot, palette, type = "color")
 \item{plot}{The plot to apply the palette.}
 
 \item{palette}{The color palette to apply. It can be either a character with the name of the
-palette from the HPA or a custom palette (for example \code{c("red", "blue")}).}
+palette from the HPA or a custom palette (for example \code{c("M" = "red", "F" = "blue")}).}
 
 \item{type}{The type of palette to apply. Default is "color". Other option is "fill".}
 }

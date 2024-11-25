@@ -5,7 +5,7 @@
 #'
 #' @param plot The plot to apply the palette.
 #' @param palette The color palette to apply. It can be either a character with the name of the
-#' palette from the HPA or a custom palette (for example `c("red", "blue")`).
+#' palette from the HPA or a custom palette (for example `c("M" = "red", "F" = "blue")`).
 #' @param type The type of palette to apply. Default is "color". Other option is "fill".
 #'
 #' @return The plot with the selected palette.
