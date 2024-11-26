@@ -45,19 +45,19 @@ calc_na_percentage_col <- function(dat) {
 #' It filters out the rows with 0% missing data and returns the rest in descending order.
 #'
 #' @param dat The input dataset.
+#' @param sample_id The name of the column containing the sample IDs.
 #'
 #' @return A tibble with the DAids and the percentage of NAs in each row.
 #' @keywords internal
-calc_na_percentage_row <- function(dat) {
+calc_na_percentage_row <- function(dat, sample_id) {
 
   na_percentage <- dat |>
     dplyr::rowwise() |>
-    dplyr::mutate(na_percentage = round(
-      sum(is.na(dplyr::c_across(dplyr::everything()))) / ncol(dat) * 100, 1
-    )) |>
+    dplyr::mutate(na_percentage = round(sum(is.na(dplyr::across(dplyr::everything())))/ncol(dat) * 100, 1)) |>
     dplyr::ungroup() |>
     dplyr::filter(!!rlang::sym("na_percentage") > 0) |>
-    dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage")))
+    dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage"))) |>
+    dplyr::select(dplyr::any_of(c(sample_id, "na_percentage")))
 
   return(na_percentage)
 }
@@ -224,7 +224,7 @@ qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_thre
   class_summary <- check_col_types(wide_data, unique_threshold)
   na_percentage_col <- calc_na_percentage_col(wide_data)
   na_col_dist <- plot_missing_values(na_percentage_col, "Number of Features")
-  na_percentage_row <- calc_na_percentage_row(wide_data |> dplyr::select(-rlang::sym(sample_id)))
+  na_percentage_row <- calc_na_percentage_row(wide_data, sample_id)
   na_row_dist <- plot_missing_values(na_percentage_row, "Number of Samples")
   cor <- hd_plot_cor_heatmap(wide_data |> dplyr::select(-rlang::sym(sample_id)),
                              threshold = cor_threshold,
@@ -275,14 +275,19 @@ qc_summary_metadata <- function(metadata, sample_id, class_var, palette = NULL, 
   class_summary <- check_col_types(metadata)
   na_percentage_col <- calc_na_percentage_col(metadata)
   na_col_dist <- plot_missing_values(na_percentage_col, "Number of Metadata Variables")
+  na_percentage_row <- calc_na_percentage_row(metadata, sample_id)
+  na_row_dist <- plot_missing_values(na_percentage_row, "Number of Metadata Samples")
 
   if (isTRUE(verbose)) {
-    print_summary(sample_n, var_n, class_summary, na_percentage_col)
+    print_summary(sample_n, var_n, class_summary, na_percentage_col, na_percentage_row)
   }
 
   metadata_plot <- plot_metadata_summary(metadata, sample_id, class_var, palette, unique_threshold)
 
-  na_list <- list("na_percentage_col" = na_percentage_col, "na_col_hist" = na_col_dist)
+  na_list <- list("na_percentage_col" = na_percentage_col,
+                  "na_col_hist" = na_col_dist,
+                  "na_percentage_row" = na_percentage_row,
+                  "na_row_hist" = na_row_dist)
 
   res_list <- c(na_list, metadata_plot)
 
