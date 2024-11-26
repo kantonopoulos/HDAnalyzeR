@@ -48,7 +48,6 @@ Imports:
     tidyselect,
     tidytext,
     tune,
-    umap,
     UpSetR,
     utils,
     vip,
@@ -60,6 +59,7 @@ Suggests:
     ranger,
     rmarkdown,
     testthat (>= 3.0.0),
+    umap,
     writexl
 Config/testthat/edition: 3
 Depends: 

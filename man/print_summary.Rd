@@ -11,7 +11,6 @@ print_summary(
   na_percentage_col,
   na_percentage_row = NULL,
   cor_results = NULL,
-  heatmap = NULL,
   cor_threshold = 0.8
 )
 }
@@ -27,8 +26,6 @@ print_summary(
 \item{na_percentage_row}{A tibble with the DAids and the percentage of NAs in each row.}
 
 \item{cor_results}{A tibble with the filtered protein pairs and their correlation values.}
-
-\item{heatmap}{A heatmap of protein-protein correlations.}
 
 \item{cor_threshold}{The reporting protein-protein correlation threshold.}
 }

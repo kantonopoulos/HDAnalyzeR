@@ -77,7 +77,6 @@ calc_na_percentage_row <- function(dat) {
 #' @param na_percentage_col A tibble with the column names and the percentage of NAs in each column.
 #' @param na_percentage_row A tibble with the DAids and the percentage of NAs in each row.
 #' @param cor_results A tibble with the filtered protein pairs and their correlation values.
-#' @param heatmap A heatmap of protein-protein correlations.
 #' @param cor_threshold The reporting protein-protein correlation threshold.
 #'
 #' @return NULL
@@ -88,7 +87,6 @@ print_summary <- function(sample_n,
                           na_percentage_col,
                           na_percentage_row = NULL,
                           cor_results = NULL,
-                          heatmap = NULL,
                           cor_threshold = 0.8) {
 
   print("Summary:")
@@ -111,11 +109,6 @@ print_summary <- function(sample_n,
   if (!is.null(cor_results)) {
     print(paste0("Protein-protein correlations above ", cor_threshold, ":"))
     print(cor_results)
-    print("--------------------------------------")
-  }
-  if (!is.null(heatmap)) {
-    print("Correlation heatmap:")
-    print(heatmap)
     print("--------------------------------------")
   }
 
@@ -247,8 +240,7 @@ qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_thre
                   na_percentage_col,
                   na_percentage_row,
                   cor_results,
-                  p,
-                  cor_threshold = cor_threshold)
+                  cor_threshold)
   }
 
   return(list("na_percentage_col" = na_percentage_col,
