@@ -288,11 +288,15 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param maxiter The maximum number of iterations.
 #' @param ntree  The number of trees to grow.
+#' @param parallelize If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the `missForest` documentation.
 #' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
 #' @details This is the slowest and more complex imputation method. If KNN works fine, it is
-#' recommended to use it instead of `missForest`.
+#' recommended to use it instead of `missForest`. In case of large datasets, it is recommended
+#' to parallelize the imputation. However, the user must have the `doParallel` package installed
+#' and register a cluster before running the function. An example of how to parallelize the
+#' imputation is provided in the examples section.
 #'
 #' @export
 #'
@@ -303,7 +307,16 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' # Data after imputation
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
 #' res$data
-hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, verbose = TRUE) {
+#'
+#' \dontrun{
+#' # Parallelize the imputation
+#' library(doParallel)  # Load the doParallel package
+#' cl <- makeCluster(4)  # Create a cluster with 4 cores
+#' registerDoParallel(cl)  # Register the cluster
+#' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
+#' res$data
+#' }
+hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", verbose = TRUE) {
 
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
@@ -330,7 +343,11 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, verbose = TRUE)
 
   set.seed(123)
   data_in <- as.data.frame(data_in)  # Convert to data frame for missForest
-  imputed_data <- missForest::missForest(data_in, maxiter = maxiter, ntree = ntree, verbose = verbose)$ximp
+  imputed_data <- missForest::missForest(data_in,
+                                         maxiter = maxiter,
+                                         ntree = ntree,
+                                         verbose = verbose,
+                                         parallelize = parallelize)$ximp
   imputed_data <- tibble::as_tibble(imputed_data)
 
   cols <- wide_data |>
