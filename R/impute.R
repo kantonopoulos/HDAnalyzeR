@@ -1,3 +1,11 @@
+#' Calculate NA percentage
+#'
+#' `calculate_na_percentage()` calculates the percentage of missing values in each column of a dataset.
+#'
+#' @param dat A dataset.
+#'
+#' @return A tibble containing the column names and their respective NA percentages.
+#' @keywords internal
 calculate_na_percentage <- function(dat) {
   tibble::tibble(
     Variable = colnames(dat),
@@ -66,6 +74,8 @@ hd_search_na <- function(dat,
     var_name <- "Features"
     value_name <- "Values"
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   if (!all(annotation_vars %in% colnames(metadata))) {
     message("Some category columns provided do not exist in the dataset.")
@@ -168,6 +178,8 @@ hd_impute_median <- function(dat, verbose = TRUE) {
     sample_id <- colnames(dat)[1]
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))
 
@@ -233,6 +245,8 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))
@@ -302,6 +316,8 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, verbose = TRUE)
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))

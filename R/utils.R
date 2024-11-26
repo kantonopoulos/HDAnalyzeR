@@ -39,6 +39,8 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
     wide_data <- dat
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   data_object <- list(data = wide_data,
                       metadata = metadata,
                       sample_id = sample_id,
@@ -226,11 +228,11 @@ hd_import_data <- function(path_name) {
 #' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
 #' hd_widen_data(example_data, exclude = "Sample", names_from = "OlinkID")
 hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
-
-  wide_data <- dat |>
-    dplyr::select(dplyr::all_of(c(exclude, names_from, values_from))) |>
-    tidyr::pivot_wider(names_from = names_from, values_from = values_from)
-
+  suppressWarnings({
+    wide_data <- dat |>
+      dplyr::select(dplyr::all_of(c(exclude, names_from, values_from))) |>
+      tidyr::pivot_wider(names_from = names_from, values_from = values_from)
+  })
   return(wide_data)
 }
 
@@ -255,10 +257,10 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #' # Transform Olink data in long format
 #' hd_long_data(example_data_wide)
 hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
-
-  long_data <- dat |>
-    tidyr::pivot_longer(cols = -dplyr::all_of(exclude), names_to = names_to, values_to = values_to)
-
+  suppressWarnings({
+    long_data <- dat |>
+      tidyr::pivot_longer(cols = -dplyr::all_of(exclude), names_to = names_to, values_to = values_to)
+    })
   return(long_data)
 }
 
@@ -362,4 +364,38 @@ hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
   }
 
   return(binned_data)
+}
+
+
+#' Check for non-numeric columns
+#'
+#' `check_numeric_columns()` checks if all columns except the first (Sample ID)
+#' in a dataframe are numeric.
+#'
+#' @param dat The dataframe to check.
+#'
+#' @return A warning with the names of non-numeric columns if any.
+#' @keywords internal
+check_numeric_columns <- function(dat) {
+
+  if (!is.data.frame(dat)) {
+    stop("Input must be a data frame or tibble.")
+  }
+
+  # Exclude the first column as it should be the sample ID
+  cols_to_check <- dat[-1]
+
+  non_numeric <- NULL
+  non_numeric <- names(cols_to_check)[!sapply(cols_to_check, function(col) {
+    suppressWarnings({ # Suppress warnings during coercion
+      coerced <- as.numeric(col)
+      return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
+    })
+  })]
+
+  if (length(non_numeric) > 0) {
+    warning("The following columns are not numeric: ", paste(non_numeric, collapse = ", "))
+  }
+
+  invisible(non_numeric)
 }

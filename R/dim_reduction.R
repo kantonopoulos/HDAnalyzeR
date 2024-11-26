@@ -73,6 +73,8 @@ hd_run_pca <- function(dat,
     var_name <- "Features"
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   if (isFALSE(by_sample)) {
     transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
     wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
@@ -509,6 +511,8 @@ hd_run_umap <- function(dat,
     sample_id <- colnames(dat)[1]
     var_name <- "Features"
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   if (isFALSE(by_sample)) {
     var_name <- rlang::sym(var_name)

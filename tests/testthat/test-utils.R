@@ -58,6 +58,11 @@ test_that("hd_initialize works correctly", {
   # Test case 7: Check for missing value name in data (when is_wide = FALSE)
   expect_error(hd_initialize(mock_data_long, is_wide = FALSE, value_name = "NonExistentValue"),
                "Value column must exist in dat.")
+
+
+  # Test case 8: Check for non numeric data (when is_wide = FALSE)
+  dat <- data.frame(DAid = c("A", "B", "C"), Assay = c("M", "F", "M"), NPX = c(5, "Y", -2))
+  expect_warning(hd_initialize(dat, is_wide = FALSE), "The following columns are not numeric: F")
 })
 
 
@@ -401,4 +406,46 @@ test_that("hd_detect_vartype handles unknown data", {
   result <- hd_detect_vartype(unknown)
   expected <- "unknown"
   expect_equal(result, expected)
+})
+
+
+# Test check_numeric_columns ---------------------------------------------------
+test_that("All numeric columns", {
+  dat <- data.frame(ID = c("A", "B", "C"), Age = c(25, 30, 35), Weight = c(60, 75, 80))
+  expect_warning(non_numeric <- check_numeric_columns(dat), NA)
+  expect_equal(non_numeric, character(0)) # No non-numeric columns
+})
+
+test_that("Some non-numeric columns", {
+  dat <- data.frame(ID = c("A", "B", "C"), Age = c(25, NA, 35), Height = c("5.6", "D", "6.1"))
+  expect_warning(non_numeric <- check_numeric_columns(dat), "The following columns are not numeric: Height")
+  expect_equal(non_numeric, "Height")
+})
+
+test_that("All non-numeric columns", {
+  dat <- data.frame(ID = c("A", "B", "C"), Gender = c("M", "F", "M"), Group = c("X", "Y", "Z"))
+  expect_warning(non_numeric <- check_numeric_columns(dat), "The following columns are not numeric: Gender, Group")
+  expect_equal(non_numeric, c("Gender", "Group"))
+})
+
+test_that("Input is not a data frame", {
+  dat <- matrix(c(1, 2, 3, 4), ncol = 2)
+  expect_error(check_numeric_columns(dat), "Input must be a data frame or tibble.")
+})
+
+test_that("Empty data frame", {
+  dat <- data.frame()
+  expect_warning(non_numeric <- check_numeric_columns(dat), NA) # No warning
+  expect_equal(non_numeric, character(0)) # No non-numeric columns
+})
+
+test_that("Numeric-like character columns are handled correctly", {
+  dat <- data.frame(
+    "DAid" = c("A", "B", "C"),
+    "M" = c("5", NA, "-2"),  # Can be coerced to numeric
+    "F" = c(NA, "Y", NA)     # Cannot be coerced to numeric
+  )
+  expect_warning(non_numeric <- check_numeric_columns(dat),
+                 "The following columns are not numeric: F")
+  expect_equal(non_numeric, "F") # Only F should be flagged
 })

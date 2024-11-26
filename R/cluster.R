@@ -43,6 +43,8 @@ hd_cluster <- function(dat,
     wide_data <- dat |> tibble::column_to_rownames(var = names(dat)[1])
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   order_row <- rownames(wide_data)
   order_col <- colnames(wide_data)
 

@@ -28,7 +28,7 @@ remove_batch_effects <- function(wide_data,
   if (!is.null(batch2)) {
     batch2 <- wide_data |>
       dplyr::left_join(metadata |>
-                         dplyr::select(!!rlang::sym(sample_id), batch2),
+                         dplyr::select(dplyr::any_of(c(sample_id, batch2))),
                        by = sample_id) |>
       dplyr::pull(batch2)
   }
@@ -97,6 +97,7 @@ normalize_data <- function(dat,
     wide_data <- dat
   }
   id_col <- wide_data[1]
+  check_numeric <- check_numeric_columns(wide_data)
 
   # Remove batch effects
   if (!is.null(batch)) {

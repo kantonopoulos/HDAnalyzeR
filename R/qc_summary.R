@@ -332,6 +332,7 @@ hd_qc_summary <- function(dat, metadata, class_var, palette = NULL, unique_thres
     sample_id <- colnames(dat)[1]
     var_name <- "Features"
   }
+  check_numeric <- check_numeric_columns(wide_data)
 
   data_summary <- qc_summary_data(wide_data, sample_id, unique_threshold, cor_threshold, cor_method, verbose)
   metadata_summary <- qc_summary_metadata(metadata, sample_id, class_var, palette, unique_threshold, verbose)
