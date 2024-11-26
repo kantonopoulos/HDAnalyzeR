@@ -314,7 +314,6 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' cl <- makeCluster(4)  # Create a cluster with 4 cores
 #' registerDoParallel(cl)  # Register the cluster
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
-#' res$data
 #' }
 hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", verbose = TRUE) {
 
