@@ -1,3 +1,52 @@
+# Test hd_omit_na --------------------------------------------------------------
+test_that("hd_omit_na omits values in the proper way", {
+  test_data <- data.frame(
+    A = c(1, 2, NA, 4),
+    B = c(NA, 2, 3, 4),
+    C = c("X", "Y", "Z", NA)
+  )
+
+  # hd_omit_na removes rows with NAs in any column when no columns are specified
+  result <- hd_omit_na(test_data)
+  expected <- data.frame(
+    A = c(2),
+    B = c(2),
+    C = c("Y")
+  )
+  rownames(result) <- NULL
+  expect_equal(result, expected)
+
+
+  # hd_omit_na removes rows with NAs in specified columns
+  result <- hd_omit_na(test_data, columns = c("B"))
+  expected <- data.frame(
+    A = c(2, NA, 4),
+    B = c(2, 3, 4),
+    C = c("Y", "Z", NA)
+  )
+  rownames(result) <- NULL
+  expect_equal(result, expected)
+
+
+  # hd_omit_na handles non-existent columns gracefully
+  expect_error(
+    hd_omit_na(test_data, columns = c("D")),
+    "The following columns are not in the dataset: D"
+  )
+
+
+  # hd_omit_na retains all rows if no NAs are present in specified columns
+  result <- hd_omit_na(test_data, columns = c("C"))
+  expected <- data.frame(
+    A = c(1, 2, NA),
+    B = c(NA, 2, 3),
+    C = c("X", "Y", "Z")
+  )
+  rownames(result) <- NULL
+  expect_equal(result, expected)
+})
+
+
 # Test hd_impute_median --------------------------------------------------------
 test_that("hd_impute_median imputes values in the proper way", {
   test_data <- tibble::tibble(

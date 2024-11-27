@@ -25,6 +25,7 @@ This is the fastest but usually least accurate imputation method.
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
+hd_object$data
 
 # Data after imputation
 res <- hd_impute_median(hd_object)

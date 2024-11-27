@@ -25,6 +25,7 @@ working together with other packages.
 ## Imputation
 - Add `hd_na_search()` that summarizes the distribution of NA values in a heatmap. It also makes it able to annotate by user defined metadata variables.
 - Removed `impute_mice()` function as it is considered too complicated for the package. If needed, the user can use the `mice` package directly.
+- Add `hd_omit_na()` to remove rows with NA values based on specified columns of the data.
 
 ## QC Summary
 - Add `cor_method` argument to `qc_summary_data()` to allow the user to choose the correlation method.

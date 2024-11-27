@@ -143,6 +143,62 @@ hd_search_na <- function(dat,
   return(list("na_data" = na_data, "na_heatmap" = na_heatmap))
 }
 
+
+#' Omit missing values
+#'
+#' `hd_omit_na()` removes rows with missing values from a dataset. It allows the user to
+#' specify the columns to consider for the removal of missing values. If no columns are
+#' provided, the function removes rows with missing values in any column.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param columns The columns to consider for the removal of missing values.
+#'
+#' @return The dataset without missing values.
+#' @export
+#'
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
+#'
+#' # Data after removing missing values
+#' res <- hd_omit_na(hd_object)
+#' res$data
+#'
+#' # Data after removing missing values in specific columns
+#' res <- hd_omit_na(hd_object, columns = "AARSD1")
+#' res$data
+hd_omit_na <- function(dat, columns = NULL){
+
+  # Prepare data
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+  } else {
+    wide_data <- dat
+  }
+
+  if (is.null(columns)) {
+    imputed_data <- wide_data[stats::complete.cases(wide_data), ]
+  } else {
+    missing_columns <- setdiff(columns, colnames(wide_data))
+    if (length(missing_columns) > 0) {
+       stop("The following columns are not in the dataset: ", paste(missing_columns, collapse = ", "))
+    }
+    imputed_data <- wide_data[!rowSums(is.na(wide_data[columns])), ]
+  }
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- imputed_data
+    return(dat)
+  } else {
+    return(imputed_data)
+  }
+}
+
+
 #' Impute via Median
 #'
 #' `hd_impute_median()` imputes missing values in a dataset using the median of each column.
@@ -160,6 +216,7 @@ hd_search_na <- function(dat,
 #' @examples
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
 #' res <- hd_impute_median(hd_object)
@@ -228,6 +285,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
 #' @examples
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
 #' res <- hd_impute_knn(hd_object, k = 3)
@@ -303,6 +361,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' @examples
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)

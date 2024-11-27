@@ -41,6 +41,7 @@ imputation is provided in the examples section.
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
+hd_object$data
 
 # Data after imputation
 res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
@@ -52,6 +53,5 @@ library(doParallel)  # Load the doParallel package
 cl <- makeCluster(4)  # Create a cluster with 4 cores
 registerDoParallel(cl)  # Register the cluster
 res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
-res$data
 }
 }
