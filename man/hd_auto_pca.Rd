@@ -30,7 +30,7 @@ hd_auto_pca(
 
 \item{plot_color}{The name of the column in \code{dim_res} that contains the variable to be used to plot the points color. Default is NULL.}
 
-\item{plot_palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}. Default is NULL.}
+\item{plot_palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 }
 \value{
 A list with the PCA results and PCA plots.

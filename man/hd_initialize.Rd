@@ -33,6 +33,6 @@ An HDAnalyzeR object.
 \code{hd_initialize()} initializes an HDAnalyzeR object with the data, metadata, and other parameters.
 }
 \examples{
-# Initialize an HDAnalyzeR object with long format data
+# Initialize an HDAnalyzeR object
 hd_initialize(example_data, example_metadata)
 }

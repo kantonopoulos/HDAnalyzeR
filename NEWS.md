@@ -7,6 +7,7 @@ working together with other packages.
 - Convert all heatmaps from `tidyheatmaps` to ggplot objects with `ggplotify`.
 - Make vignettes more readable by suppressing non necessary results and messages.
 - Solve bugs and issues.
+- Informative warnings were added to functions to guide the user in case of potential issues.
 
 ## Utils
 - Added `hd_initialize()` to create an initial object that is used in all other functions. This is making the package usage much more straightforward and concise.
@@ -32,6 +33,11 @@ working together with other packages.
 - Remove normality check as it is invalid for large datasets. The tests are very sensitive and will always return significant results. If the user still wants to check normality we recommend histograms or QQ plots.
 - Merge `qc_summary_data()` and `qc_summary_metadata()` into one function `hd_qc_summary()`.
 - Add `hd_qc_summary()` visualizes all metadata columns instead of requiring manual selection.
+
+## Differential Expression Analysis
+- Merge `do_limma()` and `do_limma_continuous()` to new `hd_run_de_limma()` that recognizes the variable type automatically.
+- `do_ttest()` was deprecated as it is considered redundant. The users are recommended to run `hd_run_de_limma()` instead as it is more flexible and powerful.
+- `hd_plot_volcano()` is now a function alone.
 
 ## Classification Models
 - Multiclassification models now return variable importance plot as well.

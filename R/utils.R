@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-#' # Initialize an HDAnalyzeR object with long format data
+#' # Initialize an HDAnalyzeR object
 #' hd_initialize(example_data, example_metadata)
 hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DAid", var_name = "Assay", value_name = "NPX") {
 

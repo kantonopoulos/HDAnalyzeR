@@ -144,13 +144,13 @@ plot_missing_values <- function(missing_values, yaxis_name) {
 #'
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column.
 #' @param sample_id The name of the column containing the sample IDs.
-#' @param class_var The name of the column containing the class variable.
+#' @param variable The name of the column containing the different classes.
 #' @param palette A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #'
 #' @return A list containing plots and sample counts.
 #' @keywords internal
-plot_metadata_summary <- function(metadata, sample_id, class_var, palette = NULL, unique_threshold = 5) {
+plot_metadata_summary <- function(metadata, sample_id, variable, palette = NULL, unique_threshold = 5) {
 
   col_classes <- lapply(metadata |> dplyr::select(-rlang::sym(sample_id)),
                         function(column) hd_detect_vartype(column, unique_threshold = unique_threshold))
@@ -158,12 +158,12 @@ plot_metadata_summary <- function(metadata, sample_id, class_var, palette = NULL
   plot_list <- list()
   for (col in names(col_classes)) {
     Variable <- rlang::sym(col)
-    Class_var <- rlang::sym(class_var)
+    Class_var <- rlang::sym(variable)
     if (col_classes[[col]] == "continuous"){
       dist_plot <- metadata |>
         ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!Class_var, fill = !!Class_var)) +
         ggridges::geom_density_ridges(alpha = 0.7, scale = 0.9) +
-        ggplot2::labs(x = col, y = class_var) +
+        ggplot2::labs(x = col, y = variable) +
         theme_hd() +
         ggplot2::theme(legend.position = "none")
 
@@ -180,7 +180,7 @@ plot_metadata_summary <- function(metadata, sample_id, class_var, palette = NULL
         dplyr::count(!!Class_var, !!Variable) |>
         ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("n"), y = !!Class_var, fill = !!Variable)) +
         ggplot2::geom_bar(stat = "identity", position = "stack") +
-        ggplot2::labs(x = "Number of samples", y = class_var) +
+        ggplot2::labs(x = "Number of samples", y = variable) +
         theme_hd() +
         ggplot2::theme()
 
@@ -188,7 +188,7 @@ plot_metadata_summary <- function(metadata, sample_id, class_var, palette = NULL
         barplot <- apply_palette(barplot, palette[[col]], type = "fill")
       }
 
-      if (col != class_var){
+      if (col != variable){
         plot_list[[col]] <- barplot
       }
     }
@@ -261,14 +261,14 @@ qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_thre
 #'
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column.
 #' @param sample_id The name of the column containing the sample IDs.
-#' @param class_var The name of the column containing the class variable.
+#' @param variable The name of the column containing the different classes.
 #' @param palette A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #' @param verbose Whether to print the summary. Default is TRUE.
 #'
 #' @return A list of the qc summary of data
 #' @keywords internal
-qc_summary_metadata <- function(metadata, sample_id, class_var, palette = NULL, unique_threshold = 5, verbose = TRUE) {
+qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, unique_threshold = 5, verbose = TRUE) {
 
   sample_n <- nrow(metadata)
   var_n <- ncol(metadata)
@@ -282,7 +282,7 @@ qc_summary_metadata <- function(metadata, sample_id, class_var, palette = NULL, 
     print_summary(sample_n, var_n, class_summary, na_percentage_col, na_percentage_row)
   }
 
-  metadata_plot <- plot_metadata_summary(metadata, sample_id, class_var, palette, unique_threshold)
+  metadata_plot <- plot_metadata_summary(metadata, sample_id, variable, palette, unique_threshold)
 
   na_list <- list("na_percentage_col" = na_percentage_col,
                   "na_col_hist" = na_col_dist,
@@ -303,7 +303,7 @@ qc_summary_metadata <- function(metadata, sample_id, class_var, palette = NULL, 
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param class_var The name of the column containing the variable with the classes (for example the column that contains you case and control groups).
+#' @param variable The name of the column containing the different classes (for example the column that contains your case and control groups).
 #' @param palette A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #' @param cor_threshold The threshold to consider a protein-protein correlation as high. Default is 0.8.
@@ -320,11 +320,11 @@ qc_summary_metadata <- function(metadata, sample_id, class_var, palette = NULL, 
 #'
 #' # Run the quality control summary
 #' hd_qc_summary(hd_object,
-#'               class_var = "Disease",
+#'               variable = "Disease",
 #'               palette = list(Disease = "cancers12", Sex = "sex"),
 #'               cor_threshold = 0.7,
 #'               verbose = FALSE)
-hd_qc_summary <- function(dat, metadata, class_var, palette = NULL, unique_threshold = 5, cor_threshold = 0.8, cor_method = "pearson", verbose = TRUE) {
+hd_qc_summary <- function(dat, metadata, variable, palette = NULL, unique_threshold = 5, cor_threshold = 0.8, cor_method = "pearson", verbose = TRUE) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
@@ -340,7 +340,7 @@ hd_qc_summary <- function(dat, metadata, class_var, palette = NULL, unique_thres
   check_numeric <- check_numeric_columns(wide_data)
 
   data_summary <- qc_summary_data(wide_data, sample_id, unique_threshold, cor_threshold, cor_method, verbose)
-  metadata_summary <- qc_summary_metadata(metadata, sample_id, class_var, palette, unique_threshold, verbose)
+  metadata_summary <- qc_summary_metadata(metadata, sample_id, variable, palette, unique_threshold, verbose)
 
   qc_object <- list("data_summary" = data_summary, "metadata_summary" = metadata_summary)
   class(qc_object) <- "hd_qc"

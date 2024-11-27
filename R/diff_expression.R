@@ -1,829 +1,284 @@
-#' utils::globalVariables(c("adj.P.Val", "P.Value", "logFC", "sig", "sig.label", "Sex",
-#'                          "Disease", "case", "control", "is_normal", "Count", ":=",
-#'                          "Shared in", "Priority"))
-#' #' Differential expression analysis with limma
-#' #'
-#' #' `do_limma_de()` performs differential expression analysis using limma package.
-#' #' It can correct the results for metadata columns like Sex, Age, or BMI.
-#' #' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
-#' #' The function removes the NAs from the columns that are used to correct for.
-#' #'
-#' #' @param join_data A tibble with the Olink data in wide format joined with metadata.
-#' #' @param variable The variable of interest that includes the case and control groups.
-#' #' @param case The case group.
-#' #' @param control The control groups.
-#' #' @param correct The variables to correct the results with. Default c("Sex", "Age").
-#' #' @param correct_type The type of the variables to correct the results with. Default c("factor", "numeric").
-#' #' @param only_female The female specific diseases. Default is NULL.
-#' #' @param only_male The male specific diseases. Default is NULL.
-#' #' @param pval_lim The p-value limit of significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit of significance. Default is 0.
-#' #'
-#' #' @return A tibble with the differential expression results.
-#' #' @keywords internal
-#' do_limma_de <- function(join_data,
-#'                         variable = "Disease",
-#'                         case,
-#'                         control,
-#'                         correct = c("Sex", "Age"),
-#'                         correct_type = c("factor", "numeric"),
-#'                         only_female = NULL,
-#'                         only_male = NULL,
-#'                         pval_lim = 0.05,
-#'                         logfc_lim = 0) {
-#'   Variable <- rlang::sym(variable)
-#'
-#'   if (variable == "Disease") {
-#'     sex_specific <- FALSE
-#'     # Filter for Sex if disease is Sex specific
-#'     if(!is.null(only_female) & case %in% only_female) {
-#'       join_data <- join_data |>
-#'         dplyr::filter(Sex == "F")
-#'       sex_specific <- TRUE
-#'     } else {
-#'       join_data <- join_data
-#'     }
-#'
-#'     if(!is.null(only_male) & case %in% only_male) {
-#'       join_data <- join_data |>
-#'         dplyr::filter(Sex == "M")
-#'       sex_specific <- TRUE
-#'     } else {
-#'       join_data <- join_data
-#'     }
-#'   }
-#'
-#'   nrows_before <- nrow(join_data)
-#'
-#'   join_data <- join_data |>
-#'     dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable, correct)), is.na)) |>  # Remove NAs from columns in formula
-#'     dplyr::filter(!!Variable %in% c(case, control)) |>
-#'     dplyr::mutate(!!Variable := ifelse(!!Variable == case, "1_Case", "0_Control"))
-#'
-#'   nrows_after <- nrow(join_data)
-#'   if (nrows_before != nrows_after){
-#'     warning(paste0(nrows_before - nrows_after,
-#'                    " rows were removed because they contain NAs in ",
-#'                    variable,
-#'                    " or ",
-#'                    paste(correct, collapse = ", "),
-#'                    "!"))
-#'   }
-#'
-#'   # Design a model
-#'   formula <- paste("~0 + as.factor(", variable, ")")
-#'
-#'   if (!is.null(correct)) {
-#'     for (i in 1:length(correct)) {
-#'       if (correct_type[i] == "factor") {
-#'         if (correct[i] == "Sex" && sex_specific == TRUE) {
-#'           join_data <- join_data |>
-#'             dplyr::select(-Sex)
-#'           next
-#'         } else {
-#'           cofactor = paste("as.factor(", correct[i], ")")
-#'         }
-#'       } else {
-#'         cofactor = correct[i]
-#'       }
-#'       formula <- paste(formula, "+", cofactor)
-#'     }
-#'   }
-#'
-#'   if (c("Sex") %in% correct && sex_specific == TRUE) {
-#'     correct <- correct[!correct == 'Sex']
-#'   }
-#'
-#'   design <- stats::model.matrix(stats::as.formula(formula), data = join_data)
-#'   cols <- c("control", "case", correct)
-#'   cols <- cols[!is.null(cols)]
-#'   colnames(design) <- paste(cols)
-#'   contrast <- limma::makeContrasts(Diff = case - control, levels = design)
-#'
-#'   # Fit linear model to each protein assay
-#'   data_fit <- join_data |>
-#'     dplyr::select(-dplyr::any_of(c(variable, "Sex", correct))) |>
-#'     tibble::column_to_rownames("DAid") |>
-#'     t()
-#'
-#'   fit <- limma::lmFit(data_fit, design = design, method = "robust", maxit = 10000)
-#'   contrast_fit <- limma::contrasts.fit(fit, contrast)
-#'
-#'   # Apply empirical Bayes smoothing to the SE
-#'   ebays_fit <- limma::eBayes(contrast_fit)
-#'
-#'   # Extract DE results
-#'   de_results <- limma::topTable(ebays_fit,
-#'                                 n = nrow(ebays_fit$p.value),
-#'                                 adjust.method = "fdr",
-#'                                 confint = TRUE)
-#'
-#'   de_res <- de_results |>
-#'     tibble::as_tibble(rownames = "Assay") |>
-#'     dplyr::mutate(!!Variable := case) |>
-#'     dplyr::mutate(sig = dplyr::case_when(
-#'       adj.P.Val < pval_lim & logFC < -logfc_lim ~ "significant down",
-#'       adj.P.Val < pval_lim & logFC > logfc_lim ~ "significant up",
-#'       T ~ "not significant")
-#'     ) |>
-#'     dplyr::arrange(adj.P.Val)
-#'
-#'   return(de_res)
-#' }
-#'
-#'
-#' #' Differential expression analysis with limma for continuous variable
-#' #'
-#' #' This function performs differential expression analysis using limma for a continuous variable.
-#' #' The output dataframe includes the logFC, the p-values, as well as the adjusted p-values with FDR.
-#' #' The function removes the NAs from the columns that are used to correct for.
-#' #'
-#' #' @param join_data A tibble with the Olink data in wide format joined with metadata.
-#' #' @param variable The variable of interest.
-#' #' @param correct The variables to correct the results with. Default is c("Sex").
-#' #' @param correct_type The type of the variables to correct the results with. Default is c("factor").
-#' #' @param pval_lim The p-value limit for significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit for significance. Default is 0.
-#' #'
-#' #' @return A tibble with the differential expression results.
-#' #' @keywords internal
-#' do_limma_continuous_de <- function(join_data,
-#'                                    variable,
-#'                                    correct = c("Sex"),
-#'                                    correct_type = c("factor"),
-#'                                    pval_lim = 0.05,
-#'                                    logfc_lim = 0) {
-#'   nrows_before <- nrow(join_data)
-#'
-#'   join_data <- join_data |>
-#'     dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable, correct)), is.na))  # Remove NAs from columns in formula
-#'
-#'   nrows_after <- nrow(join_data)
-#'   if (nrows_before != nrows_after){
-#'     warning(paste0(nrows_before - nrows_after,
-#'                    " rows were removed because they contain NAs in ",
-#'                    variable,
-#'                    " or ",
-#'                    paste(correct, collapse = ", "),
-#'                    "!"))
-#'   }
-#'
-#'   # Design a model
-#'   formula <- paste("~0 +" , variable)
-#'
-#'   if (!is.null(correct)) {
-#'     for (i in 1:length(correct)) {
-#'       if (correct_type[i] == "factor") {
-#'         cofactor = paste("as.factor(", correct[i], ")")
-#'       } else {
-#'         cofactor = correct[i]
-#'       }
-#'       formula <- paste(formula, "+", cofactor)
-#'     }
-#'   }
-#'   design <- stats::model.matrix(stats::as.formula(formula), data = join_data)
-#'
-#'   # Fit linear model to each protein assay
-#'   data_fit <- join_data |>
-#'     dplyr::select(-dplyr::any_of(c(variable, correct))) |>
-#'     tibble::column_to_rownames("DAid") |>
-#'     t()
-#'
-#'   fit <- limma::lmFit(data_fit, design = design, method = "robust", maxit = 10000)
-#'
-#'
-#'   # Apply empirical Bayes smoothing to the SE
-#'   ebays_fit <- limma::eBayes(fit)
-#'
-#'   # Extract DE results
-#'   de_results <- limma::topTable(ebays_fit,
-#'                                 n = nrow(ebays_fit$p.value),
-#'                                 adjust.method = "fdr",
-#'                                 confint = TRUE)
-#'
-#'   de_res <- de_results |>
-#'     tibble::as_tibble(rownames = "Assay") |>
-#'     dplyr::rename(logFC = colnames(de_results)[1]) |>
-#'     dplyr::mutate(sig = dplyr::case_when(
-#'       adj.P.Val < pval_lim & logFC < -logfc_lim ~ "significant down",
-#'       adj.P.Val < pval_lim & logFC > logfc_lim ~ "significant up",
-#'       T ~ "not significant")
-#'     ) |>
-#'     dplyr::arrange(adj.P.Val)
-#'
-#'   return(de_res)
-#' }
-#'
-#'
-#' #' Differential expression analysis with t-test
-#' #'
-#' #' `do_ttest_de()` performs differential expression analysis using t-test.
-#' #' It separates the data in case-control groups, checks for data normality and
-#' #' perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
-#' #'
-#' #' @param long_data A tibble with the Olink data in long format and the Sex column from metadata.
-#' #' @param variable The variable of interest that includes the case and control groups.
-#' #' @param case The case group.
-#' #' @param control The control groups.
-#' #' @param assays The assays to run the differential expression analysis on.
-#' #' @param only_female The female specific diseases. Default is NULL.
-#' #' @param only_male The male specific diseases. Default is NULL.
-#' #' @param pval_lim The p-value limit of significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit of significance. Default is 0.
-#' #'
-#' #' @return A tibble with the differential expression results.
-#' #' @keywords internal
-#' do_ttest_de <- function(long_data,
-#'                         variable = "Disease",
-#'                         case,
-#'                         control,
-#'                         assays,
-#'                         normality_res,
-#'                         only_female = NULL,
-#'                         only_male = NULL,
-#'                         pval_lim = 0.05,
-#'                         logfc_lim = 0) {
-#'
-#'   Variable <- rlang::sym(variable)
-#'   de_res <- matrix(nrow=0, ncol=4)
-#'   colnames(de_res) <- c("Assay", "P.Value", "logFC", variable)
-#'
-#'   # Filter for Sex if case is Sex specific
-#'   if(!is.null(only_female) & case %in% only_female) {
-#'     long_data <- long_data |>
-#'       dplyr::filter(Sex == "F")
-#'   } else if(!is.null(only_male) & case %in% only_male) {
-#'     long_data <- long_data |>
-#'       dplyr::filter(Sex == "M")
-#'   } else {
-#'     long_data <- long_data
-#'   }
-#'
-#'   # Run statistical test for each assay
-#'   i <- 0
-#'   de_res_list <- lapply(assays, function(assay) {
-#'     i <<- i + 1
-#'     case_group <- long_data |>
-#'       dplyr::filter(!!Variable == case, Assay == assay) |>
-#'       dplyr::pull(NPX)
-#'
-#'     control_group <- long_data |>
-#'       dplyr::filter(!!Variable %in% control, Assay == assay) |>
-#'       dplyr::pull(NPX)
-#'
-#'     if (normality_res[i] == T) {
-#'       test_res <- stats::t.test(case_group, control_group)
-#'     } else {
-#'       test_res <- stats::wilcox.test(case_group, control_group)
-#'     }
-#'
-#'     p.val <- test_res$p.value
-#'     difference <- mean(case_group, na.rm = T) - mean(control_group, na.rm = T)
-#'
-#'     de_res <- rbind(de_res, c(assay, p.val, difference, case))
-#'
-#'   })
-#'
-#'   combined_de_res <- do.call(rbind, de_res_list)
-#'   combined_de_res <- as.data.frame(combined_de_res) |>
-#'     dplyr::mutate(P.Value = as.numeric(P.Value),
-#'                   logFC = as.numeric(logFC))
-#'   combined_de_res$adj.P.Val <- stats::p.adjust(combined_de_res$P.Value, method = "fdr")
-#'   de_res <- combined_de_res |>
-#'     dplyr::mutate(sig = dplyr::case_when(
-#'       adj.P.Val < pval_lim & logFC < -logfc_lim ~ "significant down",
-#'       adj.P.Val < pval_lim & logFC > logfc_lim ~ "significant up",
-#'       TRUE ~ "not significant"
-#'     )) |>
-#'     dplyr::arrange(adj.P.Val)
-#'
-#'   de_res <- tibble::as_tibble(de_res)
-#'
-#'   return(de_res)
-#' }
-#'
-#'
-#' #' Create volcano plots
-#' #'
-#' #' `plot_volcano()` creates volcano plots for the differential expression results.
-#' #' It colors and labels the top up and down regulated proteins.
-#' #'
-#' #' @param de_result The differential expression results.
-#' #' @param pval_lim The p-value limit for significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit for significance. Default is 0.
-#' #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 40.
-#' #' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 10.
-#' #' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "diff_exp".
-#' #' @param title The title of the plot or NULL for no title.
-#' #' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
-#' #' @param subtitle The subtitle of the plot or NULL for no subtitle.
-#' #'
-#' #' @return A ggplot object with the volcano plot.
-#' #' @keywords internal
-#' plot_volcano <- function(de_result,
-#'                          pval_lim = 0.05,
-#'                          logfc_lim = 0,
-#'                          top_up_prot = 40,
-#'                          top_down_prot = 10,
-#'                          palette = "diff_exp",
-#'                          title = NULL,
-#'                          report_nproteins = TRUE,
-#'                          user_defined_proteins = NULL,
-#'                          subtitle = NULL) {
-#'
-#'   top.sig.down <- de_result |>
-#'     dplyr::filter(adj.P.Val < pval_lim & logFC < -logfc_lim) |>
-#'     dplyr::arrange(adj.P.Val) |>
-#'     dplyr::pull(Assay)
-#'
-#'   top.sig.up <- de_result |>
-#'     dplyr::filter(adj.P.Val < pval_lim & logFC > logfc_lim) |>
-#'     dplyr::arrange(adj.P.Val) |>
-#'     dplyr::pull(Assay)
-#'
-#'   if (is.null(user_defined_proteins)) {
-#'     top.sig.prot <- c(top.sig.up[1:top_up_prot], top.sig.down[1:top_down_prot])
-#'   } else {
-#'     top.sig.prot <- user_defined_proteins
-#'   }
-#'
-#'   tab <- de_result |>
-#'     dplyr::mutate(sig.label = ifelse(Assay %in% top.sig.prot, "top significance", 0))
-#'
-#'   num.sig.up <- length(top.sig.up)
-#'   num.sig.down <- length(top.sig.down)
-#'
-#'   p <- de_result |>
-#'     ggplot2::ggplot(ggplot2::aes(x = logFC,
-#'                                  y = -log10(adj.P.Val),
-#'                                  color = sig,
-#'                                  label = Assay)) +
-#'     ggplot2::geom_point(size = 1, alpha = 0.4)+
-#'     ggrepel::geom_text_repel(data = subset(tab, sig.label == "top significance"), show.legend = FALSE) +
-#'     ggplot2::geom_hline(yintercept = -log10(pval_lim), linetype = 'dashed') +
-#'     ggplot2::geom_vline(xintercept = logfc_lim, linetype = 'dashed') +
-#'     ggplot2::geom_vline(xintercept = -logfc_lim, linetype = 'dashed') +
-#'     ggplot2::labs(color = "Significance")
-#'
-#'   # Title and subtitle
-#'   if (!is.null(title)) {
-#'     p <- p + ggplot2::ggtitle(label = paste0(title, ""))
-#'   }
-#'
-#'   subtitle_text <- ""
-#'   if (!is.null(subtitle)) {
-#'     subtitle_text = subtitle
-#'   }
-#'
-#'   if (isTRUE(report_nproteins)) {
-#'     if (subtitle_text != "") {
-#'       subtitle_text = paste0(subtitle_text,
-#'                              "\nNum significant up = ", num.sig.up,
-#'                              "\nNum significant down = ", num.sig.down)
-#'     } else {
-#'       subtitle_text = paste0("Num significant up = ", num.sig.up,
-#'                              "\nNum significant down = ", num.sig.down)
-#'     }
-#'   }
-#'
-#'   if (subtitle_text != "") {
-#'     p <- p + ggplot2::ggtitle(label = paste0(title, ""), subtitle = subtitle_text)
-#'   }
-#'
-#'   # Set palette
-#'   if (is.null(names(palette))) {
-#'     p <- p + scale_color_hpa(palette)
-#'   } else {
-#'     p <- p + ggplot2::scale_color_manual(values = palette)
-#'   }
-#'
-#'   return(p + theme_hpa() + ggplot2::theme(legend.position = "none"))
-#' }
-#'
-#'
-#' #' Run differential expression analysis with limma
-#' #'
-#' #' `do_limma()` performs differential expression analysis using limma package.
-#' #' It can correct the results for metadata columns like Sex, Age, or BMI.
-#' #' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
-#' #' The function removes the NAs from the columns that are used to correct for.
-#' #' It can generate and save volcano plots.
-#' #'
-#' #' @param olink_data A tibble with the Olink data in wide format.
-#' #' @param metadata A tibble with the metadata.
-#' #' @param variable The variable of interest that includes the case and control groups.
-#' #' @param case The case group.
-#' #' @param control The control groups.
-#' #' @param correct The variables to correct the results with. Default c("Sex", "Age").
-#' #' @param correct_type The type of the variables to correct the results with. Default c("factor", "numeric", "numeric").
-#' #' @param wide If the data is in wide format. Default is TRUE.
-#' #' @param only_female The female specific diseases. Default is NULL.
-#' #' @param only_male The male specific diseases. Default is NULL.
-#' #' @param volcano Generate volcano plots. Default is TRUE.
-#' #' @param pval_lim The p-value limit of significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit of significance. Default is 0.
-#' #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 40.
-#' #' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 10.
-#' #' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "diff_exp".
-#' #' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
-#' #' @param user_defined_proteins A list with the user defined proteins to label on the plot. Default is NULL.
-#' #' @param subtitle The subtitle of the plot or NULL for no subtitle.
-#' #' @param save Save the volcano plots. Default is FALSE.
-#' #'
-#' #' @return A list with the differential expression results and volcano plots.
-#' #'   - de_results: A list with the differential expression results.
-#' #'   - volcano_plots: A list with the volcano plots.
-#' #' @export
-#' #'
-#' #' @details For sex-specific diseases, there will be no correction for Sex.
-#' #' This is performed automatically by the function. It will also filter out
-#' #' rows with NA values in any of the columns that are used for correction,
-#' #' either the `variable` or in `correct`. The `user_defined_proteins` overrides
-#' #' the `top_up_prot` and `top_down_prot` arguments.
-#' #'
-#' #' @examples
-#' #' de_results <- do_limma(example_data,
-#' #'                        example_metadata,
-#' #'                        case = "AML",
-#' #'                        control = c("CLL", "MYEL"),
-#' #'                        wide = FALSE)
-#' #'
-#' #' # Results for AML
-#' #' de_results$de_results
-#' #'
-#' #' # Volcano plot for AML
-#' #' de_results$volcano_plot
-#' do_limma <- function(olink_data,
-#'                      metadata,
-#'                      variable = "Disease",
-#'                      case,
-#'                      control,
-#'                      correct = c("Sex", "Age"),
-#'                      correct_type = c("factor", "numeric"),
-#'                      wide = TRUE,
-#'                      only_female = NULL,
-#'                      only_male = NULL,
-#'                      volcano = TRUE,
-#'                      pval_lim = 0.05,
-#'                      logfc_lim = 0,
-#'                      top_up_prot = 40,
-#'                      top_down_prot = 10,
-#'                      palette = "diff_exp",
-#'                      report_nproteins = TRUE,
-#'                      user_defined_proteins = NULL,
-#'                      subtitle = NULL,
-#'                      save = FALSE) {
-#'
-#'   message(paste0("Comparing ", case, " with ", paste(control, collapse = ", "), "."))
-#'   Variable <- rlang::sym(variable)
-#'   # Prepare Olink data and merge them with metadata
-#'   if (isFALSE(wide)) {
-#'     wide_data <- widen_data(olink_data)
-#'
-#'     nrows_before <- nrow(wide_data)
-#'     join_data <- wide_data |>
-#'       dplyr::left_join(
-#'         metadata |> dplyr::select(dplyr::any_of(c("DAid", variable, "Sex", correct))),
-#'         by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   } else {
-#'     nrows_before <- nrow(olink_data)
-#'     join_data <- olink_data |>
-#'       dplyr::left_join(metadata |>
-#'                          dplyr::select(dplyr::any_of(c("DAid", variable, "Sex", correct))),
-#'                        by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   }
-#'
-#'   # Run differential expression analysis
-#'   de_results <- do_limma_de(join_data,
-#'                             variable,
-#'                             case,
-#'                             control,
-#'                             correct,
-#'                             correct_type,
-#'                             only_female,
-#'                             only_male,
-#'                             pval_lim,
-#'                             logfc_lim)
-#'
-#'   # Generate (and save) volcano plots
-#'   if (volcano) {
-#'
-#'     volcano_plot <- plot_volcano(de_results,
-#'                                  pval_lim,
-#'                                  logfc_lim,
-#'                                  top_up_prot,
-#'                                  top_down_prot,
-#'                                  palette,
-#'                                  case,
-#'                                  report_nproteins,
-#'                                  user_defined_proteins,
-#'                                  subtitle)
-#'
-#'     if (isTRUE(save)) {
-#'       dir_name <- create_dir("results/volcano_plots", date = T)
-#'       ggplot2::ggsave(volcano_plot,
-#'                       filename = paste0(dir_name, "/", case, "_volcano.png"),
-#'                       width = 10,
-#'                       height = 8)
-#'     }
-#'     return(list("de_results" = de_results, "volcano_plot" = volcano_plot))
-#'   }
-#'   return(de_results)
-#' }
-#'
-#'
-#' #' Run differential expression analysis with limma for continuous variable
-#' #'
-#' #' This function runs differential expression analysis using limma for a continuous variable.
-#' #' It can generate and save volcano plots.
-#' #'
-#' #' @param olink_data A tibble with the Olink data in wide format.
-#' #' @param metadata A tibble with the metadata.
-#' #' @param variable The variable of interest.
-#' #' @param correct The variables to correct the results with. Default is c("Sex").
-#' #' @param correct_type The type of the variables to correct the results with. Default is c("factor").
-#' #' @param wide If the data is in wide format. Default is TRUE.
-#' #' @param volcano Generate volcano plots. Default is TRUE.
-#' #' @param pval_lim The p-value limit for significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit for significance. Default is 0.
-#' #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 40.
-#' #' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 10.
-#' #' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "diff_exp".
-#' #' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
-#' #' @param user_defined_proteins A list with the user defined proteins to label on the plot. Default is NULL.
-#' #' @param subtitle The subtitle of the plot or NULL for no subtitle.
-#' #' @param save Save the volcano plots. Default is FALSE.
-#' #'
-#' #' @return A list with the differential expression results and volcano plots.
-#' #'   - de_results: A list with the differential expression results.
-#' #'   - volcano_plot: A list with the volcano plots.
-#' #' @export
-#' #'
-#' #' @details
-#' #' It will filter out rows with NA values in any of the columns that are used for
-#' #' correction, either the `variable` or in `correct`. The `user_defined_proteins` overrides
-#' #' the `top_up_prot` and `top_down_prot` arguments.
-#' #'
-#' #' @examples
-#' #' do_limma_continuous(example_data, example_metadata, "Age", wide = FALSE)
-#' do_limma_continuous <- function(olink_data,
-#'                                 metadata,
-#'                                 variable,
-#'                                 correct = c("Sex"),
-#'                                 correct_type = c("factor"),
-#'                                 wide = TRUE,
-#'                                 volcano = TRUE,
-#'                                 pval_lim = 0.05,
-#'                                 logfc_lim = 0,
-#'                                 top_up_prot = 40,
-#'                                 top_down_prot = 10,
-#'                                 palette = "diff_exp",
-#'                                 report_nproteins = TRUE,
-#'                                 user_defined_proteins = NULL,
-#'                                 subtitle = NULL,
-#'                                 save = FALSE) {
-#'
-#'   Variable <- rlang::sym(variable)
-#'
-#'   # Prepare Olink data and merge them with metadata
-#'   if (isFALSE(wide)) {
-#'     wide_data <- widen_data(olink_data)
-#'
-#'     nrows_before <- nrow(wide_data)
-#'     join_data <- wide_data |>
-#'       dplyr::left_join(
-#'         metadata |> dplyr::select(dplyr::any_of(c("DAid", variable, correct))),
-#'         by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   } else {
-#'     nrows_before <- nrow(olink_data)
-#'     join_data <- olink_data |>
-#'       dplyr::left_join(metadata |>
-#'                          dplyr::select(dplyr::any_of(c("DAid", variable, correct))),
-#'                        by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   }
-#'
-#'   # Run differential expression analysis
-#'   de_results <- do_limma_continuous_de(join_data,
-#'                                        variable,
-#'                                        correct,
-#'                                        correct_type,
-#'                                        pval_lim,
-#'                                        logfc_lim)
-#'
-#'   # Generate (and save) volcano plots
-#'   if (volcano) {
-#'     volcano_plot <- plot_volcano(de_results,
-#'                                  pval_lim,
-#'                                  logfc_lim,
-#'                                  top_up_prot,
-#'                                  top_down_prot,
-#'                                  palette,
-#'                                  variable,
-#'                                  report_nproteins,
-#'                                  user_defined_proteins,
-#'                                  subtitle)
-#'
-#'     if (isTRUE(save)) {
-#'       dir_name <- create_dir("results/volcano_plot", date = T)
-#'       for (i in 1:length(levels)) {
-#'         ggplot2::ggsave(volcano_plot[[i]], filename = paste0(dir_name, "/", levels[i], "_volcano.png"), width = 10, height = 8)
-#'       }
-#'     }
-#'     return(list("de_results" = de_results, "volcano_plot" = volcano_plot))
-#'   }
-#'   return(de_results)
-#' }
-#'
-#'
-#' #' Run differential expression analysis with t-test
-#' #'
-#' #' `do_ttest()` performs differential expression analysis using t-test.
-#' #' It separates the data in case-control groups, checks for data normality and
-#' #' perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
-#' #' It can generate and save volcano plots.
-#' #'
-#' #' @param olink_data A tibble with the Olink data in wide format.
-#' #' @param metadata A tibble with the metadata.
-#' #' @param variable The variable of interest that includes the case and control groups.
-#' #' @param case The case group.
-#' #' @param control The control groups.
-#' #' @param wide If the data is in wide format. Default is TRUE.
-#' #' @param only_female The female specific diseases. Default is NULL.
-#' #' @param only_male The male specific diseases. Default is NULL.
-#' #' @param volcano Generate volcano plots. Default is TRUE.
-#' #' @param pval_lim The p-value limit of significance. Default is 0.05.
-#' #' @param logfc_lim The logFC limit of significance. Default is 0.
-#' #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 40.
-#' #' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 10.
-#' #' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "diff_exp".
-#' #' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
-#' #' @param user_defined_proteins A list with the user defined proteins to label on the plot. Default is NULL.
-#' #' @param subtitle The subtitle of the plot or NULL for no subtitle.
-#' #' @param save Save the volcano plots. Default is FALSE.
-#' #'
-#' #' @return A list with the differential expression results and volcano plots.
-#' #'   - de_results: A list with the differential expression results.
-#' #'   - volcano_plots: A list with the volcano plots.
-#' #' @export
-#' #'
-#' #' @details
-#' #' It will filter out rows with NA values in any of the columns that are used for
-#' #' correction, either the `variable` or in `correct`. The `user_defined_proteins`
-#' #' overrides the `top_up_prot` and `top_down_prot` arguments.
-#' #'
-#' #' @examples
-#' #' de_results <- do_ttest(example_data,
-#' #'                        example_metadata,
-#' #'                        case = "AML",
-#' #'                        control = c("CLL", "MYEL"),
-#' #'                        wide = FALSE)
-#' #'
-#' #' # Results for AML
-#' #' de_results$de_results
-#' #'
-#' #' # Volcano plot for AML
-#' #' de_results$volcano_plot
-#' do_ttest <- function(olink_data,
-#'                      metadata,
-#'                      variable = "Disease",
-#'                      case,
-#'                      control,
-#'                      wide = TRUE,
-#'                      only_female = NULL,
-#'                      only_male = NULL,
-#'                      volcano = TRUE,
-#'                      pval_lim = 0.05,
-#'                      logfc_lim = 0,
-#'                      top_up_prot = 40,
-#'                      top_down_prot = 10,
-#'                      palette = "diff_exp",
-#'                      report_nproteins = TRUE,
-#'                      user_defined_proteins = NULL,
-#'                      subtitle = NULL,
-#'                      save = FALSE) {
-#'
-#'   Variable <- rlang::sym(variable)
-#'   # Prepare Olink data and merge them with metadata
-#'   if (isFALSE(wide)) {
-#'     wide_data <- widen_data(olink_data)
-#'
-#'     nrows_before <- nrow(wide_data)
-#'     join_data <- wide_data |>
-#'       dplyr::left_join(
-#'         metadata |> dplyr::select(dplyr::any_of(c("DAid", variable, "Sex"))),
-#'         by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   } else {
-#'     nrows_before <- nrow(olink_data)
-#'     join_data <- olink_data |>
-#'       dplyr::left_join(metadata |>
-#'                          dplyr::select(dplyr::any_of(c("DAid", variable, "Sex"))),
-#'                        by = "DAid") |>
-#'       dplyr::filter(!is.na(!!Variable))
-#'
-#'     nrows_after <- nrow(join_data)
-#'     if (nrows_before != nrows_after){
-#'       warning(paste0(nrows_before - nrows_after,
-#'                      " rows were removed because data did not match metadata and NAs were created in ",
-#'                      variable,
-#'                      "!"))
-#'     }
-#'   }
-#'
-#'   # Run differential expression analysis
-#'   long_data <- join_data |>
-#'     dplyr::select(-dplyr::any_of(c("Age", "BMI"))) |>
-#'     tidyr::pivot_longer(!dplyr::any_of(c(variable, "DAid", "Disease", "Sex")), names_to = "Assay", values_to = "NPX")
-#'
-#'   assays <- unique(long_data$Assay)
-#'
-#'   normality_res <- check_normality(
-#'     join_data |>
-#'       dplyr::select(-dplyr::any_of(c(variable, "DAid", "Disease", "Sex", "Age", "BMI")))
-#'   ) |>
-#'     dplyr::pull(is_normal)
-#'
-#'   de_results <- do_ttest_de(long_data,
-#'                             variable,
-#'                             case,
-#'                             control,
-#'                             assays,
-#'                             normality_res,
-#'                             only_female,
-#'                             only_male,
-#'                             pval_lim,
-#'                             logfc_lim)
-#'
-#'   # Generate (and save) volcano plots
-#'   if (volcano) {
-#'     volcano_plot <- plot_volcano(de_results,
-#'                                  pval_lim,
-#'                                  logfc_lim,
-#'                                  top_up_prot,
-#'                                  top_down_prot,
-#'                                  palette,
-#'                                  case,
-#'                                  report_nproteins,
-#'                                  user_defined_proteins,
-#'                                  subtitle)
-#'
-#'     if (isTRUE(save)) {
-#'       dir_name <- create_dir("results/volcano_plots", date = T)
-#'       ggplot2::ggsave(volcano_plot,
-#'                       filename = paste0(dir_name, "/", case, "_volcano.png"),
-#'                       width = 10,
-#'                       height = 8)
-#'     }
-#'     return(list("de_results" = de_results, "volcano_plot" = volcano_plot))
-#'   }
-#'   return(de_results)
-#' }
-#'
-#'
+utils::globalVariables(":=")
+#' Differential expression analysis with limma
+#'
+#' `limma_de()` performs differential expression analysis using limma package.
+#' It can correct the results for metadata columns like Sex, Age, or BMI.
+#' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
+#' The function removes the NAs from the columns that are used to correct for.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
+#' @param variable The name of the column containing the case and control groups or a continuous variable.
+#' @param case The case group. In case of a continuous variable, it must be NULL.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.
+#' @param correct The variables to correct the results with. Default is NULL.
+#'
+#' @return A tibble with the differential expression results.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Run differential expression analysis for AML vs all others
+#' hd_run_de_limma(hd_object, case = "AML")
+#'
+#' # Run differential expression analysis for AML vs CLL and MYEL and correct for metadata variables
+#' hd_run_de_limma(hd_object,
+#'                 case = "AML",
+#'                 control = c("CLL", "MYEL"),
+#'                 correct = c("Sex", "Age", "BMI"))
+#'
+#' # Run differential expression analysis for continuous variable
+#' hd_run_de_limma(hd_object, variable = "Age", case = NULL, correct = c("Sex"))
+hd_run_de_limma <- function(dat,
+                            metadata = NULL,
+                            variable = "Disease",
+                            case,
+                            control = NULL,
+                            correct = NULL) {
+
+  Variable <- rlang::sym(variable)
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    metadata <- dat[["metadata"]]
+    sample_id <- dat[["sample_id"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+  }
+
+  # If control is NULL, set it to the unique values of the variable that are not the case
+  if (is.null(control)){
+    control <- setdiff(unique(metadata[[variable]]), case)
+  }
+  variable_type <- hd_detect_vartype(metadata[[variable]])
+
+  join_data <- wide_data |>
+    dplyr::left_join(metadata |>
+                       dplyr::select(dplyr::all_of(c(sample_id, variable, correct))),
+                     by = sample_id) |>
+    dplyr::filter(!!Variable %in% c(case, control))
+
+  nrows_before <- nrow(join_data)
+
+  join_data <- join_data |>
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable, correct)), is.na))  # Remove NAs from columns in formula
+
+  if (variable_type == "categorical") {
+    join_data <- join_data |>
+      dplyr::mutate(!!Variable := ifelse(!!Variable == case, "1_Case", "0_Control"))
+  }
+
+  nrows_after <- nrow(join_data)
+  if (nrows_before != nrows_after){
+    warning(paste0(nrows_before - nrows_after,
+                   " rows were removed because they contain NAs in ",
+                   variable,
+                   " or ",
+                   paste(correct, collapse = ", "),
+                   "!"))
+  }
+
+  # Design a model
+  if (variable_type == "categorical") {
+    formula <- paste("~0 + as.factor(", variable, ")")
+  } else {
+    formula <- paste("~0 +" , variable)
+  }
+
+  if (!is.null(correct)) {
+    var_types <- sapply(metadata |>
+                          dplyr::select(dplyr::all_of(c(correct))),
+                        hd_detect_vartype)
+    for (i in correct) {
+      if (var_types[i] == "categorical") {
+        cofactor = paste("as.factor(", i, ")")
+      } else {
+        cofactor = i
+      }
+      formula <- paste(formula, "+", cofactor)
+    }
+  }
+
+  design <- stats::model.matrix(stats::as.formula(formula), data = join_data)
+  if (variable_type == "categorical") {
+    cols <- c("control", "case", correct)
+    cols <- cols[!is.null(cols)]
+    colnames(design) <- paste(cols)
+    contrast <- limma::makeContrasts(Diff = case - control, levels = design)
+  }
+
+  # Fit linear model to each protein assay
+  data_fit <- join_data |>
+    dplyr::select(-dplyr::any_of(c(variable, correct))) |>
+    tibble::column_to_rownames(sample_id) |>
+    t()
+
+  fit <- limma::lmFit(data_fit, design = design, method = "robust", maxit = 10000)
+
+  # Apply empirical Bayes smoothing to the SE
+  if (variable_type == "categorical") {
+    contrast_fit <- limma::contrasts.fit(fit, contrast)
+    ebays_fit <- limma::eBayes(contrast_fit)
+  } else {
+    ebays_fit <- limma::eBayes(fit)
+  }
+
+  # Extract DE results
+  de_results <- limma::topTable(ebays_fit,
+                                n = nrow(ebays_fit$p.value),
+                                adjust.method = "fdr",
+                                confint = TRUE)
+
+  if (variable_type == "categorical") {
+    de_res <- de_results |>
+      tibble::as_tibble(rownames = "Feature") |>
+      dplyr::mutate(!!Variable := case) |>
+      dplyr::arrange(!!rlang::sym("adj.P.Val"))
+  } else {
+    de_res <- de_results |>
+      tibble::as_tibble(rownames = "Feature") |>
+      dplyr::rename(logFC = colnames(de_results)[1]) |>
+      dplyr::arrange(!!rlang::sym("adj.P.Val"))
+  }
+
+  de_res <- list("de_res" = de_res)
+  class(de_res) <- "hd_de"
+
+  return(de_res)
+}
+
+
+#' Create volcano plots
+#'
+#' `plot_volcano()` creates volcano plots for the differential expression results.
+#' It colors and labels the top up and down regulated proteins.
+#'
+#' @param de_object The differential expression object. Created by `hd_run_de_limma()`.
+#' @param pval_lim The p-value limit for significance. Default is 0.05.
+#' @param logfc_lim The logFC limit for significance. Default is 0.
+#' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 10.
+#' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 5.
+#' @param palette The color palette for the plot. It should be one of the palettes from `hd_palettes()` or a custom palette. Default is "diff_exp".
+#' @param title The title of the plot or NULL for no title.
+#' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
+#' @param user_defined_proteins A vector with the protein names to label on the plot. Default is NULL.
+#' @param subtitle The subtitle of the plot or NULL for no subtitle.
+#'
+#' @return A ggplot object with the volcano plot.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Run differential expression analysis for AML vs all others
+#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#'
+#' # Create a volcano plot
+#' hd_plot_volcano(de_results)
+hd_plot_volcano <- function(de_object,
+                            pval_lim = 0.05,
+                            logfc_lim = 0,
+                            top_up_prot = 10,
+                            top_down_prot = 5,
+                            palette = "diff_exp",
+                            title = NULL,
+                            report_nproteins = TRUE,
+                            user_defined_proteins = NULL,
+                            subtitle = NULL) {
+
+  if (!inherits(de_object, "hd_de")) {
+    stop("The input object is not a differential expression object.")
+  }
+  if (is.null(de_object[["de_res"]])){
+    stop("The input object does not contain the differential expression results.")
+  }
+
+  top.sig.down <- de_object[["de_res"]] |>
+    dplyr::filter(!!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim) |>
+    dplyr::arrange(!!rlang::sym("adj.P.Val")) |>
+    dplyr::pull(!!rlang::sym("Feature"))
+
+  top.sig.up <- de_object[["de_res"]] |>
+    dplyr::filter(!!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim) |>
+    dplyr::arrange(!!rlang::sym("adj.P.Val")) |>
+    dplyr::pull(!!rlang::sym("Feature"))
+
+  if (is.null(user_defined_proteins)) {
+    top.sig.prot <- c(top.sig.up[1:top_up_prot], top.sig.down[1:top_down_prot])
+  } else {
+    top.sig.prot <- user_defined_proteins
+  }
+
+  tab <- de_object[["de_res"]] |>
+    dplyr::mutate(
+      sig.label = ifelse(!!rlang::sym("Feature") %in% top.sig.prot, "top significance", 0),
+      sig = dplyr::case_when(
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim ~ "significant up",
+        TRUE ~ "not significant"
+      )
+    )
+
+  num.sig.up <- length(top.sig.up)
+  num.sig.down <- length(top.sig.down)
+
+  p <- de_object[["de_res"]] |>
+    dplyr::mutate(sig = dplyr::case_when(
+      !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
+      !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim ~ "significant up",
+      TRUE ~ "not significant"
+    )) |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("logFC"),
+                                 y = -log10(!!rlang::sym("adj.P.Val")),
+                                 color = !!rlang::sym("sig"),
+                                 label = !!rlang::sym("Feature"))) +
+    ggplot2::geom_point(size = 1, alpha = 0.4) +
+    ggrepel::geom_text_repel(data = subset(tab, !!rlang::sym("sig.label") == "top significance"), show.legend = FALSE) +
+    ggplot2::geom_hline(yintercept = -log10(pval_lim), linetype = 'dashed') +
+    ggplot2::geom_vline(xintercept = logfc_lim, linetype = 'dashed') +
+    ggplot2::geom_vline(xintercept = -logfc_lim, linetype = 'dashed') +
+    ggplot2::labs(color = "Significance")
+
+  # Title and subtitle
+  if (!is.null(title)) {
+    p <- p + ggplot2::ggtitle(label = paste0(title, ""))
+  }
+
+  subtitle_text <- ""
+  if (!is.null(subtitle)) {
+    subtitle_text = subtitle
+  }
+
+  if (isTRUE(report_nproteins)) {
+    if (subtitle_text != "") {
+      subtitle_text = paste0(subtitle_text,
+                             "\nNum significant up = ", num.sig.up,
+                             "\nNum significant down = ", num.sig.down)
+    } else {
+      subtitle_text = paste0("Num significant up = ", num.sig.up,
+                             "\nNum significant down = ", num.sig.down)
+    }
+  }
+
+  if (subtitle_text != "") {
+    p <- p + ggplot2::ggtitle(label = paste0(title, ""), subtitle = subtitle_text)
+  }
+
+  # Set palette
+  p <- apply_palette(p, palette, type = "color")
+
+  de_object[["volcano_plot"]] <- p + theme_hd() + ggplot2::theme(legend.position = "none")
+
+  return(de_object)
+}
+
+
 #' #' Extract protein lists from the upset data
 #' #'
 #' #' `extract_protein_list()` extracts the protein lists from the upset data.
@@ -878,8 +333,8 @@
 #' #' It also creates upset plots both for the significant up and down regulated proteins for each disease.
 #' #'
 #' #' @param de_results A list of differential expression results.
-#' #' @param disease_palette The color palette for the disease. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "diff_exp".
+#' #' @param disease_palette The color palette for the disease. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
 #' #' @param verbose If the function should print the different sets of significant proteins for each disease. Default is TRUE.
 #' #'
 #' #' @return A list containing the following plots:

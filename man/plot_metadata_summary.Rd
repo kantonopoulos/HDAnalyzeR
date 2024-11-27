@@ -7,7 +7,7 @@
 plot_metadata_summary(
   metadata,
   sample_id,
-  class_var,
+  variable,
   palette = NULL,
   unique_threshold = 5
 )
@@ -17,7 +17,7 @@ plot_metadata_summary(
 
 \item{sample_id}{The name of the column containing the sample IDs.}
 
-\item{class_var}{The name of the column containing the class variable.}
+\item{variable}{The name of the column containing the different classes.}
 
 \item{palette}{A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.}
 

@@ -359,7 +359,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' @param x The name of the column in `dim_res` that contains the x-axis values.
 #' @param y The name of the column in `dim_res` that contains the y-axis values.
 #' @param color The name of the column in `dim_res` that contains the variable to be used to plot the points color.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`.
+#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `hd_palettes()`.
 #' @param plot_loadings The component to be plotted. Default is NULL.
 #' @param nloadings The number of loadings to be plotted. Default is 5.
 #' @param axis_variance If TRUE, the explained variance of the components is added to the axis labels. Default is TRUE.
@@ -437,7 +437,7 @@ hd_plot_dim <- function(dim_object,
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
 #' @param plot_y The name of the column in `dim_res` that contains the y-axis values. Default is "PC2".
 #' @param plot_color The name of the column in `dim_res` that contains the variable to be used to plot the points color. Default is NULL.
-#' @param plot_palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
+#' @param plot_palette The color palette for the plot. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #'
 #' @return A list with the PCA results and PCA plots.
 #' @export
@@ -560,7 +560,7 @@ hd_run_umap <- function(dat,
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
 #' @param plot_y The name of the column in `dim_res` that contains the y-axis values. Default is "PC2".
 #' @param plot_color The name of the column in `dim_res` that contains the variable to be used to plot the points color. Default is NULL.
-#' @param plot_palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
+#' @param plot_palette The color palette for the plot. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #'
 #' @return A list with the UMAP results and UMAP plots.
 #' @export

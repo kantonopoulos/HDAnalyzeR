@@ -7,7 +7,7 @@
 hd_qc_summary(
   dat,
   metadata,
-  class_var,
+  variable,
   palette = NULL,
   unique_threshold = 5,
   cor_threshold = 0.8,
@@ -20,7 +20,7 @@ hd_qc_summary(
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
-\item{class_var}{The name of the column containing the variable with the classes (for example the column that contains you case and control groups).}
+\item{variable}{The name of the column containing the different classes (for example the column that contains your case and control groups).}
 
 \item{palette}{A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.}
 
@@ -47,7 +47,7 @@ hd_object <- hd_initialize(example_data,
 
 # Run the quality control summary
 hd_qc_summary(hd_object,
-              class_var = "Disease",
+              variable = "Disease",
               palette = list(Disease = "cancers12", Sex = "sex"),
               cor_threshold = 0.7,
               verbose = FALSE)

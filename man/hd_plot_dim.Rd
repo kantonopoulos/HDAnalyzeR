@@ -27,7 +27,7 @@ hd_plot_dim(
 
 \item{color}{The name of the column in \code{dim_res} that contains the variable to be used to plot the points color.}
 
-\item{palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}.}
+\item{palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{hd_palettes()}.}
 
 \item{plot_loadings}{The component to be plotted. Default is NULL.}
 
