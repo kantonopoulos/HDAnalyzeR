@@ -27,7 +27,7 @@ hd_run_de_limma(
 \item{correct}{The variables to correct the results with. Default is NULL.}
 }
 \value{
-A tibble with the differential expression results.
+An object with the DE results.
 }
 \description{
 \code{limma_de()} performs differential expression analysis using limma package.

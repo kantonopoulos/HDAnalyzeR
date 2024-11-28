@@ -36,7 +36,6 @@ working together with other packages.
 
 ## Differential Expression Analysis
 - Merge `do_limma()` and `do_limma_continuous()` to new `hd_run_de_limma()` that recognizes the variable type automatically.
-- `do_ttest()` was deprecated as it is considered redundant. The users are recommended to run `hd_run_de_limma()` instead as it is more flexible and powerful.
 - `hd_plot_volcano()` is now a function alone.
 
 ## Classification Models

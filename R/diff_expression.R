@@ -13,7 +13,7 @@ utils::globalVariables(":=")
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.
 #' @param correct The variables to correct the results with. Default is NULL.
 #'
-#' @return A tibble with the differential expression results.
+#' @return An object with the DE results.
 #' @export
 #'
 #' @examples
@@ -153,6 +153,112 @@ hd_run_de_limma <- function(dat,
 }
 
 
+#' Differential expression analysis with t-test
+#'
+#' `hd_run_de_ttest()` performs differential expression analysis using t-test.
+#' It separates the data in case-control groups, checks for data normality and
+#' perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
+#' @param variable The name of the column containing the case and control groups.
+#' @param case The case group.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case.
+#'
+#' @return An object with the DE results.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Run differential expression analysis for AML vs all others
+#' hd_run_de_ttest(hd_object, case = "AML")
+#'
+#' # Run differential expression analysis for AML vs CLL
+#' hd_run_de_ttest(hd_object, case = "AML", control = "CLL")
+hd_run_de_ttest <- function(dat,
+                            metadata = NULL,
+                            variable = "Disease",
+                            case,
+                            control = NULL) {
+
+  Variable <- rlang::sym(variable)
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    metadata <- dat[["metadata"]]
+    sample_id <- dat[["sample_id"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+  }
+
+  # If control is NULL, set it to the unique values of the variable that are not the case
+  if (is.null(control)){
+    control <- setdiff(unique(metadata[[variable]]), case)
+  }
+
+  join_data <- wide_data |>
+    dplyr::left_join(metadata |>
+                       dplyr::select(dplyr::all_of(c(sample_id, variable))),
+                     by = sample_id) |>
+    dplyr::filter(!!Variable %in% c(case, control))
+
+  nrows_before <- nrow(join_data)
+
+  join_data <- join_data |>
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na))  # Remove NAs from columns in formula
+
+  nrows_after <- nrow(join_data)
+  if (nrows_before != nrows_after){
+    warning(paste0(nrows_before - nrows_after,
+                   " rows were removed because they contain NAs in ",
+                   variable,
+                   "!"))
+  }
+
+  de_res <- matrix(nrow=0, ncol=5)
+  colnames(de_res) <- c("Feature", "logFC", "t", "P.Value", variable)
+
+  # Run statistical test for each assay
+  de_res_list <- lapply(names(wide_data[-1]), function(assay) {
+    case_group <- join_data |>
+      dplyr::filter(!!Variable == case) |>
+      dplyr::pull(!!rlang::sym(assay))
+
+    control_group <- join_data |>
+      dplyr::filter(!!Variable %in% control) |>
+      dplyr::pull(!!rlang::sym(assay))
+
+
+    test_res <- stats::t.test(case_group, control_group)
+
+    t.val <- test_res[["statistic"]]
+    p.val <- test_res[["p.value"]]
+    difference <- mean(case_group, na.rm = TRUE) - mean(control_group, na.rm = TRUE)
+
+    de_res <- rbind(de_res, c(assay, difference, t.val, p.val, case))
+  })
+
+  combined_de_res <- do.call(rbind, de_res_list)
+  combined_de_res <- as.data.frame(combined_de_res) |>
+    dplyr::mutate(P.Value = as.numeric(!!rlang::sym("P.Value")),
+                  logFC = as.numeric(!!rlang::sym("logFC")))
+  combined_de_res[["adj.P.Val"]] <- stats::p.adjust(combined_de_res$P.Value, method = "fdr")
+  de_res <- combined_de_res |>
+    dplyr::arrange(!!rlang::sym("adj.P.Val")) |>
+    dplyr::relocate(!!Variable, .after = !!rlang::sym("adj.P.Val"))
+
+  de_res <- list("de_res" = tibble::as_tibble(de_res))
+  class(de_res) <- "hd_de"
+
+  return(de_res)
+}
+
+
 #' Create volcano plots
 #'
 #' `plot_volcano()` creates volcano plots for the differential expression results.
@@ -169,7 +275,7 @@ hd_run_de_limma <- function(dat,
 #' @param user_defined_proteins A vector with the protein names to label on the plot. Default is NULL.
 #' @param subtitle The subtitle of the plot or NULL for no subtitle.
 #'
-#' @return A ggplot object with the volcano plot.
+#' @return An object with the DE results and the volcano plot.
 #' @export
 #'
 #' @examples
@@ -279,206 +385,195 @@ hd_plot_volcano <- function(de_object,
 }
 
 
-#' #' Extract protein lists from the upset data
-#' #'
-#' #' `extract_protein_list()` extracts the protein lists from the upset data.
-#' #' It creates a list with the proteins for each combination of diseases.
-#' #' It also creates a tibble with the proteins for each combination of diseases.
-#' #'
-#' #' @param upset_data A tibble with the upset data.
-#' #' @param proteins A list with the protein lists for each disease.
-#' #'
-#' #' @return A list with the following elements:
-#' #'  - proteins_list: A list with the proteins for each combination of diseases.
-#' #'  - proteins_df: A tibble with the proteins for each combination of diseases.
-#' #' @keywords internal
-#' extract_protein_list <- function(upset_data, proteins) {
-#'   combinations <- as.data.frame(upset_data)
-#'   proteins_list <- list()
+#' Extract protein lists from the upset data
 #'
-#'   for (i in 1:nrow(combinations)) {
-#'     combo <- combinations[i, ]
-#'     set_names <- names(combo)[combo == 1]
-#'     set_name <- paste(set_names, collapse = "&")
-#'     protein_set <- Reduce(intersect, proteins[set_names])
-#'     proteins_list[[set_name]] <- protein_set
-#'   }
+#' `extract_protein_list()` extracts the protein lists from the upset data.
+#' It creates a list with the proteins for each combination of diseases.
+#' It also creates a tibble with the proteins for each combination of diseases.
 #'
-#'   proteins_df <- do.call(rbind, lapply(names(proteins_list), function(set_name) {
-#'     tibble::tibble(
-#'       "Shared in" = set_name,
-#'       "up/down" = ifelse(grepl("down", deparse(substitute(proteins_list))), "down", "up"),
-#'       "Assay" = unique(unlist(proteins_list[[set_name]]))
-#'     )
-#'   }))
+#' @param upset_data A tibble with the upset data.
+#' @param proteins A list with the protein lists for each disease.
 #'
-#'   proteins_df <- proteins_df |>
-#'     dplyr::mutate(Priority = stringr::str_count(`Shared in`, "&"))
+#' @return A list with the following elements:
+#'  - proteins_list: A list with the proteins for each combination of diseases.
+#'  - proteins_df: A tibble with the proteins for each combination of diseases.
+#' @keywords internal
+extract_protein_list <- function(upset_data, proteins) {
+  combinations <- as.data.frame(upset_data)
+  proteins_list <- list()
+
+  for (i in 1:nrow(combinations)) {
+    combo <- combinations[i, ]
+    set_names <- names(combo)[combo == 1]
+    set_name <- paste(set_names, collapse = "&")
+    protein_set <- Reduce(intersect, proteins[set_names])
+    proteins_list[[set_name]] <- protein_set
+  }
+
+  proteins_df <- do.call(rbind, lapply(names(proteins_list), function(set_name) {
+    tibble::tibble(
+      "Shared_in" = set_name,
+      "up/down" = ifelse(grepl("down", deparse(substitute(proteins_list))), "down", "up"),
+      "Feature" = unique(unlist(proteins_list[[set_name]]))
+    )
+  }))
+
+  proteins_df <- proteins_df |>
+    dplyr::mutate(Priority = stringr::str_count(!!rlang::sym("Shared_in"), "&"))
+
+  proteins_df <- proteins_df |>
+    dplyr::arrange(!!rlang::sym("Feature"), dplyr::desc(!!rlang::sym("Priority"))) |>
+    dplyr::group_by(!!rlang::sym("Feature")) |>
+    dplyr::slice(1) |>
+    dplyr::ungroup() |>
+    dplyr::select(-!!rlang::sym("Priority"))
+
+  return(list("proteins_list" = proteins_list, "proteins_df" = proteins_df))
+}
+
+
+#' Plot summary visualizations for the differential expression results
 #'
-#'   proteins_df <- proteins_df |>
-#'     dplyr::arrange(Assay, dplyr::desc(Priority)) |>
-#'     dplyr::group_by(Assay) |>
-#'     dplyr::slice(1) |>
-#'     dplyr::ungroup() |>
-#'     dplyr::select(-Priority)
+#' `plot_de_summary()` creates summary visualizations for the differential expression results.
+#' It plots a barplot with the number of significant proteins for each disease.
+#' It also creates upset plots both for the significant up and down regulated proteins for each disease.
 #'
-#'   return(list("proteins_list" = proteins_list, "proteins_df" = proteins_df))
-#' }
+#' @param de_results A list of differential expression results. It should be a list of objects created by `hd_run_de_limma()` with the classes as names. See the examples for more details.
+#' @param variable The name of the column containing the case and control groups.
+#' @param class_palette The color palette for the classes If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
+#' @param pval_lim The p-value limit for significance. Default is 0.05.
+#' @param logfc_lim The logFC limit for significance. Default is 0.
 #'
+#' @return A list with the DE summary plots and results
+#' @export
 #'
-#' #' Plot summary visualizations for the differential expression results
-#' #'
-#' #' `plot_de_summary()` creates summary visualizations for the differential expression results.
-#' #' It plots a barplot with the number of significant proteins for each disease.
-#' #' It also creates upset plots both for the significant up and down regulated proteins for each disease.
-#' #'
-#' #' @param de_results A list of differential expression results.
-#' #' @param disease_palette The color palette for the disease. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
-#' #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
-#' #' @param verbose If the function should print the different sets of significant proteins for each disease. Default is TRUE.
-#' #'
-#' #' @return A list containing the following plots:
-#' #'   - de_barplot: A barplot with the number of significant proteins for each disease.
-#' #'   - upset_plot_up: An upset plot with the significant up regulated proteins for each disease.
-#' #'   - upset_plot_down: An upset plot with the significant down regulated proteins for each disease.
-#' #'   - proteins_df_up: A tibble with the significant up regulated proteins for each combination of diseases.
-#' #'   - proteins_df_down: A tibble with the significant down regulated proteins for each combination of diseases.
-#' #'   - proteins_list_up: A list with the significant up regulated proteins for each combination of diseases.
-#' #'   - proteins_list_down: A list with the significant down regulated proteins for each combination of diseases.
-#' #'
-#' #' @export
-#' #'
-#' #' @examples
-#' #' # Run differential expression analysis for 3 different cases
-#' #' de_results_aml <- do_limma(example_data,
-#' #'                            example_metadata,
-#' #'                            case = "AML",
-#' #'                            control = c("BRC", "PRC"),
-#' #'                            wide = FALSE,
-#' #'                            only_female = "BRC",
-#' #'                            only_male = "PRC")
-#' #'
-#' #' de_results_brc <- do_limma(example_data,
-#' #'                            example_metadata,
-#' #'                            case = "BRC",
-#' #'                            control = c("AML", "PRC"),
-#' #'                            wide = FALSE,
-#' #'                            only_female = "BRC",
-#' #'                            only_male = "PRC")
-#' #'
-#' #' de_results_prc <- do_limma(example_data,
-#' #'                            example_metadata,
-#' #'                            case = "PRC",
-#' #'                            control = c("AML", "BRC"),
-#' #'                            wide = FALSE,
-#' #'                            only_female = "BRC",
-#' #'                            only_male = "PRC")
-#' #'
-#' #' # Combine the results
-#' #' res <- list("AML" = de_results_aml,
-#' #'             "BRC" = de_results_brc,
-#' #'             "PRC" = de_results_prc)
-#' #'
-#' #' # Plot summary visualizations
-#' #' plot_de_summary(res)
-#' plot_de_summary <- function(de_results,
-#'                             disease_palette = NULL,
-#'                             diff_exp_palette = "diff_exp",
-#'                             verbose = TRUE) {
-#'   de_res_list <- list()
-#'   for (i in 1:length(de_results)) {
-#'     de_res_list[[i]] <- de_results[[i]]$de_results |>
-#'       dplyr::mutate(Disease = de_results[[i]]$de_results$Disease)
-#'   }
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
 #'
-#'   barplot_data <- de_res_list |>
-#'     dplyr::bind_rows() |>
-#'     dplyr::mutate(sig = factor(sig, levels = c("not significant", "significant down", "significant up"))) |>
-#'     dplyr::group_by(Disease, sig) |>
-#'     dplyr::summarise(Count = dplyr::n()) |>
-#'     dplyr::ungroup()
+#' # Run differential expression analysis for AML vs all others
+#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results_lungc <- hd_run_de_limma(hd_object, case = "LUNGC")
+#' de_results_cll <- hd_run_de_limma(hd_object, case = "CLL")
+#' de_results_myel <- hd_run_de_limma(hd_object, case = "MYEL")
+#' de_results_gliom <- hd_run_de_limma(hd_object, case = "GLIOM")
 #'
-#'   de_barplot <- barplot_data |>
-#'     ggplot2::ggplot(ggplot2::aes(x = Disease, y = Count, fill = sig)) +
-#'     ggplot2::geom_bar(stat = "identity", position = "stack") +
-#'     ggplot2::labs(x = "", y = "Number of proteins", fill = "Significance") +
-#'     theme_hpa(angled = T) +
-#'     ggplot2::theme(legend.position = "top",
-#'                    legend.title = ggplot2::element_text(face = "bold"))
+#' res <- list("AML" = de_results_aml,
+#'             "LUNGC" = de_results_lungc,
+#'             "CLL" = de_results_cll,
+#'             "MYEL" = de_results_myel,
+#'             "GLIOM" = de_results_gliom)
 #'
-#'   if (is.null(names(diff_exp_palette)) && !is.null(diff_exp_palette)) {
-#'     de_barplot <- de_barplot + scale_fill_hpa(diff_exp_palette)
-#'   } else if (!is.null(diff_exp_palette)) {
-#'     de_barplot <- de_barplot + ggplot2::scale_fill_manual(values = diff_exp_palette)
-#'   }
-#'
-#'   significant_proteins_up <- lapply(names(de_results), function(disease) {
-#'     significant_proteins_up <- de_results[[disease]]$de_results |>
-#'       dplyr::filter(sig == "significant up") |>
-#'       dplyr::pull(Assay)
-#'
-#'   })
-#'   names(significant_proteins_up) <- names(de_results)
-#'
-#'   significant_proteins_down <- lapply(names(de_results), function(disease) {
-#'
-#'     significant_proteins_down <- de_results[[disease]]$de_results |>
-#'       dplyr::filter(sig == "significant down") |>
-#'       dplyr::pull(Assay)
-#'
-#'   })
-#'   names(significant_proteins_down) <- names(de_results)
-#'
-#'   significant_proteins <- list("up" = significant_proteins_up, "down" = significant_proteins_down)
-#'
-#'   # Prepare palettes
-#'   if (is.null(names(disease_palette)) && !is.null(disease_palette)) {
-#'     pal <- get_hpa_palettes()[[disease_palette]]
-#'   } else if (!is.null(disease_palette)) {
-#'     pal <- disease_palette
-#'   } else {
-#'     pal <- rep("black", length(names(de_results)))
-#'     names(pal) <- names(de_results)
-#'   }
-#'   de_names <- names(significant_proteins_up)
-#'   ordered_colors <- pal[de_names]
-#'   frequencies_up <- sapply(significant_proteins_up, length)
-#'   ordered_names_up <- names(sort(frequencies_up, decreasing = TRUE))
-#'   print(ordered_names_up)
-#'   ordered_colors_up <- ordered_colors[ordered_names_up]
-#'   frequencies_down <- sapply(significant_proteins_down, length)
-#'   ordered_names_down <- names(sort(frequencies_down, decreasing = TRUE))
-#'   ordered_colors_down <- ordered_colors[ordered_names_down]
-#'
-#'   # Create upset data and extract protein lists
-#'   upset_up <- UpSetR::fromList(significant_proteins_up)
-#'   upset_down <- UpSetR::fromList(significant_proteins_down)
-#'   proteins_up <- extract_protein_list(upset_up, significant_proteins_up)
-#'   proteins_down <- extract_protein_list(upset_down, significant_proteins_down)
-#'
-#'   if (verbose) {
-#'     print(proteins_up$proteins_df)
-#'     print(proteins_down$proteins_df)
-#'   }
-#'
-#'   # Create upset plots
-#'   upset_plot_up <- UpSetR::upset(upset_up,
-#'                                  sets = ordered_names_up,
-#'                                  order.by = "freq",
-#'                                  nsets = length(ordered_names_up),
-#'                                  sets.bar.color = ordered_colors_up)
-#'
-#'   upset_plot_down <- UpSetR::upset(upset_down,
-#'                                    sets = ordered_names_down,
-#'                                    order.by = "freq",
-#'                                    nsets = length(ordered_names_down),
-#'                                    sets.bar.color = ordered_colors_down)
-#'
-#'   return(list("de_barplot" = de_barplot,
-#'               "upset_plot_up" = upset_plot_up,
-#'               "upset_plot_down" = upset_plot_down,
-#'               "proteins_df_up" = proteins_up$proteins_df,
-#'               "proteins_df_down" = proteins_down$proteins_df,
-#'               "proteins_list_up" = proteins_up$proteins_list,
-#'               "proteins_list_down" = proteins_down$proteins_list))
-#' }
+#' # Plot summary visualizations
+#' hd_plot_de_summary(res, class_palette = "cancers15")
+hd_plot_de_summary <- function(de_results,
+                               variable = "Disease",
+                               class_palette = NULL,
+                               diff_exp_palette = "diff_exp",
+                               pval_lim = 0.05,
+                               logfc_lim = 0) {
+
+  Variable <- rlang::sym(variable)
+  de_res_list <- list()
+  for (i in 1:length(de_results)) {
+    de_res_list[[i]] <- de_results[[i]][["de_res"]] |>
+      dplyr::mutate(sig = dplyr::case_when(
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim ~ "significant up",
+        TRUE ~ "not significant"
+      )) |>
+      dplyr::mutate(!!Variable := de_results[[i]][["de_res"]][[variable]])
+  }
+
+  barplot_data <- de_res_list |>
+    dplyr::bind_rows() |>
+    dplyr::mutate(sig = factor(!!rlang::sym("sig"), levels = c("not significant", "significant down", "significant up"))) |>
+    dplyr::group_by(!!Variable, !!rlang::sym("sig")) |>
+    dplyr::summarise(Count = dplyr::n()) |>
+    dplyr::ungroup()
+
+  de_barplot <- barplot_data |>
+    ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym("Count"), fill = !!rlang::sym("sig")), alpha = 0.4) +
+    ggplot2::geom_bar(stat = "identity", position = "stack") +
+    ggplot2::labs(x = "", y = "Number of proteins", fill = "Significance") +
+    theme_hd(angled = 90) +
+    ggplot2::theme(legend.position = "top",
+                   legend.title = ggplot2::element_text(face = "bold"))
+
+  de_barplot <- apply_palette(de_barplot, diff_exp_palette, type = "fill")
+
+  significant_proteins_up <- lapply(names(de_results), function(disease) {
+    significant_proteins_up <- de_results[[disease]][["de_res"]] |>
+      dplyr::mutate(sig = dplyr::case_when(
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim ~ "significant up",
+        TRUE ~ "not significant"
+      )) |>
+      dplyr::filter(!!rlang::sym("sig") == "significant up") |>
+      dplyr::pull(!!rlang::sym("Feature"))
+
+  })
+  names(significant_proteins_up) <- names(de_results)
+
+  significant_proteins_down <- lapply(names(de_results), function(disease) {
+
+    significant_proteins_down <- de_results[[disease]][["de_res"]] |>
+      dplyr::mutate(sig = dplyr::case_when(
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
+        !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim ~ "significant up",
+        TRUE ~ "not significant"
+      )) |>
+      dplyr::filter(!!rlang::sym("sig") == "significant down") |>
+      dplyr::pull(!!rlang::sym("Feature"))
+
+  })
+  names(significant_proteins_down) <- names(de_results)
+
+  significant_proteins <- list("up" = significant_proteins_up, "down" = significant_proteins_down)
+
+  # Prepare palettes
+  if (is.null(names(class_palette)) && !is.null(class_palette)) {
+    pal <- hd_palettes()[[class_palette]]
+  } else if (!is.null(class_palette)) {
+    pal <- class_palette
+  } else {
+    pal <- rep("black", length(names(de_results)))
+    names(pal) <- names(de_results)
+  }
+  de_names <- names(significant_proteins_up)
+  ordered_colors <- pal[de_names]
+  frequencies_up <- sapply(significant_proteins_up, length)
+  ordered_names_up <- names(sort(frequencies_up, decreasing = TRUE))
+  ordered_colors_up <- ordered_colors[ordered_names_up]
+  frequencies_down <- sapply(significant_proteins_down, length)
+  ordered_names_down <- names(sort(frequencies_down, decreasing = TRUE))
+  ordered_colors_down <- ordered_colors[ordered_names_down]
+
+  # Create upset data and extract protein lists
+  upset_up <- UpSetR::fromList(significant_proteins_up)
+  upset_down <- UpSetR::fromList(significant_proteins_down)
+  proteins_up <- extract_protein_list(upset_up, significant_proteins_up)
+  proteins_down <- extract_protein_list(upset_down, significant_proteins_down)
+
+  # Create upset plots
+  upset_plot_up <- UpSetR::upset(upset_up,
+                                 sets = ordered_names_up,
+                                 order.by = "freq",
+                                 nsets = length(ordered_names_up),
+                                 sets.bar.color = ordered_colors_up)
+
+  upset_plot_down <- UpSetR::upset(upset_down,
+                                   sets = ordered_names_down,
+                                   order.by = "freq",
+                                   nsets = length(ordered_names_down),
+                                   sets.bar.color = ordered_colors_down)
+
+  return(list("de_barplot" = de_barplot,
+              "upset_plot_up" = upset_plot_up,
+              "upset_plot_down" = upset_plot_down,
+              "proteins_df_up" = proteins_up$proteins_df,
+              "proteins_df_down" = proteins_down$proteins_df,
+              "proteins_list_up" = proteins_up$proteins_list,
+              "proteins_list_down" = proteins_down$proteins_list))
+}

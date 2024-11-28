@@ -39,7 +39,7 @@ hd_plot_volcano(
 \item{subtitle}{The subtitle of the plot or NULL for no subtitle.}
 }
 \value{
-A ggplot object with the volcano plot.
+An object with the DE results and the volcano plot.
 }
 \description{
 \code{plot_volcano()} creates volcano plots for the differential expression results.
