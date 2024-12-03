@@ -1,4 +1,4 @@
-utils::globalVariables(":=")
+utils::globalVariables(c(":=", "sig.label"))
 #' Differential expression analysis with limma
 #'
 #' `limma_de()` performs differential expression analysis using limma package.
@@ -14,6 +14,10 @@ utils::globalVariables(":=")
 #' @param correct The variables to correct the results with. Default is NULL.
 #'
 #' @return An object with the DE results.
+#' @details
+#' In case of a continuous variable or if you are correcting based on a continuous variable,
+#' the variable should be numeric and contain at least 6 unique variables.
+#'
 #' @export
 #'
 #' @examples
@@ -41,7 +45,7 @@ hd_run_de_limma <- function(dat,
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -51,11 +55,15 @@ hd_run_de_limma <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
+  if (isFALSE(variable %in% colnames(metadata))) {
+    stop("The variable is not be present in the metadata.")
+  }
+
   # If control is NULL, set it to the unique values of the variable that are not the case
   if (is.null(control)){
     control <- setdiff(unique(metadata[[variable]]), case)
   }
-  variable_type <- hd_detect_vartype(metadata[[variable]])
+  variable_type <- hd_detect_vartype(metadata[[variable]], unique_threshold = 2)
 
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
@@ -186,7 +194,7 @@ hd_run_de_ttest <- function(dat,
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -194,6 +202,10 @@ hd_run_de_ttest <- function(dat,
   } else {
     wide_data <- dat
     sample_id <- colnames(dat)[1]
+  }
+
+  if (isFALSE(variable %in% colnames(metadata))) {
+    stop("The variable is not be present in the metadata.")
   }
 
   # If control is NULL, set it to the unique values of the variable that are not the case
@@ -273,7 +285,6 @@ hd_run_de_ttest <- function(dat,
 #' @param title The title of the plot or NULL for no title.
 #' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
 #' @param user_defined_proteins A vector with the protein names to label on the plot. Default is NULL.
-#' @param subtitle The subtitle of the plot or NULL for no subtitle.
 #'
 #' @return An object with the DE results and the volcano plot.
 #' @export
@@ -295,13 +306,12 @@ hd_plot_volcano <- function(de_object,
                             palette = "diff_exp",
                             title = NULL,
                             report_nproteins = TRUE,
-                            user_defined_proteins = NULL,
-                            subtitle = NULL) {
+                            user_defined_proteins = NULL) {
 
   if (!inherits(de_object, "hd_de")) {
     stop("The input object is not a differential expression object.")
   }
-  if (is.null(de_object[["de_res"]])){
+  if (is.null(de_object[["de_res"]]) | is.null(de_object[["de_res"]][["adj.P.Val"]])){
     stop("The input object does not contain the differential expression results.")
   }
 
@@ -345,35 +355,31 @@ hd_plot_volcano <- function(de_object,
                                  color = !!rlang::sym("sig"),
                                  label = !!rlang::sym("Feature"))) +
     ggplot2::geom_point(size = 1, alpha = 0.4) +
-    ggrepel::geom_text_repel(data = subset(tab, !!rlang::sym("sig.label") == "top significance"), show.legend = FALSE) +
+    ggrepel::geom_text_repel(data = subset(tab, sig.label == "top significance"), show.legend = FALSE) +
     ggplot2::geom_hline(yintercept = -log10(pval_lim), linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = logfc_lim, linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = -logfc_lim, linetype = 'dashed') +
     ggplot2::labs(color = "Significance")
 
   # Title and subtitle
+  title_text <- ""
   if (!is.null(title)) {
-    p <- p + ggplot2::ggtitle(label = paste0(title, ""))
-  }
-
-  subtitle_text <- ""
-  if (!is.null(subtitle)) {
-    subtitle_text = subtitle
+    title_text = title
   }
 
   if (isTRUE(report_nproteins)) {
-    if (subtitle_text != "") {
-      subtitle_text = paste0(subtitle_text,
-                             "\nNum significant up = ", num.sig.up,
-                             "\nNum significant down = ", num.sig.down)
+    if (title_text != "") {
+      title_text = paste0(title_text,
+                          "\nNum significant up = ", num.sig.up,
+                          "\nNum significant down = ", num.sig.down)
     } else {
-      subtitle_text = paste0("Num significant up = ", num.sig.up,
-                             "\nNum significant down = ", num.sig.down)
+      title_text = paste0("Num significant up = ", num.sig.up,
+                          "\nNum significant down = ", num.sig.down)
     }
   }
 
-  if (subtitle_text != "") {
-    p <- p + ggplot2::ggtitle(label = paste0(title, ""), subtitle = subtitle_text)
+  if (title_text != "") {
+    p <- p + ggplot2::ggtitle(label = paste0(title_text, ""))
   }
 
   # Set palette

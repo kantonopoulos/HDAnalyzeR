@@ -1,297 +1,371 @@
-# # Test do_limma_de -------------------------------------------------------------
-# test_that("do_limma_de performs DE properly", {
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     tidyr::pivot_wider(names_from = Assay, values_from = NPX) |>
-#     dplyr::left_join(example_metadata |>
-#                        dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex"))),
-#                      by = "DAid") |>
-#     dplyr::select(DAid, Disease, Sex, 2:11)
-#
-#   result <- do_limma_de(test_data, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), correct = NULL) |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ABL1", "ACTA2", "ACAN", "ACE2", "ACP6", "ACAA1", "AARSD1", "ACOX1", "ACTN4", "ACP5"),
-#     logFC = c(0.75, 0.5, -0.38, 0.47, -0.31, -0.16, 0.11, -0.01, 0, 0.02),
-#     CI.L = c(0.32, 0.22, -0.61, 0.14, -0.59, -0.57, -0.22, -0.3, -0.21, -0.21),
-#     CI.R = c(1.17, 0.79, -0.15, 0.79, -0.02, 0.25, 0.43, 0.28, 0.21, 0.25),
-#     AveExpr = c(1.81, 1.61, 0.57, 0.93, 1.13, 1.01, 3.13, 0.5, 0.39, 0.92),
-#     t = c(3.47, 3.44, -3.28, 2.82, -2.12, -0.78, 0.63, -0.07, -0.03, 0.17),
-#     P.Value = c(0, 0, 0, 0, 0.03, 0.44, 0.53, 0.95, 0.98, 0.87),
-#     adj.P.Val = c(0, 0, 0, 0.01, 0.07, 0.73, 0.75, 0.98, 0.98, 0.98),
-#     B = c(-0.48, -0.61, -1.12, -2.44, -4.1, -5.92, -6.02, -6.26, -6.27, -6.27),
-#     Disease = rep("AML", 10),
-#     sig = c("significant up", "significant up", "significant down", "significant up", "not significant",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# test_that("do_limma_de corrects for Sex", {
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     tidyr::pivot_wider(names_from = Assay, values_from = NPX) |>
-#     dplyr::left_join(example_metadata |>
-#                        dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex"))),
-#                      by = "DAid") |>
-#     dplyr::select(DAid, Disease, Sex, 2:11)
-#
-#   result <- do_limma_de(test_data, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), correct = "Sex", correct_type = "factor") |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ACTA2", "ACAN", "ABL1", "ACP6", "ACE2", "ACAA1", "AARSD1", "ACOX1", "ACTN4", "ACP5"),
-#     logFC = c(0.5, -0.39, 0.66, -0.35, 0.33, -0.19, 0.06, -0.04, -0.01, -0.01),
-#     CI.L = c(0.21, -0.62, 0.25, -0.64, 0.01, -0.59, -0.27, -0.33, -0.22, -0.24),
-#     CI.R = c(0.79, -0.16, 1.08, -0.06, 0.66, 0.22, 0.39, 0.26, 0.19, 0.22),
-#     AveExpr = c(1.61, 0.57, 1.81, 1.13, 0.93, 1.01, 3.13, 0.5, 0.39, 0.92),
-#     t = c(3.41, -3.36, 3.13, -2.39, 2.05, -0.9, 0.37, -0.24, -0.13, -0.08),
-#     P.Value = c(0, 0, 0, 0.02, 0.04, 0.37, 0.71, 0.81, 0.9, 0.94),
-#     adj.P.Val = c(0, 0, 0.01, 0.04, 0.08, 0.61, 0.94, 0.94, 0.94, 0.94),
-#     B = c(-0.68, -0.82, -1.52, -3.47, -4.17, -5.76, -6.08, -6.17, -6.19, -6.21),
-#     Disease = rep("AML", 10),
-#     sig = c("significant up", "significant down", "significant up", "significant down", "not significant",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# test_that("do_limma_de changes limits of significance", {
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     tidyr::pivot_wider(names_from = Assay, values_from = NPX) |>
-#     dplyr::left_join(example_metadata |>
-#                        dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex"))),
-#                      by = "DAid") |>
-#     dplyr::select(DAid, Disease, Sex, 2:11)
-#
-#   result <- do_limma_de(test_data, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), correct = NULL, pval_lim = 0.01, logfc_lim = 0.5) |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ABL1", "ACTA2", "ACAN", "ACE2", "ACP6", "ACAA1", "AARSD1", "ACOX1", "ACTN4", "ACP5"),
-#     logFC = c(0.75, 0.5, -0.38, 0.47, -0.31, -0.16, 0.11, -0.01, 0, 0.02),
-#     CI.L = c(0.32, 0.22, -0.61, 0.14, -0.59, -0.57, -0.22, -0.3, -0.21, -0.21),
-#     CI.R = c(1.17, 0.79, -0.15, 0.79, -0.02, 0.25, 0.43, 0.28, 0.21, 0.25),
-#     AveExpr = c(1.81, 1.61, 0.57, 0.93, 1.13, 1.01, 3.13, 0.5, 0.39, 0.92),
-#     t = c(3.47, 3.44, -3.28, 2.82, -2.12, -0.78, 0.63, -0.07, -0.03, 0.17),
-#     P.Value = c(0, 0, 0, 0, 0.03, 0.44, 0.53, 0.95, 0.98, 0.87),
-#     adj.P.Val = c(0, 0, 0, 0.01, 0.07, 0.73, 0.75, 0.98, 0.98, 0.98),
-#     B = c(-0.48, -0.61, -1.12, -2.44, -4.1, -5.92, -6.02, -6.26, -6.27, -6.27),
-#     Disease = rep("AML", 10),
-#     sig = c("significant up", "significant up", "not significant", "not significant", "not significant",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# # Test do_ttest_de -------------------------------------------------------------
-# test_that("do_ttest_de performs DE properly", {
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     tidyr::pivot_wider(names_from = Assay, values_from = NPX) |>
-#     dplyr::left_join(example_metadata |>
-#                        dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", "Age", "BMI"))),
-#                      by = "DAid") |>
-#     dplyr::select(DAid, Disease, Sex, Age, BMI, 2:11)
-#
-#   long_data <- test_data |>
-#     dplyr::select(-dplyr::any_of(c("Age", "BMI"))) |>
-#     tidyr::pivot_longer(!c("DAid", "Disease", "Sex"), names_to = "Assay", values_to = "NPX")
-#
-#   assays <- unique(long_data$Assay)
-#
-#   normality_res <- check_normality(
-#     test_data |>
-#       dplyr::select(-dplyr::any_of(c("DAid", "Disease", "Sex", "Age", "BMI")))
-#   ) |>
-#     dplyr::pull(is_normal)
-#
-#   result <- do_ttest_de(long_data, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), assays = assays, normality_res = normality_res) |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ABL1", "ACAN", "ACTA2", "ACE2", "ACP6", "AARSD1", "ACAA1", "ACTN4", "ACP5", "ACOX1"),
-#     P.Value = c(0, 0, 0, 0.01, 0.02, 0.54, 0.49, 0.75, 0.85, 0.97),
-#     logFC = c(0.9, -0.37, 0.48, 0.48, -0.37, 0.23, -0.01, 0.03, -0.02, -0.01),
-#     Disease = rep("AML", 10),
-#     adj.P.Val = c(0, 0, 0, 0.03, 0.04, 0.77, 0.77, 0.94, 0.94, 0.97),
-#     sig = c("significant up", "significant down", "significant up", "significant up", "significant down",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# test_that("do_ttest_de changes limits of significance", {
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     tidyr::pivot_wider(names_from = Assay, values_from = NPX) |>
-#     dplyr::left_join(example_metadata |>
-#                        dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", "Age", "BMI"))),
-#                      by = "DAid") |>
-#     dplyr::select(DAid, Disease, Sex, Age, BMI, 2:11)
-#
-#   long_data <- test_data |>
-#     dplyr::select(-dplyr::any_of(c("Age", "BMI"))) |>
-#     tidyr::pivot_longer(!c("DAid", "Disease", "Sex"), names_to = "Assay", values_to = "NPX")
-#
-#   assays <- unique(long_data$Assay)
-#
-#   normality_res <- check_normality(
-#     test_data |>
-#       dplyr::select(-dplyr::any_of(c("DAid", "Disease", "Sex", "Age", "BMI")))
-#   ) |>
-#     dplyr::pull(is_normal)
-#
-#   result <- do_ttest_de(long_data, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), assays = assays, normality_res = normality_res, pval_lim = 0.01, logfc_lim = 0.5) |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ABL1", "ACAN", "ACTA2", "ACE2", "ACP6", "AARSD1", "ACAA1", "ACTN4", "ACP5", "ACOX1"),
-#     P.Value = c(0, 0, 0, 0.01, 0.02, 0.54, 0.49, 0.75, 0.85, 0.97),
-#     logFC = c(0.9, -0.37, 0.48, 0.48, -0.37, 0.23, -0.01, 0.03, -0.02, -0.01),
-#     Disease = rep("AML", 10),
-#     adj.P.Val = c(0, 0, 0, 0.03, 0.04, 0.77, 0.77, 0.94, 0.94, 0.97),
-#     sig = c("significant up", "not significant", "not significant", "not significant", "not significant",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# # Test plot_volcano ----------------------------------------------------------
-# test_that("plot_volcano works with valid input", {
-#
-#   de_result <- data.frame(
-#     Assay = paste0("Protein", 1:100),
-#     adj.P.Val = runif(100, 0, 0.1),
-#     logFC = rnorm(100),
-#     sig = sample(c("significant up", "significant down", "not significant"), 100, replace = TRUE)
-#   )
-#
-#   p <- plot_volcano(
-#     de_result = de_result,
-#     pval_lim = 0.05,
-#     logfc_lim = 0,
-#     top_up_prot = 10,
-#     top_down_prot = 10,
-#     palette = "diff_exp",
-#     title = "DiseaseX"
-#   )
-#
-#   expect_s3_class(p, "ggplot")
-#
-#   # Check that the title is correctly set
-#   expect_true(grepl("DiseaseX", p$labels$title))
-#
-#   # Check that the subtitle is correctly set
-#   expect_true(grepl("Num significant up =", p$labels$subtitle))
-#
-#   # Check that the color scale is applied correctly
-#   scale_colors <- ggplot2::ggplot_build(p)$data[[1]]$colour
-#   expected_colors <- c("grey", "blue", "red")
-#   expect_true(all(scale_colors %in% expected_colors))
-# })
-#
-#
-# test_that("plot_volcano handles top significant proteins correctly", {
-#   de_result <- data.frame(
-#     Assay = paste0("Protein", 1:100),
-#     adj.P.Val = runif(100, 0, 0.1),
-#     logFC = rnorm(100),
-#     sig = sample(c("significant up", "significant down", "not significant"), 100, replace = TRUE)
-#   )
-#
-#   p <- plot_volcano(
-#     de_result = de_result,
-#     pval_lim = 0.05,
-#     logfc_lim = 0,
-#     top_up_prot = 10,
-#     top_down_prot = 10,
-#     palette = "diff_exp",
-#     title = "DiseaseX"
-#   )
-#
-#   data_built <- ggplot2::ggplot_build(p)$data[[1]]
-#
-#   top_sig <- de_result |>
-#     dplyr::filter(adj.P.Val < 0.05) |>
-#     dplyr::arrange(adj.P.Val) |>
-#     dplyr::slice_head(n = 40) |>
-#     dplyr::pull(Assay)
-#
-#   points_labels <- ggplot2::ggplot_build(p)$data[[2]]$label
-#   expect_true(all(points_labels %in% top_sig))
-# })
-#
-#
-# # Test do_limma ----------------------------------------------------------------
-# test_that("do_limma performs DE properly", {
-#   first_10_unique_assays <- example_data |>
-#     dplyr::distinct(Assay) |>
-#     dplyr::slice(1:10) |>
-#     dplyr::pull(Assay)
-#
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     dplyr::filter(Assay %in% first_10_unique_assays)
-#
-#   result <- do_limma(test_data, example_metadata, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), correct = NULL, wide = F, volcano = F)
-#   result <- result |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#
-#   expected <- tibble::tibble(
-#     Assay = c("ABL1", "ACTA2", "ACAN", "ACE2", "ACP6", "ACAA1", "AARSD1", "ACOX1", "ACTN4", "ACP5"),
-#     logFC = c(0.75, 0.5, -0.38, 0.47, -0.31, -0.16, 0.11, -0.01, 0, 0.02),
-#     CI.L = c(0.32, 0.22, -0.61, 0.14, -0.59, -0.57, -0.22, -0.3, -0.21, -0.21),
-#     CI.R = c(1.17, 0.79, -0.15, 0.79, -0.02, 0.25, 0.43, 0.28, 0.21, 0.25),
-#     AveExpr = c(1.81, 1.61, 0.57, 0.93, 1.13, 1.01, 3.13, 0.5, 0.39, 0.92),
-#     t = c(3.47, 3.44, -3.28, 2.82, -2.12, -0.78, 0.63, -0.07, -0.03, 0.17),
-#     P.Value = c(0, 0, 0, 0, 0.03, 0.44, 0.53, 0.95, 0.98, 0.87),
-#     adj.P.Val = c(0, 0, 0, 0.01, 0.07, 0.73, 0.75, 0.98, 0.98, 0.98),
-#     B = c(-0.48, -0.61, -1.12, -2.44, -4.1, -5.92, -6.02, -6.26, -6.27, -6.27),
-#     Disease = rep("AML", 10),
-#     sig = c("significant up", "significant up", "significant down", "significant up", "not significant",
-#             "not significant", "not significant", "not significant", "not significant", "not significant")
-#   )
-#
-#   expect_equal(result, expected)
-# })
-#
-#
-# # Test do_ttest ----------------------------------------------------------------
-# test_that("do_ttest_de performs DE properly", {
-#   first_10_unique_assays <- example_data |>
-#     dplyr::distinct(Assay) |>
-#     dplyr::slice(1:10) |>
-#     dplyr::pull(Assay)
-#
-#   test_data <- example_data |>
-#     dplyr::select(DAid, Assay, NPX) |>
-#     dplyr::filter(Assay %in% first_10_unique_assays)
-#
-#   result <- do_ttest(test_data, example_metadata, case = "AML", control = c("BRC", "CLL", "CRC", "CVX", "ENDC", "GLIOM", "LUNGC", "LYMPH", "MYEL", "OVC", "PRC"), wide = F, volcano = F)
-#   result <- result |>
-#     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), \(x) round(x, 2)))
-#   expected <- tibble::tibble(
-#       Assay = c("ABL1", "ACAN", "ACTA2", "ACE2", "ACP6", "AARSD1", "ACAA1", "ACTN4", "ACP5", "ACOX1"),
-#       P.Value = c(0, 0, 0, 0.01, 0.02, 0.54, 0.49, 0.75, 0.85, 0.97),
-#       logFC = c(0.9, -0.37, 0.48, 0.48, -0.37, 0.23, -0.01, 0.03, -0.02, -0.01),
-#       Disease = rep("AML", 10),
-#       adj.P.Val = c(0, 0, 0, 0.03, 0.04, 0.77, 0.77, 0.94, 0.94, 0.97),
-#       sig = c("significant up", "significant down", "significant up", "significant up", "significant down",
-#               "not significant", "not significant", "not significant", "not significant", "not significant")
-#     )
-#
-#     expect_equal(result, expected)
-# })
+# Test hd_run_de_limma ---------------------------------------------------------
+test_that("hd_run_de_limma works with categorical variables", {
+  # Mock dataset
+  dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(5, 6, 7, 8, 9),
+    Protein2 = c(10, 11, 12, 13, 14)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Disease = c("AML", "AML", "CLL", "CLL", "AML"),
+    Age = c(30, 40, 50, 60, 70)
+  )
+
+  # Run differential expression analysis
+  result <- hd_run_de_limma(
+    dat,
+    metadata = metadata,
+    variable = "Disease",
+    case = "AML",
+    control = "CLL"
+  )
+
+  expect_s3_class(result, "hd_de")
+  expect_true("de_res" %in% names(result))
+  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+})
+
+test_that("hd_run_de_limma works with continuous variables", {
+  # Mock dataset
+  dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
+    Protein1 = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
+    Protein2 = c(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
+    Age = c(30, 40, 50, 60, 70, 35, 45, 55, 65, 75)
+  )
+
+  # Run differential expression analysis
+  result <- hd_run_de_limma(
+    dat,
+    metadata = metadata,
+    variable = "Age",
+    case = NULL,
+    control = NULL
+  )
+
+  expect_s3_class(result, "hd_de")
+  expect_true("de_res" %in% names(result))
+  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+})
+
+test_that("hd_run_de_limma raises an error for invalid input", {
+  dat <- data.frame(
+    SampleID = c("S1", "S2"),
+    Protein1 = c(5, 6)
+  )
+  metadata <- data.frame(
+    SampleID = c("S1", "S2"),
+    Disease = c("AML", "CLL")
+  )
+
+  expect_error(hd_run_de_limma(
+    dat,
+    metadata = metadata,
+    variable = "NonexistentColumn",
+    case = "AML"
+  ), "The variable is not be present in the metadata.")
+})
+
+test_that("hd_run_de_limma removes rows with NAs in relevant columns", {
+  dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(5, 6, 7, 8, 9),
+    Protein2 = c(10, 11, 12, 13, 14)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Disease = c("AML", "AML", "CLL", "CLL", NA),
+    Age = c(30, 40, NA, 60, 70)
+  )
+
+  result <- expect_warning(hd_run_de_limma(
+    dat,
+    metadata = metadata,
+    variable = "Disease",
+    case = "AML"
+  ))
+  suppressWarnings(result <- hd_run_de_limma(dat,
+                                             metadata = metadata,
+                                             variable = "Disease",
+                                             case = "AML"))
+
+  expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
+})
+
+test_that("hd_run_de_limma works with correction variables", {
+    dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
+    Protein1 = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
+    Protein2 = c(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
+    Disease = c("AML", "AML", "CLL", "CLL", "AML", "AML", "AML", "CLL", "CLL", "AML"),
+    Age = c(30, 40, 50, 60, 70, 35, 45, 55, 65, 75)
+  )
+
+  result <- hd_run_de_limma(
+    dat,
+    metadata = metadata,
+    variable = "Disease",
+    case = "AML",
+    control = "CLL",
+    correct = "Age"
+  )
+
+  expect_s3_class(result, "hd_de")
+  expect_true("de_res" %in% names(result))
+  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+})
+
+
+# Test hd_run_de_ttest ---------------------------------------------------------
+test_that("hd_run_de_ttest works with categorical variables", {
+  # Mock dataset
+  dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(5, 6, 7, 8, 9),
+    Protein2 = c(10, 11, 12, 13, 14)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Disease = c("AML", "AML", "CLL", "CLL", "AML"),
+    Age = c(30, 40, 50, 60, 70)
+  )
+
+  # Run differential expression analysis
+  result <- hd_run_de_ttest(
+    dat,
+    metadata = metadata,
+    variable = "Disease",
+    case = "AML",
+    control = "CLL"
+  )
+
+  expect_s3_class(result, "hd_de")
+  expect_true("de_res" %in% names(result))
+  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+})
+
+test_that("hd_run_de_ttest raises an error for invalid input", {
+  dat <- data.frame(
+    SampleID = c("S1", "S2"),
+    Protein1 = c(5, 6)
+  )
+  metadata <- data.frame(
+    SampleID = c("S1", "S2"),
+    Disease = c("AML", "CLL")
+  )
+
+  expect_error(hd_run_de_ttest(
+    dat,
+    metadata = metadata,
+    variable = "NonexistentColumn",
+    case = "AML"
+  ), "The variable is not be present in the metadata.")
+})
+
+test_that("hd_run_de_ttest removes rows with NAs in relevant columns", {
+  dat <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(5, 6, 7, 8, 9),
+    Protein2 = c(10, 11, 12, 13, 14)
+  )
+
+  metadata <- data.frame(
+    SampleID = c("S1", "S2", "S3", "S4", "S5"),
+    Disease = c("AML", "AML", "CLL", "CLL", NA),
+    Age = c(30, 40, NA, 60, 70)
+  )
+
+  result <- expect_warning(hd_run_de_ttest(
+    dat,
+    metadata = metadata,
+    variable = "Disease",
+    case = "AML"
+  ))
+  suppressWarnings(result <- hd_run_de_ttest(dat,
+                                             metadata = metadata,
+                                             variable = "Disease",
+                                             case = "AML"))
+
+  expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
+})
+
+
+# Test hd_plot_volcano ---------------------------------------------------------
+test_that("hd_plot_volcano handles valid inputs correctly", {
+  # Mock DE results object
+  mock_de_object <- list(
+    de_res = tibble::tibble(
+      Feature = paste0("Protein", 1:100),
+      logFC = c(rnorm(50, 2, 1), rnorm(50, -2, 1)),
+      adj.P.Val = c(runif(50, 0, 0.04), runif(50, 0.05, 1))
+    )
+  )
+  class(mock_de_object) <- "hd_de"
+
+  # Run the function
+  result <- hd_plot_volcano(
+    de_object = mock_de_object,
+    pval_lim = 0.05,
+    logfc_lim = 1.5,
+    top_up_prot = 5,
+    top_down_prot = 5,
+    title = "Volcano Plot Test",
+    report_nproteins = TRUE
+  )
+
+  # Check class and components of the output
+  expect_true(inherits(result, "hd_de"))
+  expect_true("volcano_plot" %in% names(result))
+
+  # Verify significant proteins count in the plot subtitle
+  plot_object <- result[["volcano_plot"]]
+  title_text <- ggplot2::ggplot_build(plot_object)$plot$labels$title
+  expect_match(title_text, "Num significant up = [0-9]+")
+  expect_match(title_text, "Num significant down = [0-9]+")
+})
+
+test_that("hd_plot_volcano handles missing user_defined_proteins gracefully", {
+  # Mock DE results object
+  mock_de_object <- list(
+    de_res = tibble::tibble(
+      Feature = paste0("Protein", 1:50),
+      logFC = c(rnorm(25, 1.5, 0.5), rnorm(25, -1.5, 0.5)),
+      adj.P.Val = runif(50, 0, 0.05)
+    )
+  )
+  class(mock_de_object) <- "hd_de"
+
+  # Run the function without user_defined_proteins
+  result <- hd_plot_volcano(
+    de_object = mock_de_object,
+    user_defined_proteins = NULL
+  )
+
+  # Verify it still creates the volcano plot
+  expect_true("volcano_plot" %in% names(result))
+})
+
+test_that("hd_plot_volcano handles invalid de_object input", {
+  # Create an invalid input
+  invalid_de_object <- list(de_res = NULL)
+
+  # Check for error
+  expect_error(
+    hd_plot_volcano(de_object = invalid_de_object),
+    "The input object is not a differential expression object."
+  )
+})
+
+test_that("hd_plot_volcano handles empty DE results", {
+  # Create an empty DE results object
+  empty_de_object <- list(de_res = tibble::tibble())
+  class(empty_de_object) <- "hd_de"
+
+  # Check for error
+  expect_error(
+    hd_plot_volcano(de_object = empty_de_object),
+    "The input object does not contain the differential expression results."
+  )
+})
+
+
+# Test extract_protein_list ----------------------------------------------------
+test_that("extract_protein_list works as expected", {
+  # Mock data for testing
+  mock_upset_data <- tibble::tibble(
+    Disease1 = c(1, 0, 1),
+    Disease2 = c(0, 1, 1)
+  )
+  mock_proteins <- list(
+    Disease1 = c("ProteinA", "ProteinB"),
+    Disease2 = c("ProteinB", "ProteinC")
+  )
+
+  # Call the function
+  result <- extract_protein_list(mock_upset_data, mock_proteins)
+
+  # Expected output
+  expected_proteins_list <- list(
+    "Disease1" = c("ProteinA", "ProteinB"),
+    "Disease2" = c("ProteinB", "ProteinC"),
+    "Disease1&Disease2" = c("ProteinB")
+  )
+
+  expected_proteins_df <- tibble::tibble(
+    Shared_in = c("Disease1", "Disease2", "Disease1&Disease2"),
+    `up/down` = "up", # Expected direction
+    Feature = c("ProteinA", "ProteinB", "ProteinC")
+  )
+
+  # Assertions
+  expect_type(result, "list")
+  expect_named(result, c("proteins_list", "proteins_df"))
+  expect_equal(result$proteins_list, expected_proteins_list)
+  expect_equal(result$proteins_df$Feature, expected_proteins_df$Feature)
+})
+
+
+# Test hd_plot_de_summary ------------------------------------------------------
+test_that("hd_plot_de_summary works as expected", {
+  # Mock data for testing
+  mock_de_result1 <- list(
+    de_res = tibble::tibble(
+      Feature = c("ProteinA", "ProteinB", "ProteinC"),
+      logFC = c(1.5, -1.2, 0.5),
+      adj.P.Val = c(0.01, 0.03, 0.2),
+      Disease = "AML"
+    )
+  )
+  mock_de_result2 <- list(
+    de_res = tibble::tibble(
+      Feature = c("ProteinD", "ProteinE", "ProteinF"),
+      logFC = c(-1.8, 2.0, 0.3),
+      adj.P.Val = c(0.02, 0.01, 0.25),
+      Disease = "LUNGC"
+    )
+  )
+  mock_de_results <- list("AML" = mock_de_result1, "LUNGC" = mock_de_result2)
+
+  # Call the function
+  result <- hd_plot_de_summary(
+    de_results = mock_de_results,
+    variable = "Disease",
+    pval_lim = 0.05,
+    logfc_lim = 0.5
+  )
+
+  # Assertions
+  expect_type(result, "list")
+  expect_named(result, c(
+    "de_barplot", "upset_plot_up", "upset_plot_down",
+    "proteins_df_up", "proteins_df_down",
+    "proteins_list_up", "proteins_list_down"
+  ))
+
+  # Check if plots and dataframes are created
+  expect_true("ggplot" %in% class(result$de_barplot))
+  expect_true("upset" %in% class(result$upset_plot_up))
+  expect_true("upset" %in% class(result$upset_plot_down))
+
+  # Validate protein lists
+  expect_type(result$proteins_list_up, "list")
+  expect_type(result$proteins_list_down, "list")
+  expect_true("AML" %in% names(result$proteins_list_up))
+  expect_true("LUNGC" %in% names(result$proteins_list_down))
+
+  # Check dataframes
+  expect_true(all(c("Feature", "Shared_in") %in% colnames(result$proteins_df_up)))
+  expect_true(all(c("Feature", "Shared_in") %in% colnames(result$proteins_df_down)))
+})

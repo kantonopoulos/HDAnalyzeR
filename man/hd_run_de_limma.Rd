@@ -35,6 +35,10 @@ It can correct the results for metadata columns like Sex, Age, or BMI.
 The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
 The function removes the NAs from the columns that are used to correct for.
 }
+\details{
+In case of a continuous variable or if you are correcting based on a continuous variable,
+the variable should be numeric and contain at least 6 unique variables.
+}
 \examples{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)

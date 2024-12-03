@@ -13,8 +13,7 @@ hd_plot_volcano(
   palette = "diff_exp",
   title = NULL,
   report_nproteins = TRUE,
-  user_defined_proteins = NULL,
-  subtitle = NULL
+  user_defined_proteins = NULL
 )
 }
 \arguments{
@@ -35,8 +34,6 @@ hd_plot_volcano(
 \item{report_nproteins}{If the number of significant proteins should be reported in the subtitle. Default is TRUE.}
 
 \item{user_defined_proteins}{A vector with the protein names to label on the plot. Default is NULL.}
-
-\item{subtitle}{The subtitle of the plot or NULL for no subtitle.}
 }
 \value{
 An object with the DE results and the volcano plot.
