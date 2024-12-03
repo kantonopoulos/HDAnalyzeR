@@ -2,7 +2,7 @@
 
 [![R-CMD-check](https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
-[![Version](https://img.shields.io/badge/Version-1.0.0-purple)](https://github.com/HDA1472/HDAnalyzeR) 
+[![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/HDA1472/HDAnalyzeR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/HDA1472/HDAnalyzeR/blob/main/LICENSE.md)
 
 HDAnalyzeR is an R package developed by the Human Disease Blood Atlas project, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. It is optimized to work with Olink proteomics data, but it can be adapted to other proteomics platforms. In order to use the package without issues the data should have these three necessary columns: `DAid` with the Sample IDs, `Assay` with the protein names, and `NPX` with the protein expression data. The metadata should contain the `DAid`, `Disease`, and `Sex` columns, where the `Disease` column should contain the different class names (Healthy, Disease, etc.), while in the `Sex` column the data should be encoded as M (males) and F (females).
@@ -19,10 +19,10 @@ install.packages("devtools")
 
 # Install HDAnalyzeR latest version
 options(timeout = 1200)  # Set timeout to 20 minutes to avoid timeout errors
-devtools::install_github("HDA1472/HDAnalyzeR@v1.0.0")
+devtools::install_github("HDA1472/HDAnalyzeR@v1.1.0")
 
 # Install HDAnalyzeR development version
-options(timeout = 1200)  # Set timeout to 20 minutes to avoid timeout errors
+options(timeout = 1200)
 devtools::install_github("HDA1472/HDAnalyzeR")
 ```
 
@@ -38,19 +38,22 @@ The following example showcases how to perform a differential expression analysi
 library(HDAnalyzeR)
 
 # Prepare data
-wide_data <- widen_data(example_data)
+hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis
-de_results <- do_limma(wide_data, example_metadata, case = "AML", control = c("CLL", "MYEL"))
+de_results <- hd_run_de_limma(hd_object, case = "AML")
+
+# Plot volcano plot
+de_results <- hd_plot_volcano(de_results)
 
 # DE results and volcano plot for AML
-de_results$de_results
+de_results$de_res
 de_results$volcano_plot
 ```
 
 ## Citation
 
-Antonopoulos, K., Bueno Alvez, M., Johansson, E., & Edfors Arfwidsson, F. (2024). HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics Analysis (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.13786124
+Antonopoulos, K., Bueno Alvez, M., Johansson, E., & Edfors Arfwidsson, F. (2024). HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics Analysis (1.1.0). Zenodo. https://doi.org/10.5281/zenodo.13786124
 
 ## Issues and Support
 

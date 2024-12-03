@@ -1,4 +1,4 @@
-# HDAnalyzeR 2.0.0 
+# HDAnalyzeR 1.1.0 
 
 ## General
 - Changed function nomenclature to be more consistent, easier to understand and to search for. 
