@@ -18,7 +18,7 @@ hd_plot_de_summary(
 
 \item{variable}{The name of the column containing the case and control groups.}
 
-\item{class_palette}{The color palette for the classes If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
+\item{class_palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 
 \item{diff_exp_palette}{The color palette for the differential expression. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is "diff_exp".}
 

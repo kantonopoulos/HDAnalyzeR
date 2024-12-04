@@ -446,7 +446,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #'
 #' @param de_results A list of differential expression results. It should be a list of objects created by `hd_run_de_limma()` with the classes as names. See the examples for more details.
 #' @param variable The name of the column containing the case and control groups.
-#' @param class_palette The color palette for the classes If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
 #' @param pval_lim The p-value limit for significance. Default is 0.05.
 #' @param logfc_lim The logFC limit for significance. Default is 0.

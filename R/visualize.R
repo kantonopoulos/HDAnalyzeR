@@ -21,7 +21,7 @@ apply_palette <- function(plot, palette, type = "color") {
           stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
         }
       } else {
-        plot <- plot + ggplot2::scale_color_manual(values = palette)
+        plot <- plot + ggplot2::scale_color_manual(values = palette, na.value = "grey50")
       }
     }
   } else {
@@ -33,7 +33,7 @@ apply_palette <- function(plot, palette, type = "color") {
           stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
         }
       } else {
-        plot <- plot + ggplot2::scale_fill_manual(values = palette)
+        plot <- plot + ggplot2::scale_fill_manual(values = palette, na.value = "grey50")
       }
     }
   }

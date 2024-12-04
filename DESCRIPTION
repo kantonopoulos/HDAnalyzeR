@@ -23,7 +23,6 @@ Imports:
     broom,
     dials,
     dplyr,
-    easyPubMed,
     embed,
     forcats,
     ggplot2,
@@ -33,7 +32,6 @@ Imports:
     limma,
     missForest,
     parsnip,
-    purrr,
     readr,
     readxl,
     recipes,
@@ -45,7 +43,6 @@ Imports:
     tibble,
     tidyheatmaps,
     tidyr,
-    tidyselect,
     tidytext,
     tune,
     UpSetR,
@@ -54,6 +51,7 @@ Imports:
     workflows,
     yardstick
 Suggests: 
+    easyPubMed,
     glmnet,
     knitr,
     ranger,

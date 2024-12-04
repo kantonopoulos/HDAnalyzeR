@@ -298,7 +298,7 @@ scale_color_hd <- function(palette) {
     stop("Palette not found. Available palettes are: ", paste(names(hpa_palettes), collapse = ", "))
   }
 
-  ggplot2::scale_color_manual(values = hpa_palettes[[palette]])
+  ggplot2::scale_color_manual(values = hpa_palettes[[palette]], na.value = "grey50")
 }
 
 
@@ -333,5 +333,5 @@ scale_fill_hd <- function(palette) {
     stop("Palette not found. Available palettes are: ", paste(names(hpa_palettes), collapse = ", "))
   }
 
-  ggplot2::scale_fill_manual(values = hpa_palettes[[palette]])
+  ggplot2::scale_fill_manual(values = hpa_palettes[[palette]], na.value = "grey50")
 }
