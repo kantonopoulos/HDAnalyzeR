@@ -40,7 +40,7 @@ hd_run_rreg(
 
 \item{mixture}{The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.}
 
-\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
+\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
@@ -56,6 +56,13 @@ A model object containing the train and test data, the metrics, the ROC curve, t
 class-balanced case-control groups for the train set, tunes the model, evaluates
 the model, and plots the variable importance.
 }
+\details{
+If the data contain missing values, KNN (k=5) imputation will be used to impute.
+If \code{case} is provided, the model will be a binary classification model.
+If \code{case} is NULL, the model will be a multiclass classification model.
+In multi-class models, the groups are not balanced and sensitivity and specificity
+are calculated via macro-averaging.
+}
 \examples{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
@@ -69,4 +76,12 @@ hd_run_rreg(hd_split,
             case = "AML",
             grid_size = 5,
             palette = "cancers12")
+
+# Run the multiclass regularized regression model pipeline
+hd_run_rreg(hd_split,
+            variable = "Disease",
+            case = NULL,
+            grid_size = 5,
+            cv_sets = 5,
+            verbose = FALSE)
 }

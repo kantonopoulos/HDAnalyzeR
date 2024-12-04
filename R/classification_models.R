@@ -212,6 +212,8 @@ prepare_data <- function(dat,
 
     dat[["model_type"]] <- "multi_class"
 
+    train_set <- train_data
+    test_set <- test_data
   }
 
   nrows_before <- nrow(train_set)
@@ -285,6 +287,7 @@ tune_rreg_model <- function(dat,
   train_set <- dat[["train_data"]]
   train_folds <- dat[["train_folds"]]
   sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
 
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
@@ -295,14 +298,26 @@ tune_rreg_model <- function(dat,
     recipes::step_impute_knn(recipes::all_numeric()) |>
     recipes::step_dummy(recipes::all_nominal_predictors())
 
-  if (is.null(mixture)) {
-    spec <- parsnip::logistic_reg(penalty = tune::tune(),
-                                  mixture = tune::tune()) |>
-      parsnip::set_engine("glmnet")
+  if (model_type == "binary_class") {
+    if (is.null(mixture)) {
+      spec <- parsnip::logistic_reg(penalty = tune::tune(),
+                                    mixture = tune::tune()) |>
+        parsnip::set_engine("glmnet")
+    } else {
+      spec <- parsnip::logistic_reg(penalty = tune::tune(),
+                                    mixture = mixture) |>
+        parsnip::set_engine("glmnet")
+    }
   } else {
-    spec <- parsnip::logistic_reg(penalty = tune::tune(),
-                                  mixture = mixture) |>
-      parsnip::set_engine("glmnet")
+    if (is.null(mixture)) {
+      spec <- parsnip::multinom_reg(penalty = tune::tune(),
+                                    mixture = tune::tune()) |>
+        parsnip::set_engine("glmnet")
+    } else {
+      spec <- parsnip::multinom_reg(penalty = tune::tune(),
+                                    mixture = mixture) |>
+        parsnip::set_engine("glmnet")
+    }
   }
 
   wf <- workflows::workflow() |>
@@ -424,6 +439,121 @@ evaluate_model <- function(dat,
 }
 
 
+#' Finalize and evaluate the multiclass model
+#'
+#' `evaluate_multiclass_model()` finalizes the model using the best hyperparameters
+#' and evaluates the model using the test set. It calculates the accuracy, sensitivity,
+#' specificity, AUC, and confusion matrix. It also plots the ROC curve.
+#'
+#' @param dat An `hd_model` object coming from a tuning function.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
+#' @keywords internal
+evaluate_multiclass_model <- function(dat,
+                                      variable = "Disease",
+                                      mixture = NULL,
+                                      verbose= TRUE,
+                                      engine = "glmnet",
+                                      seed = 123) {
+
+  if (verbose){
+    message("Evaluating the model...")
+  }
+  Variable <- rlang::sym(variable)
+  train_set <- dat[["train_data"]]
+  test_set <- dat[["test_data"]]
+  tune <- dat[["tune"]]
+  wf <- dat[["wf"]]
+  sample_id <- colnames(train_set)[1]
+
+  best <- tune |>
+    tune::select_best(metric = "roc_auc") |>
+    dplyr::select(-dplyr::all_of(c(".config")))
+
+  if (is.null(mixture)) {
+    mixture <- best[["mixture"]]
+  }
+
+  final_wf <- tune::finalize_workflow(wf, best)
+
+  set.seed(seed)
+  final <- final_wf |>
+    parsnip::fit(train_set)
+
+  splits <- rsample::make_splits(train_set, test_set)
+
+  preds <- tune::last_fit(final_wf,
+                          splits,
+                          metrics = yardstick::metric_set(yardstick::roc_auc))
+
+  class_predictions <- stats::predict(final, new_data = test_set, type = "class")
+  prob_predictions <- stats::predict(final, new_data = test_set, type = "prob")
+
+  res <- dplyr::bind_cols(test_set |> dplyr::select(!!Variable),
+                          class_predictions,
+                          prob_predictions)
+
+  accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+  sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
+
+  pred_cols <- grep("^\\.pred_", names(res |> dplyr::select(-!!rlang::sym(".pred_class"))), value = TRUE)
+
+  roc_data <- yardstick::roc_curve(res, truth = !!Variable, !!!rlang::syms(pred_cols))
+  roc <- ggplot2::autoplot(roc_data) +
+    theme_hd() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
+
+  # ROC AUC for each class
+  final_predictions <- prob_predictions |>
+    dplyr::mutate(ID = test_set[[1]]) |>
+    dplyr::relocate(!!rlang::sym("ID"))
+
+  df <- test_set |>
+    dplyr::select(!!rlang::sym(sample_id), !!Variable) |>
+    dplyr::mutate(value = 1) |>
+    tidyr::spread(!!Variable, !!rlang::sym("value"), fill= 0)
+
+  true_dat <- df |>
+    purrr::set_names(paste(names(df), "_true", sep = "")) |>
+    dplyr::rename(ID = !!rlang::sym(paste0(sample_id, "_true")))
+
+  dat_prob <- final_predictions |>
+    dplyr::rename_all(~stringr::str_replace_all(.,".pred_",""))
+
+  prob_data <- dat_prob |>
+    purrr::set_names(paste(names(dat_prob), "_pred_glmnet", sep = ""))|>
+    dplyr::rename(ID = !!rlang::sym("ID_pred_glmnet"))
+
+  final_df <- true_dat |>
+    dplyr::left_join(prob_data, by = "ID") |>
+    dplyr::select(-dplyr::all_of(c("ID"))) |>
+    as.data.frame()
+
+  suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
+  auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][[engine]]),
+                        AUC = unlist(auc[["AUC"]][[engine]]))
+
+  dat[["final"]] <- final
+  dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
+                           "sensitivity" = sensitivity$.estimate,
+                           "specificity" = specificity$.estimate,
+                           "auc" = auc,
+                           "confusion_matrix" = cm)
+  dat[["roc_curve"]] <- roc
+  dat[["mixture"]] <- mixture
+  dat[["tune"]] <- NULL
+  dat[["wf"]] <- NULL
+
+  return(dat)
+}
+
+
 #' Create subtitle for variable importance plot
 #'
 #' `generate_subtitle()` generates a subtitle for the variable importance plot.
@@ -466,7 +596,7 @@ generate_title <- function(features,
     title_parts <- c(title_parts, paste0('Specificity = ', round(specificity, 2), '    '))
   }
 
-  if ("auc" %in% title) {
+  if ("auc" %in% title & !is.null(auc)) {
     title_parts <- c(title_parts, paste0('AUC = ', round(auc, 2), '    '))
   }
 
@@ -484,7 +614,7 @@ generate_title <- function(features,
                                          '    '))
   }
 
-  if ("mixture" %in% title) {
+  if ("mixture" %in% title & !is.null(mixture)) {
     title_parts <- c(title_parts, paste0('Lasso/Ridge ratio = ', round(mixture, 2), '    '))
   }
 
@@ -531,6 +661,7 @@ variable_imp <- function(dat,
   final <- dat[["final"]]
   metrics <- dat[["metrics"]]
   mixture <- dat[["mixture"]]
+  model_type <- dat[["model_type"]]
 
   features <- final |>
     workflows::extract_fit_parsnip() |>
@@ -541,22 +672,38 @@ variable_imp <- function(dat,
     dplyr::mutate(Scaled_Importance = scales::rescale(!!rlang::sym("Importance"), to = c(0, 1))) |>
     dplyr::filter(!!rlang::sym("Scaled_Importance") > 0)
 
-  title_text <- generate_title(features = features,
-                               accuracy = metrics$accuracy,
-                               sensitivity = metrics$sensitivity,
-                               specificity = metrics$specificity,
-                               auc = metrics$auc,
-                               mixture = mixture,
-                               title = title)
+  if (model_type == "binary_class") {
 
-  pals <- hd_palettes()
-  if (!is.null(palette) && is.null(names(palette))) {
-    pal <- pals[palette]
-    pal <- unlist(pals[[palette]])
-  } else if (!is.null(palette)) {
-    pal <- palette
+    title_text <- generate_title(features = features,
+                                 accuracy = metrics[["accuracy"]],
+                                 sensitivity = metrics[["sensitivity"]],
+                                 specificity = metrics[["specificity"]],
+                                 auc = metrics[["auc"]],
+                                 mixture = mixture,
+                                 title = title)
+
+    pals <- hd_palettes()
+    if (!is.null(palette) && is.null(names(palette))) {
+      pal <- pals[palette]
+      pal <- unlist(pals[[palette]])
+    } else if (!is.null(palette)) {
+      pal <- palette
+    } else {
+      pal <- c("#C03830")
+    }
+
   } else {
+
+    title_text <- generate_title(features = features,
+                                 accuracy = as.numeric(metrics[["accuracy"]]),
+                                 sensitivity = as.numeric(metrics[["sensitivity"]]),
+                                 specificity = as.numeric(metrics[["specificity"]]),
+                                 auc = NULL,
+                                 mixture = mixture,
+                                 title = title)
+
     pal <- c("#C03830")
+    case <- "case"
   }
 
   var_imp_plot <- features |>
@@ -596,12 +743,19 @@ variable_imp <- function(dat,
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
-#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @details
+#' If the data contain missing values, KNN (k=5) imputation will be used to impute.
+#' If `case` is provided, the model will be a binary classification model.
+#' If `case` is NULL, the model will be a multiclass classification model.
+#' In multi-class models, the groups are not balanced and sensitivity and specificity
+#' are calculated via macro-averaging.
+#'
 #' @export
 #'
 #' @examples
@@ -617,6 +771,14 @@ variable_imp <- function(dat,
 #'             case = "AML",
 #'             grid_size = 5,
 #'             palette = "cancers12")
+#'
+#' # Run the multiclass regularized regression model pipeline
+#' hd_run_rreg(hd_split,
+#'             variable = "Disease",
+#'             case = NULL,
+#'             grid_size = 5,
+#'             cv_sets = 5,
+#'             verbose = FALSE)
 hd_run_rreg <- function(dat,
                         variable = "Disease",
                         case,
@@ -652,20 +814,39 @@ hd_run_rreg <- function(dat,
                          mixture = mixture,
                          verbose = verbose,
                          seed = seed)
-  dat <- evaluate_model(dat = dat,
+
+  if (dat[["model_type"]] == "binary_class") {
+    dat <- evaluate_model(dat = dat,
+                          variable = variable,
+                          case = case,
+                          mixture = mixture,
+                          palette = palette,
+                          verbose = verbose,
+                          seed = seed)
+    dat <- variable_imp(dat = dat,
                         variable = variable,
                         case = case,
                         mixture = mixture,
                         palette = palette,
+                        title = title,
                         verbose = verbose,
                         seed = seed)
-  dat <- variable_imp(dat = dat,
-                      variable = variable,
-                      case = case,
-                      mixture = mixture,
-                      palette = palette,
-                      title = title,
-                      verbose = verbose,
-                      seed = seed)
+  } else {
+    dat <- evaluate_multiclass_model(dat = dat,
+                                     variable = variable,
+                                     mixture = mixture,
+                                     verbose = verbose,
+                                     engine = "glmnet",
+                                     seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = NULL,
+                        mixture = mixture,
+                        palette = palette,
+                        title = title,
+                        verbose = verbose,
+                        seed = seed)
+  }
+
   return(dat)
 }
