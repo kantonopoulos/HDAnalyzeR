@@ -344,6 +344,85 @@ tune_rreg_model <- function(dat,
 }
 
 
+#' Hyperparameter optimization for random forest models
+#'
+#' `tune_rf_model()` performs hyperparameter optimization for random forest
+#' models. It tunes the model using the provided grid size and
+#' cross-validation sets. It returns the best model and hyperparameters.
+#'
+#' @param dat An `hd_model` object coming from `prepare_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param cor_threshold Threshold of absolute correlation values. This will be used
+#' to remove the minimum number of features so that all their resulting absolute
+#' correlations are less than this value.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the tuned model, and the workflow.
+#' @keywords internal
+tune_rf_model <- function(dat,
+                          variable = "Disease",
+                          cor_threshold = 0.9,
+                          grid_size = 30,
+                          verbose = TRUE,
+                          seed = 123) {
+
+  if (verbose){
+    message("Tuning random forest model...")
+  }
+  train_set <- dat[["train_data"]]
+  train_folds <- dat[["train_folds"]]
+  sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
+
+  formula <- stats::as.formula(paste(variable, "~ ."))
+  rec <- recipes::recipe(formula, data = train_set) |>
+    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_nzv(recipes::all_numeric()) |>
+    recipes::step_normalize(recipes::all_numeric()) |>
+    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
+    recipes::step_impute_knn(recipes::all_numeric()) |>
+    recipes::step_dummy(recipes::all_nominal_predictors())
+
+  spec <- parsnip::rand_forest(trees = 1000,
+                               min_n = tune::tune(),
+                               mtry = tune::tune()) |>
+    parsnip::set_mode("classification") |>
+    parsnip::set_engine("ranger", importance = "permutation")
+
+  prepped_recipe <- recipes::prep(rec, training = train_set)  # Prep the recipe
+  baked_data <- recipes::bake(prepped_recipe, new_data = train_set)
+  remaining_predictors <- colnames(baked_data)[!colnames(baked_data) %in% c(variable, sample_id)]
+  n_remaining_predictors <- length(remaining_predictors)
+
+  wf <- workflows::workflow() |>
+    workflows::add_model(spec) |>
+    workflows::add_recipe(rec)
+
+  grid <- dials::grid_space_filling(
+    dials::min_n(),
+    dials:: mtry(range = c(floor(sqrt(n_remaining_predictors)), (floor(n_remaining_predictors/3)))),
+    size = grid_size,
+    type = "latin_hypercube"
+  )
+
+  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
+
+  set.seed(seed)
+  tune <- wf |> tune::tune_grid(train_folds,
+                                grid = grid,
+                                control = ctrl,
+                                metrics = yardstick::metric_set(yardstick::roc_auc))
+
+  dat[["tune"]] <- tune
+  dat[["wf"]] <- wf
+  dat[["train_folds"]] <- NULL
+
+  return(dat)
+}
+
+
 #' Finalize and evaluate the model
 #'
 #' `evaluate_model()` finalizes the model using the best hyperparameters and evaluates
@@ -457,7 +536,6 @@ evaluate_multiclass_model <- function(dat,
                                       variable = "Disease",
                                       mixture = NULL,
                                       verbose= TRUE,
-                                      engine = "glmnet",
                                       seed = 123) {
 
   if (verbose){
@@ -536,8 +614,8 @@ evaluate_multiclass_model <- function(dat,
     as.data.frame()
 
   suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
-  auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][[engine]]),
-                        AUC = unlist(auc[["AUC"]][[engine]]))
+  auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
+                        AUC = unlist(auc[["AUC"]][["glmnet"]]))
 
   dat[["final"]] <- final
   dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
@@ -750,9 +828,10 @@ variable_imp <- function(dat,
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
 #' @details
-#' If the data contain missing values, KNN (k=5) imputation will be used to impute.
-#' If `case` is provided, the model will be a binary classification model.
-#' If `case` is NULL, the model will be a multiclass classification model.
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. If `case` is provided, the model will be a binary
+#' classification model. If `case` is NULL, the model will be a multiclass classification model.
 #' In multi-class models, the groups are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging.
 #'
@@ -776,8 +855,8 @@ variable_imp <- function(dat,
 #' hd_run_rreg(hd_split,
 #'             variable = "Disease",
 #'             case = NULL,
-#'             grid_size = 5,
-#'             cv_sets = 5,
+#'             grid_size = 2,
+#'             cv_sets = 2,
 #'             verbose = FALSE)
 hd_run_rreg <- function(dat,
                         variable = "Disease",
@@ -836,7 +915,6 @@ hd_run_rreg <- function(dat,
                                      variable = variable,
                                      mixture = mixture,
                                      verbose = verbose,
-                                     engine = "glmnet",
                                      seed = seed)
     dat <- variable_imp(dat = dat,
                         variable = variable,
@@ -847,6 +925,128 @@ hd_run_rreg <- function(dat,
                         verbose = verbose,
                         seed = seed)
   }
+
+  return(dat)
+}
+
+
+#' Run random forest model pipeline
+#'
+#' `hd_run_rf()` runs the random forest model pipeline. It creates
+#' class-balanced case-control groups for the train set, tunes the model, evaluates
+#' the model, and plots the variable importance.
+#'
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
+#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
+#' @param cv_sets Number of cross-validation sets. Default is 5.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param title Vector of title elements to include in the plot.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @details
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. If `case` is provided, the model will be a binary
+#' classification model. If `case` is NULL, the model will be a multiclass classification model.
+#' In multi-class models, the groups are not balanced and sensitivity and specificity
+#' are calculated via macro-averaging.
+#'
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' hd_run_rf(hd_split,
+#'           variable = "Disease",
+#'           case = "AML",
+#'           grid_size = 5,
+#'           palette = "cancers12")
+#'
+#' # Run the multiclass regularized regression model pipeline
+#' hd_run_rf(hd_split,
+#'           variable = "Disease",
+#'           case = NULL,
+#'           grid_size = 2,
+#'           cv_sets = 2,
+#'           verbose = FALSE)
+hd_run_rf <- function(dat,
+                      variable = "Disease",
+                      case,
+                      control = NULL,
+                      balance_groups = TRUE,
+                      cor_threshold = 0.9,
+                      grid_size = 30,
+                      cv_sets = 5,
+                      palette = NULL,
+                      verbose = TRUE,
+                      title = c("accuracy",
+                                "sensitivity",
+                                "specificity",
+                                "auc",
+                                "features",
+                                "top-features"),
+                      seed = 123) {
+
+  dat <- check_data(dat = dat, variable = variable)
+  dat <- prepare_data(dat = dat,
+                      variable = variable,
+                      case = case,
+                      control = control,
+                      balance_groups = balance_groups,
+                      cv_sets = cv_sets,
+                      seed = seed)
+  dat <- tune_rf_model(dat = dat,
+                       variable = variable,
+                       cor_threshold = cor_threshold,
+                       grid_size = grid_size,
+                       verbose = verbose,
+                       seed = seed)
+
+  if (dat[["model_type"]] == "binary_class") {
+    dat <- evaluate_model(dat = dat,
+                          variable = variable,
+                          case = case,
+                          mixture = "None",
+                          palette = palette,
+                          verbose = verbose,
+                          seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = case,
+                        mixture = "None",
+                        palette = palette,
+                        title = title,
+                        verbose = verbose,
+                        seed = seed)
+  } else {
+    dat <- evaluate_multiclass_model(dat = dat,
+                                     variable = variable,
+                                     mixture = "None",
+                                     verbose = verbose,
+                                     seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = NULL,
+                        mixture = "None",
+                        palette = palette,
+                        title = title,
+                        verbose = verbose,
+                        seed = seed)
+  }
+
+  dat[["mixture"]] <- NULL
 
   return(dat)
 }

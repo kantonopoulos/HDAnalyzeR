@@ -9,7 +9,6 @@ evaluate_multiclass_model(
   variable = "Disease",
   mixture = NULL,
   verbose = TRUE,
-  engine = "glmnet",
   seed = 123
 )
 }
