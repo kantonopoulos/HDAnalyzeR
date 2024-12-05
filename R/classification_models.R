@@ -292,11 +292,11 @@ tune_rreg_model <- function(dat,
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
     recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric()) |>
     recipes::step_normalize(recipes::all_numeric()) |>
     recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric()) |>
-    recipes::step_dummy(recipes::all_nominal_predictors())
+    recipes::step_impute_knn(recipes::all_numeric())
 
   if (model_type == "binary_class") {
     if (is.null(mixture)) {
@@ -379,11 +379,11 @@ tune_rf_model <- function(dat,
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
     recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric()) |>
     recipes::step_normalize(recipes::all_numeric()) |>
     recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric()) |>
-    recipes::step_dummy(recipes::all_nominal_predictors())
+    recipes::step_impute_knn(recipes::all_numeric())
 
   spec <- parsnip::rand_forest(trees = 1000,
                                min_n = tune::tune(),
@@ -456,11 +456,11 @@ tune_lr_model <- function(dat,
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
     recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric()) |>
     recipes::step_normalize(recipes::all_numeric()) |>
     recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric()) |>
-    recipes::step_dummy(recipes::all_nominal_predictors())
+    recipes::step_impute_knn(recipes::all_numeric())
 
   spec <- parsnip::logistic_reg() |>
     parsnip::set_engine("glm")
@@ -1193,7 +1193,11 @@ hd_run_rf <- function(dat,
 #' )
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_run_data_split(
+#'   hd_object,
+#'   metadata_cols = c("Age", "Sex"),  # Include metadata columns
+#'   variable = "Disease"
+#' )
 #'
 #' # Run the regularized regression model pipeline
 #' hd_run_lr(hd_split,
@@ -1289,35 +1293,35 @@ hd_run_lr <- function(dat,
 #' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' "model_results_aml" <- hd_run_rreg(hd_split,
+#' model_results_aml <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "AML",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
+#'
+#' model_results_cll <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "CLL",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
+#'
+#' model_results_myel <- hd_run_rreg(hd_split,
+#'                                   variable = "Disease",
+#'                                   case = "MYEL",
+#'                                   grid_size = 2,
+#'                                   cv_sets = 2)
+#'
+#' model_results_lungc <- hd_run_rreg(hd_split,
 #'                                    variable = "Disease",
-#'                                    case = "AML",
+#'                                    case = "LUNGC",
 #'                                    grid_size = 2,
 #'                                    cv_sets = 2)
 #'
-#' "model_results_cll" <- hd_run_rreg(hd_split,
+#' model_results_gliom <- hd_run_rreg(hd_split,
 #'                                    variable = "Disease",
-#'                                    case = "CLL",
+#'                                    case = "GLIOM",
 #'                                    grid_size = 2,
 #'                                    cv_sets = 2)
-#'
-#' "model_results_myel" <- hd_run_rreg(hd_split,
-#'                                     variable = "Disease",
-#'                                     case = "MYEL",
-#'                                     grid_size = 2,
-#'                                     cv_sets = 2)
-#'
-#' "model_results_lungc" <- hd_run_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "LUNGC",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
-#'
-#' "model_results_gliom" <- hd_run_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "GLIOM",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
 #'
 #' res <- list("AML" = model_results_aml,
 #'             "LUNGC" = model_results_lungc,

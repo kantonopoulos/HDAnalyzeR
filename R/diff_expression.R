@@ -459,7 +459,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML", control)
 #' de_results_lungc <- hd_run_de_limma(hd_object, case = "LUNGC")
 #' de_results_cll <- hd_run_de_limma(hd_object, case = "CLL")
 #' de_results_myel <- hd_run_de_limma(hd_object, case = "MYEL")

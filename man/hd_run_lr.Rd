@@ -66,7 +66,11 @@ hd_object <- hd_initialize(
 )
 
 # Split the data into training and test sets
-hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+hd_split <- hd_run_data_split(
+  hd_object,
+  metadata_cols = c("Age", "Sex"),  # Include metadata columns
+  variable = "Disease"
+)
 
 # Run the regularized regression model pipeline
 hd_run_lr(hd_split,

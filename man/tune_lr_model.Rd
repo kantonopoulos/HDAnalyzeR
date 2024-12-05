@@ -24,8 +24,6 @@ correlations are less than this value.}
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
-
-\item{grid_size}{Size of the hyperparameter optimization grid. Default is 10.}
 }
 \value{
 A model object containing the train and test data, the tuned model, and the workflow.

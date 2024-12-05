@@ -8,6 +8,7 @@ working together with other packages.
 - Make vignettes more readable by suppressing non necessary results and messages.
 - Solve bugs and issues.
 - Informative warnings were added to functions to guide the user in case of potential issues.
+- Preprocess module was removed as it was considered redundant and limited.
 
 ## Utils
 - Added `hd_initialize()` to create an initial object that is used in all other functions. This is making the package usage much more straightforward and concise.
