@@ -8,6 +8,7 @@ evaluate_multiclass_model(
   dat,
   variable = "Disease",
   mixture = NULL,
+  palette = NULL,
   verbose = TRUE,
   seed = 123
 )
@@ -18,6 +19,8 @@ evaluate_multiclass_model(
 \item{variable}{The variable to predict. Default is "Disease".}
 
 \item{mixture}{The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.}
+
+\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 

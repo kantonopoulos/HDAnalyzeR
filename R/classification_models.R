@@ -548,12 +548,28 @@ evaluate_model <- function(dat,
   cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
   if (is.null(names(palette)) && !is.null(palette)) {
+    pal <- unlist(hd_palettes()[[palette]])
     disease_color <- hd_palettes()[[palette]][[case]]
   } else if (!is.null(palette)) {
-    disease_color <- palette
+    pal <- palette
+    disease_color <- palette[[case]]
   } else {
     disease_color <- "black"
+    pal <- rep("black", length(unique(train_set[[variable]])))
+    names(pal) <- unique(train_set[[variable]])
   }
+
+  prob_plot <- stats::predict(final, new_data = test_set, type = "prob") |>
+    dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
+    dplyr::mutate(!!Variable := dplyr::if_else(!!Variable == 1, case, "Control")) |>
+    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym(".pred_1"))) +
+    ggplot2::geom_violin() +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
+    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::scale_color_manual(values = pal) +
+    theme_hd() +
+    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::labs(x = ggplot2::element_blank(), y = paste(case, "Probability"))
 
   roc <- preds |>
     tune::collect_predictions(summarize = FALSE) |>
@@ -571,6 +587,7 @@ evaluate_model <- function(dat,
                            "auc" = auc$.estimate,
                            "confusion_matrix" = cm)
   dat[["roc_curve"]] <- roc
+  dat[["probability_plot"]] <- prob_plot
   dat[["mixture"]] <- mixture
   dat[["tune"]] <- NULL
   dat[["wf"]] <- NULL
@@ -588,6 +605,7 @@ evaluate_model <- function(dat,
 #' @param dat An `hd_model` object coming from a tuning function.
 #' @param variable The variable to predict. Default is "Disease".
 #' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
@@ -596,6 +614,7 @@ evaluate_model <- function(dat,
 evaluate_multiclass_model <- function(dat,
                                       variable = "Disease",
                                       mixture = NULL,
+                                      palette = NULL,
                                       verbose= TRUE,
                                       seed = 123) {
 
@@ -639,6 +658,31 @@ evaluate_multiclass_model <- function(dat,
 
   class_predictions <- stats::predict(final, new_data = test_set, type = "class")
   prob_predictions <- stats::predict(final, new_data = test_set, type = "prob")
+
+  if (is.null(names(palette)) && !is.null(palette)) {
+    pal <- unlist(hd_palettes()[[palette]])
+  } else if (!is.null(palette)) {
+    pal <- palette
+  } else {
+    pal <- rep("black", length(unique(train_set[[variable]])))
+    names(pal) <- unique(train_set[[variable]])
+  }
+  prob_plot <- prob_predictions |>
+    dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
+    tidyr::pivot_longer(cols = tidyselect::starts_with(".pred_"),
+                        names_to = "class",
+                        values_to = "probability") |>
+    dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
+    dplyr::filter(class == !!Variable) |>
+    dplyr::select(-class) |>
+    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym("probability"))) +
+    ggplot2::geom_violin() +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
+    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::scale_color_manual(values = pal) +
+    theme_hd() +
+    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::labs(x = ggplot2::element_blank(), y = paste("Class Probability"))
 
   res <- dplyr::bind_cols(test_set |> dplyr::select(!!Variable),
                           class_predictions,
@@ -693,6 +737,7 @@ evaluate_multiclass_model <- function(dat,
                            "auc" = auc,
                            "confusion_matrix" = cm)
   dat[["roc_curve"]] <- roc
+  dat[["probability_plot"]] <- prob_plot
   dat[["mixture"]] <- mixture
   dat[["tune"]] <- NULL
   dat[["wf"]] <- NULL
@@ -1002,6 +1047,7 @@ hd_run_rreg <- function(dat,
     dat <- evaluate_multiclass_model(dat = dat,
                                      variable = variable,
                                      mixture = mixture,
+                                     palette = palette,
                                      verbose = verbose,
                                      seed = seed)
     dat <- variable_imp(dat = dat,
@@ -1131,6 +1177,7 @@ hd_run_rf <- function(dat,
     dat <- evaluate_multiclass_model(dat = dat,
                                      variable = variable,
                                      mixture = "None",
+                                     palette = palette,
                                      verbose = verbose,
                                      seed = seed)
     dat <- variable_imp(dat = dat,

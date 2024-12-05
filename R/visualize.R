@@ -121,7 +121,6 @@ hd_plot_feature_boxplot <- function(dat,
   # Prepare palettes
   pals <- hd_palettes()
   if (!is.null(palette) && is.null(names(palette))) {
-    pal <- pals[palette]
     pal <- unlist(pals[[palette]])
   } else if (!is.null(palette)) {
     pal <- palette
@@ -172,7 +171,7 @@ hd_plot_feature_boxplot <- function(dat,
                             show.legend = FALSE)
     }
   }
-  boxplot_panel <- boxplot
+
   boxplot_panel <- boxplot +
     ggplot2::theme(legend.position = 'none') +
     ggplot2::scale_fill_manual(values = pal) +
@@ -329,26 +328,26 @@ hd_plot_regression <- function(dat,
 #' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' "model_results_myel" <- hd_run_rreg(hd_split,
-#'                                     variable = "Disease",
-#'                                     case = "AML",
-#'                                     control = "MYEL",
-#'                                     grid_size = 2,
-#'                                     cv_sets = 2)
+#' model_results_myel <- hd_run_rreg(hd_split,
+#'                                   variable = "Disease",
+#'                                   case = "AML",
+#'                                   control = "MYEL",
+#'                                   grid_size = 2,
+#'                                   cv_sets = 2)
 #'
-#' "model_results_lungc" <- hd_run_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "AML",
-#'                                      control = "LUNGC",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
+#' model_results_lungc <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "AML",
+#'                                    control = "LUNGC",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
-#' "model_results_gliom" <- hd_run_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "AML",
-#'                                      control = "GLIOM",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
+#' model_results_gliom <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "AML",
+#'                                    control = "GLIOM",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
 #' # The models are in the same order as the DE results
 #' res_model <- list("MYEL" = model_results_myel,

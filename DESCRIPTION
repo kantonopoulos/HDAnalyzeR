@@ -45,6 +45,7 @@ Imports:
     tibble,
     tidyheatmaps,
     tidyr,
+    tidyselect,
     tidytext,
     tune,
     UpSetR,
