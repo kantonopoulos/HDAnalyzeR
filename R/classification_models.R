@@ -423,6 +423,59 @@ tune_rf_model <- function(dat,
 }
 
 
+#' Hyperparameter optimization for logistic regression models
+#'
+#' `tune_rf_model()` performs hyperparameter optimization for logistic regression
+#' models. It tunes the model using the provided grid size and
+#' cross-validation sets. It returns the best model and hyperparameters.
+#'
+#' @param dat An `hd_model` object coming from `prepare_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param cor_threshold Threshold of absolute correlation values. This will be used
+#' to remove the minimum number of features so that all their resulting absolute
+#' correlations are less than this value.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the tuned model, and the workflow.
+#' @keywords internal
+tune_lr_model <- function(dat,
+                          variable = "Disease",
+                          cor_threshold = 0.9,
+                          verbose = TRUE,
+                          seed = 123) {
+
+  if (verbose){
+    message("Tuning logistic regression model...")
+  }
+  train_set <- dat[["train_data"]]
+  train_folds <- dat[["train_folds"]]
+  sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
+
+  formula <- stats::as.formula(paste(variable, "~ ."))
+  rec <- recipes::recipe(formula, data = train_set) |>
+    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_nzv(recipes::all_numeric()) |>
+    recipes::step_normalize(recipes::all_numeric()) |>
+    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
+    recipes::step_impute_knn(recipes::all_numeric()) |>
+    recipes::step_dummy(recipes::all_nominal_predictors())
+
+  spec <- parsnip::logistic_reg() |>
+    parsnip::set_engine("glm")
+
+  wf <- workflows::workflow() |>
+    workflows::add_model(spec) |>
+    workflows::add_recipe(rec)
+
+  dat[["wf"]] <- wf
+  dat[["train_folds"]] <- NULL
+
+  return(dat)
+}
+
+
 #' Finalize and evaluate the model
 #'
 #' `evaluate_model()` finalizes the model using the best hyperparameters and evaluates
@@ -456,15 +509,23 @@ evaluate_model <- function(dat,
   tune <- dat[["tune"]]
   wf <- dat[["wf"]]
 
-  best <- tune |>
-    tune::select_best(metric = "roc_auc") |>
-    dplyr::select(-dplyr::all_of(c(".config")))
+  if (!is.null(tune)) {
 
-  if (is.null(mixture)) {
-    mixture <- best[["mixture"]]
+    best <- tune |>
+      tune::select_best(metric = "roc_auc") |>
+      dplyr::select(-dplyr::all_of(c(".config")))
+
+    if (is.null(mixture)) {
+      mixture <- best[["mixture"]]
+    }
+
+    final_wf <- tune::finalize_workflow(wf, best)
+
+  } else {
+
+    final_wf <- wf
+
   }
-
-  final_wf <- tune::finalize_workflow(wf, best)
 
   set.seed(seed)
   final <- final_wf |>
@@ -548,15 +609,23 @@ evaluate_multiclass_model <- function(dat,
   wf <- dat[["wf"]]
   sample_id <- colnames(train_set)[1]
 
-  best <- tune |>
-    tune::select_best(metric = "roc_auc") |>
-    dplyr::select(-dplyr::all_of(c(".config")))
+  if (!is.null(tune)){
 
-  if (is.null(mixture)) {
-    mixture <- best[["mixture"]]
+    best <- tune |>
+      tune::select_best(metric = "roc_auc") |>
+      dplyr::select(-dplyr::all_of(c(".config")))
+
+    if (is.null(mixture)) {
+      mixture <- best[["mixture"]]
+    }
+
+    final_wf <- tune::finalize_workflow(wf, best)
+
+  } else {
+
+    final_wf <- wf
+
   }
-
-  final_wf <- tune::finalize_workflow(wf, best)
 
   set.seed(seed)
   final <- final_wf |>
@@ -722,6 +791,7 @@ variable_imp <- function(dat,
                          case,
                          mixture = NULL,
                          palette = NULL,
+                         y_labels = FALSE,
                          title = c("accuracy",
                                    "sensitivity",
                                    "specificity",
@@ -793,10 +863,18 @@ variable_imp <- function(dat,
     ggplot2::ggtitle(label = title_text) +
     ggplot2::xlab('Importance') +
     ggplot2::ylab('Features') +
-    theme_hd() +
-    ggplot2::theme(legend.position = "none",
-                   axis.text.y = ggplot2::element_blank(),
-                   axis.ticks.y = ggplot2::element_blank())
+    theme_hd()
+
+  if (isFALSE(y_labels)) {
+    var_imp_plot <- var_imp_plot +
+      ggplot2::theme(legend.position = "none",
+                     axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank())
+  } else {
+    var_imp_plot <- var_imp_plot +
+      ggplot2::theme(legend.position = "none")
+  }
+
 
   dat[["features"]] <- features
   dat[["var_imp_plot"]] <- var_imp_plot
@@ -816,23 +894,26 @@ variable_imp <- function(dat,
 #' @param variable The name of the column containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
 #' @details
+#' This model will not work if the number of predictors is less than 2.
+#' However, if this is the case, consider using `hd_run_lr()` instead.
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
 #' classification model. If `case` is NULL, the model will be a multiclass classification model.
-#' In multi-class models, the groups are not balanced and sensitivity and specificity
+#' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging.
 #'
 #' @export
@@ -868,6 +949,7 @@ hd_run_rreg <- function(dat,
                         cv_sets = 5,
                         mixture = NULL,
                         palette = NULL,
+                        y_labels = FALSE,
                         verbose = TRUE,
                         title = c("accuracy",
                                   "sensitivity",
@@ -879,6 +961,11 @@ hd_run_rreg <- function(dat,
                         seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
+
+  if (dat[["train_data"]] |> ncol() <= 3) {
+    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_run_lr()`.")
+  }
+
   dat <- prepare_data(dat = dat,
                       variable = variable,
                       case = case,
@@ -907,6 +994,7 @@ hd_run_rreg <- function(dat,
                         case = case,
                         mixture = mixture,
                         palette = palette,
+                        y_labels = y_labels,
                         title = title,
                         verbose = verbose,
                         seed = seed)
@@ -921,9 +1009,15 @@ hd_run_rreg <- function(dat,
                         case = NULL,
                         mixture = mixture,
                         palette = palette,
+                        y_labels = y_labels,
                         title = title,
                         verbose = verbose,
                         seed = seed)
+  }
+
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
   }
 
   return(dat)
@@ -940,11 +1034,12 @@ hd_run_rreg <- function(dat,
 #' @param variable The name of the column containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
@@ -955,7 +1050,7 @@ hd_run_rreg <- function(dat,
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
 #' classification model. If `case` is NULL, the model will be a multiclass classification model.
-#' In multi-class models, the groups are not balanced and sensitivity and specificity
+#' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging.
 #'
 #' @export
@@ -990,6 +1085,7 @@ hd_run_rf <- function(dat,
                       grid_size = 30,
                       cv_sets = 5,
                       palette = NULL,
+                      y_labels = FALSE,
                       verbose = TRUE,
                       title = c("accuracy",
                                 "sensitivity",
@@ -1027,6 +1123,7 @@ hd_run_rf <- function(dat,
                         case = case,
                         mixture = "None",
                         palette = palette,
+                        y_labels = y_labels,
                         title = title,
                         verbose = verbose,
                         seed = seed)
@@ -1041,12 +1138,306 @@ hd_run_rf <- function(dat,
                         case = NULL,
                         mixture = "None",
                         palette = palette,
+                        y_labels = y_labels,
                         title = title,
                         verbose = verbose,
                         seed = seed)
   }
 
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
+  }
+
   dat[["mixture"]] <- NULL
 
   return(dat)
+}
+
+
+#' Run logistic regression model pipeline
+#'
+#' `hd_run_lr()` runs the logistic regression model pipeline. It creates
+#' class-balanced case-control groups for the train set, tunes the model, evaluates
+#' the model, and plots the variable importance.
+#'
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
+#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is TRUE.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param title Vector of title elements to include in the plot.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @details
+#' This model is ideal when the number of features is small. Otherwise, use
+#' `hd_run_rreg()` as it is more robust to high-dimensional data.
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. Logistic regression models are not supported for
+#' multiclass classification. `case` is required for binary classification. If
+#' multi-class classification is needed, use `hd_run_rreg()` instead.
+#'
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object with only a subset of the predictors
+#' hd_object <- hd_initialize(
+#'   example_data |> dplyr::filter(Assay %in% c("ADA", "AARSD1", "ACAA1", "ACAN1", "ACOX1")),
+#'   example_metadata
+#' )
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' hd_run_lr(hd_split,
+#'           variable = "Disease",
+#'           case = "AML",
+#'           palette = "cancers12")
+hd_run_lr <- function(dat,
+                      variable = "Disease",
+                      case,
+                      control = NULL,
+                      balance_groups = TRUE,
+                      cor_threshold = 0.9,
+                      palette = NULL,
+                      y_labels = TRUE,
+                      verbose = TRUE,
+                      title = c("accuracy",
+                                "sensitivity",
+                                "specificity",
+                                "auc",
+                                "features",
+                                "top-features"),
+                      seed = 123) {
+
+  dat <- check_data(dat = dat, variable = variable)
+  dat <- prepare_data(dat = dat,
+                      variable = variable,
+                      case = case,
+                      control = control,
+                      balance_groups = balance_groups,
+                      cv_sets = 2,
+                      seed = seed)
+
+  if (dat[["model_type"]] == "multi_class") {
+    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_run_rreg()`.")
+  }
+
+  dat <- tune_lr_model(dat = dat,
+                       variable = variable,
+                       cor_threshold = cor_threshold,
+                       verbose = verbose,
+                       seed = seed)
+
+
+  dat <- evaluate_model(dat = dat,
+                        variable = variable,
+                        case = case,
+                        mixture = "None",
+                        palette = palette,
+                        verbose = verbose,
+                        seed = seed)
+
+  dat <- variable_imp(dat = dat,
+                      variable = variable,
+                      case = case,
+                      mixture = "None",
+                      palette = palette,
+                      y_labels = y_labels,
+                      title = title,
+                      verbose = verbose,
+                      seed = seed)
+
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
+  }
+
+  dat[["mixture"]] <- NULL
+
+  return(dat)
+}
+
+
+#' Plot features summary visualizations
+#'
+#' `plot_features_summary()` plots the number of proteins and the number of top
+#' proteins for each disease in a barplot. It also plots the upset plot of the
+#' top or all protein features, as well as a summary line plot of the model
+#' performance metrics.
+#'
+#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_run_rreg()`, `hd_run_rf()` or `hd_run_lr()` with the classes as names. See the examples for more details.
+#' @param importance The importance threshold to consider a feature as top. Default is 0.5.
+#' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param upset_top_features Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).
+#'
+#' @return A list with the binary classification model summary plots and results
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object with only a subset of the predictors
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' "model_results_aml" <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "AML",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' "model_results_cll" <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "CLL",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' "model_results_myel" <- hd_run_rreg(hd_split,
+#'                                     variable = "Disease",
+#'                                     case = "MYEL",
+#'                                     grid_size = 2,
+#'                                     cv_sets = 2)
+#'
+#' "model_results_lungc" <- hd_run_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "LUNGC",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
+#'
+#' "model_results_gliom" <- hd_run_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "GLIOM",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
+#'
+#' res <- list("AML" = model_results_aml,
+#'             "LUNGC" = model_results_lungc,
+#'             "CLL" = model_results_cll,
+#'             "MYEL" = model_results_myel,
+#'             "GLIOM" = model_results_gliom)
+#'
+#' # Plot summary visualizations
+#' hd_plot_model_summary(res, class_palette = "cancers12")
+hd_plot_model_summary <- function(model_results,
+                                  importance = 0.5,
+                                  class_palette = NULL,
+                                  upset_top_features = FALSE) {
+
+  barplot_data <- lapply(names(model_results), function(case) {
+
+    features <- model_results[[case]][["features"]] |>
+      dplyr::mutate(Category = case) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Variable")) |>
+      dplyr::rename(Assay = !!rlang::sym("Variable")) |>
+      dplyr::group_by(!!rlang::sym("Category")) |>
+      dplyr::summarise(Count = dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(Type = "all-features")
+
+    top_features <- model_results[[case]][["features"]] |>
+      dplyr::mutate(Category = case) |>
+      dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Variable")) |>
+      dplyr::rename(Assay = !!rlang::sym("Variable")) |>
+      dplyr::group_by(!!rlang::sym("Category")) |>
+      dplyr::summarise(Count = dplyr::n()) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(Type = "top-features")
+
+    features_data <- rbind(features, top_features)
+  })
+
+  barplot_data <- do.call(rbind, barplot_data)
+
+  features_barplot <- barplot_data |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                 y = !!rlang::sym("Count"),
+                                 fill = !!rlang::sym("Type"))) +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour="black") +
+    ggplot2::labs(x = "", y = "Number of protein", fill = "Feature type") +
+    theme_hd(angled = 90) +
+    ggplot2::theme(legend.position = "top",
+                   legend.title = ggplot2::element_text(face = "bold")) +
+    ggplot2::scale_fill_manual(values = c("all-features" = "pink",
+                                          "top-features" = "midnightblue"))
+
+  metrics_data <- lapply(names(model_results), function(case) {
+    metrics <- tibble::tibble(
+      metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
+      value = c(model_results[[case]][["metrics"]][["accuracy"]],
+                model_results[[case]][["metrics"]][["sensitivity"]],
+                model_results[[case]][["metrics"]][["specificity"]],
+                model_results[[case]][["metrics"]][["auc"]])
+    ) |>
+      dplyr::mutate(Category = case)
+  })
+
+  metrics_data <- do.call(rbind, metrics_data)
+
+  metrics_barplot <- metrics_data |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                 y = !!rlang::sym("value"),
+                                 fill = !!rlang::sym("metric"))) +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour="black") +
+    ggplot2::labs(x = "", y = "Value", color = "Metric") +
+    theme_hd(angled = 90) +
+    ggplot2::theme(legend.position = "top",
+                   legend.title = ggplot2::element_text(face = "bold")) +
+    ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
+                                          "Sensitivity" = "#8d99ae",
+                                          "Specificity" = "#edf2f4",
+                                          "AUC" = "#ef233c"))
+
+  upset_features <- lapply(names(model_results), function(case) {
+
+    if (upset_top_features == TRUE) {
+      upset_features <- model_results[[case]][["features"]] |>
+        dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
+        dplyr::pull(!!rlang::sym("Variable"))
+    } else {
+      upset_features <- model_results[[case]][["features"]] |>
+        dplyr::pull(!!rlang::sym("Variable"))
+    }
+
+  })
+  names(upset_features) <- names(model_results)
+
+  # Prepare palettes
+  if (is.null(names(class_palette)) && !is.null(class_palette)) {
+    pal <- hd_palettes()[[class_palette]]
+  } else if (!is.null(class_palette)) {
+    pal <- class_palette
+  } else {
+    pal <- rep("black", length(names(model_results)))
+    names(pal) <- names(model_results)
+  }
+  feature_names <- names(model_results)
+  ordered_colors <- pal[feature_names]
+  frequencies <- sapply(upset_features, length)
+  ordered_feature_names <- names(sort(frequencies, decreasing = TRUE))
+  ordered_colors <- ordered_colors[ordered_feature_names]
+
+  upset <- UpSetR::fromList(upset_features)
+  features <- extract_protein_list(upset, upset_features)
+
+  upset_plot_features <- UpSetR::upset(upset,
+                                       sets = ordered_feature_names,
+                                       order.by = "freq",
+                                       nsets = length(ordered_feature_names),
+                                       sets.bar.color = ordered_colors)
+
+  return(list("features_barplot" = features_barplot,
+              "metrics_barplot" = metrics_barplot,
+              "upset_plot_features" = upset_plot_features,
+              "features_df" = features$proteins_df,
+              "features_list" = features$proteins_list))
 }

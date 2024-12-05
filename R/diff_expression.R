@@ -472,7 +472,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #'             "GLIOM" = de_results_gliom)
 #'
 #' # Plot summary visualizations
-#' hd_plot_de_summary(res, class_palette = "cancers15")
+#' hd_plot_de_summary(res, class_palette = "cancers12")
 hd_plot_de_summary <- function(de_results,
                                variable = "Disease",
                                class_palette = NULL,
@@ -501,7 +501,7 @@ hd_plot_de_summary <- function(de_results,
 
   de_barplot <- barplot_data |>
     ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym("Count"), fill = !!rlang::sym("sig")), alpha = 0.4) +
-    ggplot2::geom_bar(stat = "identity", position = "stack") +
+    ggplot2::geom_bar(stat = "identity", position = "stack", colour="black") +
     ggplot2::labs(x = "", y = "Number of proteins", fill = "Significance") +
     theme_hd(angled = 90) +
     ggplot2::theme(legend.position = "top",

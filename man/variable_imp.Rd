@@ -10,6 +10,7 @@ variable_imp(
   case,
   mixture = NULL,
   palette = NULL,
+  y_labels = FALSE,
   title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features"),
   verbose = TRUE,
   seed = 123

@@ -14,6 +14,7 @@ hd_run_rf(
   grid_size = 30,
   cv_sets = 5,
   palette = NULL,
+  y_labels = FALSE,
   verbose = TRUE,
   title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features"),
   seed = 123
@@ -28,7 +29,7 @@ hd_run_rf(
 
 \item{control}{The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.}
 
-\item{balance_groups}{Whether to balance the groups. Default is TRUE.}
+\item{balance_groups}{Whether to balance the groups in the train set. Default is TRUE.}
 
 \item{cor_threshold}{Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.}
 
@@ -37,6 +38,8 @@ hd_run_rf(
 \item{cv_sets}{Number of cross-validation sets. Default is 5.}
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
+
+\item{y_labels}{Whether to show y-axis labels in the variable importance plot. Default is FALSE.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
@@ -57,7 +60,7 @@ The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If \code{case} is provided, the model will be a binary
 classification model. If \code{case} is NULL, the model will be a multiclass classification model.
-In multi-class models, the groups are not balanced and sensitivity and specificity
+In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 are calculated via macro-averaging.
 }
 \examples{

@@ -52,5 +52,5 @@ res <- list("AML" = de_results_aml,
             "GLIOM" = de_results_gliom)
 
 # Plot summary visualizations
-hd_plot_de_summary(res, class_palette = "cancers15")
+hd_plot_de_summary(res, class_palette = "cancers12")
 }
