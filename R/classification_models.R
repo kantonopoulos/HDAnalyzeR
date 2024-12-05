@@ -1413,7 +1413,7 @@ hd_plot_model_summary <- function(model_results,
     ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
                                  y = !!rlang::sym("Count"),
                                  fill = !!rlang::sym("Type"))) +
-    ggplot2::geom_bar(stat = "identity", position = "dodge", colour="black") +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
     ggplot2::labs(x = "", y = "Number of protein", fill = "Feature type") +
     theme_hd(angled = 90) +
     ggplot2::theme(legend.position = "top",
@@ -1438,7 +1438,7 @@ hd_plot_model_summary <- function(model_results,
     ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
                                  y = !!rlang::sym("value"),
                                  fill = !!rlang::sym("metric"))) +
-    ggplot2::geom_bar(stat = "identity", position = "dodge", colour="black") +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
     ggplot2::labs(x = "", y = "Value", color = "Metric") +
     theme_hd(angled = 90) +
     ggplot2::theme(legend.position = "top",
