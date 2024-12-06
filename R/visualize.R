@@ -1,3 +1,5 @@
+utils::globalVariables(c("name"))
+
 #' Apply palette to plot
 #'
 #' `apply_palette` applies the color palette to the plot. It checks if the palette is a valid
@@ -382,7 +384,6 @@ hd_plot_feature_heatmap <- function(de_results,
                     !!rlang::sym("adj.P.Val"))
 
     res_model <- model_results[[i]][["features"]] |>
-      dplyr::rename(Feature = !!rlang::sym("Variable")) |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>
       dplyr::select(!!rlang::sym("Feature"),
                     !!rlang::sym("Scaled_Importance"),
@@ -428,4 +429,178 @@ hd_plot_feature_heatmap <- function(de_results,
 }
 
 
-# hd_plot_feature_network <- function()
+#' Plot feature network
+#'
+#' `hd_plot_feature_network` plots a network of the features. The bigger nodes represent the
+#' classes and the smaller nodes represent the features. The color of the nodes is based on the
+#' color variable which can be either the importance, the logFC or any value that can rank the features.
+#'
+#' @param feature_panel A dataset containing the features and the classes. The dataframe must contain at least 3 columns: Feature, Class and the color variable. See examples.
+#' @param plot_color The color variable to plot. Default is "Scaled_Importance".
+#' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param seed seed Seed for reproducibility. Default is 123.
+#'
+#' @return The feature network plot.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Create a feature panel from classification models results
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' model_results_aml <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "AML",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
+#'
+#' model_results_cll <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "CLL",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
+#'
+#' model_results_myel <- hd_run_rreg(hd_split,
+#'                                   variable = "Disease",
+#'                                   case = "MYEL",
+#'                                   grid_size = 2,
+#'                                   cv_sets = 2)
+#'
+#' model_results_lungc <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "LUNGC",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' model_results_gliom <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "GLIOM",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' feature_panel <- model_results_aml[["features"]] |>
+#'   dplyr::filter(Scaled_Importance > 0.5) |>
+#'   dplyr::mutate(Class = "AML") |>
+#'   dplyr::bind_rows(model_results_cll[["features"]] |>
+#'                      dplyr::filter(Scaled_Importance > 0.5) |>
+#'                      dplyr::mutate(Class = "CLL"),
+#'                    model_results_myel[["features"]] |>
+#'                      dplyr::filter(Scaled_Importance > 0.5) |>
+#'                      dplyr::mutate(Class = "MYEL"),
+#'                    model_results_lungc[["features"]] |>
+#'                      dplyr::filter(Scaled_Importance > 0.5) |>
+#'                      dplyr::mutate(Class = "LUNGC"),
+#'                    model_results_gliom[["features"]] |>
+#'                      dplyr::filter(Scaled_Importance > 0.5) |>
+#'                      dplyr::mutate(Class = "GLIOM"))
+#'
+#' print(head(feature_panel, 5))  # Preview of the feature panel
+#'
+#' hd_plot_feature_network(feature_panel,
+#'                         plot_color = "Scaled_Importance",
+#'                         class_palette = "cancers12")
+#'
+#'
+#' # Create a feature panel from differential expression results
+#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML", control)
+#' de_results_lungc <- hd_run_de_limma(hd_object, case = "LUNGC")
+#' de_results_cll <- hd_run_de_limma(hd_object, case = "CLL")
+#' de_results_myel <- hd_run_de_limma(hd_object, case = "MYEL")
+#' de_results_gliom <- hd_run_de_limma(hd_object, case = "GLIOM")
+#'
+#' feature_panel <- de_results_aml[["de_res"]] |>
+#'   dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+#'   dplyr::mutate(Class = "AML") |>
+#'   dplyr::bind_rows(de_results_cll[["de_res"]] |>
+#'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+#'                      dplyr::mutate(Class = "CLL"),
+#'                    de_results_myel[["de_res"]] |>
+#'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+#'                      dplyr::mutate(Class = "MYEL"),
+#'                    de_results_lungc[["de_res"]] |>
+#'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+#'                      dplyr::mutate(Class = "LUNGC"),
+#'                    de_results_gliom[["de_res"]] |>
+#'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+#'                      dplyr::mutate(Class = "GLIOM"))
+#'
+#' print(head(feature_panel, 5))
+#'
+#' hd_plot_feature_network(feature_panel,
+#'                         plot_color = "logFC",
+#'                         class_palette = "cancers12")
+hd_plot_feature_network <- function(feature_panel,
+                                    plot_color = "logFC",
+                                    class_palette = NULL,
+                                    seed = 123) {
+
+  set.seed(seed)
+  tbl_graph <- feature_panel |>
+    dplyr::select(dplyr::all_of(c("Feature", "Class", plot_color))) |>
+    tidygraph::as_tbl_graph()
+
+  levels <- feature_panel |>
+    dplyr::distinct(!!rlang::sym("Class")) |>
+    dplyr::pull(!!rlang::sym("Class"))
+
+  nodes_data <- tbl_graph |>
+    tidygraph::activate(!!rlang::sym("nodes")) |>
+    dplyr::mutate(
+      text_color = dplyr::case_when(!!rlang::sym("name") %in% levels ~ "white", TRUE ~ "black")
+    )
+
+  layout <- ggraph::create_layout(nodes_data, layout = "nicely")
+
+  if (is.null(names(class_palette)) && !is.null(class_palette)) {
+    pal <- hd_palettes()[[class_palette]]
+  } else if (!is.null(class_palette)) {
+    pal <- class_palette
+  } else {
+    pal <- rep("grey80", length(levels))
+    names(pal) <- levels
+  }
+
+  network <- ggraph::ggraph(layout) +
+    ggraph::geom_edge_link(color = "grey80", width = 1) +
+    ggraph::geom_node_point(
+      data = layout |>
+        dplyr::filter(!!rlang::sym("name") %in% levels),
+      ggplot2::aes(color = !!rlang::sym("name")),
+      size = 10,
+      fill = "grey30",
+      shape = 21,
+      stroke = 3
+    ) +
+    ggraph::geom_node_point(
+      data = layout |>
+        dplyr::filter(!name %in% levels) |>
+        dplyr::left_join(
+          feature_panel |> dplyr::select(name = !!rlang::sym("Feature"), !!rlang::sym(plot_color)),
+          by = "name"
+        ),
+      ggplot2::aes(fill = !!rlang::sym(plot_color)),
+      shape = 21,
+      size = 5,
+      color = "grey80",
+      stroke = 0
+    ) +
+    ggplot2::scale_color_manual(values = pal[levels], guide = "none") +
+    ggplot2::scale_fill_gradient(high = "grey30", low = "grey80", name = "Importance") +
+    ggnewscale::new_scale_color() +
+    ggraph::geom_node_text(
+      ggplot2::aes(label = stringr::str_wrap(!!rlang::sym("name"), width = 10), color = !!rlang::sym("text_color")),
+      lineheight = 0.8,
+      size = 2,
+      vjust = 0
+    ) +
+    ggplot2::scale_color_identity() +
+    ggplot2::theme_void() +
+    ggplot2::coord_fixed() +
+    ggplot2::theme(legend.title = ggplot2::element_text(face = "bold", size = 10))
+
+  return(network)
+}

@@ -865,7 +865,8 @@ variable_imp <- function(dat,
                   Variable = forcats::fct_reorder(Variable, !!rlang::sym("Importance"))) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
     dplyr::mutate(Scaled_Importance = scales::rescale(!!rlang::sym("Importance"), to = c(0, 1))) |>
-    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0)
+    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
+    dplyr::rename(Feature = !!rlang::sym("Variable"))
 
   if (model_type == "binary_class") {
 
@@ -902,7 +903,7 @@ variable_imp <- function(dat,
   }
 
   var_imp_plot <- features |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = Variable)) +
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
     ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
     ggplot2::labs(y = NULL) +
     ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
@@ -1389,8 +1390,8 @@ hd_plot_model_summary <- function(model_results,
 
     features <- model_results[[case]][["features"]] |>
       dplyr::mutate(Category = case) |>
-      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Variable")) |>
-      dplyr::rename(Assay = !!rlang::sym("Variable")) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Feature")) |>
+      dplyr::rename(Assay = !!rlang::sym("Feature")) |>
       dplyr::group_by(!!rlang::sym("Category")) |>
       dplyr::summarise(Count = dplyr::n()) |>
       dplyr::ungroup() |>
@@ -1399,8 +1400,8 @@ hd_plot_model_summary <- function(model_results,
     top_features <- model_results[[case]][["features"]] |>
       dplyr::mutate(Category = case) |>
       dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
-      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Variable")) |>
-      dplyr::rename(Assay = !!rlang::sym("Variable")) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Feature")) |>
+      dplyr::rename(Assay = !!rlang::sym("Feature")) |>
       dplyr::group_by(!!rlang::sym("Category")) |>
       dplyr::summarise(Count = dplyr::n()) |>
       dplyr::ungroup() |>
@@ -1455,10 +1456,10 @@ hd_plot_model_summary <- function(model_results,
     if (upset_top_features == TRUE) {
       upset_features <- model_results[[case]][["features"]] |>
         dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
-        dplyr::pull(!!rlang::sym("Variable"))
+        dplyr::pull(!!rlang::sym("Feature"))
     } else {
       upset_features <- model_results[[case]][["features"]] |>
-        dplyr::pull(!!rlang::sym("Variable"))
+        dplyr::pull(!!rlang::sym("Feature"))
     }
 
   })
