@@ -32,6 +32,19 @@ An HDAnalyzeR object.
 \description{
 \code{hd_initialize()} initializes an HDAnalyzeR object with the data, metadata, and other parameters.
 }
+\details{
+It is strongly recommended to use this function to initialize an HDAnalyzeR
+object before starting any analysis. This initialization step ensures that
+your input data and metadata are correctly formatted and compatible with the
+package. Specifically, the function validates your data and automatically
+converts it to wide format if provided in long format (\code{is_wide}). While it is
+possible to use HDAnalyzeR functions on data outside of an HDAnalyzeR object, users
+must ensure that the data adheres to the required structure: the first column
+must contain sample IDs, followed by numeric columns (protein expression)in wide format.
+Additionally, the metadata must include the same set of sample IDs.
+Proper initialization or careful adherence to these requirements is crucial
+for accurate and efficient analysis.
+}
 \examples{
 # Initialize an HDAnalyzeR object
 hd_initialize(example_data, example_metadata)

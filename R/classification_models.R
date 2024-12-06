@@ -41,6 +41,8 @@ hd_run_data_split <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }

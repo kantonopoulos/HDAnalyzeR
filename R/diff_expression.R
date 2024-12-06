@@ -55,6 +55,8 @@ hd_run_de_limma <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
+  check_numeric <- check_numeric_columns(wide_data)
+
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
@@ -203,6 +205,8 @@ hd_run_de_ttest <- function(dat,
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
