@@ -7,9 +7,9 @@
 hd_run_ora(
   gene_list,
   database = c("GO", "Reactome", "KEGG"),
-  ontology = c("BP", "CC", "MF"),
+  ontology = c("BP", "CC", "MF", "ALL"),
   background = NULL,
-  pval_lim = 0.05
+  pval_lim_enrichment = 0.05
 )
 }
 \arguments{
@@ -17,17 +17,20 @@ hd_run_ora(
 
 \item{database}{The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".}
 
-\item{ontology}{The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), or "MF" (Molecular Function). In the case of KEGG and Reactome, this parameter is ignored.}
+\item{ontology}{The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.}
 
 \item{background}{A character vector containing the background genes.}
 
-\item{pval_lim}{The p-value threshold to consider a term as significant.}
+\item{pval_lim_enrichment}{The p-value threshold to consider a term as significant in the enrichment analysis.}
 }
 \value{
 A list containing the results of the ORA.
 }
 \description{
 \code{hd_run_ora()} performs over-representation analysis (ORA) using the clusterProfiler package.
+}
+\details{
+qvalueCutoff was set to be 4 times the pvalueCutoff.
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -38,7 +41,7 @@ de_results <- hd_run_de_limma(hd_object, case = "AML")
 
 # Extract the up-regulated proteins for AML
 sig_up_proteins_aml <- de_results$de_res |>
-  dplyr::filter(adj.P.Val < 0.05 & logFC > 0.5) |>
+  dplyr::filter(adj.P.Val < 0.05 & logFC > 0) |>
   dplyr::pull(Feature)
 
 # Perform ORA with `GO` database and `BP` ontology

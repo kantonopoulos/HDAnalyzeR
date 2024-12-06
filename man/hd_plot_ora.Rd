@@ -4,10 +4,12 @@
 \alias{hd_plot_ora}
 \title{Generate visualizations for the over-representation analysis}
 \usage{
-hd_plot_ora(enrichment)
+hd_plot_ora(enrichment, seed = 123)
 }
 \arguments{
 \item{enrichment}{The enrichment results obtained from \code{hd_run_ora()}.}
+
+\item{seed}{Seed for reproducibility. Default is 123.}
 }
 \value{
 The input object enriched with the plots.
