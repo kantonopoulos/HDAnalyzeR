@@ -945,9 +945,9 @@ variable_imp <- function(dat,
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
@@ -994,15 +994,15 @@ hd_run_rreg <- function(dat,
                         cv_sets = 5,
                         mixture = NULL,
                         palette = NULL,
-                        y_labels = FALSE,
+                        plot_y_labels = FALSE,
                         verbose = TRUE,
-                        title = c("accuracy",
-                                  "sensitivity",
-                                  "specificity",
-                                  "auc",
-                                  "features",
-                                  "top-features",
-                                  "mixture"),
+                        plot_title = c("accuracy",
+                                       "sensitivity",
+                                       "specificity",
+                                       "auc",
+                                       "features",
+                                       "top-features",
+                                       "mixture"),
                         seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
@@ -1039,8 +1039,8 @@ hd_run_rreg <- function(dat,
                         case = case,
                         mixture = mixture,
                         palette = palette,
-                        y_labels = y_labels,
-                        title = title,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
                         verbose = verbose,
                         seed = seed)
   } else {
@@ -1055,8 +1055,8 @@ hd_run_rreg <- function(dat,
                         case = NULL,
                         mixture = mixture,
                         palette = palette,
-                        y_labels = y_labels,
-                        title = title,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
                         verbose = verbose,
                         seed = seed)
   }
@@ -1085,9 +1085,9 @@ hd_run_rreg <- function(dat,
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
@@ -1131,14 +1131,14 @@ hd_run_rf <- function(dat,
                       grid_size = 30,
                       cv_sets = 5,
                       palette = NULL,
-                      y_labels = FALSE,
+                      plot_y_labels = FALSE,
                       verbose = TRUE,
-                      title = c("accuracy",
-                                "sensitivity",
-                                "specificity",
-                                "auc",
-                                "features",
-                                "top-features"),
+                      plot_title = c("accuracy",
+                                     "sensitivity",
+                                     "specificity",
+                                     "auc",
+                                     "features",
+                                     "top-features"),
                       seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
@@ -1169,8 +1169,8 @@ hd_run_rf <- function(dat,
                         case = case,
                         mixture = "None",
                         palette = palette,
-                        y_labels = y_labels,
-                        title = title,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
                         verbose = verbose,
                         seed = seed)
   } else {
@@ -1185,8 +1185,8 @@ hd_run_rf <- function(dat,
                         case = NULL,
                         mixture = "None",
                         palette = palette,
-                        y_labels = y_labels,
-                        title = title,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
                         verbose = verbose,
                         seed = seed)
   }
@@ -1215,9 +1215,9 @@ hd_run_rf <- function(dat,
 #' @param balance_groups Whether to balance the groups. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param y_labels Whether to show y-axis labels in the variable importance plot. Default is TRUE.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
@@ -1258,14 +1258,14 @@ hd_run_lr <- function(dat,
                       balance_groups = TRUE,
                       cor_threshold = 0.9,
                       palette = NULL,
-                      y_labels = TRUE,
+                      plot_y_labels = TRUE,
                       verbose = TRUE,
-                      title = c("accuracy",
-                                "sensitivity",
-                                "specificity",
-                                "auc",
-                                "features",
-                                "top-features"),
+                      plot_title = c("accuracy",
+                                     "sensitivity",
+                                     "specificity",
+                                     "auc",
+                                     "features",
+                                     "top-features"),
                       seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
@@ -1301,8 +1301,8 @@ hd_run_lr <- function(dat,
                       case = case,
                       mixture = "None",
                       palette = palette,
-                      y_labels = y_labels,
-                      title = title,
+                      y_labels = plot_y_labels,
+                      title = plot_title,
                       verbose = verbose,
                       seed = seed)
 

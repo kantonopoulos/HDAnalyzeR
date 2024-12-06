@@ -1,61 +1,91 @@
-#' utils::globalVariables(c("pmid", "year", "journal", "firstname", "lastname", "title", "First_author"))
-#' #' Automated PubMed literature search
-#' #'
-#' #' `literature_search()` searches for articles for protein-disease pairs in PubMed.
-#' #' A list of proteins and diseases is provided as input. The function retrieves the
-#' #' articles for each protein-disease pair. The input should be in the correct format,
-#' #' a list with diseases as names and protein vectors associated with each disease as
-#' #' elements (see examples).
-#' #'
-#' #' @param prot_dis_list A list of proteins and diseases. The names of the list are the diseases and the elements are vectors of proteins.
-#' #' @param max_articles The maximum number of articles to retrieve for each protein-disease pair. Default is 10.
-#' #'
-#' #' @return A list of tibbles. Each tibble contains the articles found for a protein-disease pair.
-#' #' @export
-#' #'
-#' #' @details The disease and gene names should be correct in order for the query to
-#' #' be successful. For example AML should be written as "acute myeloid leukemia".
-#' #' @examples
-#' #' # Prepare the list of protein-disease pairs
-#' #' prot_dis_list <- list("acute myeloid leukemia" = c("FLT3", "EPO"),
-#' #'                       "chronic lymphocytic leukemia" = c("PARP1", "FCER2"))
-#' #'
-#' #' # Run the literature search
-#' #' lit_search_results <- literature_search(prot_dis_list, max_articles = 1)
-#' #'
-#' #' # Results for FLT3 in acute myeloid leukemia
-#' #' lit_search_results[["acute myeloid leukemia"]][["FLT3"]]
-#' literature_search <- function(prot_dis_list, max_articles = 10) {
+#' Run literature search for gene-disease pairs in PubMed
 #'
-#'   diseases <- names(prot_dis_list)
-#'   proteins <- prot_dis_list
+#' `hd_run_literature_search()` searches for articles for gene-disease pairs in PubMed.
+#' A list of proteins and diseases is provided as input. The function retrieves the
+#' articles for each gene-disease pair. The input should be in the correct format,
+#' a list with diseases as names and gene vectors associated with each disease as
+#' elements (see examples).
 #'
-#'   articles_database <- list()
-#'   for (disease in diseases) {
-#'     articles_database[[disease]] <- list()
-#'     for (protein in proteins[[disease]]) {
-#'       # Collect articles from PubMed
-#'       ids <- easyPubMed::get_pubmed_ids(paste0(protein, '[All Fields] AND ', disease, '[All Fields]'))
-#'       message(paste0("Searching for articles on ", protein, " and ", disease))
-#'       abstracts_xml <- easyPubMed::fetch_pubmed_data(pubmed_id_list = ids, retmax = max_articles)
+#' @param feature_class_list A list of features (gene names) and classes (diseases). The names of the list are the classes and the elements are vectors of features. See examples.
+#' @param max_articles The maximum number of articles to retrieve for each gene-disease pair. Default is 10.
+#' @param keywords Additional keywords to include in the search. They are added to the query as "AND keywords". Default is NULL.
+#' @param fields The fields to search for the keywords. Default is "All Fields". Other options are "Title", "Abstract", "Author", "Journal", "Affiliation", "MeSH Terms", "Other Terms".
+#' @param api_key user-specific API key to increase the limit of queries per second. You can obtain your key from NCBI but not required. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
 #'
-#'       # Extract data and store them in dataframe
-#'       if(!is.null(abstracts_xml)) {
-#'         abstracts_list <- easyPubMed::articles_to_list(abstracts_xml)
+#' @return A list of tibbles. Each tibble contains the articles found for a gene-disease pair.
+#' @export
 #'
-#'         abstract_table <- abstracts_list |>
-#'           purrr::map_df(function(abstract) {
-#'             easyPubMed::article_to_df(pubmedArticle = abstract, autofill = FALSE) |>
-#'               utils::head(1) |>
-#'               dplyr::select(pmid, year, journal, firstname, lastname, title) |>
-#'               dplyr::mutate(First_author = paste0(lastname, ", ", firstname)) |>
-#'               dplyr::relocate(First_author, .before = year) |>
-#'               dplyr::select(-firstname, -lastname)
-#'           })
-#'       }
-#'       articles_database[[disease]][[protein]] <- abstract_table
-#'     }
-#'   }
-#'   return(articles_database)
-#' }
+#' @details The disease and gene names should be correct in order for the query to
+#' be successful. For example AML should be written as "acute myeloid leukemia".
+#' The query is constructed as "gene[field] AND disease[field] AND keywords".
+#' For more details check the `easyPubMed` package documentation.
 #'
+#' @examples
+#' # Prepare the list of gene-disease pairs
+#' feature_class_list <- list("acute myeloid leukemia" = c("FLT3", "EPO"),
+#'                            "chronic lymphocytic leukemia" = c("PARP1"))
+#'
+#' # Run the literature search
+#' lit_search_results <- hd_run_literature_search(feature_class_list, max_articles = 1)
+#'
+#' # Results for FLT3 in acute myeloid leukemia
+#' lit_search_results$`acute myeloid leukemia`$FLT3
+hd_run_literature_search <- function(feature_class_list,
+                                     max_articles = 10,
+                                     keywords = NULL,
+                                     fields = "All Fields",
+                                     api_key = NULL,
+                                     verbose = TRUE) {
+
+  # Ensure 'easyPubMed' package is loaded
+  if (!requireNamespace("easyPubMed", quietly = TRUE)) {
+    stop("The 'easyPubMed' package is required but not installed. Please install it using install.packages('easyPubMed').")
+  }
+
+  diseases <- names(feature_class_list)
+  genes <- feature_class_list
+
+  articles_database <- list()
+  for (disease in diseases) {
+    articles_database[[disease]] <- list()
+    for (gene in genes[[disease]]) {
+
+      query <- paste0(gene, '[', fields, '] AND ', disease, '[', fields, ']')
+      if (!is.null(keywords)) {
+        query <- paste0(query, ' AND ', keywords)
+      }
+
+      if (verbose) {
+        message(paste0("Searching for articles on ", gene, " and ", disease))
+      }
+
+      ids <- easyPubMed::get_pubmed_ids(query, api_key = api_key)
+
+      if (ids[["Count"]] == 0) {
+        message(paste0("No articles found for ", gene, " and ", disease))
+        next
+      } else {
+        abstracts_xml <- easyPubMed::fetch_pubmed_data(pubmed_id_list = ids, retmax = max_articles)
+      }
+
+      # Extract data and store them in dataframe
+      if(!is.null(abstracts_xml)) {
+        abstracts_list <- easyPubMed::articles_to_list(abstracts_xml)
+
+        abstract_table <- abstracts_list |>
+          purrr::map_df(function(abstract) {
+            easyPubMed::article_to_df(pubmedArticle = abstract, autofill = FALSE) |>
+              utils::head(1) |>
+              dplyr::select(dplyr::all_of(c("pmid", "year", "journal", "firstname", "lastname", "title"))) |>
+              dplyr::mutate(First_author = paste0(!!rlang::sym("lastname"), ", ", !!rlang::sym("firstname"))) |>
+              dplyr::relocate(!!rlang::sym("First_author"), .before = !!rlang::sym("year")) |>
+              dplyr::select(-dplyr::all_of(c("firstname", "lastname")))
+          })
+      }
+      articles_database[[disease]][[gene]] <- abstract_table
+    }
+  }
+  return(articles_database)
+}
+

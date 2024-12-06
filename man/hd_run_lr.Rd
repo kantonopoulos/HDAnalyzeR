@@ -12,9 +12,10 @@ hd_run_lr(
   balance_groups = TRUE,
   cor_threshold = 0.9,
   palette = NULL,
-  y_labels = TRUE,
+  plot_y_labels = TRUE,
   verbose = TRUE,
-  title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features"),
+  plot_title = c("accuracy", "sensitivity", "specificity", "auc", "features",
+    "top-features"),
   seed = 123
 )
 }
@@ -33,11 +34,11 @@ hd_run_lr(
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
 
-\item{y_labels}{Whether to show y-axis labels in the variable importance plot. Default is TRUE.}
+\item{plot_y_labels}{Whether to show y-axis labels in the variable importance plot. Default is TRUE.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
-\item{title}{Vector of title elements to include in the plot.}
+\item{plot_title}{Vector of title elements to include in the plot.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
