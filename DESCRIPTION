@@ -57,10 +57,14 @@ Imports:
     workflows,
     yardstick
 Suggests: 
+    clusterProfiler,
     easyPubMed,
+    enrichplot,
     glmnet,
     knitr,
+    org.Hs.eg.db,
     ranger,
+    ReactomePA,
     rmarkdown,
     testthat (>= 3.0.0),
     umap,

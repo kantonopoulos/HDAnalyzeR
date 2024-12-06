@@ -1,3 +1,193 @@
+#' Convert gene names to ENTREZID
+#'
+#' `gene_to_entrezid()` converts gene names to ENTREZID using the `org.Hs.eg.db` database.
+#'
+#' @param gene_list A character vector containing the gene names.
+#' @param background A character vector containing the background genes if any.
+#'
+#' @return A list containing the gene list and the background with ENTREZID.
+#' @keywords internal
+gene_to_entrezid <- function(gene_list, background = NULL){
+  # From gene name to ENTREZID
+  gene_conversion <- clusterProfiler::bitr(gene_list,
+                                           fromType = "SYMBOL",
+                                           toType = "ENTREZID",
+                                           OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+
+  gene_list <- gene_conversion |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
+
+  if (!is.null(background)) {
+    background <- clusterProfiler::bitr(background,
+                                        fromType = "SYMBOL",
+                                        toType = "ENTREZID",
+                                        OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+
+    background <- background |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
+  }
+
+  return(list("gene_list" = gene_list, "background" = background))
+}
+
+#' Run over-representation analysis
+#'
+#' `hd_run_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
+#'
+#' @param gene_list A character vector containing the gene names. These can be differentially expressed proteins or selected protein features from classification models.
+#' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
+#' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), or "MF" (Molecular Function). In the case of KEGG and Reactome, this parameter is ignored.
+#' @param background A character vector containing the background genes.
+#' @param pval_lim The p-value threshold to consider a term as significant.
+#'
+#' @return A list containing the results of the ORA.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Run differential expression analysis for AML vs all others
+#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#'
+#' # Extract the up-regulated proteins for AML
+#' sig_up_proteins_aml <- de_results$de_res |>
+#'   dplyr::filter(adj.P.Val < 0.05 & logFC > 0.5) |>
+#'   dplyr::pull(Feature)
+#'
+#' # Perform ORA with `GO` database and `BP` ontology
+#' hd_run_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+hd_run_ora <- function(gene_list,
+                       database = c("GO", "Reactome", "KEGG"),
+                       ontology = c("BP", "CC", "MF"),
+                       background = NULL,
+                       pval_lim = 0.05) {
+  database <- match.arg(database)
+
+  # if (is.null(background)) {
+  #   message("No background provided. When working with proteomics data it is recommended to use background.")
+  # }
+
+  # Ensure 'clusterProfiler' package is loaded
+  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+    stop("The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler').")
+  }
+
+  conversion <- gene_to_entrezid(gene_list, background)
+  gene_list <- conversion[["gene_list"]]
+  background <- conversion[["background"]]
+
+  if (database == "KEGG") {
+
+    # Perform KEGG enrichment analysis - Under development
+    enrichment <- clusterProfiler::enrichKEGG(gene = gene_list,
+                                              organism = "hsa",
+                                              keyType = "ncbi-geneid",
+                                              pvalueCutoff = pval_lim,
+                                              universe = background)
+
+  } else if (database == "GO") {
+
+    # Ensure 'org.Hs.eg.db' package is loaded
+    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+      stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+    }
+
+    # Perform GO enrichment analysis
+    enrichment <- clusterProfiler::enrichGO(gene = gene_list,
+                                            OrgDb = org.Hs.eg.db::org.Hs.eg.db,
+                                            ont = ontology,
+                                            pvalueCutoff = pval_lim,
+                                            universe = background)
+
+  } else if (database == "Reactome") {
+
+    # Ensure 'ReactomePA' package is loaded
+    if (!requireNamespace("ReactomePA", quietly = TRUE)) {
+      stop("The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA').")
+    }
+
+    # Perform Reactome enrichment analysis
+    enrichment <- ReactomePA::enrichPathway(gene = gene_list,
+                                            organism = "human",
+                                            pvalueCutoff = pval_lim,
+                                            universe = background)
+
+
+  }
+
+  if (!any(enrichment@result$p.adjust < pval_lim)) {
+    message("No significant terms found.")
+    return(NULL)
+  }
+
+  enrichment <- list("gene_list" = gene_list, "background" = background, "enrichment" = enrichment)
+  class(enrichment) <- "hd_enrichment"
+
+  if (is.null(background)) {
+    enrichment[["background"]] <- NULL
+  }
+  return(enrichment)
+}
+
+
+#' Generate visualizations for the over-representation analysis
+#'
+#' `hd_plot_ora()` generates useful visualizations for the results of the
+#' over-representation analysis.
+#'
+#' @param enrichment The enrichment results obtained from `hd_run_ora()`.
+#'
+#' @return The input object enriched with the plots.
+#'
+#' @details
+#' When KEGG database is used, a cnetplot is generated with ENTREZIDs instead of gene names.
+#' For GO and Reactome databases the ENTREZIDs are converted to gene names.
+#'
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Run differential expression analysis for AML vs all others
+#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#'
+#' # Extract the up-regulated proteins for AML
+#' sig_up_proteins_aml <- de_results$de_res |>
+#'   dplyr::filter(adj.P.Val < 0.05 & logFC > 0.5) |>
+#'   dplyr::pull(Feature)
+#'
+#' # Perform ORA with `GO` database and `BP` ontology
+#' enrichment <- hd_run_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#'
+#' # Plot the results
+#' hd_plot_ora(enrichment)
+hd_plot_ora <- function(enrichment) {
+
+  # Visualize results
+  dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]])
+
+  # Ensure 'enrichplot' package is loaded
+  if (!requireNamespace("enrichplot", quietly = TRUE)) {
+    stop("The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot').")
+  }
+  tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
+  tree_plot <- enrichplot::treeplot(tree_plot_data)
+
+  if (enrichment[["enrichment"]]@ontology == "KEGG") {
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue")
+  } else {
+    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue")
+  }
+
+  enrichment[["dotplot"]] <- dot_plot
+  enrichment[["tree_plot"]] <- tree_plot
+  enrichment[["cnetplot"]] <- cnet_plot
+
+  return(enrichment)
+}
+
+
 #' utils::globalVariables(c("ENTREZID"))
 #' #' Perform over-representation analysis
 #' #'
