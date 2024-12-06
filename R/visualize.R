@@ -356,12 +356,12 @@ hd_plot_regression <- function(dat,
 #'
 #'
 #' # Create the summary heatmap
-#' hd_plot_features_heatmap(res_de, res_model, order_by = "MYEL")
-hd_plot_features_heatmap <- function(de_results,
-                                     model_results,
-                                     order_by = NULL,
-                                     pval_lim = 0.05,
-                                     logfc_lim = 0) {
+#' hd_plot_feature_heatmap(res_de, res_model, order_by = "MYEL")
+hd_plot_feature_heatmap <- function(de_results,
+                                    model_results,
+                                    order_by = NULL,
+                                    pval_lim = 0.05,
+                                    logfc_lim = 0) {
 
   res_de <- de_results[[order_by]][["de_res"]] |>
     dplyr::filter(abs(!!rlang::sym("logFC")) > logfc_lim,
@@ -426,3 +426,6 @@ hd_plot_features_heatmap <- function(de_results,
 
   return(summary_heatmap)
 }
+
+
+# hd_plot_feature_network <- function()

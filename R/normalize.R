@@ -48,7 +48,7 @@ remove_batch_effects <- function(wide_data,
 
 #' Normalize data and remove batch effects
 #'
-#' `normalize_data()` normalizes the data by scaling them and removing their batch effects.
+#' `hd_run_normalization()` normalizes the data by scaling them and removing their batch effects.
 #' It first converts the data to wide format if they are not already. It then removes
 #' the batch effects and scales or centers the data. To remove batch effects, it uses the
 #' `remove_batch_effects()`, that utilizes limma package. For scaling, it uses the `scale()`
@@ -73,19 +73,19 @@ remove_batch_effects <- function(wide_data,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Center data
-#' normalize_data(hd_object, center = TRUE, scale = FALSE)
+#' hd_run_normalization(hd_object, center = TRUE, scale = FALSE)
 #'
 #' # Center and scale data (z-score scaling)
-#' normalize_data(hd_object, center = TRUE, scale = TRUE)
+#' hd_run_normalization(hd_object, center = TRUE, scale = TRUE)
 #'
 #' # Center, scale and remove batch effects
-#' normalize_data(hd_object, batch = "Cohort")
-normalize_data <- function(dat,
-                           metadata = NULL,
-                           center = TRUE,
-                           scale = TRUE,
-                           batch = NULL,
-                           batch2 = NULL) {
+#' hd_run_normalization(hd_object, batch = "Cohort")
+hd_run_normalization <- function(dat,
+                                 metadata = NULL,
+                                 center = TRUE,
+                                 scale = TRUE,
+                                 batch = NULL,
+                                 batch2 = NULL) {
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
