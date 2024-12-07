@@ -13,7 +13,7 @@ hd_plot_pca_variance(pca_object)
 A ggplot object
 }
 \description{
-\code{plot_explained_variance()} plots the explained variance and cumulative explained variance of the PCs.
+\code{hd_plot_pca_variance()} plots the explained variance and cumulative explained variance of the PCs.
 }
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata

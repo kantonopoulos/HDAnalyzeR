@@ -19,7 +19,7 @@ theme_hd(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRUE)
 A ggplot2 theme object.
 }
 \description{
-\code{theme_hpa()} creates a theme for ggplot2 plots that is used by the Human Protein Atlas (HPA) project.
+\code{theme_hd()} creates a theme for ggplot2 plots that is used by the Human Protein Atlas (HPA) project.
 }
 \examples{
 # Create a plot

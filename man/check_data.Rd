@@ -15,6 +15,8 @@ check_data(dat, variable = "Disease")
 A model object containing the train and test data.
 }
 \description{
-Check data structure of object
+\code{check_data()} checks the structure of the object provided. It checks if the
+object is an \code{hd_model} object or a list containing the train and test data.
+It also checks if the variable is present in the train and test data.
 }
 \keyword{internal}

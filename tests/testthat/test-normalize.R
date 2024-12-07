@@ -37,34 +37,34 @@ test_that("hd_run_normalization works correctly", {
 
   # Test 1: Scaling and centering without batch correction
   result <- hd_run_normalization(hd_object, center = TRUE, scale = TRUE)
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
-  expect_equal(colnames(result)[-1], colnames(test_data)[-1])
-  expect_true(all(abs(colMeans(result[-1])) < 1e-6)) # Mean should be approximately zero
-  expect_true(all(apply(result[-1], 2, sd) == 1))   # Standard deviation should be 1
+  expect_equal(dim(result[["data"]]), dim(test_data))
+  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
+  expect_equal(colnames(result[["data"]])[-1], colnames(test_data)[-1])
+  expect_true(all(abs(colMeans(result[["data"]][-1])) < 1e-6)) # Mean should be approximately zero
+  expect_true(all(apply(result[["data"]][-1], 2, sd) == 1))   # Standard deviation should be 1
 
   # Test 2: Batch correction with one batch column
   result <- hd_run_normalization(hd_object, center = TRUE, scale = TRUE, batch = "Batch")
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
+  expect_equal(dim(result[["data"]]), dim(test_data))
+  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
 
   # Test 3: Batch correction with two batch columns
   result <- hd_run_normalization(hd_object, center = TRUE, scale = TRUE, batch = "Batch", batch2 = "Cohort")
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
+  expect_equal(dim(result[["data"]]), dim(test_data))
+  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
 
   # Test 4: Centering without scaling
   result <- hd_run_normalization(hd_object, center = TRUE, scale = FALSE)
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
-  expect_true(all(abs(colMeans(result[-1])) < 1e-6)) # Mean should be approximately zero
-  expect_false(all(apply(result[-1], 2, sd) == 1))   # Standard deviation should not be 1
+  expect_equal(dim(result[["data"]]), dim(test_data))
+  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
+  expect_true(all(abs(colMeans(result[["data"]][-1])) < 1e-6)) # Mean should be approximately zero
+  expect_false(all(apply(result[["data"]][-1], 2, sd) == 1))   # Standard deviation should not be 1
 
   # Test 5: No centering or scaling
   result <- hd_run_normalization(hd_object, center = FALSE, scale = FALSE)
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
-  expect_equal(result[-1], test_data[-1]) # Data should be identical
+  expect_equal(dim(result[["data"]]), dim(test_data))
+  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
+  expect_equal(result[["data"]][-1], test_data[-1]) # Data should be identical
 
   # Edge Case: Non-HDAnalyzeR object input
   result <- hd_run_normalization(test_data, metadata = test_metadata, center = TRUE, scale = TRUE)

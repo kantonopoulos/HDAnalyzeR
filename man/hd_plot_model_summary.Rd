@@ -24,7 +24,7 @@ hd_plot_model_summary(
 A list with the binary classification model summary plots and results
 }
 \description{
-\code{plot_features_summary()} plots the number of proteins and the number of top
+\code{hd_plot_model_summary()} plots the number of proteins and the number of top
 proteins for each disease in a barplot. It also plots the upset plot of the
 top or all protein features, as well as a summary line plot of the model
 performance metrics.

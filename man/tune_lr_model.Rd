@@ -29,7 +29,7 @@ correlations are less than this value.}
 A model object containing the train and test data, the tuned model, and the workflow.
 }
 \description{
-\code{tune_rf_model()} performs hyperparameter optimization for logistic regression
+\code{tune_lr_model()} performs hyperparameter optimization for logistic regression
 models. It tunes the model using the provided grid size and
 cross-validation sets. It returns the best model and hyperparameters.
 }

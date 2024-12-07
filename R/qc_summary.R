@@ -167,8 +167,8 @@ plot_metadata_summary <- function(metadata, sample_id, variable, palette = NULL,
         theme_hd() +
         ggplot2::theme(legend.position = "none")
 
-      if (!is.null(palette[[col]])){
-        dist_plot <- apply_palette(dist_plot, palette[[col]], type = "fill")
+      if (!is.null(palette[[variable]])){
+        dist_plot <- apply_palette(dist_plot, palette[[variable]], type = "fill")
       }
 
       plot_list[[col]] <- dist_plot

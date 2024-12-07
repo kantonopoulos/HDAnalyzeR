@@ -15,7 +15,7 @@ hd_plot_gsea(enrichment, seed = 123)
 The input object enriched with the plots.
 }
 \description{
-\code{plot_gsea()} produces useful plots to visualize the results of the
+\code{hd_plot_gsea()} produces useful plots to visualize the results of the
 gene set enrichment analysis.
 }
 \details{

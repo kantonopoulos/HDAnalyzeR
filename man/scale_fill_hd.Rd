@@ -13,7 +13,7 @@ scale_fill_hd(palette)
 A ggplot2 scale for fill aesthetics.
 }
 \description{
-\code{scale_fill_hpa()} creates a ggplot2 scale for fill aesthetics using the color
+\code{scale_fill_hd()} creates a ggplot2 scale for fill aesthetics using the color
 palettes from the Human Protein Atlas (HPA) project.
 }
 \examples{

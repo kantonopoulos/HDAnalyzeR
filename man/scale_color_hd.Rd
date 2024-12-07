@@ -13,7 +13,7 @@ scale_color_hd(palette)
 A ggplot2 scale for color aesthetics.
 }
 \description{
-\code{scale_color_hpa()} creates a ggplot2 scale for color aesthetics using the color
+\code{scale_color_hd()} creates a ggplot2 scale for color aesthetics using the color
 palettes from the Human Protein Atlas (HPA) project.
 }
 \examples{

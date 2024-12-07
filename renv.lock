@@ -88,13 +88,13 @@
     },
     "BiocManager": {
       "Package": "BiocManager",
-      "Version": "1.30.23",
+      "Version": "1.30.25",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "utils"
       ],
-      "Hash": "47e968dfe563c1b22c2e20a067ec21d5"
+      "Hash": "3aec5928ca10897d7a0a1205aae64627"
     },
     "BiocParallel": {
       "Package": "BiocParallel",
@@ -1394,7 +1394,7 @@
     },
     "enrichplot": {
       "Package": "enrichplot",
-      "Version": "1.24.2",
+      "Version": "1.24.4",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -1423,7 +1423,7 @@
         "utils",
         "yulab.utils"
       ],
-      "Hash": "e0cede4c92d6474f83cd1197f761e5b2"
+      "Hash": "654852454914778eb5631609d31ce02b"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -1803,7 +1803,7 @@
     },
     "ggrepel": {
       "Package": "ggrepel",
-      "Version": "0.9.5",
+      "Version": "0.9.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1815,7 +1815,7 @@
         "scales",
         "withr"
       ],
-      "Hash": "cc3361e234c4a5050e29697d675764aa"
+      "Hash": "3d4156850acc1161f2f24bc61c9217c1"
     },
     "ggridges": {
       "Package": "ggridges",
@@ -2706,6 +2706,19 @@
         "vctrs"
       ],
       "Hash": "fc2e59a68030885555c7be34ee7765a1"
+    },
+    "multiROC": {
+      "Package": "multiROC",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "boot",
+        "magrittr",
+        "stats",
+        "zoo"
+      ],
+      "Hash": "ee46860da1aa71532207fccb8525a0ad"
     },
     "munsell": {
       "Package": "munsell",
@@ -4654,6 +4667,21 @@
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Hash": "3db02e3c460e1c852365df117a2b441b"
+    },
+    "zoo": {
+      "Package": "zoo",
+      "Version": "1.8-12",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "lattice",
+        "stats",
+        "utils"
+      ],
+      "Hash": "5c715954112b45499fb1dadc6ee6ee3e"
     }
   }
 }

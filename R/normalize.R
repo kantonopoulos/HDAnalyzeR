@@ -11,8 +11,6 @@
 #' @param batch2 The metadata column containing the second batch information. Default is NULL.
 #'
 #' @return A tibble containing the data without batch effects.
-#' @export
-#'
 #' @keywords internal
 remove_batch_effects <- function(wide_data,
                                  metadata,
@@ -61,7 +59,7 @@ remove_batch_effects <- function(wide_data,
 #' @param batch The metadata column containing the batch information. In order to correct for batch effects, this parameter should be provided. Default is NULL.
 #' @param batch2 The metadata column containing the second batch information if available. Default is NULL.
 #'
-#' @return A tibble containing the normalized data.
+#' @return The normalized dataset.
 #' @details
 #' You can read more about the scaling and centering methods in the documentation of the `scale()` function in the `base` package,
 #' as well as about the method for removing batch effects in the documentation of the `removeBatchEffect()` function in the `limma` package.
@@ -116,5 +114,10 @@ hd_run_normalization <- function(dat,
 
   scaled_data <- dplyr::bind_cols(id_col, scaled_data)
 
-  return(scaled_data)
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- scaled_data
+    return(dat)
+  } else {
+    return(scaled_data)
+  }
 }

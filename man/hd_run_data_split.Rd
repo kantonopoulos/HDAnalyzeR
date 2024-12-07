@@ -30,7 +30,7 @@ hd_run_data_split(
 A split object containing train and test data.
 }
 \description{
-\code{split_data()} splits the data into training and test sets based on the ratio
+\code{hd_run_data_split()} splits the data into training and test sets based on the ratio
 provided. It also stratifies the data based on the variable provided.
 }
 \examples{

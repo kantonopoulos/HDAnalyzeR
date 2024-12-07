@@ -30,7 +30,7 @@ hd_run_de_limma(
 An object with the DE results.
 }
 \description{
-\code{limma_de()} performs differential expression analysis using limma package.
+\code{hd_run_de_limma()} performs differential expression analysis using limma package.
 It can correct the results for metadata columns like Sex, Age, or BMI.
 The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
 The function removes the NAs from the columns that are used to correct for.

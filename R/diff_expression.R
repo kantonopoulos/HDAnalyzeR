@@ -1,7 +1,7 @@
 utils::globalVariables(c(":=", "sig.label"))
 #' Differential expression analysis with limma
 #'
-#' `limma_de()` performs differential expression analysis using limma package.
+#' `hd_run_de_limma()` performs differential expression analysis using limma package.
 #' It can correct the results for metadata columns like Sex, Age, or BMI.
 #' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
 #' The function removes the NAs from the columns that are used to correct for.
@@ -277,7 +277,7 @@ hd_run_de_ttest <- function(dat,
 
 #' Create volcano plots
 #'
-#' `plot_volcano()` creates volcano plots for the differential expression results.
+#' `hd_plot_volcano()` creates volcano plots for the differential expression results.
 #' It colors and labels the top up and down regulated proteins.
 #'
 #' @param de_object The differential expression object. Created by `hd_run_de_limma()`.
@@ -444,7 +444,7 @@ extract_protein_list <- function(upset_data, proteins) {
 
 #' Plot summary visualizations for the differential expression results
 #'
-#' `plot_de_summary()` creates summary visualizations for the differential expression results.
+#' `hd_plot_de_summary()` creates summary visualizations for the differential expression results.
 #' It plots a barplot with the number of significant proteins for each disease.
 #' It also creates upset plots both for the significant up and down regulated proteins for each disease.
 #'

@@ -27,7 +27,7 @@ hd_run_normalization(
 \item{batch2}{The metadata column containing the second batch information if available. Default is NULL.}
 }
 \value{
-A tibble containing the normalized data.
+The normalized dataset.
 }
 \description{
 \code{hd_run_normalization()} normalizes the data by scaling them and removing their batch effects.

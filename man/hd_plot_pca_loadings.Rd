@@ -17,7 +17,7 @@ hd_plot_pca_loadings(pca_object, displayed_pcs = 6, displayed_features = 15)
 A ggplot object
 }
 \description{
-\code{plot_loadings()} plots the PCA loadings for the top n features and first m PCs.
+\code{hd_plot_pca_loadings()} plots the PCA loadings for the top n features and first m PCs.
 n and m are defined by the user. The contribution direction of the features
 is indicated by the color of the bars.
 }

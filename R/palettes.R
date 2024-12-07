@@ -268,7 +268,7 @@ hd_show_palettes <- function(palettes = hd_palettes(), n = NULL) {
 
 #' HPA color scales
 #'
-#' `scale_color_hpa()` creates a ggplot2 scale for color aesthetics using the color
+#' `scale_color_hd()` creates a ggplot2 scale for color aesthetics using the color
 #' palettes from the Human Protein Atlas (HPA) project.
 #'
 #' @param palette The name of the palette to use. It should be one of the palettes from `get_hpa_palettes()`.
@@ -304,7 +304,7 @@ scale_color_hd <- function(palette) {
 
 #' HPA fill scales
 #'
-#' `scale_fill_hpa()` creates a ggplot2 scale for fill aesthetics using the color
+#' `scale_fill_hd()` creates a ggplot2 scale for fill aesthetics using the color
 #' palettes from the Human Protein Atlas (HPA) project.
 #'
 #' @param palette The name of the palette to use. It should be one of the palettes from `get_hpa_palettes()`.

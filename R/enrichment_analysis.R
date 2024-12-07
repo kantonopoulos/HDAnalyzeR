@@ -201,7 +201,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 
 #' Perform gene set enrichment analysis
 #'
-#' This function performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
+#' `hd_run_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 #'
 #' @param de_results A tibble containing the results of a differential expression analysis.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
@@ -331,7 +331,7 @@ hd_run_gsea <- function(de_results,
 
 #' Plot the results of the gene set enrichment analysis
 #'
-#' `plot_gsea()` produces useful plots to visualize the results of the
+#' `hd_plot_gsea()` produces useful plots to visualize the results of the
 #' gene set enrichment analysis.
 #'
 #' @param enrichment The enrichment results obtained from `hd_run_gsea()`.

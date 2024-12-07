@@ -27,7 +27,7 @@ hd_plot_feature_heatmap(
 The summary heatmap of the combined differential expression and classification models results.
 }
 \description{
-\code{hd_plot_features_heatmap} plots a summary heatmap of the combined differential
+\code{hd_plot_feature_heatmap} plots a summary heatmap of the combined differential
 expression and classification models results. The heatmap shows the log2 fold change
 and adjusted p-value of the differential expression results, and the scaled importance
 and sign of the classification models results. The heatmap is ordered and the selected

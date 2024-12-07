@@ -1,7 +1,7 @@
 utils::globalVariables(c(":="))
-#' Fix PC names
+#' Fix component names
 #'
-#' `fix_pca_names()` fixes the names of the PCs in the PCA results. If number of PCs is higher than 10,
+#' `fix_components_names()` fixes the names of the PCs in the PCA results. If number of PCs is higher than 10,
 #' the function will remove the zeros in front of the PC names (for example PC01 -> PC1).
 #'
 #' @param pca_res A tibble with the PCA results. Created by `hd_run_pca()`.
@@ -124,7 +124,7 @@ hd_run_pca <- function(dat,
 
 #' Plot PCA loadings
 #'
-#' `plot_loadings()` plots the PCA loadings for the top n features and first m PCs.
+#' `hd_plot_pca_loadings()` plots the PCA loadings for the top n features and first m PCs.
 #' n and m are defined by the user. The contribution direction of the features
 #' is indicated by the color of the bars.
 #'
@@ -172,7 +172,7 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_featur
 
 #' Plot PCA variance
 #'
-#' `plot_explained_variance()` plots the explained variance and cumulative explained variance of the PCs.
+#' `hd_plot_pca_variance()` plots the explained variance and cumulative explained variance of the PCs.
 #'
 #' @param pca_object A PCA object containing the PCA variance. Created by `hd_run_pca()`.
 #'

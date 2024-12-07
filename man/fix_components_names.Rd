@@ -2,7 +2,7 @@
 % Please edit documentation in R/dim_reduction.R
 \name{fix_components_names}
 \alias{fix_components_names}
-\title{Fix PC names}
+\title{Fix component names}
 \usage{
 fix_components_names(
   pca_res,
@@ -30,7 +30,7 @@ fix_components_names(
 A tibble with the PCA results with fixed PC names.
 }
 \description{
-\code{fix_pca_names()} fixes the names of the PCs in the PCA results. If number of PCs is higher than 10,
+\code{fix_components_names()} fixes the names of the PCs in the PCA results. If number of PCs is higher than 10,
 the function will remove the zeros in front of the PC names (for example PC01 -> PC1).
 }
 \keyword{internal}

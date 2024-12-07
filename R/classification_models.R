@@ -2,7 +2,7 @@ utils::globalVariables(c(":="))
 
 #' Split data into training and test sets
 #'
-#' `split_data()` splits the data into training and test sets based on the ratio
+#' `hd_run_data_split()` splits the data into training and test sets based on the ratio
 #' provided. It also stratifies the data based on the variable provided.
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
@@ -109,6 +109,10 @@ balance_groups <- function(dat,
 
 
 #' Check data structure of object
+#'
+#' `check_data()` checks the structure of the object provided. It checks if the
+#' object is an `hd_model` object or a list containing the train and test data.
+#' It also checks if the variable is present in the train and test data.
 #'
 #' @param dat An `hd_model` object or a list containing the train and test data.
 #' @param variable The name of the column containing the case and control groups. Default is "Disease".
@@ -427,7 +431,7 @@ tune_rf_model <- function(dat,
 
 #' Hyperparameter optimization for logistic regression models
 #'
-#' `tune_rf_model()` performs hyperparameter optimization for logistic regression
+#' `tune_lr_model()` performs hyperparameter optimization for logistic regression
 #' models. It tunes the model using the provided grid size and
 #' cross-validation sets. It returns the best model and hyperparameters.
 #'
@@ -566,8 +570,8 @@ evaluate_model <- function(dat,
     dplyr::mutate(!!Variable := dplyr::if_else(!!Variable == 1, case, "Control")) |>
     ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym(".pred_1"))) +
     ggplot2::geom_violin() +
-    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::scale_color_manual(values = pal) +
     theme_hd() +
     ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
@@ -679,8 +683,8 @@ evaluate_multiclass_model <- function(dat,
     dplyr::select(-class) |>
     ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym("probability"))) +
     ggplot2::geom_violin() +
-    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::scale_color_manual(values = pal) +
     theme_hd() +
     ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
@@ -748,9 +752,9 @@ evaluate_multiclass_model <- function(dat,
 }
 
 
-#' Create subtitle for variable importance plot
+#' Create title for variable importance plot
 #'
-#' `generate_subtitle()` generates a subtitle for the variable importance plot.
+#' `generate_title()` generates a subtitle for the variable importance plot.
 #'
 #' @param features A tibble with features and their model importance.
 #' @param accuracy Accuracy of the model.
@@ -1322,7 +1326,7 @@ hd_run_lr <- function(dat,
 
 #' Plot features summary visualizations
 #'
-#' `plot_features_summary()` plots the number of proteins and the number of top
+#' `hd_plot_model_summary()` plots the number of proteins and the number of top
 #' proteins for each disease in a barplot. It also plots the upset plot of the
 #' top or all protein features, as well as a summary line plot of the model
 #' performance metrics.

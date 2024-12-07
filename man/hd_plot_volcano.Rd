@@ -39,7 +39,7 @@ hd_plot_volcano(
 An object with the DE results and the volcano plot.
 }
 \description{
-\code{plot_volcano()} creates volcano plots for the differential expression results.
+\code{hd_plot_volcano()} creates volcano plots for the differential expression results.
 It colors and labels the top up and down regulated proteins.
 }
 \examples{
