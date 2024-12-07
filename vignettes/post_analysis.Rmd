@@ -18,7 +18,7 @@ This vignette will guide you through the post analysis of the results obtained f
 
 This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
-```{r setup, results = 'hide', message = FALSE, warning = FALSE}
+```{r setup, message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
 library(dplyr)
 
@@ -32,7 +32,7 @@ hd_obj <- hd_initialize(dat = example_data,
 
 For the Over Representation Analysis we are going to use a list of differentially expressed proteins. In this example we are going to use the up-regulated proteins. We could also use the features list from the classification models or even run both and get the intersect as it is done in the Get Started guide.
 
-```{results = 'hide', message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE}
 de_res <- hd_run_de_limma(hd_obj, case = "AML")
 ```
 
