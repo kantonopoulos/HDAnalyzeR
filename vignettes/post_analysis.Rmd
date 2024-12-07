@@ -43,7 +43,7 @@ proteins <- de_res$de_res |> filter(logFC > 0 & adj.P.Val < 0.05) |> pull(Featur
 
 enrichment <- hd_run_ora(proteins, database = "GO", ontology = "BP")
 
-enrichment_plots <- hd_plot_ora(ora_res)
+enrichment_plots <- hd_plot_ora(enrichment)
 
 enrichment_plots$dotplot
 enrichment_plots$treeplot
