@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Differential Expression Analysis">
 </head>
 <body>
@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,233 +98,152 @@
     
     
 <p>This vignette will guide you through the differential expression
-analysis of your data. We will load HDAnalyzeR and ggplot2, widen the
-data and load the metadata we are going to use.</p>
+analysis of your data. We will load HDAnalyzeR, load the example data
+and metadata that come with the package and initialize the HDAnalyzeR
+object.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">wide_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/widen_data.html">widen_data</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
-<span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="va">example_metadata</span></span></code></pre></div>
+<span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
+<span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
+<span>                        is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
+<span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
+<span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>We will start by running a simple differential expression analysis
-using the <code><a href="../reference/do_limma.html">do_limma()</a></code> function. In this function we have to
-state the group that will be the case, as well as the control(s). We
-will also keep the default correction for both <code>Sex</code> and
-<code>Age</code> variables. We get the warning because the metadata are
-not pre-filtered, but it is safe to ignore it in this case as it is
-something that we do on purpose.</p>
+using the <code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code> function. In this function we
+have to state the group that will be the case, as well as the
+control(s). We will also correct for both <code>Sex</code> and
+<code>Age</code> variables. After the analysis is done, we will use
+<code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to visualize the results.</p>
+<p>In the first example, we will run a differential expression analysis
+for the <code>AML</code> case against the <code>CLL</code> control.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Comparing AML with CLL.</span></span>
-<span><span class="co">#&gt; Warning in do_limma_de(join_data, variable, case, control, correct,</span></span>
-<span><span class="co">#&gt; correct_type, : 488 rows were removed because they contain NAs in Disease or</span></span>
-<span><span class="co">#&gt; Sex, Age!</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 11</span></span></span>
-<span><span class="co">#&gt;    Assay    logFC   CI.L   CI.R AveExpr     t    P.Value adj.P.Val     B Disease</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ADA      1.42   0.955  1.89  1.56     6.04    2.53<span style="color: #949494;">e</span><span style="color: #BB0000;">-8</span>   2.53<span style="color: #949494;">e</span><span style="color: #BB0000;">-6</span> 8.73  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ADAM8   -<span style="color: #BB0000;">1.23</span>  -<span style="color: #BB0000;">1.67</span>  -<span style="color: #BB0000;">0.795</span> 1.74    -<span style="color: #BB0000;">5.59</span>    1.94<span style="color: #949494;">e</span><span style="color: #BB0000;">-7</span>   9.71<span style="color: #949494;">e</span><span style="color: #BB0000;">-6</span> 6.76  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AZU1     1.92   1.20   2.64  0.777    5.30    6.82<span style="color: #949494;">e</span><span style="color: #BB0000;">-7</span>   2.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> 5.55  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ARID4B  -<span style="color: #BB0000;">1.38</span>  -<span style="color: #BB0000;">1.91</span>  -<span style="color: #BB0000;">0.847</span> 1.85    -<span style="color: #BB0000;">5.15</span>    1.34<span style="color: #949494;">e</span><span style="color: #BB0000;">-6</span>   3.35<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> 4.91  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ARTN     1.08   0.597  1.55  0.804    4.46    2.28<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   3.90<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 2.21  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ANGPT1  -<span style="color: #BB0000;">1.71</span>  -<span style="color: #BB0000;">2.47</span>  -<span style="color: #BB0000;">0.947</span> 0.992   -<span style="color: #BB0000;">4.45</span>    2.34<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   3.90<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 2.20  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ACP6    -<span style="color: #BB0000;">0.725</span> -<span style="color: #BB0000;">1.06</span>  -<span style="color: #BB0000;">0.390</span> 1.20    -<span style="color: #BB0000;">4.30</span>    3.99<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   5.70<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 1.67  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ACAN    -<span style="color: #BB0000;">0.701</span> -<span style="color: #BB0000;">1.04</span>  -<span style="color: #BB0000;">0.364</span> 0.556   -<span style="color: #BB0000;">4.13</span>    7.65<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   8.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 1.06  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ADAMTS8 -<span style="color: #BB0000;">0.785</span> -<span style="color: #BB0000;">1.16</span>  -<span style="color: #BB0000;">0.406</span> 0.239   -<span style="color: #BB0000;">4.12</span>    8.12<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   8.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 1.02  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ADGRG2  -<span style="color: #BB0000;">0.659</span> -<span style="color: #BB0000;">0.977</span> -<span style="color: #BB0000;">0.341</span> 0.008<span style="text-decoration: underline;">61</span> -<span style="color: #BB0000;">4.11</span>    8.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   8.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.983 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: sig &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">de_results</span><span class="op">$</span><span class="va">de_res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
+<span><span class="co">#&gt;   Feature logFC   CI.L   CI.R AveExpr     t      P.Value adj.P.Val     B Disease</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ADA      1.42  0.955  1.89    1.56   6.04 0.000<span style="text-decoration: underline;">000</span>025<span style="text-decoration: underline;">0</span>   2.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-6</span>  8.74 AML    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ADAM8   -<span style="color: #BB0000;">1.23</span> -<span style="color: #BB0000;">1.67</span>  -<span style="color: #BB0000;">0.795</span>   1.74  -<span style="color: #BB0000;">5.59</span> 0.000<span style="text-decoration: underline;">000</span>193    9.64<span style="color: #949494;">e</span><span style="color: #BB0000;">-6</span>  6.77 AML    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> AZU1     1.92  1.20   2.64    0.777  5.30 0.000<span style="text-decoration: underline;">000</span>668    2.23<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>  5.57 AML    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ARID4B  -<span style="color: #BB0000;">1.38</span> -<span style="color: #BB0000;">1.91</span>  -<span style="color: #BB0000;">0.847</span>   1.85  -<span style="color: #BB0000;">5.15</span> 0.000<span style="text-decoration: underline;">001</span>32     3.30<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>  4.92 AML    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ARTN     1.08  0.597  1.55    0.804  4.46 0.000<span style="text-decoration: underline;">022</span>7      3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span>  2.22 AML    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ANGPT1  -<span style="color: #BB0000;">1.71</span> -<span style="color: #BB0000;">2.47</span>  -<span style="color: #BB0000;">0.948</span>   0.992 -<span style="color: #BB0000;">4.45</span> 0.000<span style="text-decoration: underline;">023</span>0      3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span>  2.21 AML</span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 <p>We are able to state more control groups if we want to. We can also
 change the correction for the variables as well as both the p-value and
 logFC significance thresholds.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, </span>
-<span>         <span class="va">metadata</span>, </span>
-<span>         case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>         control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>, </span>
-<span>         correct <span class="op">=</span> <span class="st">"Sex"</span>,</span>
-<span>         pval_lim <span class="op">=</span> <span class="fl">0.01</span>, </span>
-<span>         logfc_lim  <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Comparing AML with CLL, MYEL, GLIOM.</span></span>
-<span><span class="co">#&gt; Warning in do_limma_de(join_data, variable, case, control, correct,</span></span>
-<span><span class="co">#&gt; correct_type, : 400 rows were removed because they contain NAs in Disease or</span></span>
-<span><span class="co">#&gt; Sex!</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 11</span></span></span>
-<span><span class="co">#&gt;    Assay     logFC   CI.L   CI.R AveExpr     t  P.Value adj.P.Val      B Disease</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ADA       1.37   1.02   1.72    1.26   7.76 5.48<span style="color: #949494;">e</span><span style="color: #BB0000;">-13</span>  5.48<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> 19.0   AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ANGPT1   -<span style="color: #BB0000;">1.77</span>  -<span style="color: #BB0000;">2.32</span>  -<span style="color: #BB0000;">1.23</span>    1.46  -<span style="color: #BB0000;">6.40</span> 1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  4.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> 11.4   AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AZU1      1.54   1.06   2.01    0.592  6.36 1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  4.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> 11.3   AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ANGPT2    0.815  0.522  1.11    1.02   5.48 1.38<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span>  3.45<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span>  6.82  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> APP      -<span style="color: #BB0000;">0.872</span> -<span style="color: #BB0000;">1.19</span>  -<span style="color: #BB0000;">0.553</span>   1.05  -<span style="color: #BB0000;">5.40</span> 2.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span>  4.11<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span>  6.45  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADGRG1    1.17   0.637  1.71    1.86   4.32 2.59<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span>  4.31<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>  1.83  AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ARHGEF12 -<span style="color: #BB0000;">1.14</span>  -<span style="color: #BB0000;">1.71</span>  -<span style="color: #BB0000;">0.577</span>   3.41  -<span style="color: #BB0000;">3.98</span> 9.84<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span>  1.41<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span>  0.537 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AMY2B    -<span style="color: #BB0000;">0.588</span> -<span style="color: #BB0000;">0.884</span> -<span style="color: #BB0000;">0.293</span>   0.250 -<span style="color: #BB0000;">3.93</span> 1.20<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>  1.50<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span>  0.336 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ACAN     -<span style="color: #BB0000;">0.551</span> -<span style="color: #BB0000;">0.831</span> -<span style="color: #BB0000;">0.271</span>   0.617 -<span style="color: #BB0000;">3.89</span> 1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>  1.58<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span>  0.186 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AGR2     -<span style="color: #BB0000;">1.05</span>  -<span style="color: #BB0000;">1.59</span>  -<span style="color: #BB0000;">0.499</span>   1.84  -<span style="color: #BB0000;">3.78</span> 2.20<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>  2.20<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> -<span style="color: #BB0000;">0.207</span> AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: sig &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                              case <span class="op">=</span> <span class="st">"AML"</span>, </span>
+<span>                              control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>, </span>
+<span>                              correct <span class="op">=</span> <span class="st">"BMI"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>pval_lim <span class="op">=</span> <span class="fl">0.01</span>, logfc_lim  <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>We can customize the volcano plot further by adding a subtitle and
-removing the number of significant proteins. We can also remove the
-title via ggplot2 because now it seems to be redundant.</p>
+<p>If we do not set a control group, the function will compare the case
+group against all other groups.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, </span>
-<span>                <span class="va">metadata</span>, </span>
-<span>                case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>, </span>
-<span>                correct <span class="op">=</span> <span class="st">"Sex"</span>,</span>
-<span>                pval_lim <span class="op">=</span> <span class="fl">0.01</span>, </span>
-<span>                logfc_lim  <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                subtitle <span class="op">=</span> <span class="st">"AML vs CLL, MYEL and GLIOM"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Comparing AML with CLL, MYEL, GLIOM.</span></span>
-<span><span class="co">#&gt; Warning in do_limma_de(join_data, variable, case, control, correct,</span></span>
-<span><span class="co">#&gt; correct_type, : 400 rows were removed because they contain NAs in Disease or</span></span>
-<span><span class="co">#&gt; Sex!</span></span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res</span><span class="op">$</span><span class="va">volcano_plot</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<p>Let’s move to another method. We will use the <code><a href="../reference/do_ttest.html">do_ttest()</a></code>
-that performs a t-test for each protein. This function works in a
-similar way with <code><a href="../reference/do_limma.html">do_limma()</a></code> but it cannot correct for other
-variables like <code>Sex</code> and <code>Age</code>.</p>
+<p>We can customize the volcano plot further by adding a title and not
+displaying the number of significant proteins. We can also change the
+number of significant proteins that will be displayed with their names
+in the plot.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_ttest.html">do_ttest</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 6</span></span></span>
-<span><span class="co">#&gt;    Assay      P.Value  logFC Disease adj.P.Val sig             </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ADAM8   0.000<span style="text-decoration: underline;">001</span>07 -<span style="color: #BB0000;">1.36</span>  AML     0.000<span style="text-decoration: underline;">076</span>9 significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AZU1    0.000<span style="text-decoration: underline;">001</span>54  1.93  AML     0.000<span style="text-decoration: underline;">076</span>9 significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ADA     0.000<span style="text-decoration: underline;">002</span>59  1.41  AML     0.000<span style="text-decoration: underline;">086</span>3 significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ARID4B  0.000<span style="text-decoration: underline;">008</span>09 -<span style="color: #BB0000;">1.53</span>  AML     0.000<span style="text-decoration: underline;">202</span>  significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ANGPT1  0.000<span style="text-decoration: underline;">012</span>1  -<span style="color: #BB0000;">1.74</span>  AML     0.000<span style="text-decoration: underline;">225</span>  significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ARTN    0.000<span style="text-decoration: underline;">013</span>5   1.32  AML     0.000<span style="text-decoration: underline;">225</span>  significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ACAN    0.000<span style="text-decoration: underline;">027</span>2  -<span style="color: #BB0000;">0.679</span> AML     0.000<span style="text-decoration: underline;">388</span>  significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ADGRG2  0.000<span style="text-decoration: underline;">050</span>4  -<span style="color: #BB0000;">0.641</span> AML     0.000<span style="text-decoration: underline;">630</span>  significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ADAMTS8 0.000<span style="text-decoration: underline;">096</span>9  -<span style="color: #BB0000;">0.758</span> AML     0.001<span style="text-decoration: underline;">08</span>   significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ACP6    0.000<span style="text-decoration: underline;">130</span>   -<span style="color: #BB0000;">0.814</span> AML     0.001<span style="text-decoration: underline;">30</span>   significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                  title <span class="op">=</span> <span class="st">"AML vs all other groups"</span>,</span>
+<span>                  top_up_prot <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                  top_down_prot <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<p>If we have diseases that are gender specific, we can specify them and
-only their gender will be used in the analysis. This is also available
-in the <code><a href="../reference/do_limma.html">do_limma()</a></code> function, but in that case we should not
-forget to remove the <code>Sex</code> correction.</p>
+<p>Let’s move to another method. We will use the
+<code><a href="../reference/hd_run_de_ttest.html">hd_run_de_ttest()</a></code> that performs a t-test for each protein.
+This function works in a similar way with <code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code>
+but it cannot correct for other variables like <code>Sex</code> and
+<code>Age</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_ttest.html">do_ttest</a></span><span class="op">(</span><span class="va">wide_data</span>, </span>
-<span>         <span class="va">metadata</span>, </span>
-<span>         case <span class="op">=</span> <span class="st">"BRC"</span>, </span>
-<span>         control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"PRC"</span><span class="op">)</span>, </span>
-<span>         only_female <span class="op">=</span> <span class="st">"BRC"</span>, </span>
-<span>         only_male <span class="op">=</span> <span class="st">"PRC"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 6</span></span></span>
-<span><span class="co">#&gt;    Assay          P.Value  logFC Disease   adj.P.Val sig             </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> APEX1    0.000<span style="text-decoration: underline;">000</span>001<span style="text-decoration: underline;">02</span> -<span style="color: #BB0000;">2.24</span>  BRC     0.000<span style="text-decoration: underline;">000</span>102 significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ARID4B   0.000<span style="text-decoration: underline;">002</span>57    -<span style="color: #BB0000;">1.30</span>  BRC     0.000<span style="text-decoration: underline;">129</span>    significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> B4GALT1  0.000<span style="text-decoration: underline;">004</span>01    -<span style="color: #BB0000;">0.832</span> BRC     0.000<span style="text-decoration: underline;">134</span>    significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ABL1     0.000<span style="text-decoration: underline;">073</span>7     -<span style="color: #BB0000;">1.34</span>  BRC     0.001<span style="text-decoration: underline;">84</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ARHGAP25 0.000<span style="text-decoration: underline;">161</span>      -<span style="color: #BB0000;">1.04</span>  BRC     0.003<span style="text-decoration: underline;">21</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> APBB1IP  0.000<span style="text-decoration: underline;">197</span>      -<span style="color: #BB0000;">1.24</span>  BRC     0.003<span style="text-decoration: underline;">28</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ADA2     0.001<span style="text-decoration: underline;">07</span>       -<span style="color: #BB0000;">0.624</span> BRC     0.012<span style="text-decoration: underline;">9</span>      significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ANGPT2   0.001<span style="text-decoration: underline;">04</span>       -<span style="color: #BB0000;">0.562</span> BRC     0.012<span style="text-decoration: underline;">9</span>      significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AZU1     0.001<span style="text-decoration: underline;">16</span>       -<span style="color: #BB0000;">1.24</span>  BRC     0.012<span style="text-decoration: underline;">9</span>      significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ADAM8    0.002<span style="text-decoration: underline;">23</span>       -<span style="color: #BB0000;">0.634</span> BRC     0.022<span style="text-decoration: underline;">3</span>      significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_ttest.html">hd_run_de_ttest</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<p>We could run differential expression against another categorical
-variable like <code>Sex</code>.</p>
+<blockquote>
+<p>📓 If we have diseases that are sex specific as for example Breast
+Cancer, we should consider run the analysis only with samples of that
+sex. We can easily integrate that into our pipeline using the
+<code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code> function. In that case, we would not be
+able to correct for sex.</p>
+</blockquote>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_ttest.html">do_ttest</a></span><span class="op">(</span><span class="va">wide_data</span>, </span>
-<span>         <span class="va">metadata</span>, </span>
-<span>         variable <span class="op">=</span> <span class="st">"Sex"</span>,</span>
-<span>         case <span class="op">=</span> <span class="st">"F"</span>, </span>
-<span>         control <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 6</span></span></span>
-<span><span class="co">#&gt;    Assay    P.Value  logFC Sex      adj.P.Val sig             </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ALPP    8.42<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  0.983 F     0.000<span style="text-decoration: underline;">000</span>084<span style="text-decoration: underline;">2</span> significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ART3    3.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> -<span style="color: #BB0000;">0.356</span> F     0.000<span style="text-decoration: underline;">015</span>2    significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> B4GALT1 8.86<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> -<span style="color: #BB0000;">0.349</span> F     0.000<span style="text-decoration: underline;">029</span>5    significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ACY1    3.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> -<span style="color: #BB0000;">0.479</span> F     0.000<span style="text-decoration: underline;">081</span>2    significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ACE2    9.82<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> -<span style="color: #BB0000;">0.448</span> F     0.000<span style="text-decoration: underline;">164</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ANGPTL3 9.64<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span>  0.296 F     0.000<span style="text-decoration: underline;">164</span>     significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ADGRG2  5.02<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span>  0.304 F     0.000<span style="text-decoration: underline;">680</span>     significant up  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ATXN10  5.44<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> -<span style="color: #BB0000;">0.430</span> F     0.000<span style="text-decoration: underline;">680</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> APBB1IP 7.95<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> -<span style="color: #BB0000;">0.422</span> F     0.000<span style="text-decoration: underline;">884</span>     significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AXIN1   1.68<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> -<span style="color: #BB0000;">0.473</span> F     0.001<span style="text-decoration: underline;">68</span>      significant down</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="va">hd_obj</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span>case <span class="op">=</span> <span class="st">"BRC"</span>, control <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
-<p>Moreover, we can also perform Differential Expression Analysis
-against a continuous variable such as <code>Age</code> via
-<code><a href="../reference/do_limma_continuous.html">do_limma_continuous()</a></code>. We can also correct for categorical
-and other continuous variables.</p>
+<p>We could also run differential expression against another categorical
+variable like <code>Sex</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_limma_continuous.html">do_limma_continuous</a></span><span class="op">(</span><span class="va">wide_data</span>, </span>
-<span>                    <span class="va">metadata</span>, </span>
-<span>                    variable <span class="op">=</span> <span class="st">"Age"</span>,</span>
-<span>                    correct <span class="op">=</span> <span class="st">"Sex"</span>,</span>
-<span>                    pval_lim <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $de_results</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 9</span></span></span>
-<span><span class="co">#&gt;    Assay        logFC as.factor.Sex.F as.factor.Sex.M AveExpr     F   P.Value</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ADAMTS15 -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">719</span>            3.09            2.92    2.99 <span style="text-decoration: underline;">1</span>874. 2.10<span style="color: #949494;">e</span><span style="color: #BB0000;">-291</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AARSD1    0.000<span style="text-decoration: underline;">327</span>            2.96            3.25    3.13 <span style="text-decoration: underline;">1</span>608. 1.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-274</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AKT1S1    0.001<span style="text-decoration: underline;">54</span>             3.28            3.46    3.47 <span style="text-decoration: underline;">1</span>478. 3.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-265</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ATG4A    -<span style="color: #BB0000;">0.001</span><span style="color: #BB0000; text-decoration: underline;">57</span>             2.56            2.71    2.55 <span style="text-decoration: underline;">1</span>138. 2.26<span style="color: #949494;">e</span><span style="color: #BB0000;">-238</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ATOX1    -<span style="color: #BB0000;">0.001</span><span style="color: #BB0000; text-decoration: underline;">66</span>             3.02            3.18    2.97 <span style="text-decoration: underline;">1</span>061. 1.13<span style="color: #949494;">e</span><span style="color: #BB0000;">-232</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADM       0.005<span style="text-decoration: underline;">36</span>             1.53            1.47    1.87  954. 7.63<span style="color: #949494;">e</span><span style="color: #BB0000;">-224</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AK1      -<span style="color: #BB0000;">0.003</span><span style="color: #BB0000; text-decoration: underline;">73</span>             2.51            2.66    2.34  786. 3.94<span style="color: #949494;">e</span><span style="color: #BB0000;">-202</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AKR1B1   -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">171</span>            2.28            2.33    2.29  783. 2.64<span style="color: #949494;">e</span><span style="color: #BB0000;">-200</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ATP5IF1  -<span style="color: #BB0000;">0.003</span><span style="color: #BB0000; text-decoration: underline;">21</span>             3.66            4.02    3.60  740. 1.11<span style="color: #949494;">e</span><span style="color: #BB0000;">-196</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ARHGEF12 -<span style="color: #BB0000;">0.001</span><span style="color: #BB0000; text-decoration: underline;">63</span>             3.19            3.56    3.26  683. 2.06<span style="color: #949494;">e</span><span style="color: #BB0000;">-187</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: adj.P.Val &lt;dbl&gt;, sig &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $volcano_plot</span></span>
-<span><span class="co">#&gt; Warning: ggrepel: 11 unlabeled data points (too many overlaps). Consider</span></span>
-<span><span class="co">#&gt; increasing max.overlaps</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, case <span class="op">=</span> <span class="st">"F"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"Sex Comparison"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
-<p>As a last step, we can summarize the results via
-<code><a href="../reference/plot_de_summary.html">plot_de_summary()</a></code>. Let’s first run a differential
-expression analysis for 4 different cases (1 vs 3).</p>
+<p>Moreover, we can also perform Differential Expression Analysis
+against a continuous variable such as <code>Age</code> once again using
+<code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code>! We can also correct for categorical and
+other continuous variables. In this case, no <code>case</code> or
+<code>control</code> groups are needed.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Age"</span>, case <span class="op">=</span> <span class="cn">NULL</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"BMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"DE against Age"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"CLL"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">res_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"MYEL"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">res_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"MYEL"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">de_summary_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_de_summary.html">plot_de_summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">res_aml</span>, <span class="st">"CLL"</span> <span class="op">=</span> <span class="va">res_cll</span>, <span class="st">"MYEL"</span> <span class="op">=</span> <span class="va">res_myel</span>, <span class="st">"GLIOM"</span> <span class="op">=</span> <span class="va">res_gliom</span><span class="op">)</span>,</span>
-<span>                                  disease_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>As a last step, we can summarize the results via
+<code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code>. Let’s first run a differential
+expression analysis for 4 different cases (1 vs 3).</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"CLL"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"MYEL"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"MYEL"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">de_summary_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">res_aml</span>, </span>
+<span>                                          <span class="st">"CLL"</span> <span class="op">=</span> <span class="va">res_cll</span>, </span>
+<span>                                          <span class="st">"MYEL"</span> <span class="op">=</span> <span class="va">res_myel</span>, </span>
+<span>                                          <span class="st">"GLIOM"</span> <span class="op">=</span> <span class="va">res_gliom</span><span class="op">)</span>,</span>
+<span>                                     class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-2.png" width="700"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">upset_plot_down</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-10-3.png" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-3.png" width="700"></p>
+<blockquote>
+<p>📓 Remember that these data are a dummy-dataset with artificial data
+and the results in this guide should not be interpreted as real results.
+The purpose of this vignette is to show you how to use the package and
+its functions.</p>
+</blockquote>
   </main>
 </div>
 

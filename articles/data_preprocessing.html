@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Data Preprocessing &amp; Quality Control Check">
 </head>
 <body>
@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,380 +98,255 @@
     
     
 <p>This vignette will guide you through the initial steps of data
-preprocessing. Except from HDAnalyzeR we will import dplyr in order to
-perform some basic data manipulation.</p>
+preprocessing. Except from HDAnalyzeR we will import viridis for the
+color palettes.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p>📓 This vignette is just a basic example of how to preprocess the
-data. Every dataset is different and may require different preprocessing
-steps. Please make sure to check the data and metadata before proceeding
-with the analysis. Remember that in order to run the package without
-issues, make sure that your data include the following columns: DAid,
-Assay and NPX, while your metadata include the following columns: DAid
-and Disease. Also, if you have a Sex column in your metadata, the data
-should be encoded as M and F.</p>
+data and perform quality control. Every dataset is different and may
+require different processing.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ Please make sure to check the data and metadata before proceeding
+with the analysis. For the most common proteomics data formats, we
+provide some recommendations in the package documentation under articles
+“Before using HDAnalyzeR”.</p>
 </blockquote>
 <p>Let’s start with loading the example data and metadata that come with
-the package.</p>
+the package and initialize the HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
-<span><span class="co">#&gt;   DAid    Sample    OlinkID UniProt Assay Panel     NPX Assay_Warning QC_Warning</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001 AML_syn_1 OID213… Q9BTE6  AARS… Onco…  3.39   PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00001 AML_syn_1 OID212… P00519  ABL1  Onco…  2.76   PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00001 AML_syn_1 OID212… P09110  ACAA1 Onco…  1.71   PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00001 AML_syn_1 OID201… P16112  ACAN  Card…  0.033<span style="text-decoration: underline;">3</span> PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00001 AML_syn_1 OID201… Q9BYF1  ACE2  Card…  1.76   PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00001 AML_syn_1 OID201… Q15067  ACOX1 Card… -<span style="color: #BB0000;">0.919</span>  PASS          PASS      </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: PlateID &lt;chr&gt;</span></span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_metadata</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 9</span></span></span>
-<span><span class="co">#&gt;   DAid    Sample    Disease Stage   Grade Sex     Age   BMI Cohort</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001 AML_syn_1 AML     2       <span style="color: #BB0000;">NA</span>    F        42  22.7 UCAN  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00002 AML_syn_2 AML     Unknown <span style="color: #BB0000;">NA</span>    M        69  33.1 UCAN  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00003 AML_syn_3 AML     2       <span style="color: #BB0000;">NA</span>    F        61  26.2 UCAN  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00004 AML_syn_4 AML     Unknown <span style="color: #BB0000;">NA</span>    M        54  28.1 UCAN  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005 AML_syn_5 AML     2       <span style="color: #BB0000;">NA</span>    F        57  21.4 UCAN  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006 AML_syn_6 AML     Unknown <span style="color: #BB0000;">NA</span>    M        86  33.9 UCAN</span></span></code></pre></div>
-<p>We will check the structure of the data, as well as the unique values
-of the columns <code>Assay_Warning</code> and <code>PlateID</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; tibble [56,142 × 10] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class="co">#&gt;  $ DAid         : chr [1:56142] "DA00001" "DA00001" "DA00001" "DA00001" ...</span></span>
-<span><span class="co">#&gt;  $ Sample       : chr [1:56142] "AML_syn_1" "AML_syn_1" "AML_syn_1" "AML_syn_1" ...</span></span>
-<span><span class="co">#&gt;  $ OlinkID      : chr [1:56142] "OID21311" "OID21280" "OID21269" "OID20159" ...</span></span>
-<span><span class="co">#&gt;  $ UniProt      : chr [1:56142] "Q9BTE6" "P00519" "P09110" "P16112" ...</span></span>
-<span><span class="co">#&gt;  $ Assay        : chr [1:56142] "AARSD1" "ABL1" "ACAA1" "ACAN" ...</span></span>
-<span><span class="co">#&gt;  $ Panel        : chr [1:56142] "Oncology" "Oncology" "Oncology" "Cardiometabolic" ...</span></span>
-<span><span class="co">#&gt;  $ NPX          : num [1:56142] 3.3903 2.7589 1.707 0.0333 1.7554 ...</span></span>
-<span><span class="co">#&gt;  $ Assay_Warning: chr [1:56142] "PASS" "PASS" "PASS" "PASS" ...</span></span>
-<span><span class="co">#&gt;  $ QC_Warning   : chr [1:56142] "PASS" "PASS" "PASS" "PASS" ...</span></span>
-<span><span class="co">#&gt;  $ PlateID      : chr [1:56142] "Run001" "Run001" "Run001" "Run001" ...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">$</span><span class="va">Assay_Warning</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "PASS" "WARN"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">$</span><span class="va">PlateID</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Run001" "Run002" "Run003" "Run004" "Run005"</span></span></code></pre></div>
-<p>We will count the number of warnings for each assay to see if there
-is a bias between the different assays.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">example_data</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Assay_Warning</span> <span class="op">==</span> <span class="st">"WARN"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Assay</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>nWarnings <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">nWarnings</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
-<span><span class="co">#&gt;   Assay   nWarnings</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ANGPTL7         9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ATP5PO          9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ACAA1          10</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ACE2           10</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ADGRE5         10</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> AKT3           11</span></span></code></pre></div>
-<p>As we see there is not a bias between the different assays. We will
-now clean the data by keeping only the columns <code>DAid</code>,
-<code>Assay</code>, <code>NPX</code>, and <code>PlateID</code>, and
-filtering out the assays with warnings and the <code>Run004</code>
-plate.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">long_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_data.html">clean_data</a></span><span class="op">(</span><span class="va">example_data</span>, </span>
-<span>                        keep_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DAid"</span>, <span class="st">"Assay"</span>, <span class="st">"NPX"</span>, <span class="st">"PlateID"</span><span class="op">)</span>,</span>
-<span>                        filter_assay_warning <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                        filter_plates <span class="op">=</span> <span class="st">"Run004"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">long_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
-<span><span class="co">#&gt;   DAid    Assay      NPX PlateID</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001 AARSD1  3.39   Run001 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00001 ABL1    2.76   Run001 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00001 ACAA1   1.71   Run001 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00001 ACAN    0.033<span style="text-decoration: underline;">3</span> Run001 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00001 ACE2    1.76   Run001 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00001 ACOX1  -<span style="color: #BB0000;">0.919</span>  Run001</span></span></code></pre></div>
-<p>We will do the same for the metadata, keeping only the columns
-<code>DAid</code>, <code>Disease</code>, <code>Sex</code>, and
-<code>Age</code>, and keeping only the <code>UCAN</code> cohort.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">example_metadata</span><span class="op">)</span></span>
-<span><span class="co">#&gt; tibble [586 × 9] (S3: tbl_df/tbl/data.frame)</span></span>
-<span><span class="co">#&gt;  $ DAid   : chr [1:586] "DA00001" "DA00002" "DA00003" "DA00004" ...</span></span>
-<span><span class="co">#&gt;  $ Sample : chr [1:586] "AML_syn_1" "AML_syn_2" "AML_syn_3" "AML_syn_4" ...</span></span>
-<span><span class="co">#&gt;  $ Disease: chr [1:586] "AML" "AML" "AML" "AML" ...</span></span>
-<span><span class="co">#&gt;  $ Stage  : chr [1:586] "2" "Unknown" "2" "Unknown" ...</span></span>
-<span><span class="co">#&gt;  $ Grade  : chr [1:586] NA NA NA NA ...</span></span>
-<span><span class="co">#&gt;  $ Sex    : chr [1:586] "F" "M" "F" "M" ...</span></span>
-<span><span class="co">#&gt;  $ Age    : num [1:586] 42 69 61 54 57 86 85 88 80 48 ...</span></span>
-<span><span class="co">#&gt;  $ BMI    : num [1:586] 22.7 33.1 26.2 28.1 21.4 33.9 28.7 32.6 26.1 33.8 ...</span></span>
-<span><span class="co">#&gt;  $ Cohort : chr [1:586] "UCAN" "UCAN" "UCAN" "UCAN" ...</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">example_metadata</span><span class="op">$</span><span class="va">Cohort</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "UCAN"            "Gender_specific"</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clean_metadata.html">clean_metadata</a></span><span class="op">(</span><span class="va">example_metadata</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DAid"</span>, <span class="st">"Disease"</span>, <span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span>, cohort <span class="op">=</span> <span class="st">"UCAN"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
-<span><span class="co">#&gt;   DAid    Disease Sex     Age</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001 AML     F        42</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00002 AML     M        69</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00003 AML     F        61</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00004 AML     M        54</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005 AML     F        57</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006 AML     M        86</span></span></code></pre></div>
-<blockquote>
-<p>💡 Don’t forget to match your data with the metadata!</p>
-</blockquote>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">long_data</span> <span class="op">&lt;-</span> <span class="va">metadata</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">long_data</span>, by <span class="op">=</span> <span class="st">"DAid"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">any_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Disease"</span>, <span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>We will generate the wide data which will have assays as names, NPX
-as values and the rows will be the samples with a unique DAid.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">wide_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/widen_data.html">widen_data</a></span><span class="op">(</span><span class="va">long_data</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
+<span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
+<span>                        is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
+<span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
+<span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>Now, we will perform a quality control check on the data.
-<code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> will return the percentage of missing
-values for each column and row and plot their distributions, the
-protein-protein correlation and check if there are any highly correlated
-proteins (above the threshold of 0.9), as well as the normality of the
-different assays.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qc_summary_data.html">qc_summary_data</a></span><span class="op">(</span><span class="va">wide_data</span>, threshold <span class="op">=</span> <span class="fl">0.9</span>, report <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; [1] "Summary:"</span></span>
+<code><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary()</a></code> will return the percentage of missing
+values for each column and row and histograms of their distributions
+both for data and metadata, the protein-protein correlation and the
+metadata variable distributions.</p>
+<p>As <code>variable</code> we should pass the column name of the
+metadata that we contains the different classes, for example the case
+and control groups, the different diseases, or the different stages of a
+disease. The palettes are optional and can be used to color the plots of
+the metadata variable distributions. You should pass a list with the
+variable name and the palette name, for example list(Sex = c(“F” =
+“red”, “M” = “blue”), Disease = “cancers12”). As you can see, the
+palettes can be either a named vector or a character vector with the
+name of a palette from the package. You can display all available
+palettes by running <code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                             variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
+<span>                             palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
+<span>                             cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Summary:"</span></span>
 <span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 268"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 100"</span></span>
+<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
+<span><span class="co">#&gt; [1] "Number of variables: 101"</span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "character : 1"</span></span>
-<span><span class="co">#&gt; [1] "numeric : 100"</span></span>
+<span><span class="co">#&gt; [1] "categorical : 1"</span></span>
+<span><span class="co">#&gt; [1] "continuous : 100"</span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
 <span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 2</span></span></span>
-<span><span class="co">#&gt;    column    na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ACAA1               9.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AKT3                9.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AIF1                9  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ATP6AP2             9  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ADCYAP1R1           8.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> AGR2                8.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AKR1B1              8.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ARHGAP25            8.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ATXN10              8.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ADAM15              8.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 91 × 2</span></span></span>
+<span><span class="co">#&gt;    column   na_percentage</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ACE2               6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ACTA2              6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ACTN4              6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ADAM15             6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ADAMTS16           6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADH4               6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AKR1C4             6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AMBN               6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AMN                6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AOC1               6.1</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 81 more rows</span></span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
 <span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 186 × 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 144 × 2</span></span></span>
 <span><span class="co">#&gt;    DAid    na_percentage</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00450          57.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00003          51.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00463          47.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00116          43.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00475          42.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00443          41.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00476          37.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00394          33.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00408          33.7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00461          33.7</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 176 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00482          53.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00542          53.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00003          50.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00463          46.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00116          43.6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00475          42.6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00578          42.6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00443          41.6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00476          35.6</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 134 more rows</span></span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Normality test results:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 4</span></span></span>
-<span><span class="co">#&gt;    Protein  p_value adj.P.Val is_normal</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ATF2    6.58<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span>  6.58<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ARID4B  4.20<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span>  2.10<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AZU1    9.03<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span>  3.01<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ARTN    2.58<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  6.44<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> APBB1IP 3.80<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  7.61<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADA     2.63<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  4.00<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AREG    2.80<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  4.00<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ALDH3A1 3.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  4.10<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AGRN    2.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span>  2.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AOC1    2.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span>  2.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> FALSE    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
+<span><span class="co">#&gt; [1] "Protein-protein correlations above 0.7:"</span></span>
+<span><span class="co">#&gt;   Protein1 Protein2 Correlation</span></span>
+<span><span class="co">#&gt; 1  ATP5IF1    AIFM1        0.76</span></span>
+<span><span class="co">#&gt; 2    AXIN1 ARHGEF12        0.76</span></span>
+<span><span class="co">#&gt; 3    AIFM1  ATP5IF1        0.76</span></span>
+<span><span class="co">#&gt; 4 ARHGEF12    AXIN1        0.76</span></span>
+<span><span class="co">#&gt; 5 ARHGEF12    AIFM1        0.71</span></span>
+<span><span class="co">#&gt; 6    AIFM1 ARHGEF12        0.71</span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Protein-protein correlations above 0.9:"</span></span>
-<span><span class="co">#&gt; [1] Protein1    Protein2    Correlation</span></span>
-<span><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span><span class="co">#&gt; [1] "Summary:"</span></span>
+<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
+<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
+<span><span class="co">#&gt; [1] "Number of variables: 9"</span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Correlation heatmap:"</span></span>
+<span><span class="co">#&gt; [1] "categorical : 7"</span></span>
+<span><span class="co">#&gt; [1] "continuous : 2"</span></span>
+<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
+<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   column na_percentage</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Grade           91.5</span></span>
+<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
+<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 536 × 2</span></span></span>
+<span><span class="co">#&gt;    DAid    na_percentage</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00001          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00002          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00003          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00004          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00005          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00006          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00007          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00008          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00009          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00010          11.1</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 526 more rows</span></span></span>
 <span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
 <span></span>
-<span><span class="va">qc_data</span><span class="op">$</span><span class="va">na_col_dist</span></span>
-<span><span class="co">#&gt; `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</span></span></code></pre>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">na_row_dist</span></span>
-<span><span class="co">#&gt; `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-10-3.png" width="700"></p>
+<span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">na_col_hist</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">na_row_hist</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">cor_heatmap</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">na_col_hist</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-4.png" width="700"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">na_row_hist</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-5.png" width="700"></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Sex</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-6.png" width="700"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Stage</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-7.png" width="700"></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Age</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-8.png" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">BMI</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-9.png" width="700"></p>
 <p>From the QC results we can see that all assays have less than 10%
 missing values, while only a few samples have more than 20% missing
 values. The protein-protein correlation plot shows that there are no
-highly correlated proteins. The normality plot shows that most of the
-assays are not normally distributed, but this is expected for this
-artificial dataset. Based on these we can take decisions on filtering
-samples with high missing values or excluding assays from statistical
-analysis with normality assumptions.</p>
-<p>Let’s do the same for the metadata, this time using the
-<code><a href="../reference/qc_summary_metadata.html">qc_summary_metadata()</a></code> function. This function will return
-the percentage of missing values for each row and column and plot their
-distributions, as well as the distributions of selected metadata columns
-like <code>Sex</code> and <code>Age</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qc_summary_metadata.html">qc_summary_metadata</a></span><span class="op">(</span><span class="va">metadata</span>, </span>
-<span>                                   categorical <span class="op">=</span> <span class="st">"Sex"</span>, </span>
-<span>                                   numerical <span class="op">=</span> <span class="st">"Age"</span>, </span>
-<span>                                   disease_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Summary:"</span></span>
-<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 336"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 3"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "character : 3"</span></span>
-<span><span class="co">#&gt; [1] "numeric : 1"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 0 × 2</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 variables: column &lt;chr&gt;, na_percentage &lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 0 × 2</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 variables: DAid &lt;chr&gt;, na_percentage &lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; Sex contains:</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 14 × 3</span></span></span>
-<span><span class="co">#&gt;    Disease Sex       n</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AML     F        23</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AML     M        27</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> CLL     F        21</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> CLL     M        27</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> CRC     F        28</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CRC     M        22</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GLIOM   F        24</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GLIOM   M        26</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> LUNGC   F        33</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> LUNGC   M        17</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> LYMPH   F        22</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> LYMPH   M        28</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> MYEL    F        15</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> MYEL    M        23</span></span>
-<span></span>
-<span><span class="va">qc_metadata</span><span class="op">$</span><span class="va">barplot_Sex</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_metadata</span><span class="op">$</span><span class="va">distplot_Age</span></span>
-<span><span class="co">#&gt; Picking joint bandwidth of 5.96</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-11-2.png" width="700"></p>
+extremely highly correlated proteins. Also, the metadata variable
+<code>Stage</code> has a high percentage of missing values that are not
+correctly stated as NA values but as “” or “Unknown”. These are only a
+few examples of the information that we can extract from the QC
+results.</p>
+<p>Based on these we can take decisions on filtering samples with high
+missing values, excluding assays and metadata variables from statistical
+analysis.</p>
 <p>Finally we will run a PCA and UMAP analysis on the data to check if
 the data contain any outliers or cluster in an unexpected way. From the
 PCA analysis we can also check how the variance in the data is explained
 by the different principal components. The PCA plot will be colored
 based on <code>Disease</code>, while the UMAP plot will be colored based
-on <code>Sex</code>. We can also run a UMAP where the points are Assays
-instead of samples.</p>
+on <code>Age</code>.</p>
+<p>The <code><a href="../reference/hd_run_pca.html">hd_run_pca()</a></code> and <code><a href="../reference/hd_run_umap.html">hd_run_umap()</a></code>
+functions will run the respective analysis while the
+<code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> will plot the data on a 2D plane. For the PCA
+analysis we can also utilize <code><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings()</a></code> and
+<code><a href="../reference/hd_plot_pca_variance.html">hd_plot_pca_variance()</a></code> to plot the loadings of the
+different proteins on the principal components and the variance
+explained by each principal component respectively.</p>
+<p>In the <code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> function we can pass the
+<code>color</code> parameter to color the data points based on a
+metadata variable. We should not forget to pass again the hd_obj object
+to the <code>metadata</code> argument!</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_pca.html">hd_run_pca</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">15</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"PC1"</span>, <span class="st">"PC2"</span>, color <span class="op">=</span> <span class="st">"Disease"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, axis_variance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings</a></span><span class="op">(</span>displayed_pcs <span class="op">=</span> <span class="fl">6</span>, displayed_features <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_pca_variance.html">hd_plot_pca_variance</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 16</span></span></span>
+<span><span class="co">#&gt;   DAid     PC1     PC2    PC3    PC4    PC5    PC6     PC7    PC8    PC9    PC10</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00… -<span style="color: #BB0000;">3.67</span>  -<span style="color: #BB0000;">4.28</span>   -<span style="color: #BB0000;">2.34</span>  -<span style="color: #BB0000;">3.10</span>  -<span style="color: #BB0000;">2.65</span>  -<span style="color: #BB0000;">2.73</span>  -<span style="color: #BB0000;">2.78</span>    0.433 -<span style="color: #BB0000;">3.23</span>  -<span style="color: #BB0000;">0.399</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00…  4.11  -<span style="color: #BB0000;">2.64</span>    2.04  -<span style="color: #BB0000;">0.441</span> -<span style="color: #BB0000;">4.43</span>  -<span style="color: #BB0000;">1.91</span>  -<span style="color: #BB0000;">0.897</span>   1.54  -<span style="color: #BB0000;">0.283</span>  0.166 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00… -<span style="color: #BB0000;">3.34</span>   4.72    1.41   0.881 -<span style="color: #BB0000;">0.561</span>  0.308 -<span style="color: #BB0000;">0.061</span><span style="color: #BB0000; text-decoration: underline;">2</span> -<span style="color: #BB0000;">0.267</span>  1.42   0.084<span style="text-decoration: underline;">0</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00… -<span style="color: #BB0000;">4.78</span>   0.443   1.41   0.107 -<span style="color: #BB0000;">1.10</span>  -<span style="color: #BB0000;">0.262</span>  0.350   3.33  -<span style="color: #BB0000;">0.336</span> -<span style="color: #BB0000;">0.748</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00… -<span style="color: #BB0000;">4.98</span>  -<span style="color: #BB0000;">3.67</span>    0.711 -<span style="color: #BB0000;">5.70</span>  -<span style="color: #BB0000;">0.807</span> -<span style="color: #BB0000;">3.77</span>  -<span style="color: #BB0000;">0.969</span>   1.83  -<span style="color: #BB0000;">1.29</span>  -<span style="color: #BB0000;">0.991</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00…  0.395  0.057<span style="text-decoration: underline;">2</span> -<span style="color: #BB0000;">1.90</span>  -<span style="color: #BB0000;">7.75</span>   0.707 -<span style="color: #BB0000;">2.70</span>  -<span style="color: #BB0000;">0.681</span>   0.301 -<span style="color: #BB0000;">0.486</span>  1.32  </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: PC11 &lt;dbl&gt;, PC12 &lt;dbl&gt;, PC13 &lt;dbl&gt;, PC14 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   PC15 &lt;dbl&gt;</span></span></span>
+<span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_plot</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_variance_plot</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
+<p>This time we want to color based on a continuous variable, the
+<code>Age</code>. In this case, we can either bin the data into
+categories or use a continuous color palette after the plot is created.
+We will set the palette argument to NULL and use the
+<code>viridis</code> palette afterwards for this example.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/do_pca.html">do_pca</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, color <span class="op">=</span> <span class="st">"Disease"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $pca_res</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 268 × 6</span></span></span>
-<span><span class="co">#&gt;    DAid       PC1    PC2    PC3     PC4    PC5</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00001 -<span style="color: #BB0000;">2.73</span>  -<span style="color: #BB0000;">3.84</span>  -<span style="color: #BB0000;">1.66</span>  -<span style="color: #BB0000;">2.86</span>   -<span style="color: #BB0000;">1.28</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00002  4.55  -<span style="color: #BB0000;">2.65</span>   1.46  -<span style="color: #BB0000;">0.387</span>  -<span style="color: #BB0000;">3.84</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00003 -<span style="color: #BB0000;">2.78</span>   4.72   1.33   0.792  -<span style="color: #BB0000;">0.984</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00004 -<span style="color: #BB0000;">3.74</span>   0.679  1.20   0.233  -<span style="color: #BB0000;">1.63</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00005 -<span style="color: #BB0000;">4.04</span>  -<span style="color: #BB0000;">3.24</span>   1.16  -<span style="color: #BB0000;">4.55</span>   -<span style="color: #BB0000;">0.254</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00006  1.24   0.132 -<span style="color: #BB0000;">1.08</span>  -<span style="color: #BB0000;">7.16</span>    2.45 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00007 -<span style="color: #BB0000;">9.48</span>  -<span style="color: #BB0000;">2.24</span>  -<span style="color: #BB0000;">0.639</span> -<span style="color: #BB0000;">0.041</span><span style="color: #BB0000; text-decoration: underline;">3</span> -<span style="color: #BB0000;">2.31</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00008  3.17  -<span style="color: #BB0000;">1.83</span>   2.70   0.294  -<span style="color: #BB0000;">1.41</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00009 -<span style="color: #BB0000;">0.975</span> -<span style="color: #BB0000;">0.469</span>  2.73  -<span style="color: #BB0000;">2.28</span>   -<span style="color: #BB0000;">4.18</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00010  4.07   0.954  0.165  0.775  -<span style="color: #BB0000;">2.66</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 258 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $loadings</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10,000 × 4</span></span></span>
-<span><span class="co">#&gt;    Assay    Value PC    id       </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AARSD1 -<span style="color: #BB0000;">0.120</span>  PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ABL1   -<span style="color: #BB0000;">0.205</span>  PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ACAA1  -<span style="color: #BB0000;">0.165</span>  PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ACAN    0.037<span style="text-decoration: underline;">9</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ACE2   -<span style="color: #BB0000;">0.044</span><span style="color: #BB0000; text-decoration: underline;">4</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ACOX1  -<span style="color: #BB0000;">0.137</span>  PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ACP5   -<span style="color: #BB0000;">0.059</span><span style="color: #BB0000; text-decoration: underline;">4</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ACP6   -<span style="color: #BB0000;">0.087</span><span style="color: #BB0000; text-decoration: underline;">9</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ACTA2  -<span style="color: #BB0000;">0.067</span><span style="color: #BB0000; text-decoration: underline;">5</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ACTN4  -<span style="color: #BB0000;">0.062</span><span style="color: #BB0000; text-decoration: underline;">9</span> PC1   pca_EoYnc</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 9,990 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $pca_plot</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $loadings_plot</span></span></code></pre>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-12-2.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $variance_plot</span></span></code></pre>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-12-3.png" width="700"></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/do_umap.html">do_umap</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, color <span class="op">=</span> <span class="st">"Sex"</span>, palette <span class="op">=</span> <span class="st">"sex_hpa"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $umap_res</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 268 × 3</span></span></span>
-<span><span class="co">#&gt;    DAid     UMAP1  UMAP2</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00001  1.88  -<span style="color: #BB0000;">1.05</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00002 -<span style="color: #BB0000;">1.98</span>  -<span style="color: #BB0000;">1.64</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00003  1.66   1.96 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00004  1.66   1.25 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00005  2.04  -<span style="color: #BB0000;">0.871</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00006 -<span style="color: #BB0000;">2.77</span>   0.553</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00007  2.81   0.964</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00008 -<span style="color: #BB0000;">2.33</span>  -<span style="color: #BB0000;">1.33</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00009  0.732 -<span style="color: #BB0000;">0.298</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00010 -<span style="color: #BB0000;">2.52</span>  -<span style="color: #BB0000;">1.34</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 258 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $umap_plot</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-12-4.png" width="700"></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/do_umap.html">do_umap</a></span><span class="op">(</span><span class="va">wide_data</span>, color <span class="op">=</span> <span class="st">"Assay"</span>, assay <span class="op">=</span> <span class="cn">TRUE</span>, palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ADA"</span> <span class="op">=</span> <span class="st">"darkblue"</span>, <span class="st">"ABL1"</span> <span class="op">=</span> <span class="st">"red3"</span>, <span class="st">"ACAN"</span> <span class="op">=</span> <span class="st">"green3"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $umap_res</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 3</span></span></span>
-<span><span class="co">#&gt;    Assay    UMAP1  UMAP2</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AARSD1  3.22   -<span style="color: #BB0000;">2.73</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ABL1    2.64   -<span style="color: #BB0000;">1.37</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ACAA1   1.63   -<span style="color: #BB0000;">0.260</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ACAN   -<span style="color: #BB0000;">1.75</span>   -<span style="color: #BB0000;">0.358</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ACE2   -<span style="color: #BB0000;">0.037</span><span style="color: #BB0000; text-decoration: underline;">9</span> -<span style="color: #BB0000;">1.04</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ACOX1  -<span style="color: #BB0000;">1.05</span>    1.96 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ACP5    1.01    0.307</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ACP6    1.06   -<span style="color: #BB0000;">0.457</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ACTA2   1.31   -<span style="color: #BB0000;">1.57</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> ACTN4  -<span style="color: #BB0000;">1.20</span>    2.07 </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $umap_plot</span></span></code></pre></div>
-<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-12-5.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_umap.html">hd_run_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"UMAP1"</span>, <span class="st">"UMAP2"</span>, color <span class="op">=</span> <span class="st">"Age"</span>, palette <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span> <span class="op">+</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridis/reference/scale_viridis.html" class="external-link">scale_color_viridis</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<p>We can also run a UMAP where the data points are Proteins (or any
+feature) instead of samples. The only thing we need to do is to set the
+<code>by_sample</code> parameter to <code>FALSE</code> and pass the
+<code>Assay</code> column as the <code>plot_color</code> parameter. We
+can also pass a custom palette to color the different assays. This time
+we will use the wrapper function <code><a href="../reference/hd_auto_umap.html">hd_auto_umap()</a></code>. The
+wrapper functions are a bit less flexible but they are easier to use and
+require less code.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_auto_umap.html">hd_auto_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                         by_sample <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                         plot_color <span class="op">=</span> <span class="st">"Assay"</span>,</span>
+<span>                         plot_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ADA"</span> <span class="op">=</span> <span class="st">"darkblue"</span>, </span>
+<span>                                          <span class="st">"ABL1"</span> <span class="op">=</span> <span class="st">"red3"</span>, </span>
+<span>                                          <span class="st">"ACAN"</span> <span class="op">=</span> <span class="st">"green3"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
+<span><span class="co">#&gt;   Assay   UMAP1  UMAP2</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AARSD1  3.31  -<span style="color: #BB0000;">2.38</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ABL1    1.52  -<span style="color: #BB0000;">1.85</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ACAA1   0.238 -<span style="color: #BB0000;">1.50</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ACAN   -<span style="color: #BB0000;">0.289</span>  1.69 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ACE2   -<span style="color: #BB0000;">0.307</span> -<span style="color: #BB0000;">0.731</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ACOX1  -<span style="color: #BB0000;">2.58</span>   1.23</span></span>
+<span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span></span></code></pre></div>
+<p><img src="data_preprocessing_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <blockquote>
-<p>📓 Remember that these data are a dummy-dataset with fake data and
-the results in this guide should not be interpreted as real results. The
-purpose of this vignette is to show you how to use the package and its
-functions.</p>
+<p>📓 Remember that these data are a dummy-dataset with artificial data
+and the results in this guide should not be interpreted as real results.
+The purpose of this vignette is to show you how to use the package and
+its functions.</p>
 </blockquote>
   </main>
 </div>

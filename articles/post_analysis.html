@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Post Analysis: Pathway Enrichment &amp; Automated Literature Search">
 </head>
 <body>
@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,103 +101,115 @@
 obtained from the HDAnalyzeR pipeline. The post analysis consists of two
 possible steps: pathway enrichment analysis and automated literature
 search. The pathway enrichment analysis is performed using the Gene
-Ontology and Reactome databases from <code>clusterProfiler</code> and
-<code>ReactomePA</code> packages respectively. The automated literature
-search is performed using the the PubMed database.</p>
-<p>Let’s start by loading the packages, widen the example dataset, load
-the metadata, and run some differential expression analysis to get the
-results for the post analysis. For the Over Representation Analysis we
-could also use the features list from the classification models or even
-run both and get the intersect as it is done in the Get Started
-guide.</p>
+Ontology, KEGG and Reactome databases from <code>clusterProfiler</code>
+and <code>ReactomePA</code> packages respectively. The automated
+literature search is performed using the the PubMed database.</p>
+<p>This vignette will guide you through the differential expression
+analysis of your data. We will load HDAnalyzeR and dplyr, load the
+example data and metadata that come with the package and initialize the
+HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">wide_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/widen_data.html">widen_data</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
-<span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="va">example_metadata</span></span>
-<span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_limma.html">do_limma</a></span><span class="op">(</span><span class="va">wide_data</span>, <span class="va">metadata</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>First, we will perform an Over Representation Analysis (ORA) using
-the Gene Ontology database. We will use the <code><a href="../reference/do_ora.html">do_ora()</a></code>
-function. The function requires a list of proteins. In this example we
-will extract the top-20 up-regulated proteins.</p>
+<span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
+<span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
+<span>                        is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
+<span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
+<span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
+<p>For the Over Representation Analysis we are going to use a list of
+differentially expressed proteins. In this example we are going to use
+the up-regulated proteins. We could also use the features list from the
+classification models or even run both and get the intersect as it is
+done in the Get Started guide.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proteins</span> <span class="op">&lt;-</span> <span class="va">de_res</span><span class="op">$</span><span class="va">de_results</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Assay</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></code></pre></div>
+<p>First, we will perform an Over Representation Analysis (ORA) using
+the Gene Ontology database and the BP ontology. We will use the
+<code><a href="../reference/hd_run_ora.html">hd_run_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> functions to
+run the analysis and plot the results respectively.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">proteins</span> <span class="op">&lt;-</span> <span class="va">de_res</span><span class="op">$</span><span class="va">de_res</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ora_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_ora.html">do_ora</a></span><span class="op">(</span><span class="va">proteins</span>, <span class="st">"GO"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No background provided. When working with Olink data it is recommended to use background.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; 'select()' returned 1:1 mapping between keys and columns</span></span>
-<span><span class="fu"><a href="../reference/plot_ora.html">plot_ora</a></span><span class="op">(</span><span class="va">ora_res</span>, <span class="va">proteins</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 'select()' returned 1:1 mapping between keys and columns</span></span>
-<span><span class="co">#&gt; $dotplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $barplot</span></span></code></pre>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-2-2.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $cnetplot</span></span></code></pre>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-2-3.png" width="700">
-&gt; 📓 When working with a real Olink dataset, it is recommended to use
-a background list of proteins that are present in the Olink panel to
-minimize bias. This can be done by using the <code>background</code>
-parameter in the <code><a href="../reference/do_ora.html">do_ora()</a></code> function.</p>
-<p>Let’s change the database and the p-value threshold.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ora_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_ora.html">do_ora</a></span><span class="op">(</span><span class="va">proteins</span>, <span class="st">"Reactome"</span>, pval <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_ora.html">plot_ora</a></span><span class="op">(</span><span class="va">ora_res</span>, <span class="va">proteins</span>, pval <span class="op">=</span> <span class="fl">0.2</span>, fontsize <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $dotplot</span></span></code></pre></div>
+<span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_ora.html">hd_run_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $barplot</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $cnetplot</span></span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
-<p>We can also run a Gene Set Enrichment Analysis (GSEA) using the
-<code><a href="../reference/do_gsea.html">do_gsea()</a></code> function. In this case, the function requires
-differential expression results.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gsea_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/do_gsea.html">do_gsea</a></span><span class="op">(</span><span class="va">de_res</span><span class="op">$</span><span class="va">de_results</span>, <span class="st">"GO"</span>, pval_lim <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_gsea.html">plot_gsea</a></span><span class="op">(</span><span class="va">gsea_res</span>, <span class="va">de_res</span><span class="op">$</span><span class="va">de_results</span>, pval_lim <span class="op">=</span> <span class="fl">0.7</span>, fontsize <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $dotplot</span></span></code></pre></div>
+<p>Let’s change the database and the p-value threshold.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_ora.html">hd_run_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $cnetplot</span></span></code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $ridgeplot</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gseaplot</span></span></code></pre>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-4-4.png" width="700"></p>
-<p>Finally, let’s perform an automated literature search using the
-<code><a href="../reference/literature_search.html">literature_search()</a></code>. The function requires a list with
-disease names as names and proteins as values. We will create the list,
-run the search and preview the results.</p>
+<p>We can also run a Gene Set Enrichment Analysis (GSEA) using the
+<code><a href="../reference/hd_run_gsea.html">hd_run_gsea()</a></code> and <code>hd_plot_gsea</code> functions. In
+<code><a href="../reference/hd_run_gsea.html">hd_run_gsea()</a></code> we can select if we want to include only up,
+down or both up and down regulated proteins, as well as the adjusted P
+value and logFC limits to consider a protein as differentially
+expressed. The <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code> function will plot the
+results.</p>
+<blockquote>
+<p>📓 In this case, the function requires strictly differential
+expression results.</p>
+</blockquote>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_gsea.html">hd_run_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">gseaplot</span></span></code></pre></div>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
+<p>Finally, let’s perform an automated literature search using the
+<code><a href="../reference/hd_run_literature_search.html">hd_run_literature_search()</a></code>. The function requires a list
+with disease names as names and proteins as values. We will create the
+list, run the search and preview the results.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biomarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"acute myeloid leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FLT3"</span>, <span class="st">"EPO"</span><span class="op">)</span>,</span>
 <span>                   <span class="st">"chronic lymphocytic leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PARP1"</span>, <span class="st">"FCER2"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">lit_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/literature_search.html">literature_search</a></span><span class="op">(</span><span class="va">biomarkers</span>, max_articles <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">lit_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_literature_search.html">hd_run_literature_search</a></span><span class="op">(</span><span class="va">biomarkers</span>, max_articles <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Searching for articles on FLT3 and acute myeloid leukemia</span></span>
 <span><span class="co">#&gt; Searching for articles on EPO and acute myeloid leukemia</span></span>
 <span><span class="co">#&gt; Searching for articles on PARP1 and chronic lymphocytic leukemia</span></span>
 <span><span class="co">#&gt; Searching for articles on FCER2 and chronic lymphocytic leukemia</span></span>
 <span></span>
 <span><span class="va">lit_res</span><span class="op">$</span><span class="va">`acute myeloid leukemia`</span><span class="op">$</span><span class="va">FLT3</span><span class="op">$</span><span class="va">title</span></span>
-<span><span class="co">#&gt; [1] "Only FLT3-ITD co-mutation did not have a deleterious effect on acute myeloid leukemia patients with NPM1 mutation, but concomitant with DNMT3A co-mutation or a&amp;#x2009;&amp;lt;&amp;#x2009;3log reduction of MRD2 predicted poor survival."</span></span>
-<span><span class="co">#&gt; [2] "Synergistic effect of FMS-like tyrosine kinase-3 (FLT3) inhibitors combined with a CDK7 inhibitor in FLT3-ITD-mutated acute myeloid leukemia."                                                                                     </span></span>
-<span><span class="co">#&gt; [3] "Distinct &lt;i&gt;FLT3&lt;/i&gt; Pathways Gene Expression Profiles in Pediatric De Novo Acute Lymphoblastic and Myeloid Leukemia with &lt;i&gt;FLT3&lt;/i&gt; Mutations: Implications for Targeted Therapy."                                               </span></span>
-<span><span class="co">#&gt; [4] "Enhancing Therapeutic Efficacy of FLT3 Inhibitors with Combination Therapy for Treatment of Acute Myeloid Leukemia."                                                                                                               </span></span>
-<span><span class="co">#&gt; [5] "Simultaneous inhibition of FLT3 and HDAC by novel 6-ethylpyrazine-2-Carboxamide derivatives provides therapeutic advantages in acute myelocytic leukemia."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Mutation- and MRD-informed treatments for transplant-ineligible patients."                                                                                                                                                </span></span>
+<span><span class="co">#&gt; [2] "Allogeneic hematopoietic stem cell transplantation could overcome the poor prognosis of DNMT3A&lt;sup&gt;mut&lt;/sup&gt;NPM1&lt;sup&gt;mut&lt;/sup&gt;FLT3-ITD&lt;sup&gt;mut&lt;/sup&gt; in acute myeloid leukemia: real-world multicenter analysis in China."</span></span>
+<span><span class="co">#&gt; [3] "The Impact of Gilteritinib on Overall Survival of Adult Patients with FLT3 Positive Acute Myeloid Leukemia: A Systematic Review."                                                                                         </span></span>
+<span><span class="co">#&gt; [4] "The Role of FLT3-ITD Mutation, PI3K/AKT Pathway, and Leukemia Stem Cells in D3A7 Induction therapy - the Outcomes of Adult Indonesian Patients with Acute Myeloid Leukemia."                                              </span></span>
+<span><span class="co">#&gt; [5] "Advantages of a genomic DNA-based NGS assay for detection of mutant NPM1 measurable residual disease in AML."</span></span></code></pre></div>
 <blockquote>
-<p>📓 Remember that these data are a dummy-dataset with fake data and
-the results in this guide should not be interpreted as real results. The
-purpose of this vignette is to show you how to use the package and its
-functions.</p>
+<p>📓 Remember that these data are a dummy-dataset with artificial data
+and the results in this guide should not be interpreted as real results.
+The purpose of this vignette is to show you how to use the package and
+its functions.</p>
 </blockquote>
   </main>
 </div>
