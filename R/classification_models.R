@@ -1,30 +1,60 @@
-utils::globalVariables(c("roc_auc", ".config", ".pred_class", ".pred_0", "Scaled_Importance",
-                         "Importance", "Variable", "std_err", "Type", "metric",
-                         "specificity", "sensitivity", ".level", ".estimate", "Category",
-                         ".metric", "mtry", "sample_size", "parameter"))
-#' Split dataset into training and test sets
+utils::globalVariables(c(":="))
+
+#' Split data into training and test sets
 #'
-#' `split_data()` splits the dataset into training and test sets based on user defined ratio.
-#' It also stratifies the data based on the variable of interest.
+#' `hd_run_data_split()` splits the data into training and test sets based on the ratio
+#' provided. It also stratifies the data based on the variable provided.
 #'
-#' @param join_data Olink data in wide format joined with metadata.
-#' @param variable Variable to stratify the data. Default is "Disease".
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param metadata_cols The columns to be selected from the metadata as predictors. Default is NULL.
+#' @param ratio The ratio of training data to test data. Default is 0.75.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A list with three elements:
-#'  - train_set: The training set.
-#'  - test_set: The test set.
-#'  - data_split: The data split object.
-#' @keywords internal
-split_data <- function(join_data,
-                       variable = "Disease",
-                       strata = TRUE,
-                       ratio = 0.75,
-                       seed = 123) {
+#' @return A split object containing train and test data.
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+hd_run_data_split <- function(dat,
+                              metadata = NULL,
+                              variable = "Disease",
+                              metadata_cols = NULL,
+                              ratio = 0.75,
+                              seed = 123){
+
+  Variable <- rlang::sym(variable)
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+    }
+    wide_data <- dat[["data"]]
+    metadata <- dat[["metadata"]]
+    sample_id <- dat[["sample_id"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+  }
+
+  check_numeric <- check_numeric_columns(wide_data)
+
+  if (isFALSE(variable %in% colnames(metadata))) {
+    stop("The variable is not be present in the metadata.")
+  }
+
+  join_data <- wide_data |>
+    dplyr::left_join(metadata |>
+                       dplyr::select(dplyr::all_of(c(sample_id, variable, metadata_cols))),
+                     by = sample_id) |>
+    dplyr::relocate(!!Variable, .after = sample_id)
+
   set.seed(seed)
-  if (strata) {
+  if (!is.null(variable)) {
     data_split <- rsample::initial_split(join_data, prop = ratio, strata = dplyr::any_of(variable))
   } else {
     data_split <- rsample::initial_split(join_data, prop = ratio)
@@ -32,1190 +62,701 @@ split_data <- function(join_data,
   train_data <- rsample::training(data_split)
   test_data <- rsample::testing(data_split)
 
-  return(list("train_set" = train_data,
-              "test_set" = test_data,
-              "data_split" = data_split))
+  model_object <- list("train_data" = train_data,
+                       "test_data" = test_data)
+
+  class(model_object) <- "hd_model"
+
+  return(model_object)
 }
 
 
-#' Create control groups for sex specific cases
+#' Balance groups
 #'
-#' `filter_sex_specific_disease()` creates control groups for sex-specific cases
-#' by filtering samples to include only those from the relevant sex and by
-#' updating the cases vector to include only the cases that will be sampled.
+#' `balance_groups()` balances the groups based on the case variable provided.
+#' It downsamples the control group to match the number of samples in the case group.
 #'
-#' @param control_data Control data to filter.
-#' @param case Case to create control group.
-#' @param cases Cases.
-#' @param only_female Cases that are female specific.
-#' @param only_male Cases that are male specific.
-#'
-#' @return A list with two elements:
-#'  - control_data: Control data to filter.
-#'  - cases_subset: Filtered cases vector.
-#' @keywords internal
-filter_sex_specific_disease <- function(control_data,
-                                        case,
-                                        cases,
-                                        only_female = NULL,
-                                        only_male = NULL) {
-
-  if(!is.null(only_female) & case %in% only_female) {
-    control_data <- control_data |>
-      dplyr::filter(Sex == "F")
-    cases_subset <- cases[!cases %in% only_male]
-  } else if(!is.null(only_male) & case %in% only_male) {
-    control_data <- control_data |>
-      dplyr::filter(Sex == "M")
-    cases_subset <- cases[!cases %in% only_female]
-  } else {
-    control_data <- control_data
-    cases_subset <- cases
-  }
-
-  return(list("control_data" = control_data,
-              "cases_subset" = cases_subset))
-}
-
-
-#' Create class-balanced case-control groups for classification models
-#'
-#' `make_groups()` creates class-balanced case-control groups for classification models.
-#' It separates the data into control and case groups. It then calculates the amount of data
-#' from each case in the control group and randomly selects the number of each control class samples.
-#' It also filters the control data of sex specific cases.
-#'
-#' @param join_data Olink data in wide format joined with metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param cases Cases.
-#' @param only_female Cases that are female specific.
-#' @param only_male Cases that are male specific.
+#' @param dat A dataset containing the case and control groups.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class. Default is 1.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A list with combined, class-balanced control-case groups for each case.
+#' @return A balanced dataset.
 #' @keywords internal
-make_groups <- function(join_data,
-                        variable = "Disease",
-                        case,
-                        cases,
-                        only_female = NULL,
-                        only_male = NULL,
-                        seed = 123) {
+balance_groups <- function(dat,
+                           variable,
+                           case = 1,
+                           seed = 123) {
+
   Variable <- rlang::sym(variable)
+
   set.seed(seed)
+  case_data <- dat |> dplyr::filter(!!Variable == case)
+  control_data <- dat |> dplyr::filter(!!Variable != case)
 
-  # Separate data in control and case groups
-  case_data <- join_data |> dplyr::filter(!!Variable == case)
-  control_data <- join_data |> dplyr::filter(!!Variable != case)
-
-  # Filter for gender if case is gender specific
-  filtered_results <- filter_sex_specific_disease(control_data,
-                                                  case,
-                                                  cases,
-                                                  only_female,
-                                                  only_male)
-
-  control_data <- filtered_results$control_data
-  cases_subset <- filtered_results$cases_subset  # Keep only cases that we will pick samples from
-
-  # Calculate amount of data from each case in control group
   case_sample_num <- nrow(case_data)
-  samples_per_case <- ceiling(case_sample_num/(length(unique(cases_subset))-1))
 
-  # Loop over control group, randomly select the number of each control class samples
   group <- case_data
-  for (control_class in cases_subset[cases_subset != case]) {
 
-    control_class_data <- control_data |>
-      dplyr::filter(!!Variable == control_class) |>
-      dplyr::sample_n(size = samples_per_case, replace = TRUE)
-    group <- rbind(group, control_class_data)
-  }
+  control_data <- control_data |>
+    dplyr::filter(!!Variable != case) |>
+    dplyr::sample_n(size = case_sample_num, replace = TRUE)
+
+  group <- rbind(group, control_data)
 
   return(group)
 }
 
 
-#' Fit logistic regression model for single predictors
+#' Check data structure of object
 #'
-#' `lreg_fit()` fits a logistic regression model for single predictors.
-#' It uses the glm engine for logistic regression and fits the model using the
-#' `logistic_reg()` function from the parsnip package. It also calculates the
-#' accuracy, sensitivity, specificity, AUC, and confusion matrix of the model.
+#' `check_data()` checks the structure of the object provided. It checks if the
+#' object is an `hd_model` object or a list containing the train and test data.
+#' It also checks if the variable is present in the train and test data.
 #'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param palette Color palette for the ROC curve. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
 #'
-#' @return A list with two elements:
-#' - fit_res: A list with 4 elements:
-#'  - lreg_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - final: Fitted model.
-#' - metrics: A list with the model metrics:
-#'  - accuracy: Accuracy of the model.
-#'  - sensitivity: Sensitivity of the model.
-#'  - specificity: Specificity of the model.
-#'  - auc: AUC of the model.
-#'  - conf_matrix: Confusion matrix of the model.
-#'  - roc_curve: ROC curve of the model.
+#' @return A model object containing the train and test data.
 #' @keywords internal
-lreg_fit <- function(train_data,
-                     test_data,
-                     variable = "Disease",
-                     case,
-                     cor_threshold = 0.9,
-                     cv_sets = 4,
-                     ncores = 1,
-                     exclude_cols = NULL,
-                     palette = NULL,
-                     seed = 123) {
+check_data <- function(dat, variable = "Disease") {
 
-  Variable <- rlang::sym(variable)
-
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
+  if (inherits(dat, "hd_model")) {
+    if (is.null(dat[["train_data"]])) {
+      stop("The 'train_data' slot of the model object is empty. Please provide the train data to train the model.")
+    }
+    if (is.null(dat[["test_data"]])) {
+      stop("The 'test_data' slot of the model object is empty. Please provide the test data to evaluate the model.")
+    }
+    train_data <- dat[["train_data"]]
+    test_data <- dat[["test_data"]]
+  } else {
+    if (is.null(dat[["train_data"]])) {
+      stop("The list does not contain train data. Please provide the train data to train the model.")
+    }
+    if (is.null(dat[["test_data"]])) {
+      stop("The list does not contain test data. Please provide the test data to evaluate the model.")
+    }
+    train_data <- dat[[1]]
+    test_data <- dat[[2]]
   }
 
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
+  if (isFALSE(variable %in% colnames(train_data))) {
+    stop("The variable is not be present in the train data")
+  }
+  if (isFALSE(variable %in% colnames(test_data))) {
+    stop("The variable is not be present in the test data")
+  }
+
+  model_object <- list("train_data" = train_data,
+                       "test_data" = test_data)
+
+  class(model_object) <- "hd_model"
+
+  return(model_object)
+}
+
+
+#' Prepare data for model fitting
+#'
+#' `prepare_data()` prepares the data for model fitting. It filters out rows with
+#' NAs in the variable column, converts the variable to a factor, and creates
+#' cross-validation sets.
+#'
+#' @param dat An `hd_model` object coming from `check_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param case The case class.
+#' @param control The control class. Default is NULL.
+#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param cv_sets Number of cross-validation sets. Default is 5.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data and cross-validation sets.
+#' @keywords internal
+prepare_data <- function(dat,
+                         variable = "Disease",
+                         case,
+                         control = NULL,
+                         balance_groups = TRUE,
+                         cv_sets = 5,
+                         seed = 123) {
+
+  Variable <- rlang::sym(variable)
+  train_data <- dat[["train_data"]]
+  test_data <- dat[["test_data"]]
+
+  class_count <- length(unique(train_data[[variable]]))
+  if (class_count < 2) {
+
+    stop("The variable has less than 2 classes. Please provide a variable with at least 2 classes.")
+
+  } else if (class_count == 2 & is.null(case)) {
+
+    stop("The variable has 2 classes, but case class is not selected. Please select a case class.")
+
+  } else if (!is.null(case)) {
+
+    dat[["model_type"]] <- "binary_class"
+    # If control is NULL, set it to the unique values of the variable that are not the case
+    if (is.null(control)){
+      control <- setdiff(unique(train_data[[variable]]), case)
+    }
+
+    train_set <- train_data |>
+      dplyr::filter(!!Variable %in% c(case, control)) |>
+      dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
+
+    if (balance_groups) {
+      train_set <- balance_groups(train_set, variable, 1, seed)
+    }
+
+    test_set <- test_data |>
+      dplyr::filter(!!Variable %in% c(case, control)) |>
+      dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
+
+  } else {
+
+    dat[["model_type"]] <- "multi_class"
+
+    train_set <- train_data
+    test_set <- test_data
+  }
+
+  nrows_before <- nrow(train_set)
+
+  train_set <- train_set |>
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na)) |>  # Remove NAs from columns in formula
+    dplyr::mutate(!!Variable := as.factor(!!Variable))  # Remove NAs from correct columns
+
+  nrows_after <- nrow(train_set)
+  if (nrows_before != nrows_after){
+    warning(paste0(nrows_before - nrows_after,
+                   " rows were removed from train set because they contain NAs in ",
+                   variable,
+                   "!"))
+  }
+
+  nrows_before <- nrow(test_set)
+
+  test_set <- test_set |>
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na)) |>  # Remove NAs from columns in formula
+    dplyr::mutate(!!Variable := as.factor(!!Variable))  # Remove NAs from correct columns
+
+  nrows_after <- nrow(test_set)
+  if (nrows_before != nrows_after){
+    warning(paste0(nrows_before - nrows_after,
+                   " rows were removed from test set because they contain NAs in ",
+                   variable,
+                   "!"))
+  }
+
+  set.seed(seed)
   train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
 
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
+  dat[["train_data"]] <- train_set
+  dat[["test_data"]] <- test_set
+  dat[["train_folds"]] <- train_folds
+
+  return(dat)
+}
+
+
+#' Hyperparameter optimization for regularized regression models
+#'
+#' `tune_rreg_model()` performs hyperparameter optimization for regularized
+#' regression models. It tunes the model using the provided grid size and
+#' cross-validation sets. It returns the best model and hyperparameters.
+#'
+#' @param dat An `hd_model` object coming from `prepare_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param cor_threshold Threshold of absolute correlation values. This will be used
+#' to remove the minimum number of features so that all their resulting absolute
+#' correlations are less than this value.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the tuned model, and the workflow.
+#' @keywords internal
+tune_rreg_model <- function(dat,
+                            variable = "Disease",
+                            cor_threshold = 0.9,
+                            grid_size = 30,
+                            mixture = NULL,
+                            verbose = TRUE,
+                            seed = 123) {
+
+  if (verbose){
+    message("Tuning regularized regression model...")
+  }
+  train_set <- dat[["train_data"]]
+  train_folds <- dat[["train_folds"]]
+  sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
 
   formula <- stats::as.formula(paste(variable, "~ ."))
-
-  lreg_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id") |>
-    recipes::step_normalize(recipes::all_numeric()) |>
+  rec <- recipes::recipe(formula, data = train_set) |>
+    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric()) |>
+    recipes::step_normalize(recipes::all_numeric()) |>
     recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
     recipes::step_impute_knn(recipes::all_numeric())
 
-  lreg_spec <- parsnip::logistic_reg() |>
+  if (model_type == "binary_class") {
+    if (is.null(mixture)) {
+      spec <- parsnip::logistic_reg(penalty = tune::tune(),
+                                    mixture = tune::tune()) |>
+        parsnip::set_engine("glmnet")
+    } else {
+      spec <- parsnip::logistic_reg(penalty = tune::tune(),
+                                    mixture = mixture) |>
+        parsnip::set_engine("glmnet")
+    }
+  } else {
+    if (is.null(mixture)) {
+      spec <- parsnip::multinom_reg(penalty = tune::tune(),
+                                    mixture = tune::tune()) |>
+        parsnip::set_engine("glmnet")
+    } else {
+      spec <- parsnip::multinom_reg(penalty = tune::tune(),
+                                    mixture = mixture) |>
+        parsnip::set_engine("glmnet")
+    }
+  }
+
+  wf <- workflows::workflow() |>
+    workflows::add_model(spec) |>
+    workflows::add_recipe(rec)
+
+  grid <- wf |>
+    workflows::extract_parameter_set_dials() |>
+    dials::grid_space_filling(size = grid_size, type = "latin_hypercube")
+
+  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
+
+  set.seed(seed)
+  tune <- wf |> tune::tune_grid(train_folds,
+                                grid = grid,
+                                control = ctrl,
+                                metrics = yardstick::metric_set(yardstick::roc_auc))
+
+  dat[["tune"]] <- tune
+  dat[["wf"]] <- wf
+  dat[["train_folds"]] <- NULL
+
+  return(dat)
+}
+
+
+#' Hyperparameter optimization for random forest models
+#'
+#' `tune_rf_model()` performs hyperparameter optimization for random forest
+#' models. It tunes the model using the provided grid size and
+#' cross-validation sets. It returns the best model and hyperparameters.
+#'
+#' @param dat An `hd_model` object coming from `prepare_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param cor_threshold Threshold of absolute correlation values. This will be used
+#' to remove the minimum number of features so that all their resulting absolute
+#' correlations are less than this value.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the tuned model, and the workflow.
+#' @keywords internal
+tune_rf_model <- function(dat,
+                          variable = "Disease",
+                          cor_threshold = 0.9,
+                          grid_size = 30,
+                          verbose = TRUE,
+                          seed = 123) {
+
+  if (verbose){
+    message("Tuning random forest model...")
+  }
+  train_set <- dat[["train_data"]]
+  train_folds <- dat[["train_folds"]]
+  sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
+
+  formula <- stats::as.formula(paste(variable, "~ ."))
+  rec <- recipes::recipe(formula, data = train_set) |>
+    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
+    recipes::step_nzv(recipes::all_numeric()) |>
+    recipes::step_normalize(recipes::all_numeric()) |>
+    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
+    recipes::step_impute_knn(recipes::all_numeric())
+
+  spec <- parsnip::rand_forest(trees = 1000,
+                               min_n = tune::tune(),
+                               mtry = tune::tune()) |>
+    parsnip::set_mode("classification") |>
+    parsnip::set_engine("ranger", importance = "permutation")
+
+  prepped_recipe <- recipes::prep(rec, training = train_set)  # Prep the recipe
+  baked_data <- recipes::bake(prepped_recipe, new_data = train_set)
+  remaining_predictors <- colnames(baked_data)[!colnames(baked_data) %in% c(variable, sample_id)]
+  n_remaining_predictors <- length(remaining_predictors)
+
+  wf <- workflows::workflow() |>
+    workflows::add_model(spec) |>
+    workflows::add_recipe(rec)
+
+  grid <- dials::grid_space_filling(
+    dials::min_n(),
+    dials:: mtry(range = c(floor(sqrt(n_remaining_predictors)), (floor(n_remaining_predictors/3)))),
+    size = grid_size,
+    type = "latin_hypercube"
+  )
+
+  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
+
+  set.seed(seed)
+  tune <- wf |> tune::tune_grid(train_folds,
+                                grid = grid,
+                                control = ctrl,
+                                metrics = yardstick::metric_set(yardstick::roc_auc))
+
+  dat[["tune"]] <- tune
+  dat[["wf"]] <- wf
+  dat[["train_folds"]] <- NULL
+
+  return(dat)
+}
+
+
+#' Hyperparameter optimization for logistic regression models
+#'
+#' `tune_lr_model()` performs hyperparameter optimization for logistic regression
+#' models. It tunes the model using the provided grid size and
+#' cross-validation sets. It returns the best model and hyperparameters.
+#'
+#' @param dat An `hd_model` object coming from `prepare_data()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param cor_threshold Threshold of absolute correlation values. This will be used
+#' to remove the minimum number of features so that all their resulting absolute
+#' correlations are less than this value.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the tuned model, and the workflow.
+#' @keywords internal
+tune_lr_model <- function(dat,
+                          variable = "Disease",
+                          cor_threshold = 0.9,
+                          verbose = TRUE,
+                          seed = 123) {
+
+  if (verbose){
+    message("Tuning logistic regression model...")
+  }
+  train_set <- dat[["train_data"]]
+  train_folds <- dat[["train_folds"]]
+  sample_id <- colnames(train_set)[1]
+  model_type <- dat[["model_type"]]
+
+  formula <- stats::as.formula(paste(variable, "~ ."))
+  rec <- recipes::recipe(formula, data = train_set) |>
+    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::step_dummy(recipes::all_nominal_predictors()) |>
+    recipes::step_nzv(recipes::all_numeric()) |>
+    recipes::step_normalize(recipes::all_numeric()) |>
+    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
+    recipes::step_impute_knn(recipes::all_numeric())
+
+  spec <- parsnip::logistic_reg() |>
     parsnip::set_engine("glm")
 
-  lreg_wf <- workflows::workflow() |>
-    workflows::add_model(lreg_spec) |>
-    workflows::add_recipe(lreg_rec)
+  wf <- workflows::workflow() |>
+    workflows::add_model(spec) |>
+    workflows::add_recipe(rec)
 
-  final <- lreg_wf |>
+  dat[["wf"]] <- wf
+  dat[["train_folds"]] <- NULL
+
+  return(dat)
+}
+
+
+#' Finalize and evaluate the model
+#'
+#' `evaluate_model()` finalizes the model using the best hyperparameters and evaluates
+#' the model using the test set. It calculates the accuracy, sensitivity, specificity,
+#' AUC, and confusion matrix. It also plots the ROC curve.
+#'
+#' @param dat An `hd_model` object coming from a tuning function.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param case The case class.
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
+#' @keywords internal
+evaluate_model <- function(dat,
+                           variable = "Disease",
+                           case,
+                           mixture = NULL,
+                           palette = NULL,
+                           verbose= TRUE,
+                           seed = 123) {
+
+  if (verbose){
+    message("Evaluating the model...")
+  }
+  Variable <- rlang::sym(variable)
+  train_set <- dat[["train_data"]]
+  test_set <- dat[["test_data"]]
+  tune <- dat[["tune"]]
+  wf <- dat[["wf"]]
+
+  if (!is.null(tune)) {
+
+    best <- tune |>
+      tune::select_best(metric = "roc_auc") |>
+      dplyr::select(-dplyr::all_of(c(".config")))
+
+    if (is.null(mixture)) {
+      mixture <- best[["mixture"]]
+    }
+
+    final_wf <- tune::finalize_workflow(wf, best)
+
+  } else {
+
+    final_wf <- wf
+
+  }
+
+  set.seed(seed)
+  final <- final_wf |>
     parsnip::fit(train_set)
 
   splits <- rsample::make_splits(train_set, test_set)
 
-  preds <- tune::last_fit(lreg_wf,
+  preds <- tune::last_fit(final_wf,
                           splits,
                           metrics = yardstick::metric_set(yardstick::roc_auc))
+
   res <- stats::predict(final, new_data = test_set)
 
   res <- dplyr::bind_cols(res, test_set |> dplyr::select(!!Variable))
 
-  accuracy <- res |>
-    yardstick::accuracy(!!Variable, .pred_class)
-
-  sensitivity <- res |>
-    yardstick::sensitivity(!!Variable, .pred_class)
-
-  specificity <- res |>
-    yardstick::specificity(!!Variable, .pred_class)
+  accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+  sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  auc <- preds |> tune::collect_metrics()
+  cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
   if (is.null(names(palette)) && !is.null(palette)) {
-    disease_color <- get_hpa_palettes()[[palette]][[case]]
+    pal <- unlist(hd_palettes()[[palette]])
+    disease_color <- hd_palettes()[[palette]][[case]]
   } else if (!is.null(palette)) {
-    disease_color <- palette
+    pal <- palette
+    disease_color <- palette[[case]]
   } else {
     disease_color <- "black"
+    pal <- rep("black", length(unique(train_set[[variable]])))
+    names(pal) <- unique(train_set[[variable]])
   }
 
-  selected_point <- tibble::tibble(x = 1 - specificity$.estimate,
-                                   y = sensitivity$.estimate)
+  prob_plot <- stats::predict(final, new_data = test_set, type = "prob") |>
+    dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
+    dplyr::mutate(!!Variable := dplyr::if_else(!!Variable == 1, case, "Control")) |>
+    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym(".pred_1"))) +
+    ggplot2::geom_violin() +
+    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
+    ggplot2::scale_color_manual(values = pal) +
+    theme_hd() +
+    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::labs(x = ggplot2::element_blank(), y = paste(case, "Probability"))
+
   roc <- preds |>
-    tune::collect_predictions(summarize = F) |>
-    yardstick::roc_curve(truth = !!Variable, .pred_0) |>
+    tune::collect_predictions(summarize = FALSE) |>
+    yardstick::roc_curve(truth = !!Variable, !!rlang::sym(".pred_0")) |>
     ggplot2::ggplot(ggplot2::aes(x = 1 - specificity, y = sensitivity)) +
     ggplot2::geom_path(colour = disease_color, linewidth = 2) +
-    ggplot2::geom_point(data = selected_point, ggplot2::aes(x = x, y = y), size = 2, shape = 4, colour = "black") +
     ggplot2::geom_abline(lty = 3) +
     ggplot2::coord_equal() +
-    theme_hpa()
+    theme_hd()
 
-  auc <- preds |>
-    tune::collect_metrics()
+  dat[["final_workflow"]] <- final_wf
+  dat[["final"]] <- final
+  dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
+                           "sensitivity" = sensitivity$.estimate,
+                           "specificity" = specificity$.estimate,
+                           "auc" = auc$.estimate,
+                           "confusion_matrix" = cm)
+  dat[["roc_curve"]] <- roc
+  dat[["probability_plot"]] <- prob_plot
+  dat[["mixture"]] <- mixture
+  dat[["tune"]] <- NULL
+  dat[["wf"]] <- NULL
 
-  cm <- res |>
-    yardstick::conf_mat(!!Variable, .pred_class)
-
-  return(list("fit_res" = list("lreg_wf" = lreg_wf,
-                               "train_set" = train_set,
-                               "test_set" = test_set,
-                               "final" = final),
-              "metrics" = list("accuracy" = round(accuracy$.estimate, 2),
-                               "sensitivity" = round(sensitivity$.estimate, 2),
-                               "specificity" = round(specificity$.estimate, 2),
-                               "auc" = round(auc$.estimate, 2),
-                               "conf_matrix" = cm,
-                               "roc_curve" = roc)))
+  return(dat)
 }
 
 
-#' Visualize hyperparameter optimization results
+#' Finalize and evaluate the multiclass model
 #'
-#' `vis_hypopt()` plots the hyperparameter optimization results.
+#' `evaluate_multiclass_model()` finalizes the model using the best hyperparameters
+#' and evaluates the model using the test set. It calculates the accuracy, sensitivity,
+#' specificity, AUC, and confusion matrix. It also plots the ROC curve.
 #'
-#' @param tune_res Hyperparameter optimization results.
-#' @param x X-axis variable of the plot.
-#' @param color Color variable of the plot.
-#' @param case Case to predict.
-#'
-#' @return Hyperparameter optimization plot.
-#' @keywords internal
-vis_hypopt <- function(tune_res,
-                       x,
-                       color,
-                       case) {
-
-  hypopt_res <- tune_res |>
-    tune::collect_metrics()
-
-  x <- rlang::sym(x)
-  mean <- rlang::sym('mean')
-  if (!is.null(color)) {
-    color <- rlang::sym(color)
-  }
-  hypopt_plot <- ggplot2::ggplot(hypopt_res, ggplot2::aes(x = !!x, y = !!mean, color = !!color)) +
-    ggplot2::geom_point(size = 3) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymin = mean - std_err,
-                                        ymax = mean + std_err),
-                           alpha = 0.5) +
-    ggplot2::ggtitle(label = paste0(case,'')) +
-    viridis::scale_color_viridis() +
-    ggplot2::labs(y = "metric_mean") +
-    theme_hpa()
-
-  return(hypopt_plot)
-}
-
-
-#' Hyperparameter optimization for elastic net model
-#'
-#' `elnet_hypopt()` tunes an elastic net model and performs hyperparameter optimization.
-#' It uses the glmnet engine for logistic regression and tunes either only penalty (Lasso or Ridge) or
-#' both penalty and mixture (Elastic Regression). For the hyperparameter optimization, it uses the
-#' `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
+#' @param dat An `hd_model` object coming from a tuning function.
 #' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param type Type of regularization. Default is "lasso". Other options are "ridge" and "elnet".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A list with five elements:
-#'  - elnet_tune: Hyperparameter optimization results.
-#'  - wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hyperopt_vis: Hyperparameter optimization plot.
+#' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
 #' @keywords internal
-elnet_hypopt <- function(train_data,
-                         test_data,
-                         variable = "Disease",
-                         case,
-                         type = "lasso",
-                         cor_threshold = 0.9,
-                         cv_sets = 5,
-                         grid_size = 10,
-                         ncores = 4,
-                         hypopt_vis = TRUE,
-                         exclude_cols = NULL,
-                         seed = 123) {
+evaluate_multiclass_model <- function(dat,
+                                      variable = "Disease",
+                                      mixture = NULL,
+                                      palette = NULL,
+                                      verbose= TRUE,
+                                      seed = 123) {
 
+  if (verbose){
+    message("Evaluating the model...")
+  }
   Variable <- rlang::sym(variable)
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
+  train_set <- dat[["train_data"]]
+  test_set <- dat[["test_data"]]
+  tune <- dat[["tune"]]
+  wf <- dat[["wf"]]
+  sample_id <- colnames(train_set)[1]
 
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
+  if (!is.null(tune)){
 
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
+    best <- tune |>
+      tune::select_best(metric = "roc_auc") |>
+      dplyr::select(-dplyr::all_of(c(".config")))
 
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  elnet_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id") |>
-    recipes::step_normalize(recipes::all_numeric()) |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  if (type == "elnet") {
-    elnet_spec <- parsnip::logistic_reg(
-      penalty = tune::tune(),  # lambda
-      mixture = tune::tune()  # alpha
-    ) |>
-      parsnip::set_engine("glmnet")
-  } else if (type == "lasso") {
-    elnet_spec <- parsnip::logistic_reg(
-      penalty = tune::tune(),
-      mixture = 1
-    ) |>
-      parsnip::set_engine("glmnet")
-  } else if (type == "ridge") {
-    elnet_spec <- parsnip::logistic_reg(
-      penalty = tune::tune(),
-      mixture = 0
-    ) |>
-      parsnip::set_engine("glmnet")
-  }
-
-  elnet_wf <- workflows::workflow() |>
-    workflows::add_model(elnet_spec) |>
-    workflows::add_recipe(elnet_rec)
-
-  elnet_grid <- elnet_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
-
-  set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  elnet_tune <- elnet_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = elnet_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    if (type == "elnet") {
-      hypopt_plot <- vis_hypopt(elnet_tune, "penalty", "mixture", case)
-    } else {
-      hypopt_plot <- vis_hypopt(elnet_tune, "penalty", NULL, case)
+    if (is.null(mixture)) {
+      mixture <- best[["mixture"]]
     }
-    return(list("elnet_tune" = elnet_tune,
-                "elnet_wf" = elnet_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
+
+    final_wf <- tune::finalize_workflow(wf, best)
+
+  } else {
+
+    final_wf <- wf
+
   }
-
-  return(list("elnet_tune" = elnet_tune,
-              "elnet_wf" = elnet_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Hyperparameter optimization for random forest model
-#'
-#' `rf_hypopt()` performs hyperparameter optimization for random forest models.
-#' It uses the ranger engine for logistic regression and tunes the number of
-#' predictors that will be randomly sampled at each split when creating the
-#' tree models, as well as the minimum number of data points in a node that are
-#' required for the node to be split further. For the hyperparameter optimization,
-#' it uses the `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the grid for hyperparameter optimization. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with five elements:
-#'  - rf_tune: Hyperparameter optimization results.
-#'  - rf_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hyperopt_vis: Hyperparameter optimization plot.
-#' @keywords internal
-rf_hypopt <- function(train_data,
-                      test_data,
-                      variable = "Disease",
-                      case,
-                      cor_threshold = 0.9,
-                      normalize = TRUE,
-                      cv_sets = 5,
-                      grid_size = 10,
-                      ncores = 4,
-                      hypopt_vis = TRUE,
-                      exclude_cols = NULL,
-                      seed = 123) {
-
-  Variable <- rlang::sym(variable)
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
-
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))  # Solve bug of Gower distance function
-
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
-
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))
-
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  rf_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id")
-
-  if (isTRUE(normalize)) {
-    rf_rec <- rf_rec |> recipes::step_normalize(recipes::all_numeric())
-  }
-
-  rf_rec <- rf_rec |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  rf_spec <- parsnip::rand_forest(
-    trees = 1000,
-    mtry = tune::tune(),
-    min_n = tune::tune()
-  ) |>
-    parsnip::set_mode("classification") |>
-    parsnip::set_engine("ranger", importance = "permutation")
-
-  disease_pred <- train_set |> dplyr::select(-dplyr::any_of(c("Disease", "DAid", "Sex", "Age", "BMI")))
-
-  rf_wf <- workflows::workflow() |>
-    workflows::add_model(rf_spec) |>
-    workflows::add_recipe(rf_rec)
-
-  rf_grid <- rf_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::finalize(disease_pred) |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
 
   set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  rf_tune <- rf_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = rf_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    hypopt_plot <- vis_hypopt(rf_tune, "min_n", "mtry", case)
-
-    return(list("rf_tune" = rf_tune,
-                "rf_wf" = rf_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
-  }
-
-  return(list("rf_tune" = rf_tune,
-              "rf_wf" = rf_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Hyperparameter optimization for XGBoost model
-#'
-#' `xgboost_hypopt()` tunes an XGBoost model and performs hyperparameter optimization.
-#' It uses the xgboost engine for logistic regression and tunes the number of trees,
-#' tree depth, minimum number of data points in a node, loss reduction, sample size,
-#' and number of predictors randomly sampled at each split. For the hyperparameter optimization,
-#' it uses the `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the grid for hyperparameter optimization. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with five elements:
-#'  - xgboost_tune: Hyperparameter optimization results.
-#'  - xgboost_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hypopt_vis: Hyperparameter optimization plot.
-#' @keywords internal
-xgboost_hypopt <- function(train_data,
-                           test_data,
-                           variable = "Disease",
-                           case,
-                           cor_threshold = 0.9,
-                           normalize = TRUE,
-                           cv_sets = 5,
-                           grid_size = 10,
-                           ncores = 4,
-                           hypopt_vis = TRUE,
-                           exclude_cols = NULL,
-                           seed = 123) {
-
-  Variable <- rlang::sym(variable)
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
-
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))  # Solve bug of Gower distance function
-
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
-
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0)) |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))
-
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  xgboost_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id")
-
-  if (isTRUE(normalize)) {
-    xgboost_rec <- xgboost_rec |> recipes::step_normalize(recipes::all_numeric())
-  }
-
-  xgboost_rec <- xgboost_rec |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  xgboost_spec <- parsnip::boost_tree(trees = 1000,
-                                      tree_depth = tune::tune(),
-                                      min_n = tune::tune(),
-                                      loss_reduction = tune::tune(),
-                                      sample_size = tune::tune(),
-                                      mtry = tune::tune(),
-                                      learn_rate = tune::tune()) |>
-    parsnip::set_engine("xgboost") |>
-    parsnip::set_mode("classification")
-
-  disease_pred <- train_set |> dplyr::select(-dplyr::any_of(c("Disease", "DAid", "Sex", "Age", "BMI")))
-
-  xgboost_wf <- workflows::workflow() |>
-    workflows::add_model(xgboost_spec) |>
-    workflows::add_recipe(xgboost_rec)
-
-  xgboost_grid <- xgboost_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::finalize(disease_pred) |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
-
-  set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  xgboost_tune <- xgboost_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = xgboost_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    hypopt_plot <- xgboost_tune |>
-      tune::collect_metrics() |>
-      dplyr::filter(.metric == "roc_auc") |>
-      dplyr::select(mean, mtry:sample_size) |>
-      tidyr::pivot_longer(mtry:sample_size,
-                          values_to = "value",
-                          names_to = "parameter") |>
-      ggplot2::ggplot(ggplot2::aes(value, mean, color = parameter)) +
-      ggplot2::geom_point(alpha = 0.8, show.legend = FALSE) +
-      ggplot2::facet_wrap(~parameter, scales = "free_x") +
-      ggplot2::labs(x = NULL, y = "AUC")
-
-    return(list("xgboost_tune" = xgboost_tune,
-                "xgboost_wf" = xgboost_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
-  }
-
-  return(list("xgboost_tune" = xgboost_tune,
-              "xgboost_wf" = xgboost_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Hyperparameter optimization for elastic net multiclassification model
-#'
-#' `elnet_hypopt_multi()` tunes an elastic net model and performs hyperparameter optimization.
-#' It uses the glmnet engine for multinomial regression and tunes either only penalty (Lasso or Ridge) or
-#' both penalty and mixture (Elastic Regression). For the hyperparameter optimization, it
-#' uses the `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param type Type of regularization. Default is "lasso". Other options are "ridge" and "elnet".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with five elements:
-#'  - elnet_tune: Hyperparameter optimization results.
-#'  - elnet_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hyperopt_vis: Hyperparameter optimization plot.
-#'
-#' @keywords internal
-elnet_hypopt_multi <- function(train_data,
-                               test_data,
-                               variable = "Disease",
-                               type = "lasso",
-                               cor_threshold = 0.9,
-                               cv_sets = 5,
-                               grid_size = 10,
-                               ncores = 4,
-                               hypopt_vis = TRUE,
-                               exclude_cols = NULL,
-                               seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
-
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
-
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
-
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  elnet_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id") |>
-    recipes::step_normalize(recipes::all_numeric()) |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  if (type == "elnet") {
-    elnet_spec <- parsnip::multinom_reg(
-      penalty = tune::tune(),  # lambda
-      mixture = tune::tune()  # alpha
-    ) |>
-      parsnip::set_engine("glmnet")
-  } else if (type == "lasso") {
-    elnet_spec <- parsnip::multinom_reg(
-      penalty = tune::tune(),
-      mixture = 1
-    ) |>
-      parsnip::set_engine("glmnet")
-  } else if (type == "ridge") {
-    elnet_spec <- parsnip::multinom_reg(
-      penalty = tune::tune(),
-      mixture = 0
-    ) |>
-      parsnip::set_engine("glmnet")
-  }
-
-  elnet_wf <- workflows::workflow() |>
-    workflows::add_model(elnet_spec) |>
-    workflows::add_recipe(elnet_rec)
-
-  elnet_grid <- elnet_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
-
-  set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  elnet_tune <- elnet_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = elnet_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    if (type == "elnet") {
-      hypopt_plot <- vis_hypopt(elnet_tune, "penalty", "mixture", "Multiclass")
-    } else {
-      hypopt_plot <- vis_hypopt(elnet_tune, "penalty", NULL, "Multiclass")
-    }
-    return(list("elnet_tune" = elnet_tune,
-                "elnet_wf" = elnet_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
-  }
-
-  return(list("elnet_tune" = elnet_tune,
-              "elnet_wf" = elnet_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Hyperparameter optimization for random forest multiclassification model
-#'
-#' `rf_hypopt_multi()` performs hyperparameter optimization for random forest models.
-#' It uses the ranger engine for multinomial regression and tunes the number of
-#' predictors that will be randomly sampled at each split when creating the
-#' tree models, as well as the minimum number of data points in a node that are
-#' required for the node to be split further. For the hyperparameter optimization,
-#' it uses the `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the grid for hyperparameter optimization. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with five elements:
-#'  - rf_tune: Hyperparameter optimization results.
-#'  - rf_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hyperopt_vis: Hyperparameter optimization plot.
-#' @keywords internal
-rf_hypopt_multi <- function(train_data,
-                            test_data,
-                            variable = "Disease",
-                            cor_threshold = 0.9,
-                            normalize = TRUE,
-                            cv_sets = 5,
-                            grid_size = 10,
-                            ncores = 4,
-                            hypopt_vis = TRUE,
-                            exclude_cols = NULL,
-                            seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
-
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))  # Solve bug of Gower distance function
-
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
-
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))
-
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  rf_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id")
-
-  if (isTRUE(normalize)) {
-    rf_rec <- rf_rec |> recipes::step_normalize(recipes::all_numeric())
-  }
-
-  rf_rec <- rf_rec |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  rf_spec <- parsnip::rand_forest(
-    trees = 1000,
-    mtry = tune::tune(),
-    min_n = tune::tune()
-  ) |>
-    parsnip::set_mode("classification") |>
-    parsnip::set_engine("ranger", importance = "permutation")
-
-  disease_pred <- train_set |> dplyr::select(-dplyr::any_of(c("Disease", "DAid", "Sex", "Age", "BMI", variable)))
-
-  rf_wf <- workflows::workflow() |>
-    workflows::add_model(rf_spec) |>
-    workflows::add_recipe(rf_rec)
-
-  rf_grid <- rf_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::finalize(disease_pred) |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
-
-  set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  rf_tune <- rf_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = rf_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    hypopt_plot <- vis_hypopt(rf_tune, "min_n", "mtry", "Multiclass")
-
-    return(list("rf_tune" = rf_tune,
-                "rf_wf" = rf_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
-  }
-
-  return(list("rf_tune" = rf_tune,
-              "rf_wf" = rf_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Hyperparameter optimization for XGBoost multiclassification model
-#'
-#' `xgboost_hypopt_multi()` tunes an XGBoost model and performs hyperparameter optimization.
-#' It uses the xgboost engine for multinomial regression and tunes the number of trees,
-#' tree depth, minimum number of data points in a node, loss reduction, sample size,
-#' and number of predictors randomly sampled at each split. For the hyperparameter optimization,
-#' it uses the `grid_space_filling()` function from the dials package.
-#'
-#' @param train_data Training data set from `make_groups()`.
-#' @param test_data Testing data set from `make_groups()`.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the grid for hyperparameter optimization. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with five elements:
-#'  - xgboost_tune: Hyperparameter optimization results.
-#'  - xgboost_wf: Workflow object.
-#'  - train_set: Training set.
-#'  - test_set: Testing set.
-#'  - hypopt_vis: Hyperparameter optimization plot.
-#' @keywords internal
-xgboost_hypopt_multi <- function(train_data,
-                                 test_data,
-                                 variable = "Disease",
-                                 cor_threshold = 0.9,
-                                 normalize = TRUE,
-                                 cv_sets = 5,
-                                 grid_size = 10,
-                                 ncores = 4,
-                                 hypopt_vis = TRUE,
-                                 exclude_cols = NULL,
-                                 seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  if (ncores > 1) {
-    doParallel::registerDoParallel(cores = ncores)
-  }
-
-  # Prepare train data and create cross-validation sets with binary classifier
-  train_set <- train_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))  # Solve bug of Gower distance function
-
-  train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
-
-  test_set <- test_data |>
-    dplyr::mutate(!!Variable := as.factor(!!Variable)) |>
-    dplyr::select(-dplyr::any_of(exclude_cols)) |>
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character) & !dplyr::all_of("DAid"), as.factor))
-
-  formula <- stats::as.formula(paste(variable, "~ ."))
-
-  xgboost_rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(DAid, new_role = "id")
-
-  if (isTRUE(normalize)) {
-    xgboost_rec <- xgboost_rec |> recipes::step_normalize(recipes::all_numeric())
-  }
-
-  xgboost_rec <- xgboost_rec |>
-    recipes::step_nzv(recipes::all_numeric()) |>
-    recipes::step_corr(recipes::all_numeric(), threshold = cor_threshold) |>
-    recipes::step_impute_knn(recipes::all_numeric())
-
-  xgboost_spec <- parsnip::boost_tree(trees = 1000,
-                                      tree_depth = tune::tune(),
-                                      min_n = tune::tune(),
-                                      loss_reduction = tune::tune(),
-                                      sample_size = tune::tune(),
-                                      mtry = tune::tune(),
-                                      learn_rate = tune::tune()) |>
-    parsnip::set_engine("xgboost") |>
-    parsnip::set_mode("classification")
-
-  disease_pred <- train_set |> dplyr::select(-dplyr::any_of(c("Disease", "DAid", "Sex", "Age", "BMI", variable)))
-
-  xgboost_wf <- workflows::workflow() |>
-    workflows::add_model(xgboost_spec) |>
-    workflows::add_recipe(xgboost_rec)
-
-  xgboost_grid <- xgboost_wf |>
-    workflows::extract_parameter_set_dials() |>
-    dials::finalize(disease_pred) |>
-    dials::grid_space_filling(size = grid_size)
-
-  roc_res <- yardstick::metric_set(yardstick::roc_auc)
-
-  set.seed(seed)
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything")
-  xgboost_tune <- xgboost_wf |>
-    tune::tune_grid(
-      train_folds,
-      grid = xgboost_grid,
-      control = ctrl,
-      metrics = roc_res
-    )
-
-  if (hypopt_vis) {
-    hypopt_plot <- xgboost_tune |>
-      tune::collect_metrics() |>
-      dplyr::filter(.metric == "roc_auc") |>
-      dplyr::select(mean, mtry:sample_size) |>
-      tidyr::pivot_longer(mtry:sample_size,
-                          values_to = "value",
-                          names_to = "parameter") |>
-      ggplot2::ggplot(ggplot2::aes(value, mean, color = parameter)) +
-      ggplot2::geom_point(alpha = 0.8, show.legend = FALSE) +
-      ggplot2::facet_wrap(~parameter, scales = "free_x") +
-      ggplot2::labs(x = NULL, y = "AUC")
-
-    return(list("xgboost_tune" = xgboost_tune,
-                "xgboost_wf" = xgboost_wf,
-                "train_set" = train_set,
-                "test_set" = test_set,
-                "hypopt_vis" = hypopt_plot))
-  }
-
-  return(list("xgboost_tune" = xgboost_tune,
-              "xgboost_wf" = xgboost_wf,
-              "train_set" = train_set,
-              "test_set" = test_set))
-}
-
-
-#' Fit the best model
-#'
-#' `finalfit()` fits the model that performed the best in hyperparameter optimization.
-#'
-#' @param train_set Training set.
-#' @param tune_res Hyperparameter optimization results.
-#' @param wf Workflow object.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with three elements:
-#'  - final_elnet: Final model.
-#'  - best_elnet: Best hyperparameters from hyperparameter optimization.
-#'  - final_wf: Final workflow object.
-#' @keywords internal
-finalfit <- function(train_set,
-                     tune_res,
-                     wf,
-                     seed = 123) {
-
-  best <- tune_res |>
-    tune::select_best(metric = "roc_auc") |>
-    dplyr::select(-.config)
-
-  final_wf <- tune::finalize_workflow(wf, best)
-
   final <- final_wf |>
     parsnip::fit(train_set)
 
-  return(list("final" = final,
-              "best" = best,
-              "final_wf" = final_wf))
-}
-
-
-#' Test the best model
-#'
-#' `testfit()` tests the best model on the test set and calculate metrics.
-#' It calculates the accuracy, sensitivity, specificity, AUC, confusion matrix,
-#' and ROC curve.
-#'
-#' @param train_set Training set.
-#' @param test_set Testing set.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case Case to predict.
-#' @param finalfit_res Results from `elnet_finalfit()`.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is NULL.
-#' @param type Type of regularization. Default is "lasso". Other options are "ridge" and "elnet".
-#' @param seed Seed for reproducibility. Default is 123.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#'
-#' @return A list with two elements:
-#'  - metrics: A list with 5 metrics:
-#'   - accuracy: Accuracy of the model.
-#'   - sensitivity: Sensitivity of the model.
-#'   - specificity: Specificity of the model.
-#'   - auc: AUC of the model.
-#'   - conf_matrix: Confusion matrix of the model.
-#'   - roc_curve: ROC curve of the model.
-#'  - mixture: Mixture of lasso and ridge regularization.
-#'
-#' @details In random forest models, mixture is returned as NULL.
-#' @keywords internal
-testfit <- function(train_set,
-                    test_set,
-                    variable = "Disease",
-                    case,
-                    finalfit_res,
-                    exclude_cols = NULL,
-                    type = "lasso",
-                    seed = 123,
-                    palette = NULL) {
-
-  Variable <- rlang::sym(variable)
-
-  set.seed(seed)
   splits <- rsample::make_splits(train_set, test_set)
 
-  preds <- tune::last_fit(finalfit_res$final_wf,
+  preds <- tune::last_fit(final_wf,
                           splits,
                           metrics = yardstick::metric_set(yardstick::roc_auc))
-  res <- stats::predict(finalfit_res$final, new_data = test_set)
 
-  res <- dplyr::bind_cols(res, test_set |> dplyr::select(!!Variable))
-
-  accuracy <- res |>
-    yardstick::accuracy(!!Variable, .pred_class)
-
-  sensitivity <- res |>
-    yardstick::sensitivity(!!Variable, .pred_class)
-
-  specificity <- res |>
-    yardstick::specificity(!!Variable, .pred_class)
+  class_predictions <- stats::predict(final, new_data = test_set, type = "class")
+  prob_predictions <- stats::predict(final, new_data = test_set, type = "prob")
 
   if (is.null(names(palette)) && !is.null(palette)) {
-    disease_color <- get_hpa_palettes()[[palette]][[case]]
+    pal <- unlist(hd_palettes()[[palette]])
   } else if (!is.null(palette)) {
-    disease_color <- palette
+    pal <- palette
   } else {
-    disease_color <- "black"
+    pal <- rep("black", length(unique(train_set[[variable]])))
+    names(pal) <- unique(train_set[[variable]])
   }
+  prob_plot <- prob_predictions |>
+    dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
+    tidyr::pivot_longer(cols = tidyselect::starts_with(".pred_"),
+                        names_to = "class",
+                        values_to = "probability") |>
+    dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
+    dplyr::filter(class == !!Variable) |>
+    dplyr::select(-class) |>
+    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym("probability"))) +
+    ggplot2::geom_violin() +
+    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
+    ggplot2::scale_color_manual(values = pal) +
+    theme_hd() +
+    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::labs(x = ggplot2::element_blank(), y = paste("Class Probability"))
 
-  selected_point <- tibble::tibble(x = 1 - specificity$.estimate,
-                                   y = sensitivity$.estimate)
-  roc <- preds |>
-    tune::collect_predictions(summarize = F) |>
-    yardstick::roc_curve(truth = !!Variable, .pred_0) |>
-    ggplot2::ggplot(ggplot2::aes(x = 1 - specificity, y = sensitivity)) +
-    ggplot2::geom_path(colour = disease_color, linewidth = 2) +
-    ggplot2::geom_point(data = selected_point, ggplot2::aes(x = x, y = y), size = 2, shape = 4, colour = "black") +
-    ggplot2::geom_abline(lty = 3) +
-    ggplot2::coord_equal() +
-    theme_hpa()
+  res <- dplyr::bind_cols(test_set |> dplyr::select(!!Variable),
+                          class_predictions,
+                          prob_predictions)
 
-  auc <- preds |>
-    tune::collect_metrics()
+  accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+  sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
-  cm <- res |>
-    yardstick::conf_mat(!!Variable, .pred_class)
+  pred_cols <- grep("^\\.pred_", names(res |> dplyr::select(-!!rlang::sym(".pred_class"))), value = TRUE)
 
-  if (type == "elnet") {
-    mixture <- finalfit_res$best$mixture
-  } else if (type == "lasso") {
-    mixture <- 1
-  } else if (type == "ridge") {
-    mixture <- 0
-  } else {
-    mixture <- NA
-  }
+  roc_data <- yardstick::roc_curve(res, truth = !!Variable, !!!rlang::syms(pred_cols))
+  roc <- ggplot2::autoplot(roc_data) +
+    theme_hd() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
-  return(list("metrics" = list("accuracy" = round(accuracy$.estimate, 2),
-                              "sensitivity" = round(sensitivity$.estimate, 2),
-                              "specificity" = round(specificity$.estimate, 2),
-                              "auc" = round(auc$.estimate, 2),
-                              "conf_matrix" = cm,
-                              "roc_curve" = roc),
-              "mixture" = mixture))
+  # ROC AUC for each class
+  final_predictions <- prob_predictions |>
+    dplyr::mutate(ID = test_set[[1]]) |>
+    dplyr::relocate(!!rlang::sym("ID"))
+
+  df <- test_set |>
+    dplyr::select(!!rlang::sym(sample_id), !!Variable) |>
+    dplyr::mutate(value = 1) |>
+    tidyr::spread(!!Variable, !!rlang::sym("value"), fill= 0)
+
+  true_dat <- df |>
+    purrr::set_names(paste(names(df), "_true", sep = "")) |>
+    dplyr::rename(ID = !!rlang::sym(paste0(sample_id, "_true")))
+
+  dat_prob <- final_predictions |>
+    dplyr::rename_all(~stringr::str_replace_all(.,".pred_",""))
+
+  prob_data <- dat_prob |>
+    purrr::set_names(paste(names(dat_prob), "_pred_glmnet", sep = ""))|>
+    dplyr::rename(ID = !!rlang::sym("ID_pred_glmnet"))
+
+  final_df <- true_dat |>
+    dplyr::left_join(prob_data, by = "ID") |>
+    dplyr::select(-dplyr::all_of(c("ID"))) |>
+    as.data.frame()
+
+  suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
+  auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
+                        AUC = unlist(auc[["AUC"]][["glmnet"]]))
+
+  dat[["final_workflow"]] <- final_wf
+  dat[["final"]] <- final
+  dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
+                           "sensitivity" = sensitivity$.estimate,
+                           "specificity" = specificity$.estimate,
+                           "auc" = auc,
+                           "confusion_matrix" = cm)
+  dat[["roc_curve"]] <- roc
+  dat[["probability_plot"]] <- prob_plot
+  dat[["mixture"]] <- mixture
+  dat[["tune"]] <- NULL
+  dat[["wf"]] <- NULL
+
+  return(dat)
 }
 
 
-#' Create subtitle for variable importance plot
+#' Create title for variable importance plot
 #'
-#' `generate_subtitle()` generates a subtitle for the variable importance plot.
+#' `generate_title()` generates a subtitle for the variable importance plot.
 #'
 #' @param features A tibble with features and their model importance.
 #' @param accuracy Accuracy of the model.
@@ -1223,959 +764,651 @@ testfit <- function(train_set,
 #' @param specificity Specificity of the model.
 #' @param auc AUC of the model.
 #' @param mixture Mixture of lasso and ridge regularization. In random forest models it is NULL.
-#' @param subtitle Vector of subtitle elements to include in the plot.
+#' @param title Vector of subtitle elements to include in the plot.
 #'
 #' @return The plot subtitle as character vector.
 #' @keywords internal
-generate_subtitle <- function(features,
-                              accuracy,
-                              sensitivity,
-                              specificity,
-                              auc,
-                              mixture,
-                              subtitle = c("accuracy",
-                                           "sensitivity",
-                                           "specificity",
-                                           "auc",
-                                           "features",
-                                           "top-features",
-                                           "mixture")) {
+generate_title <- function(features,
+                           accuracy,
+                           sensitivity,
+                           specificity,
+                           auc,
+                           mixture = NULL,
+                           title = c("accuracy",
+                                     "sensitivity",
+                                     "specificity",
+                                     "auc",
+                                     "features",
+                                     "top-features",
+                                     "mixture")) {
 
-  subtitle_parts <- c()
+  title_parts <- c()
 
-  if ("accuracy" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('accuracy = ', round(accuracy, 2), '    '))
+  if ("accuracy" %in% title) {
+    title_parts <- c(title_parts, paste0('Accuracy = ', round(accuracy, 2), '    '))
   }
 
-  if ("sensitivity" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('sensitivity = ', round(sensitivity, 2), '    '))
+  if ("sensitivity" %in% title) {
+    title_parts <- c(title_parts, paste0('Sensitivity = ', round(sensitivity, 2), '    '))
   }
 
-  if ("specificity" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('specificity = ', round(specificity, 2), '    '))
+  if ("specificity" %in% title) {
+    title_parts <- c(title_parts, paste0('Specificity = ', round(specificity, 2), '    '))
   }
 
-  if ("auc" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('AUC = ', round(auc, 2), '    '))
+  if ("auc" %in% title & !is.null(auc)) {
+    title_parts <- c(title_parts, paste0('AUC = ', round(auc, 2), '    '))
   }
 
-  if (length(subtitle_parts) > 0) {
-    subtitle_parts <- c(subtitle_parts, '\n')
+  if (length(title_parts) > 0) {
+    title_parts <- c(title_parts, '\n')
   }
 
-  if ("features" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('Features = ', nrow(features), '    '))
+  if ("features" %in% title) {
+    title_parts <- c(title_parts, paste0('Features = ', nrow(features), '    '))
   }
 
-  if ("top-features" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('top-features = ',
-                                               nrow(features |> dplyr::filter(Scaled_Importance >= 50)),
-                                               '    '))
+  if ("top-features" %in% title) {
+    title_parts <- c(title_parts, paste0('Top-features = ',
+                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 50)),
+                                         '    '))
   }
 
-  if ("mixture" %in% subtitle) {
-    subtitle_parts <- c(subtitle_parts, paste0('Lasso/Ridge ratio = ', round(mixture, 2), '    '))
+  if ("mixture" %in% title & !is.null(mixture)) {
+    title_parts <- c(title_parts, paste0('Lasso/Ridge ratio = ', round(mixture, 2), '    '))
   }
 
-  subtitle <- paste(subtitle_parts, collapse = '')
+  title <- paste(title_parts, collapse = '')
 
-  return(subtitle)
+  return(title)
 }
 
 
-#' Plot feature variable importance
+#' Extract model features and plot variable importance
 #'
-#' `plot_var_imp()` collects the features and their model importance.
-#' It scales their importance and plots it against them.
+#' `variable_imp()` calculates the variable importance of the model and plots the top features.
+#' It also generates a title for the plot based on the model metrics and the mixture parameter.
 #'
-#' @param finalfit_res Results from `finalfit()`.
-#' @param case Case to predict.
-#' @param accuracy Accuracy of the model.
-#' @param sensitivity Sensitivity of the model.
-#' @param specificity Specificity of the model.
-#' @param auc AUC of the model.
-#' @param mixture Mixture of lasso and ridge regularization.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param subtitle Vector of subtitle elements to include in the plot.
-#' @param yaxis_names Whether to add y-axis names to the plot. Default is FALSE.
+#' @param dat An `hd_model` object coming from `evaluate_model()`.
+#' @param variable The variable to predict. Default is "Disease".
+#' @param case The case class.
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param title Vector of title elements to include in the plot.
+#' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A list with two elements:
-#'  - features: A tibble with features and their model importance.
-#'  - var_imp_plot: Variable importance plot.
+#' @return A model object containing the features and the variable importance plot.
 #' @keywords internal
-plot_var_imp <- function (finalfit_res,
-                          case,
-                          accuracy,
-                          sensitivity,
-                          specificity,
-                          auc,
-                          mixture,
-                          palette = NULL,
-                          vline = TRUE,
-                          subtitle = c("accuracy",
+variable_imp <- function(dat,
+                         variable = "Disease",
+                         case,
+                         mixture = NULL,
+                         palette = NULL,
+                         y_labels = FALSE,
+                         title = c("accuracy",
+                                   "sensitivity",
+                                   "specificity",
+                                   "auc",
+                                   "features",
+                                   "top-features"),
+                         verbose = TRUE,
+                         seed = 123) {
+
+  if (verbose){
+    message("Generating visualizations...")
+  }
+
+  Variable <- rlang::sym(variable)
+  final <- dat[["final"]]
+  metrics <- dat[["metrics"]]
+  mixture <- dat[["mixture"]]
+  model_type <- dat[["model_type"]]
+
+  features <- final |>
+    workflows::extract_fit_parsnip() |>
+    vip::vi() |>
+    dplyr::mutate(Importance = abs(!!rlang::sym("Importance")),
+                  Variable = forcats::fct_reorder(Variable, !!rlang::sym("Importance"))) |>
+    dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
+    dplyr::mutate(Scaled_Importance = scales::rescale(!!rlang::sym("Importance"), to = c(0, 1))) |>
+    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
+    dplyr::rename(Feature = !!rlang::sym("Variable"))
+
+  if (model_type == "binary_class") {
+
+    title_text <- generate_title(features = features,
+                                 accuracy = metrics[["accuracy"]],
+                                 sensitivity = metrics[["sensitivity"]],
+                                 specificity = metrics[["specificity"]],
+                                 auc = metrics[["auc"]],
+                                 mixture = mixture,
+                                 title = title)
+
+    pals <- hd_palettes()
+    if (!is.null(palette) && is.null(names(palette))) {
+      pal <- pals[palette]
+      pal <- unlist(pals[[palette]])
+    } else if (!is.null(palette)) {
+      pal <- palette
+    } else {
+      pal <- c("#C03830")
+    }
+
+  } else {
+
+    title_text <- generate_title(features = features,
+                                 accuracy = as.numeric(metrics[["accuracy"]]),
+                                 sensitivity = as.numeric(metrics[["sensitivity"]]),
+                                 specificity = as.numeric(metrics[["specificity"]]),
+                                 auc = NULL,
+                                 mixture = mixture,
+                                 title = title)
+
+    pal <- c("#C03830")
+    case <- "case"
+  }
+
+  var_imp_plot <- features |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
+    ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
+    ggplot2::labs(y = NULL) +
+    ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
+    ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
+    ggplot2::ggtitle(label = title_text) +
+    ggplot2::xlab('Importance') +
+    ggplot2::ylab('Features') +
+    theme_hd()
+
+  if (isFALSE(y_labels)) {
+    var_imp_plot <- var_imp_plot +
+      ggplot2::theme(legend.position = "none",
+                     axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank())
+  } else {
+    var_imp_plot <- var_imp_plot +
+      ggplot2::theme(legend.position = "none")
+  }
+
+
+  dat[["features"]] <- features
+  dat[["var_imp_plot"]] <- var_imp_plot
+  dat[["final"]] <- NULL
+
+  return(dat)
+}
+
+
+#' Run regularized regression model pipeline
+#'
+#' `hd_run_rreg()` runs the regularized regression model pipeline. It creates
+#' class-balanced case-control groups for the train set, tunes the model, evaluates
+#' the model, and plots the variable importance.
+#'
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
+#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
+#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
+#' @param cv_sets Number of cross-validation sets. Default is 5.
+#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param plot_title Vector of title elements to include in the plot.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @details
+#' This model will not work if the number of predictors is less than 2.
+#' However, if this is the case, consider using `hd_run_lr()` instead.
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. If `case` is provided, the model will be a binary
+#' classification model. If `case` is NULL, the model will be a multiclass classification model.
+#' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
+#' are calculated via macro-averaging.
+#'
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' hd_run_rreg(hd_split,
+#'             variable = "Disease",
+#'             case = "AML",
+#'             grid_size = 5,
+#'             palette = "cancers12")
+#'
+#' # Run the multiclass regularized regression model pipeline
+#' hd_run_rreg(hd_split,
+#'             variable = "Disease",
+#'             case = NULL,
+#'             grid_size = 2,
+#'             cv_sets = 2,
+#'             verbose = FALSE)
+hd_run_rreg <- function(dat,
+                        variable = "Disease",
+                        case,
+                        control = NULL,
+                        balance_groups = TRUE,
+                        cor_threshold = 0.9,
+                        grid_size = 30,
+                        cv_sets = 5,
+                        mixture = NULL,
+                        palette = NULL,
+                        plot_y_labels = FALSE,
+                        verbose = TRUE,
+                        plot_title = c("accuracy",
                                        "sensitivity",
                                        "specificity",
                                        "auc",
                                        "features",
                                        "top-features",
                                        "mixture"),
-                          yaxis_names = FALSE) {
+                        seed = 123) {
 
-  features <- finalfit_res$final |>
-    workflows::extract_fit_parsnip() |>
-    vip::vi() |>
-    dplyr::mutate(
-      Importance = abs(Importance),
-      Variable = forcats::fct_reorder(Variable, Importance)
-    ) |>
-    dplyr::arrange(dplyr::desc(Importance)) |>
-    dplyr::mutate(Scaled_Importance = scales::rescale(Importance, to = c(0, 100))) |>
-    dplyr::filter(Scaled_Importance > 0)
+  dat <- check_data(dat = dat, variable = variable)
 
-  subtitle_text <- generate_subtitle(features, accuracy, sensitivity, specificity, auc, mixture, subtitle)
+  if (dat[["train_data"]] |> ncol() <= 3) {
+    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_run_lr()`.")
+  }
 
-  # Prepare palettes
-  pals <- get_hpa_palettes()
-  if (!is.null(palette) && is.null(names(palette))) {
-    pal <- pals[palette]
-    pal <- unlist(pals[[palette]])
-  } else if (!is.null(palette)) {
-    pal <- palette
+  dat <- prepare_data(dat = dat,
+                      variable = variable,
+                      case = case,
+                      control = control,
+                      balance_groups = balance_groups,
+                      cv_sets = cv_sets,
+                      seed = seed)
+  dat <- tune_rreg_model(dat = dat,
+                         variable = variable,
+                         cor_threshold = cor_threshold,
+                         grid_size = grid_size,
+                         mixture = mixture,
+                         verbose = verbose,
+                         seed = seed)
+
+  if (dat[["model_type"]] == "binary_class") {
+    dat <- evaluate_model(dat = dat,
+                          variable = variable,
+                          case = case,
+                          mixture = mixture,
+                          palette = palette,
+                          verbose = verbose,
+                          seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = case,
+                        mixture = mixture,
+                        palette = palette,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
+                        verbose = verbose,
+                        seed = seed)
   } else {
-    pal <- "red3"
+    dat <- evaluate_multiclass_model(dat = dat,
+                                     variable = variable,
+                                     mixture = mixture,
+                                     palette = palette,
+                                     verbose = verbose,
+                                     seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = NULL,
+                        mixture = mixture,
+                        palette = palette,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
+                        verbose = verbose,
+                        seed = seed)
   }
 
-  var_imp_plot <- features |>
-    ggplot2::ggplot(ggplot2::aes(x = Scaled_Importance, y = Variable)) +
-    ggplot2::geom_col(ggplot2::aes(fill = ifelse(Scaled_Importance > 50, case, NA))) +
-    ggplot2::labs(y = NULL) +
-    ggplot2::scale_x_continuous(breaks = c(0, 100), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 100
-    ggplot2::scale_fill_manual(values = pal, na.value = "grey50") +
-    ggplot2::ggtitle(label = paste0(case, ''),
-                     subtitle = subtitle_text) +
-    ggplot2::xlab('Importance') +
-    ggplot2::ylab('Features') +
-    ggplot2::theme_classic() +
-    ggplot2::theme(legend.position = "none")
-
-  if (isFALSE(yaxis_names)) {
-    var_imp_plot <- var_imp_plot +
-      ggplot2::theme(axis.text.y = ggplot2::element_blank(),
-                     axis.ticks.y = ggplot2::element_blank())
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
   }
 
-  if (isTRUE(vline)) {
-    var_imp_plot <- var_imp_plot +
-      ggplot2::geom_vline(xintercept = 50, linetype = 'dashed', color = 'black')
-  }
-
-  return(list("features" = features,
-              "var_imp_plot" = var_imp_plot))
+  return(dat)
 }
 
 
-#' Fit logistic regression model for single predictors
+#' Run random forest model pipeline
 #'
-#' `lreg_fit()` fits a logistic regression model for a single predictor and calculates
-#' the ROC AUC, accuracy, sensitivity, and specificity. It also performs cross-validation
-#' and plots the ROC curve.
+#' `hd_run_rf()` runs the random forest model pipeline. It creates
+#' class-balanced case-control groups for the train set, tunes the model, evaluates
+#' the model, and plots the variable importance.
 #'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case The case group.
-#' @param control The control groups.
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
-#' @param only_female Vector of diseases.
-#' @param only_male Vector of diseases.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
+#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
+#' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param points Whether to add points to the boxplot. Default is TRUE.
-#' @param boxplot_xaxis_names Whether to add x-axis names to the boxplot. Default is FALSE.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param plot_title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A list with two elements:
-#' \itemize{
-#' \item fit_res: A list with 4 elements:
-#' \itemize{
-#'  \item lreg_wf: Workflow object.
-#'  \item train_set: Training set.
-#'  \item test_set: Testing set.
-#'  \item final: Fitted model.
-#'  }
-#' \item metrics: A list with the model metrics:
-#' \itemize{
-#'  \item accuracy: Accuracy of the model.
-#'  \item sensitivity: Sensitivity of the model.
-#'  \item specificity: Specificity of the model.
-#'  \item auc: AUC of the model.
-#'  \item conf_matrix: Confusion matrix of the model.
-#'  \item roc_curve: ROC curve of the model.
-#'  }
-#' }
-#' @export
-#'
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
 #' @details
-#' This model should be used with data that contain a single predictor. If the data
-#' contains multiple predictors, prefer using the `do_rreg()` or `do_rf()` functions.
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. If `case` is provided, the model will be a binary
+#' classification model. If `case` is NULL, the model will be a multiclass classification model.
+#' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
+#' are calculated via macro-averaging.
 #'
-#' @examples
-#' # Data with single predictor
-#' test_data <- example_data |> dplyr::filter(Assay == "ADA")
-#'
-#' # Run model
-#' do_lreg(test_data,
-#'         example_metadata,
-#'         variable = "Disease",
-#'         case = "AML",
-#'         control = "CLL",
-#'         wide = FALSE,
-#'         ncores = 1,
-#'         palette = "cancers12")
-do_lreg <- function(olink_data,
-                    metadata,
-                    variable = "Disease",
-                    case,
-                    control,
-                    wide = TRUE,
-                    strata = TRUE,
-                    balance_groups = TRUE,
-                    only_female = NULL,
-                    only_male = NULL,
-                    exclude_cols = "Sex",
-                    ratio = 0.75,
-                    cor_threshold = 0.9,
-                    normalize = TRUE,
-                    cv_sets = 5,
-                    ncores = 4,
-                    palette = NULL,
-                    points = TRUE,
-                    boxplot_xaxis_names = FALSE,
-                    seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!!Variable %in% c(case, control))
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  if (isTRUE(balance_groups)) {
-    train_data <- make_groups(data_split$train_set,
-                              variable,
-                              case,
-                              c(case, control),
-                              only_female,
-                              only_male,
-                              seed)
-    test_data <- make_groups(data_split$test_set,
-                             variable,
-                             case,
-                             c(case, control),
-                             only_female,
-                             only_male,
-                             seed)
-  } else {
-    train_data <- data_split$train_set
-    test_data <- data_split$test_set
-  }
-  message("Sets and groups are ready. Model fitting is starting...")
-  lreg_res <- lreg_fit(train_data,
-                       test_data,
-                       variable,
-                       case,
-                       cor_threshold,
-                       cv_sets,
-                       ncores,
-                       exclude_cols,
-                       palette,
-                       seed)
-
-  protein <- wide_data |> dplyr::select(-DAid) |> names()
-  boxplot_res <- plot_protein_boxplot(join_data,
-                                      variable,
-                                      protein,
-                                      case,
-                                      points,
-                                      xaxis_names = boxplot_xaxis_names,
-                                      palette)
-
-  lreg_res <- c(lreg_res, list("boxplot_res" = boxplot_res))
-
-  return(lreg_res)
-
-}
-
-
-#' Regularized classification model pipeline
-#'
-#' `do_rreg()` runs the regularized classification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It also performs hyperparameter optimization, fits the best
-#' model, tests it, and plots useful the feature variable importance.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case The case group.
-#' @param control The control groups.
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
-#' @param only_female Vector of diseases that are female specific. Default is NULL.
-#' @param only_male Vector of diseases that are male specific. Default is NULL.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is "Sex".
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param type Type of regularization. Default is "lasso". Other options are "ridge" and "elnet".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param subtitle Vector of subtitle elements to include in the plot. Default is a list with all.
-#' @param varimp_yaxis_names Whether to add y-axis names to the variable importance plot. Default is FALSE.
-#' @param nfeatures Number of top features to include in the boxplot. Default is 9.
-#' @param points Whether to add points to the boxplot. Default is TRUE.
-#' @param boxplot_xaxis_names Whether to add x-axis names to the boxplot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with results for each disease. The list contains:
-#'  - hypopt_res: Hyperparameter optimization results.
-#'  - finalfit_res: Final model fitting results.
-#'  - testfit_res: Test model fitting results.
-#'  - var_imp_res: Variable importance results.
-#' @export
-#'
-#' @details If the data contain missing values, KNN imputation will be applied.
-#' If no check for feature correlation is preferred, set `cor_threshold` to 1.
-#'
-#' @examples
-#' do_rreg(example_data,
-#'         example_metadata,
-#'         case = "AML",
-#'         control = c("CLL", "MYEL"),
-#'         balance_groups = TRUE,
-#'         wide = FALSE,
-#'         type = "elnet",
-#'         palette = "cancers12",
-#'         cv_sets = 5,
-#'         grid_size = 10,
-#'         ncores = 1)
-do_rreg <- function(olink_data,
-                    metadata,
-                    variable = "Disease",
-                    case,
-                    control,
-                    wide = TRUE,
-                    strata = TRUE,
-                    balance_groups = TRUE,
-                    only_female = NULL,
-                    only_male = NULL,
-                    exclude_cols = "Sex",
-                    ratio = 0.75,
-                    type = "lasso",
-                    cor_threshold = 0.9,
-                    cv_sets = 5,
-                    grid_size = 10,
-                    ncores = 4,
-                    hypopt_vis = TRUE,
-                    palette = NULL,
-                    vline = TRUE,
-                    subtitle = c("accuracy",
-                                 "sensitivity",
-                                 "specificity",
-                                 "auc",
-                                 "features",
-                                 "top-features",
-                                 "mixture"),
-                    varimp_yaxis_names = FALSE,
-                    nfeatures = 9,
-                    points = TRUE,
-                    boxplot_xaxis_names = FALSE,
-                    seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!!Variable %in% c(case, control))
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  if (isTRUE(balance_groups)) {
-    train_list <- make_groups(data_split$train_set,
-                              variable,
-                              case,
-                              c(case, control),
-                              only_female,
-                              only_male,
-                              seed)
-    test_list <- make_groups(data_split$test_set,
-                             variable,
-                             case,
-                             c(case, control),
-                             only_female,
-                             only_male,
-                             seed)
-  } else {
-    train_list <- data_split$train_set
-    test_list <- data_split$test_set
-  }
-  message("Sets and groups are ready. Model fitting is starting...")
-
-  # Run model
-  message(paste0("Classification model for ", case, " as case is starting..."))
-  hypopt_res <- elnet_hypopt(train_list,
-                             test_list,
-                             variable,
-                             case,
-                             type,
-                             cor_threshold,
-                             cv_sets,
-                             grid_size,
-                             ncores,
-                             hypopt_vis,
-                             exclude_cols,
-                             seed)
-
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$elnet_tune,
-                           hypopt_res$elnet_wf,
-                           seed)
-
-  testfit_res <- testfit(hypopt_res$train_set,
-                         hypopt_res$test_set,
-                         variable,
-                         case,
-                         finalfit_res,
-                         exclude_cols,
-                         type,
-                         seed,
-                         palette)
-
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              case,
-                              testfit_res$metrics$accuracy,
-                              testfit_res$metrics$sensitivity,
-                              testfit_res$metrics$specificity,
-                              testfit_res$metrics$auc,
-                              testfit_res$mixture,
-                              palette = palette,
-                              vline = vline,
-                              subtitle = subtitle,
-                              yaxis_names = varimp_yaxis_names)
-
-  top_features <- var_imp_res$features |>
-    dplyr::arrange(dplyr::desc(Scaled_Importance)) |>
-    dplyr::select(Variable) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
-    utils::head(nfeatures)
-  proteins <- top_features[["Variable"]]
-
-  boxplot_res <- plot_protein_boxplot(join_data,
-                                      variable,
-                                      proteins,
-                                      case,
-                                      points,
-                                      xaxis_names = boxplot_xaxis_names,
-                                      palette = palette)
-
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "testfit_res" = testfit_res,
-              "var_imp_res" = var_imp_res,
-              "boxplot_res" = boxplot_res))
-}
-
-
-#' Random forest classification model pipeline
-#'
-#' `do_rf()` runs the random forest classification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It also performs hyperparameter optimization, fits the best
-#' model, tests it, and plots useful the feature variable importance.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case The case group.
-#' @param control The control groups.
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
-#' @param only_female Vector of diseases that are female specific. Default is NULL.
-#' @param only_male Vector of diseases that are male specific. Default is NULL.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned. Default is "Sex".
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param subtitle Vector of subtitle elements to include in the plot. Default is a list with all.
-#' @param varimp_yaxis_names Whether to add y-axis names to the plot. Default is FALSE.
-#' @param nfeatures Number of top features to include in the boxplot. Default is 9.
-#' @param points Whether to add points to the boxplot. Default is TRUE.
-#' @param boxplot_xaxis_names Whether to add x-axis names to the boxplot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with results for each disease. The list contains:
-#'  - hypopt_res: Hyperparameter optimization results.
-#'  - finalfit_res: Final model fitting results.
-#'  - testfit_res: Test model fitting results.
-#'  - var_imp_res: Variable importance results.
-#' @export
-#'
-#' @details If the data contain missing values, KNN imputation will be applied.
-#' If no check for feature correlation is preferred, set `cor_threshold` to 1.
-#'
-#' @examples
-#' do_rf(example_data,
-#'       example_metadata,
-#'       case = "AML",
-#'       control = c("CLL", "MYEL"),
-#'       balance_groups = TRUE,
-#'       wide = FALSE,
-#'       palette = "cancers12",
-#'       cv_sets = 5,
-#'       grid_size = 10,
-#'       ncores = 1)
-do_rf <- function(olink_data,
-                  metadata,
-                  variable = "Disease",
-                  case,
-                  control,
-                  wide = TRUE,
-                  strata = TRUE,
-                  balance_groups = TRUE,
-                  only_female = NULL,
-                  only_male = NULL,
-                  exclude_cols = "Sex",
-                  ratio = 0.75,
-                  cor_threshold = 0.9,
-                  normalize = TRUE,
-                  cv_sets = 5,
-                  grid_size = 10,
-                  ncores = 4,
-                  hypopt_vis = TRUE,
-                  palette = NULL,
-                  vline = TRUE,
-                  subtitle = c("accuracy",
-                               "sensitivity",
-                               "specificity",
-                               "auc",
-                               "features",
-                               "top-features"),
-                  varimp_yaxis_names = FALSE,
-                  nfeatures = 9,
-                  points = TRUE,
-                  boxplot_xaxis_names = FALSE,
-                  seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!!Variable %in% c(case, control))
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  if (isTRUE(balance_groups)) {
-    train_list <- make_groups(data_split$train_set,
-                              variable,
-                              case,
-                              c(case, control),
-                              only_female,
-                              only_male,
-                              seed)
-    test_list <- make_groups(data_split$test_set,
-                             variable,
-                             case,
-                             c(case, control),
-                             only_female,
-                             only_male,
-                             seed)
-  } else {
-    train_list <- data_split$train_set
-    test_list <- data_split$test_set
-  }
-  message("Sets and groups are ready. Model fitting is starting...")
-
-  # Run model
-  message(paste0("Classification model for ", case, " as case is starting..."))
-  hypopt_res <- rf_hypopt(train_list,
-                          test_list,
-                          variable,
-                          case,
-                          cor_threshold,
-                          normalize,
-                          cv_sets,
-                          grid_size,
-                          ncores,
-                          hypopt_vis,
-                          exclude_cols,
-                          seed)
-
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$rf_tune,
-                           hypopt_res$rf_wf,
-                           seed)
-
-  testfit_res <- testfit(hypopt_res$train_set,
-                         hypopt_res$test_set,
-                         variable,
-                         case,
-                         finalfit_res,
-                         exclude_cols,
-                         type = "other",
-                         seed,
-                         palette)
-
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              case,
-                              testfit_res$metrics$accuracy,
-                              testfit_res$metrics$sensitivity,
-                              testfit_res$metrics$specificity,
-                              testfit_res$metrics$auc,
-                              testfit_res$mixture,
-                              palette = palette,
-                              vline = vline,
-                              subtitle = subtitle,
-                              yaxis_names = varimp_yaxis_names)
-
-  top_features <- var_imp_res$features |>
-    dplyr::arrange(dplyr::desc(Scaled_Importance)) |>
-    dplyr::select(Variable) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
-    utils::head(nfeatures)
-  proteins <- top_features[["Variable"]]
-
-  boxplot_res <- plot_protein_boxplot(join_data,
-                                      variable,
-                                      proteins,
-                                      case,
-                                      points,
-                                      xaxis_names = boxplot_xaxis_names,
-                                      palette)
-
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "testfit_res" = testfit_res,
-              "var_imp_res" = var_imp_res,
-              "boxplot_res" = boxplot_res))
-}
-
-
-#' XGBoost classification model pipeline
-#'
-#' `do_xgboost()` runs the XGBoost classification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It also performs hyperparameter optimization, fits the best
-#' model, tests it, and plots useful the feature variable importance.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param case The case group.
-#' @param control The control groups.
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param balance_groups Whether to balance the groups. Default is TRUE.
-#' @param only_female Vector of diseases.
-#' @param only_male Vector of diseases.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 50.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param subtitle Vector of subtitle elements to include in the plot. Default is a list with all.
-#' @param varimp_yaxis_names Whether to add y-axis names to the plot. Default is FALSE.
-#' @param nfeatures Number of top features to include in the boxplot. Default is 9.
-#' @param points Whether to add points to the boxplot. Default is TRUE.
-#' @param boxplot_xaxis_names Whether to add x-axis names to the boxplot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with results for each disease. The list contains:
-#'  - hypopt_res: Hyperparameter optimization results.
-#'  - finalfit_res: Final model fitting results.
-#'  - testfit_res: Test model fitting results.
-#'  - var_imp_res: Variable importance results.
-#'  - boxplot_res: Boxplot results.
 #' @export
 #'
 #' @examples
-#' do_xgboost(example_data,
-#'            example_metadata,
-#'            case = "AML",
-#'            control = c("CLL", "MYEL"),
-#'            balance_groups = TRUE,
-#'            wide = FALSE,
-#'            palette = "cancers12",
-#'            cv_sets = 5,
-#'            grid_size = 10,
-#'            ncores = 1)
-do_xgboost <- function(olink_data,
-                       metadata,
-                       variable = "Disease",
-                       case,
-                       control,
-                       wide = TRUE,
-                       strata = TRUE,
-                       balance_groups = TRUE,
-                       only_female = NULL,
-                       only_male = NULL,
-                       exclude_cols = "Sex",
-                       ratio = 0.75,
-                       cor_threshold = 0.9,
-                       normalize = TRUE,
-                       cv_sets = 5,
-                       grid_size = 50,
-                       ncores = 4,
-                       hypopt_vis = TRUE,
-                       palette = NULL,
-                       vline = TRUE,
-                       subtitle = c("accuracy",
-                                    "sensitivity",
-                                    "specificity",
-                                    "auc",
-                                    "features",
-                                    "top-features"),
-                       varimp_yaxis_names = FALSE,
-                       nfeatures = 9,
-                       points = TRUE,
-                       boxplot_xaxis_names = FALSE,
-                       seed = 123) {
+#' # Initialize an HDAnalyzeR object
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#'
+#' # Run the regularized regression model pipeline
+#' hd_run_rf(hd_split,
+#'           variable = "Disease",
+#'           case = "AML",
+#'           grid_size = 5,
+#'           palette = "cancers12")
+#'
+#' # Run the multiclass regularized regression model pipeline
+#' hd_run_rf(hd_split,
+#'           variable = "Disease",
+#'           case = NULL,
+#'           grid_size = 2,
+#'           cv_sets = 2,
+#'           verbose = FALSE)
+hd_run_rf <- function(dat,
+                      variable = "Disease",
+                      case,
+                      control = NULL,
+                      balance_groups = TRUE,
+                      cor_threshold = 0.9,
+                      grid_size = 30,
+                      cv_sets = 5,
+                      palette = NULL,
+                      plot_y_labels = FALSE,
+                      verbose = TRUE,
+                      plot_title = c("accuracy",
+                                     "sensitivity",
+                                     "specificity",
+                                     "auc",
+                                     "features",
+                                     "top-features"),
+                      seed = 123) {
 
-  Variable <- rlang::sym(variable)
+  dat <- check_data(dat = dat, variable = variable)
+  dat <- prepare_data(dat = dat,
+                      variable = variable,
+                      case = case,
+                      control = control,
+                      balance_groups = balance_groups,
+                      cv_sets = cv_sets,
+                      seed = seed)
+  dat <- tune_rf_model(dat = dat,
+                       variable = variable,
+                       cor_threshold = cor_threshold,
+                       grid_size = grid_size,
+                       verbose = verbose,
+                       seed = seed)
 
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  if (dat[["model_type"]] == "binary_class") {
+    dat <- evaluate_model(dat = dat,
+                          variable = variable,
+                          case = case,
+                          mixture = "None",
+                          palette = palette,
+                          verbose = verbose,
+                          seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = case,
+                        mixture = "None",
+                        palette = palette,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
+                        verbose = verbose,
+                        seed = seed)
   } else {
-    wide_data <- olink_data
+    dat <- evaluate_multiclass_model(dat = dat,
+                                     variable = variable,
+                                     mixture = "None",
+                                     palette = palette,
+                                     verbose = verbose,
+                                     seed = seed)
+    dat <- variable_imp(dat = dat,
+                        variable = variable,
+                        case = NULL,
+                        mixture = "None",
+                        palette = palette,
+                        y_labels = plot_y_labels,
+                        title = plot_title,
+                        verbose = verbose,
+                        seed = seed)
   }
 
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!!Variable %in% c(case, control))
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  if (isTRUE(balance_groups)) {
-    train_list <- make_groups(data_split$train_set,
-                              variable,
-                              case,
-                              c(case, control),
-                              only_female,
-                              only_male,
-                              seed)
-    test_list <- make_groups(data_split$test_set,
-                             variable,
-                             case,
-                             c(case, control),
-                             only_female,
-                             only_male,
-                             seed)
-  } else {
-    train_list <- data_split$train_set
-    test_list <- data_split$test_set
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
   }
-  message("Sets and groups are ready. Model fitting is starting...")
 
-  # Run model
-  message(paste0("Classification model for ", case, " as case is starting..."))
-  hypopt_res <- xgboost_hypopt(train_list,
-                               test_list,
-                               variable,
-                               case,
-                               cor_threshold,
-                               normalize,
-                               cv_sets,
-                               grid_size,
-                               ncores,
-                               hypopt_vis,
-                               exclude_cols,
-                               seed)
+  dat[["mixture"]] <- NULL
 
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$xgboost_tune,
-                           hypopt_res$xgboost_wf,
-                           seed)
+  return(dat)
+}
 
-  testfit_res <- testfit(hypopt_res$train_set,
-                         hypopt_res$test_set,
-                         variable,
-                         case,
-                         finalfit_res,
-                         exclude_cols,
-                         type = "other",
-                         seed,
-                         palette)
 
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              case,
-                              testfit_res$metrics$accuracy,
-                              testfit_res$metrics$sensitivity,
-                              testfit_res$metrics$specificity,
-                              testfit_res$metrics$auc,
-                              testfit_res$mixture,
-                              palette = palette,
-                              vline = vline,
-                              subtitle = subtitle,
-                              yaxis_names = varimp_yaxis_names)
+#' Run logistic regression model pipeline
+#'
+#' `hd_run_lr()` runs the logistic regression model pipeline. It creates
+#' class-balanced case-control groups for the train set, tunes the model, evaluates
+#' the model, and plots the variable importance.
+#'
+#' @param dat An `hd_model` object or a list containing the train and test data.
+#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param case The case class.
+#' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
+#' @param balance_groups Whether to balance the groups. Default is TRUE.
+#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is TRUE.
+#' @param verbose Whether to print progress messages. Default is TRUE.
+#' @param plot_title Vector of title elements to include in the plot.
+#' @param seed Seed for reproducibility. Default is 123.
+#'
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @details
+#' This model is ideal when the number of features is small. Otherwise, use
+#' `hd_run_rreg()` as it is more robust to high-dimensional data.
+#' The numeric predictors will be normalized and the nominal predictors will
+#' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
+#' will be used to impute. Logistic regression models are not supported for
+#' multiclass classification. `case` is required for binary classification. If
+#' multi-class classification is needed, use `hd_run_rreg()` instead.
+#'
+#' @export
+#'
+#' @examples
+#' # Initialize an HDAnalyzeR object with only a subset of the predictors
+#' hd_object <- hd_initialize(
+#'   example_data |> dplyr::filter(Assay %in% c("ADA", "AARSD1", "ACAA1", "ACAN1", "ACOX1")),
+#'   example_metadata
+#' )
+#'
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(
+#'   hd_object,
+#'   metadata_cols = c("Age", "Sex"),  # Include metadata columns
+#'   variable = "Disease"
+#' )
+#'
+#' # Run the regularized regression model pipeline
+#' hd_run_lr(hd_split,
+#'           variable = "Disease",
+#'           case = "AML",
+#'           palette = "cancers12")
+hd_run_lr <- function(dat,
+                      variable = "Disease",
+                      case,
+                      control = NULL,
+                      balance_groups = TRUE,
+                      cor_threshold = 0.9,
+                      palette = NULL,
+                      plot_y_labels = TRUE,
+                      verbose = TRUE,
+                      plot_title = c("accuracy",
+                                     "sensitivity",
+                                     "specificity",
+                                     "auc",
+                                     "features",
+                                     "top-features"),
+                      seed = 123) {
 
-  top_features <- var_imp_res$features |>
-    dplyr::arrange(dplyr::desc(Scaled_Importance)) |>
-    dplyr::select(Variable) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
-    utils::head(nfeatures)
-  proteins <- top_features[["Variable"]]
+  dat <- check_data(dat = dat, variable = variable)
+  dat <- prepare_data(dat = dat,
+                      variable = variable,
+                      case = case,
+                      control = control,
+                      balance_groups = balance_groups,
+                      cv_sets = 2,
+                      seed = seed)
 
-  boxplot_res <- plot_protein_boxplot(join_data,
-                                      variable,
-                                      proteins,
-                                      case,
-                                      points,
-                                      xaxis_names = boxplot_xaxis_names,
-                                      palette = palette)
+  if (dat[["model_type"]] == "multi_class") {
+    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_run_rreg()`.")
+  }
 
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "testfit_res" = testfit_res,
-              "var_imp_res" = var_imp_res,
-              "boxplot_res" = boxplot_res))
+  dat <- tune_lr_model(dat = dat,
+                       variable = variable,
+                       cor_threshold = cor_threshold,
+                       verbose = verbose,
+                       seed = seed)
+
+
+  dat <- evaluate_model(dat = dat,
+                        variable = variable,
+                        case = case,
+                        mixture = "None",
+                        palette = palette,
+                        verbose = verbose,
+                        seed = seed)
+
+  dat <- variable_imp(dat = dat,
+                      variable = variable,
+                      case = case,
+                      mixture = "None",
+                      palette = palette,
+                      y_labels = plot_y_labels,
+                      title = plot_title,
+                      verbose = verbose,
+                      seed = seed)
+
+  if (dat[["features"]] |> nrow() < 3) {
+    dat[["var_imp_plot"]] <- NULL
+    message("Variable importance plot is not generated as the number of features is less than 5.")
+  }
+
+  dat[["mixture"]] <- NULL
+
+  return(dat)
 }
 
 
 #' Plot features summary visualizations
 #'
-#' `plot_features_summary()` plots the number of proteins and the number of top
+#' `hd_plot_model_summary()` plots the number of proteins and the number of top
 #' proteins for each disease in a barplot. It also plots the upset plot of the
 #' top or all protein features, as well as a summary line plot of the model
 #' performance metrics.
 #'
-#' @param ml_results A list of classification models results.
-#' @param importance Importance threshold for top features. Default is 50.
-#' @param upset_top_features Whether to plot the upset plot for the top features. Default is FALSE.
-#' @param case_palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param feature_type_palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is "all-features" = "pink" and "top-features" = "darkblue".
-#' @param verbose If the function should print the different sets of features for each disease. Default is TRUE.
+#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_run_rreg()`, `hd_run_rf()` or `hd_run_lr()` with the classes as names. See the examples for more details.
+#' @param importance The importance threshold to consider a feature as top. Default is 0.5.
+#' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param upset_top_features Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).
 #'
-#' @return A list with two elements:
-#'   - features_barplot: Barplot of the number of proteins and top proteins for each disease.
-#'   - upset_plot_features: Upset plot of the top or all proteins.
-#'   - metrics_barplot: Barplot of the model metrics for each disease.
-#'   - features_df: A tibble with the proteins for each combination of cases.
-#'   - features_list: A list with the proteins for each combination of cases.
+#' @return A list with the binary classification model summary plots and results
 #' @export
 #'
 #' @examples
-#' # Run the elastic net model pipeline for 3 different cases
-#' res_aml <- do_rreg(example_data,
-#'                    example_metadata,
-#'                    case = "AML",
-#'                    control = c("BRC", "PRC"),
-#'                    wide = FALSE,
-#'                    only_female = "BRC",
-#'                    only_male = "PRC",
-#'                    cv_sets = 2,
-#'                    grid_size = 1,
-#'                    ncores = 1)
+#' # Initialize an HDAnalyzeR object with only a subset of the predictors
+#' hd_object <- hd_initialize(example_data, example_metadata)
 #'
-#' res_brc <- do_rreg(example_data,
-#'                    example_metadata,
-#'                    case = "BRC",
-#'                    control = c("BRC", "AML"),
-#'                    wide = FALSE,
-#'                    only_female = "BRC",
-#'                    only_male = "PRC",
-#'                    cv_sets = 2,
-#'                    grid_size = 1,
-#'                    ncores = 1)
+#' # Split the data into training and test sets
+#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
 #'
-#' res_prc <- do_rreg(example_data,
-#'                    example_metadata,
-#'                    case = "PRC",
-#'                    control = c("BRC", "AML"),
-#'                    wide = FALSE,
-#'                    only_female = "BRC",
-#'                    only_male = "PRC",
-#'                    cv_sets = 2,
-#'                    grid_size = 1,
-#'                    ncores = 1)
+#' # Run the regularized regression model pipeline
+#' model_results_aml <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "AML",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
 #'
-#' # Combine the results
-#' res <- list("AML" = res_aml,
-#'             "BRC" = res_brc,
-#'             "PRC" = res_prc)
+#' model_results_cll <- hd_run_rreg(hd_split,
+#'                                  variable = "Disease",
+#'                                  case = "CLL",
+#'                                  grid_size = 2,
+#'                                  cv_sets = 2)
 #'
-#' # Plot features summary visualizations
-#' plot_features_summary(res)
-plot_features_summary <- function(ml_results,
-                                  importance = 50,
-                                  upset_top_features = FALSE,
-                                  case_palette = NULL,
-                                  feature_type_palette = c("all-features" = "pink",
-                                                           "top-features" = "darkblue"),
-                                  verbose = TRUE) {
+#' model_results_myel <- hd_run_rreg(hd_split,
+#'                                   variable = "Disease",
+#'                                   case = "MYEL",
+#'                                   grid_size = 2,
+#'                                   cv_sets = 2)
+#'
+#' model_results_lungc <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "LUNGC",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' model_results_gliom <- hd_run_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "GLIOM",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
+#'
+#' res <- list("AML" = model_results_aml,
+#'             "LUNGC" = model_results_lungc,
+#'             "CLL" = model_results_cll,
+#'             "MYEL" = model_results_myel,
+#'             "GLIOM" = model_results_gliom)
+#'
+#' # Plot summary visualizations
+#' hd_plot_model_summary(res, class_palette = "cancers12")
+hd_plot_model_summary <- function(model_results,
+                                  importance = 0.5,
+                                  class_palette = NULL,
+                                  upset_top_features = FALSE) {
 
-  barplot_data <- lapply(names(ml_results), function(case) {
+  barplot_data <- lapply(names(model_results), function(case) {
 
-    features <- ml_results[[case]]$var_imp_res$features |>
+    features <- model_results[[case]][["features"]] |>
       dplyr::mutate(Category = case) |>
-      dplyr::select(Category, Variable) |>
-      dplyr::rename(Assay = Variable) |>
-      dplyr::group_by(Category) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Feature")) |>
+      dplyr::rename(Assay = !!rlang::sym("Feature")) |>
+      dplyr::group_by(!!rlang::sym("Category")) |>
       dplyr::summarise(Count = dplyr::n()) |>
       dplyr::ungroup() |>
       dplyr::mutate(Type = "all-features")
 
-    top_features <- ml_results[[case]]$var_imp_res$features |>
+    top_features <- model_results[[case]][["features"]] |>
       dplyr::mutate(Category = case) |>
-      dplyr::filter(Scaled_Importance >= importance) |>
-      dplyr::select(Category, Variable) |>
-      dplyr::rename(Assay = Variable) |>
-      dplyr::group_by(Category) |>
+      dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
+      dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Feature")) |>
+      dplyr::rename(Assay = !!rlang::sym("Feature")) |>
+      dplyr::group_by(!!rlang::sym("Category")) |>
       dplyr::summarise(Count = dplyr::n()) |>
       dplyr::ungroup() |>
       dplyr::mutate(Type = "top-features")
@@ -2186,72 +1419,68 @@ plot_features_summary <- function(ml_results,
   barplot_data <- do.call(rbind, barplot_data)
 
   features_barplot <- barplot_data |>
-    ggplot2::ggplot(ggplot2::aes(x = Category, y = Count, fill = Type)) +
-    ggplot2::geom_bar(stat = "identity", position = "dodge") +
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                 y = !!rlang::sym("Count"),
+                                 fill = !!rlang::sym("Type"))) +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
     ggplot2::labs(x = "", y = "Number of protein", fill = "Feature type") +
-    theme_hpa(angled = T) +
+    theme_hd(angled = 90) +
     ggplot2::theme(legend.position = "top",
-                   legend.title = ggplot2::element_text(face = "bold"))
+                   legend.title = ggplot2::element_text(face = "bold")) +
+    ggplot2::scale_fill_manual(values = c("all-features" = "pink",
+                                          "top-features" = "midnightblue"))
 
-  if (is.null(names(feature_type_palette)) && !is.null(feature_type_palette)) {
-    features_barplot <- features_barplot + scale_fill_hpa(feature_type_palette)
-  } else if (!is.null(feature_type_palette)) {
-    features_barplot <- features_barplot + ggplot2::scale_fill_manual(values = feature_type_palette)
-  }
-
-  metrics_data <- lapply(names(ml_results), function(case) {
+  metrics_data <- lapply(names(model_results), function(case) {
     metrics <- tibble::tibble(
       metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
-      value = c(ml_results[[case]]$testfit_res$metrics$accuracy,
-                ml_results[[case]]$testfit_res$metrics$sensitivity,
-                ml_results[[case]]$testfit_res$metrics$specificity,
-                ml_results[[case]]$testfit_res$metrics$auc)
+      value = c(model_results[[case]][["metrics"]][["accuracy"]],
+                model_results[[case]][["metrics"]][["sensitivity"]],
+                model_results[[case]][["metrics"]][["specificity"]],
+                model_results[[case]][["metrics"]][["auc"]])
     ) |>
       dplyr::mutate(Category = case)
   })
 
   metrics_data <- do.call(rbind, metrics_data)
 
-  metrics_lineplot <- metrics_data |>
-    ggplot2::ggplot(ggplot2::aes(x = Category,
-                                 y = value,
-                                 color = metric,
-                                 group = metric)) +
-    ggplot2::geom_line() +
-    ggplot2::geom_point(size = 2) +
+  metrics_barplot <- metrics_data |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                 y = !!rlang::sym("value"),
+                                 fill = !!rlang::sym("metric"))) +
+    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
     ggplot2::labs(x = "", y = "Value", color = "Metric") +
-    theme_hpa(angled = TRUE) +
+    theme_hd(angled = 90) +
     ggplot2::theme(legend.position = "top",
                    legend.title = ggplot2::element_text(face = "bold")) +
-    ggplot2::scale_color_manual(values = c("Accuracy" = "darkred",
-                                           "Sensitivity" = "darkblue",
-                                           "Specificity" = "darkgreen",
-                                           "AUC" = "purple3"))
+    ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
+                                          "Sensitivity" = "#8d99ae",
+                                          "Specificity" = "#edf2f4",
+                                          "AUC" = "#ef233c"))
 
-  upset_features <- lapply(names(ml_results), function(case) {
+  upset_features <- lapply(names(model_results), function(case) {
 
-    if (upset_top_features == T) {
-      upset_features <- ml_results[[case]]$var_imp_res$features |>
-        dplyr::filter(Scaled_Importance >= importance) |>
-        dplyr::pull(Variable)
+    if (upset_top_features == TRUE) {
+      upset_features <- model_results[[case]][["features"]] |>
+        dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
+        dplyr::pull(!!rlang::sym("Feature"))
     } else {
-      upset_features <- ml_results[[case]]$var_imp_res$features |>
-        dplyr::pull(Variable)
+      upset_features <- model_results[[case]][["features"]] |>
+        dplyr::pull(!!rlang::sym("Feature"))
     }
 
   })
-  names(upset_features) <- names(ml_results)
+  names(upset_features) <- names(model_results)
 
   # Prepare palettes
-  if (is.null(names(case_palette)) && !is.null(case_palette)) {
-    pal <- get_hpa_palettes()[[case_palette]]
-  } else if (!is.null(case_palette)) {
-    pal <- case_palette
+  if (is.null(names(class_palette)) && !is.null(class_palette)) {
+    pal <- hd_palettes()[[class_palette]]
+  } else if (!is.null(class_palette)) {
+    pal <- class_palette
   } else {
-    pal <- rep("black", length(names(ml_results)))
-    names(pal) <- names(ml_results)
+    pal <- rep("black", length(names(model_results)))
+    names(pal) <- names(model_results)
   }
-  feature_names <- names(ml_results)
+  feature_names <- names(model_results)
   ordered_colors <- pal[feature_names]
   frequencies <- sapply(upset_features, length)
   ordered_feature_names <- names(sort(frequencies, decreasing = TRUE))
@@ -2260,10 +1489,6 @@ plot_features_summary <- function(ml_results,
   upset <- UpSetR::fromList(upset_features)
   features <- extract_protein_list(upset, upset_features)
 
-  if (verbose) {
-    print(features$proteins_list)
-  }
-
   upset_plot_features <- UpSetR::upset(upset,
                                        sets = ordered_feature_names,
                                        order.by = "freq",
@@ -2271,623 +1496,8 @@ plot_features_summary <- function(ml_results,
                                        sets.bar.color = ordered_colors)
 
   return(list("features_barplot" = features_barplot,
+              "metrics_barplot" = metrics_barplot,
               "upset_plot_features" = upset_plot_features,
-              "metrics_lineplot" = metrics_lineplot,
               "features_df" = features$proteins_df,
               "features_list" = features$proteins_list))
-}
-
-
-#' Regularized multiclassification model pipeline
-#'
-#' `do_rreg_multi()` runs the regularized multiclassification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It performs hyperparameter optimization and fits the best
-#' model. It also plots the ROC curve and the AUC barplot for each class.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param type Type of regularization. Default is "lasso". Other options are "ridge" and "elnet".
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param varimp_yaxis_names Whether to add y-axis names to the variable importance plot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with the following elements:
-#' - hypopt_res: Hyperparameter optimization results.
-#' - finalfit_res: Final model fitting results.
-#' - roc_curve: ROC curve plot.
-#' - auc: AUC values for each class.
-#' - auc_barplot: AUC barplot.
-#' - var_imp_res: Variable importance results.
-#' @export
-#'
-#' @details If the data contain missing values, KNN imputation will be applied.
-#' If no check for feature correlation is preferred, set `cor_threshold` to 1.
-#' It will filter out rows that contain NAs in Disease.
-#'
-#' @examples
-#' do_rreg_multi(example_data,
-#'               example_metadata,
-#'               wide = FALSE,
-#'               palette = "cancers12",
-#'               cv_sets = 5,
-#'               grid_size = 5,
-#'               ncores = 1)
-do_rreg_multi <- function(olink_data,
-                          metadata,
-                          variable = "Disease",
-                          wide = TRUE,
-                          strata = TRUE,
-                          exclude_cols = "Sex",
-                          ratio = 0.75,
-                          type = "lasso",
-                          cor_threshold = 0.9,
-                          cv_sets = 5,
-                          grid_size = 10,
-                          ncores = 4,
-                          hypopt_vis = TRUE,
-                          palette = NULL,
-                          vline = TRUE,
-                          varimp_yaxis_names = FALSE,
-                          seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  nrows_before <- nrow(wide_data)
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!is.na(!!Variable))
-
-  nrows_after <- nrow(join_data)
-  if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ", variable, "! They either contain NAs or data did not match metadata."))
-  }
-
-  cases <- unique(join_data[[variable]])
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  train_list <- data_split$train_set
-  test_list <- data_split$test_set
-
-  message("Sets are ready. Multiclassification model fitting is starting...")
-
-  # Run model
-  hypopt_res <- elnet_hypopt_multi(train_list,
-                                   test_list,
-                                   variable,
-                                   type,
-                                   cor_threshold,
-                                   cv_sets,
-                                   grid_size,
-                                   ncores,
-                                   hypopt_vis,
-                                   exclude_cols,
-                                   seed)
-
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$elnet_tune,
-                           hypopt_res$elnet_wf,
-                           seed)
-
-  splits <- rsample::make_splits(hypopt_res$train_set, hypopt_res$test_set)
-  last_fit <- tune::last_fit(finalfit_res$final_wf,
-                             splits,
-                             metrics = yardstick::metric_set(yardstick::roc_auc))
-
-  preds <- last_fit |>
-    tune::collect_predictions()
-
-  pred_cols <- grep("^\\.pred_", names(preds), value = TRUE)
-  preds <- preds |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      .pred_class = names(preds)[which.max(dplyr::c_across(dplyr::all_of(pred_cols)))]
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(.pred_class = sub("^\\.pred_", "", .pred_class))
-
-  unique_classes <- preds |>
-    dplyr::pull(!!Variable) |>
-    unique()
-  pred_cols <- paste0(".pred_", unique_classes)
-
-  roc_curve <- preds |>
-    yardstick::roc_curve(truth = !!Variable,
-                         !!!rlang::syms(pred_cols)) |>
-    ggplot2::ggplot(ggplot2::aes(x = 1 - specificity,
-                                 y = sensitivity,
-                                 color = .level)) +
-    ggplot2::geom_path(linewidth = 1) +
-    ggplot2::geom_abline(lty = 3) +
-    ggplot2::coord_equal() +
-    ggplot2::facet_wrap(~ .level) +
-    theme_hpa() +
-    ggplot2::theme(legend.position = "none",
-                   axis.text = ggplot2::element_text(size = 10))
-
-  # Calculate AUC
-  auc_macro <- preds |>
-    dplyr::group_by(.pred_class) |>
-    yardstick::roc_auc(truth = !!Variable,
-                       !!!rlang::syms(pred_cols),
-                       estimator = "macro_weighted")
-
-  # Variable importance plot
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              "Multiclassification",
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              palette = NULL,
-                              vline = vline,
-                              subtitle = c("features",
-                                           "top-features"),
-                              yaxis_names = varimp_yaxis_names)
-
-  # AUC barplot
-  barplot <- ggplot2::ggplot(auc_macro,
-                             ggplot2::aes(x = stats::reorder(.pred_class, -.estimate),
-                                          y = .estimate,
-                                          fill = .pred_class)) +
-    ggplot2::geom_bar(stat = "identity") +
-    ggplot2::labs(x = "", y = "AUC") +
-    ggplot2::ylim(0, 1) +
-    theme_hpa(angled = T) +
-    ggplot2::theme(legend.position = "none")
-
-  # Prepare palettes
-  if (!is.null(palette) && is.null(names(palette))) {
-    roc_curve <- roc_curve + scale_color_hpa(palette)
-    barplot <- barplot + scale_fill_hpa(palette)
-  } else if (!is.null(palette)) {
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  } else {
-    palette <- rep("black", length(cases))
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  }
-
-  auc_macro <- auc_macro |>
-    dplyr::select(.pred_class, .estimate) |>
-    dplyr::rename(AUC = .estimate, !!Variable := .pred_class)
-
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "roc_curve" = roc_curve,
-              "auc" = auc_macro,
-              "auc_barplot" = barplot,
-              "var_imp_res" = var_imp_res))
-}
-
-
-#' Random forest multiclassification model pipeline
-#'
-#' `do_rf_multi()` runs the random forest multiclassification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It performs hyperparameter optimization and fits the best
-#' model. It also plots the ROC curve and the AUC barplot for each class.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 10.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param varimp_yaxis_names Whether to add y-axis names to the variable importance plot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with the following elements:
-#' - hypopt_res: Hyperparameter optimization results.
-#' - finalfit_res: Final model fitting results.
-#' - roc_curve: ROC curve plot.
-#' - auc: AUC values for each class.
-#' - auc_barplot: AUC barplot.
-#' - var_imp_res: Variable importance results.
-#' @export
-#'
-#' @details If the data contain missing values, KNN imputation will be applied.
-#' If no check for feature correlation is preferred, set `cor_threshold` to 1.
-#' It will filter out rows that contain NAs in Disease.
-#'
-#' @examples
-#' do_rf_multi(example_data,
-#'             example_metadata,
-#'             wide = FALSE,
-#'             palette = "cancers12",
-#'             cv_sets = 5,
-#'             grid_size = 5,
-#'             ncores = 1)
-do_rf_multi <- function(olink_data,
-                        metadata,
-                        variable = "Disease",
-                        wide = TRUE,
-                        strata = TRUE,
-                        exclude_cols = "Sex",
-                        ratio = 0.75,
-                        cor_threshold = 0.9,
-                        normalize = TRUE,
-                        cv_sets = 5,
-                        grid_size = 10,
-                        ncores = 4,
-                        hypopt_vis = TRUE,
-                        palette = NULL,
-                        vline = TRUE,
-                        varimp_yaxis_names = FALSE,
-                        seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  nrows_before <- nrow(wide_data)
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!is.na(!!Variable))
-
-  nrows_after <- nrow(join_data)
-  if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ", variable, "! They either contain NAs or data did not match metadata."))
-  }
-
-  cases <- unique(join_data[[variable]])
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  train_list <- data_split$train_set
-  test_list <- data_split$test_set
-
-  message("Sets are ready. Multiclassification model fitting is starting...")
-
-  # Run model
-  hypopt_res <- rf_hypopt_multi(train_list,
-                                test_list,
-                                variable,
-                                cor_threshold,
-                                normalize,
-                                cv_sets,
-                                grid_size,
-                                ncores,
-                                hypopt_vis,
-                                exclude_cols,
-                                seed)
-
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$rf_tune,
-                           hypopt_res$rf_wf,
-                           seed)
-
-  splits <- rsample::make_splits(hypopt_res$train_set, hypopt_res$test_set)
-  last_fit <- tune::last_fit(finalfit_res$final_wf,
-                             splits,
-                             metrics = yardstick::metric_set(yardstick::roc_auc))
-
-  preds <- last_fit |>
-    tune::collect_predictions()
-
-  pred_cols <- grep("^\\.pred_", names(preds), value = TRUE)
-  preds <- preds |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      .pred_class = names(preds)[which.max(dplyr::c_across(dplyr::all_of(pred_cols)))]
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(.pred_class = sub("^\\.pred_", "", .pred_class))
-
-  unique_classes <- preds |>
-    dplyr::pull(!!Variable) |>
-    unique()
-  pred_cols <- paste0(".pred_", unique_classes)
-
-  roc_curve <- preds |>
-    yardstick::roc_curve(truth = !!Variable,
-                         !!!rlang::syms(pred_cols)) |>
-    ggplot2::ggplot(ggplot2::aes(x = 1 - specificity,
-                                 y = sensitivity,
-                                 color = .level)) +
-    ggplot2::geom_path(linewidth = 1) +
-    ggplot2::geom_abline(lty = 3) +
-    ggplot2::coord_equal() +
-    ggplot2::facet_wrap(~ .level) +
-    theme_hpa() +
-    ggplot2::theme(legend.position = "none",
-                   axis.text = ggplot2::element_text(size = 10))
-
-  # Calculate AUC
-  auc_macro <- preds |>
-    dplyr::group_by(.pred_class) |>
-    yardstick::roc_auc(truth = !!Variable,
-                       !!!rlang::syms(pred_cols),
-                       estimator = "macro_weighted")
-
-  # Variable importance plot
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              "Multiclassification",
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              palette = NULL,
-                              vline = vline,
-                              subtitle = c("features",
-                                           "top-features"),
-                              yaxis_names = varimp_yaxis_names)
-
-  # AUC barplot``
-  barplot <- ggplot2::ggplot(auc_macro,
-                             ggplot2::aes(x = stats::reorder(.pred_class, -.estimate),
-                                          y = .estimate,
-                                          fill = .pred_class)) +
-    ggplot2::geom_bar(stat = "identity") +
-    ggplot2::labs(x = "", y = "AUC") +
-    ggplot2::ylim(0, 1) +
-    theme_hpa(angled = T) +
-    ggplot2::theme(legend.position = "none")
-
-  # Prepare palettes
-  if (!is.null(palette) && is.null(names(palette))) {
-    roc_curve <- roc_curve + scale_color_hpa(palette)
-    barplot <- barplot + scale_fill_hpa(palette)
-  } else if (!is.null(palette)) {
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  } else {
-    palette <- rep("black", length(cases))
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  }
-
-  auc_macro <- auc_macro |>
-    dplyr::select(.pred_class, .estimate) |>
-    dplyr::rename(AUC = .estimate, !!Variable := .pred_class)
-
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "roc_curve" = roc_curve,
-              "auc" = auc_macro,
-              "auc_barplot" = barplot,
-              "var_imp_res" = var_imp_res))
-}
-
-
-#' XGBoost multiclassification model pipeline
-#'
-#' `do_xgboost_multi()` runs the XGBoost multiclassification model pipeline. It splits the
-#' data into training and test sets, creates class-balanced case-control groups,
-#' and fits the model. It performs hyperparameter optimization and fits the best
-#' model. It also plots the ROC curve and the AUC barplot for each class.
-#'
-#' @param olink_data Olink data.
-#' @param metadata Metadata.
-#' @param variable The variable to predict. Default is "Disease".
-#' @param wide Whether the data is wide format. Default is TRUE.
-#' @param strata Whether to stratify the data. Default is TRUE.
-#' @param exclude_cols Columns to exclude from the data before the model is tuned.
-#' @param ratio Ratio of training data to test data. Default is 0.75.
-#' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param normalize Whether to normalize numeric data to have a standard deviation of one and a mean of zero. Default is TRUE.
-#' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param grid_size Size of the hyperparameter optimization grid. Default is 50.
-#' @param ncores Number of cores to use for parallel processing. Default is 4.
-#' @param hypopt_vis Whether to visualize hyperparameter optimization results. Default is TRUE.
-#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `get_hpa_palettes()`. Default is NULL.
-#' @param vline Whether to add a vertical line at 50% importance. Default is TRUE.
-#' @param varimp_yaxis_names Whether to add y-axis names to the variable importance plot. Default is FALSE.
-#' @param seed Seed for reproducibility. Default is 123.
-#'
-#' @return A list with the following elements:
-#'  - hypopt_res: Hyperparameter optimization results.
-#'  - finalfit_res: Final model fitting results.
-#'  - roc_curve: ROC curve plot.
-#'  - auc: AUC values for each class.
-#'  - auc_barplot: AUC barplot.
-#'  - var_imp_res: Variable importance results.
-#' @export
-#'
-#' @details If the data contain missing values, KNN imputation will be applied.
-#' If no check for feature correlation is preferred, set `cor_threshold` to 1.
-#' It will filter out rows that contain NAs in Disease.
-#'
-#' @examples
-#' do_xgboost_multi(example_data,
-#'                  example_metadata,
-#'                  wide = FALSE,
-#'                  palette = "cancers12",
-#'                  cv_sets = 5,
-#'                  grid_size = 5,
-#'                  ncores = 1)
-do_xgboost_multi <- function(olink_data,
-                             metadata,
-                             variable = "Disease",
-                             wide = TRUE,
-                             strata = TRUE,
-                             exclude_cols = "Sex",
-                             ratio = 0.75,
-                             cor_threshold = 0.9,
-                             normalize = TRUE,
-                             cv_sets = 5,
-                             grid_size = 50,
-                             ncores = 4,
-                             hypopt_vis = TRUE,
-                             palette = NULL,
-                             vline = TRUE,
-                             varimp_yaxis_names = FALSE,
-                             seed = 123) {
-
-  Variable <- rlang::sym(variable)
-
-  # Prepare datasets
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
-  } else {
-    wide_data <- olink_data
-  }
-
-  nrows_before <- nrow(wide_data)
-  join_data <- wide_data |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("DAid", "Disease", "Sex", variable)))) |>
-    dplyr::filter(!is.na(!!Variable))
-
-  nrows_after <- nrow(join_data)
-  if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ", variable, "! They either contain NAs or data did not match metadata."))
-  }
-
-  cases <- unique(join_data[[variable]])
-
-  # Prepare sets and groups
-  data_split <- split_data(join_data, variable, strata, ratio, seed)
-  train_list <- data_split$train_set
-  test_list <- data_split$test_set
-
-  message("Sets are ready. Multiclassification model fitting is starting...")
-
-  # Run model
-  hypopt_res <- xgboost_hypopt_multi(train_list,
-                                     test_list,
-                                     variable,
-                                     cor_threshold,
-                                     normalize,
-                                     cv_sets,
-                                     grid_size,
-                                     ncores,
-                                     hypopt_vis,
-                                     exclude_cols,
-                                     seed)
-
-  finalfit_res <- finalfit(hypopt_res$train_set,
-                           hypopt_res$xgboost_tune,
-                           hypopt_res$xgboost_wf,
-                           seed)
-
-  splits <- rsample::make_splits(hypopt_res$train_set, hypopt_res$test_set)
-  last_fit <- tune::last_fit(finalfit_res$final_wf,
-                             splits,
-                             metrics = yardstick::metric_set(yardstick::roc_auc))
-
-  preds <- last_fit |>
-    tune::collect_predictions()
-
-  pred_cols <- grep("^\\.pred_", names(preds), value = TRUE)
-  preds <- preds |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      .pred_class = names(preds)[which.max(dplyr::c_across(dplyr::all_of(pred_cols)))]
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(.pred_class = sub("^\\.pred_", "", .pred_class))
-
-  unique_classes <- preds |>
-    dplyr::pull(!!Variable) |>
-    unique()
-  pred_cols <- paste0(".pred_", unique_classes)
-
-  roc_curve <- preds |>
-    yardstick::roc_curve(truth = !!Variable,
-                         !!!rlang::syms(pred_cols)) |>
-    ggplot2::ggplot(ggplot2::aes(x = 1 - specificity,
-                                 y = sensitivity,
-                                 color = .level)) +
-    ggplot2::geom_path(linewidth = 1) +
-    ggplot2::geom_abline(lty = 3) +
-    ggplot2::coord_equal() +
-    ggplot2::facet_wrap(~ .level) +
-    theme_hpa() +
-    ggplot2::theme(legend.position = "none",
-                   axis.text = ggplot2::element_text(size = 10))
-
-  # Calculate AUC
-  auc_macro <- preds |>
-    dplyr::group_by(.pred_class) |>
-    yardstick::roc_auc(truth = !!Variable,
-                       !!!rlang::syms(pred_cols),
-                       estimator = "macro_weighted")
-
-  # Variable importance plot
-  var_imp_res <- plot_var_imp(finalfit_res,
-                              "Multiclassification",
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL,
-                              palette = NULL,
-                              vline = vline,
-                              subtitle = c("features",
-                                           "top-features"),
-                              yaxis_names = varimp_yaxis_names)
-
-  # AUC barplot``
-  barplot <- ggplot2::ggplot(auc_macro,
-                             ggplot2::aes(x = stats::reorder(.pred_class, -.estimate),
-                                          y = .estimate,
-                                          fill = .pred_class)) +
-    ggplot2::geom_bar(stat = "identity") +
-    ggplot2::labs(x = "", y = "AUC") +
-    ggplot2::ylim(0, 1) +
-    theme_hpa(angled = T) +
-    ggplot2::theme(legend.position = "none")
-
-  # Prepare palettes
-  if (!is.null(palette) && is.null(names(palette))) {
-    roc_curve <- roc_curve + scale_color_hpa(palette)
-    barplot <- barplot + scale_fill_hpa(palette)
-  } else if (!is.null(palette)) {
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  } else {
-    palette <- rep("black", length(cases))
-    roc_curve <- roc_curve + ggplot2::scale_color_manual(values = palette)
-    barplot <- barplot + ggplot2::scale_fill_manual(values = palette)
-  }
-
-  auc_macro <- auc_macro |>
-    dplyr::select(.pred_class, .estimate) |>
-    dplyr::rename(AUC = .estimate, !!Variable := .pred_class)
-
-  return(list("hypopt_res" = hypopt_res,
-              "finalfit_res" = finalfit_res,
-              "roc_curve" = roc_curve,
-              "auc" = auc_macro,
-              "auc_barplot" = barplot,
-              "var_imp_res" = var_imp_res))
 }

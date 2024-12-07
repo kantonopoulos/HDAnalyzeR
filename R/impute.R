@@ -1,97 +1,117 @@
-utils::globalVariables(c("Categories", "NA_percentage"))
+#' Calculate NA percentage
+#'
+#' `calculate_na_percentage()` calculates the percentage of missing values in each column of a dataset.
+#'
+#' @param dat A dataset.
+#'
+#' @return A tibble containing the column names and their respective NA percentages.
+#' @keywords internal
+calculate_na_percentage <- function(dat) {
+  tibble::tibble(
+    Variable = colnames(dat),
+    NA_percentage = sapply(dat, function(col) mean(is.na(col)) * 100)
+  )
+}
+
+
 #' Summary of missing values
 #'
-#' `na_search()` provides a summary of missing values in a dataset. It allows the user to
+#' `hd_run_na_search()` provides a summary of missing values in a dataset. It allows the user to
 #' specify the metadata columns to include in the summary and the color palette to use for
 #' the heatmap annotations.
 #'
-#' @param olink_data The Olink dataset.
-#' @param metadata The metadata dataset.
-#' @param wide If TRUE, the data is in wide format.
-#' @param metadata_cols The metadata columns to include in the summary.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
+#' @param annotation_vars The metadata columns to include in the summary.
 #' @param palette The color palettes to use for the heatmap annotations (check examples bellow).
-#' @param x_labels If TRUE, show x-axis labels.
-#' @param y_labels If TRUE, show y-axis labels.
-#' @param show_heatmap If TRUE, show the heatmap.
+#' @param x_labels If TRUE, show x-axis labels. Default is FALSE.
+#' @param y_labels If TRUE, show y-axis labels. Default is FALSE.
 #'
 #' @return A list containing the summary of missing values and a heatmap.
 #' @export
 #'
-#' @details When using continuous metadata variables, consider converted them to
-#' categorical by binning them into categories before passing them to the function.
-#' This will make the heatmap more informative and easier to interpret.
-#' Also when coloring annotations, the user can use custom palettes or the
+#' @details When using continuous metadata variables, they are automatically binned
+#' into categories of 5 bins to make the heatmap more informative and easier to interpret.
+#' Also, when coloring annotations, the user can use custom palettes or the
 #' Human Protein Atlas (HPA) palettes. It is not required to provide a palette
 #' for all annotations, but when a palette is provided, it must be in correct
 #' format (check examples bellow).
 #'
 #' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
 #' # Use custom palettes for coloring annotations
 #' palette = list(Sex = c(M = "blue", F = "pink"))
-#' na_res <- na_search(example_data,
-#'                     example_metadata,
-#'                     wide = FALSE,
-#'                     metadata_cols = c("Age", "Sex"),
-#'                     palette = palette,
-#'                     show_heatmap = FALSE)
+#' na_res <- hd_run_na_search(hd_object,
+#'                            annotation_vars = c("Age", "Sex"),
+#'                            palette = palette)
 #'
 #' # Use HPA palettes for coloring annotations
-#' palette = list(Disease = get_hpa_palettes()$cancers12, Sex = get_hpa_palettes()$sex_hpa)
-#' na_res <- na_search(example_data,
-#'                     example_metadata,
-#'                     wide = FALSE,
-#'                     metadata_cols = c("Disease", "Sex"),
-#'                     palette = palette,
-#'                     show_heatmap = FALSE)
-#'
-#' # Pre-bin a continuous variable
-#' metadata <- example_metadata
-#' metadata$Age_bin <- cut(metadata$Age,
-#'                         breaks = c(0, 20, 40, 60, 80, 120),
-#'                         labels = c("0-20", "21-40", "41-60", "61-80", "81+"),
-#'                         right = FALSE)
-#'
-#' palette = list(Disease = get_hpa_palettes()$cancers12)
-#'
-#' na_search(example_data,
-#'           metadata,
-#'           wide = FALSE,
-#'           metadata_cols = c("Age_bin", "Disease"),
-#'           palette = palette)
-na_search <- function(olink_data,
-                      metadata,
-                      wide = TRUE,
-                      metadata_cols = NULL,
-                      palette = NULL,
-                      x_labels = FALSE,
-                      y_labels = FALSE,
-                      show_heatmap = TRUE) {
+#' palette = list(Disease = hd_palettes()$cancers12, Sex = hd_palettes()$sex)
+#' na_res <- hd_run_na_search(hd_object,
+#'                            annotation_vars = c("Disease", "Sex"),
+#'                            palette = palette)
+hd_run_na_search <- function(dat,
+                             metadata = NULL,
+                             annotation_vars = NULL,
+                             palette = NULL,
+                             x_labels = FALSE,
+                             y_labels = FALSE) {
   # Prepare data
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    metadata <- dat[["metadata"]]
+    sample_id <- dat[["sample_id"]]
+    var_name <- dat[["var_name"]]
+    value_name <- dat[["value_name"]]
   } else {
-    wide_data <- olink_data
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+    var_name <- "Features"
+    value_name <- "Values"
   }
 
-  if (!all(metadata_cols %in% colnames(metadata))) {
+  check_numeric <- check_numeric_columns(wide_data)
+
+  if (!all(annotation_vars %in% colnames(metadata))) {
     message("Some category columns provided do not exist in the dataset.")
   }
 
+  annotation_vars_type <- sapply(metadata |>
+                                   dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+                                 hd_detect_vartype)
+  metadata <- hd_bin_columns(metadata |>
+                               dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+                             annotation_vars_type)
+
   long_data <- wide_data |>
-    tidyr::pivot_longer(cols = -DAid, names_to = "Assay", values_to = "NPX", values_drop_na = FALSE)
+    tidyr::pivot_longer(cols = -dplyr::all_of(sample_id),
+                        names_to = var_name,
+                        values_to = value_name,
+                        values_drop_na = FALSE)
 
   join_data <- long_data |>
-    dplyr::select(DAid, Assay, NPX) |>
-    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c(metadata_cols, "DAid"))), by = "DAid")
+    dplyr::select(dplyr::all_of(c(sample_id, var_name, value_name))) |>
+    dplyr::left_join(metadata |>
+                       dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+                     by = sample_id)
 
   # Calculate NA percentages
   na_data <- join_data |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(metadata_cols, "Assay")))) |>
-    dplyr::mutate(NA_percentage = mean(is.na(NPX)) * 100) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(annotation_vars, var_name)))) |>
+    dplyr::mutate(NA_percentage = mean(is.na(!!rlang::sym(value_name))) * 100) |>
     dplyr::ungroup() |>
-    dplyr::mutate(Categories = paste(!!!rlang::syms(metadata_cols), sep = "_")) |>
-    dplyr::select(dplyr::any_of(c(metadata_cols, "Categories", "Assay", "NA_percentage"))) |>
+    dplyr::mutate(Categories = paste(!!!rlang::syms(annotation_vars), sep = "_")) |>
+    dplyr::select(dplyr::any_of(c(annotation_vars, "Categories", var_name, "NA_percentage"))) |>
     unique()
+
+  if (max(na_data[["NA_percentage"]]) == 0) {
+    stop("There are no missing values in the dataset!")
+  }
 
   # Create heatmap
   if (x_labels == FALSE) {
@@ -104,66 +124,129 @@ na_search <- function(olink_data,
   } else {
     y_labs <- NULL
   }
-  na_heatmap <- tidyheatmaps::tidyheatmap(na_data,
-                                          rows = Categories,
-                                          columns = Assay,
-                                          values = NA_percentage,
-                                          annotation_row = metadata_cols,
-                                          annotation_colors = palette,
-                                          cluster_rows = TRUE,
-                                          cluster_cols = TRUE,
-                                          show_selected_row_labels = y_labs,
-                                          show_selected_col_labels = x_labs,
-                                          treeheight_row = 20,
-                                          treeheight_col = 20,
-                                          silent = isFALSE(show_heatmap))
+
+  na_heatmap <- ggplotify::as.ggplot(
+    tidyheatmaps::tidyheatmap(na_data,
+                              rows = !!rlang::sym("Categories"),
+                              columns = !!rlang::sym(var_name),
+                              values = !!rlang::sym("NA_percentage"),
+                              annotation_row = annotation_vars,
+                              annotation_colors = palette,
+                              cluster_rows = TRUE,
+                              cluster_cols = TRUE,
+                              show_selected_row_labels = x_labs,
+                              show_selected_col_labels = y_labs,
+                              treeheight_row = 20,
+                              treeheight_col = 20,
+                              silent = TRUE))
 
   return(list("na_data" = na_data, "na_heatmap" = na_heatmap))
 }
 
+
+#' Omit missing values
+#'
+#' `hd_omit_na()` removes rows with missing values from a dataset. It allows the user to
+#' specify the columns to consider for the removal of missing values. If no columns are
+#' provided, the function removes rows with missing values in any column.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param columns The columns to consider for the removal of missing values.
+#'
+#' @return The dataset without missing values.
+#' @export
+#'
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
+#'
+#' # Data after removing missing values
+#' res <- hd_omit_na(hd_object)
+#' res$data
+#'
+#' # Data after removing missing values in specific columns
+#' res <- hd_omit_na(hd_object, columns = "AARSD1")
+#' res$data
+hd_omit_na <- function(dat, columns = NULL){
+
+  # Prepare data
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+  } else {
+    wide_data <- dat
+  }
+
+  if (is.null(columns)) {
+    imputed_data <- wide_data[stats::complete.cases(wide_data), ]
+  } else {
+    missing_columns <- setdiff(columns, colnames(wide_data))
+    if (length(missing_columns) > 0) {
+       stop("The following columns are not in the dataset: ", paste(missing_columns, collapse = ", "))
+    }
+    imputed_data <- wide_data[!rowSums(is.na(wide_data[columns])), ]
+  }
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- imputed_data
+    return(dat)
+  } else {
+    return(imputed_data)
+  }
+}
+
+
 #' Impute via Median
 #'
-#' `impute_median()` imputes missing values in a dataset using the median of each column.
+#' `hd_impute_median()` imputes missing values in a dataset using the median of each column.
 #' It allows the user to exclude certain columns from imputation and can also display the
 #' percentage of missing values in each column before imputation.
 #'
-#' @param olink_data The input dataset.
-#' @param wide If TRUE, the data is in wide format.
-#' @param exclude_cols The columns to exclude from imputation.
-#' @param show_na_percentage If TRUE, the percentage of missing values in each column is displayed.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
+#' @details This is the fastest but usually least accurate imputation method.
+#'
 #' @export
 #'
-#' @details This is the fastest but usually least accurate imputation method.
 #' @examples
-#' # Data before imputation
-#' test_data <- example_data |>
-#'   dplyr::select(DAid, Assay, NPX) |>
-#'   tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
-#'   dplyr::slice_head(n = 100)
-#' test_data
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
-#' impute_median(test_data)
-impute_median <- function(olink_data,
-                          wide = TRUE,
-                          exclude_cols = c("DAid", "Disease"),
-                          show_na_percentage = TRUE) {
+#' res <- hd_impute_median(hd_object)
+#' res$data
+hd_impute_median <- function(dat, verbose = TRUE) {
 
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  # Prepare data
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
   } else {
-    wide_data <- olink_data
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
   }
-  data_in <- wide_data |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
 
-  if (isTRUE(show_na_percentage)) {
-    na_percentages <- calc_na_percentage_col(data_in)
+  check_numeric <- check_numeric_columns(wide_data)
+
+  data_in <- wide_data |>
+    dplyr::select(-dplyr::any_of(sample_id))
+
+  if (isTRUE(verbose)) {
+    na_percentages <- calculate_na_percentage(data_in) |>
+      dplyr::filter(!!rlang::sym("NA_percentage") > 0)
     print(na_percentages)
   }
 
+  set.seed(123)
   recipe <- recipes::recipe(~ ., data = data_in) |>
     recipes::step_impute_median(recipes::all_predictors())
 
@@ -172,58 +255,67 @@ impute_median <- function(olink_data,
     recipes::bake(new_data = NULL)
 
   cols <- wide_data |>
-    dplyr::select(dplyr::any_of(exclude_cols))
+    dplyr::select(dplyr::any_of(sample_id))
+
   imputed_data <- dplyr::bind_cols(cols, imputed_data)
 
-  return(imputed_data)
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- imputed_data
+    return(dat)
+  } else {
+    return(imputed_data)
+  }
 }
 
 
 #' Impute via k-nearest neighbors
 #'
-#' `impute_knn()` imputes missing values in a dataset using the k-nearest neighbors method.
+#' `hd_impute_knn()` imputes missing values in a dataset using the k-nearest neighbors method.
 #' It allows the user to exclude certain columns from imputation and can also display the
 #' percentage of missing values in each column before imputation. The user can also specify
 #' the number of neighbors to consider for imputation.
 #'
-#' @param olink_data The input dataset.
-#' @param wide If TRUE, the data is in wide format.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param k The number of neighbors to consider for imputation.
-#' @param exclude_cols The columns to exclude from imputation.
-#' @param show_na_percentage If TRUE, the percentage of missing values in each column is displayed.
+#' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
 #' @export
 #'
 #' @examples
-#' # Data before imputation
-#' test_data <- example_data |>
-#'   dplyr::select(DAid, Assay, NPX) |>
-#'   tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
-#'   dplyr::slice_head(n = 100)
-#' test_data
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
-#' impute_knn(test_data, k = 3)
-impute_knn <- function(olink_data,
-                       wide = TRUE,
-                       k = 5,
-                       exclude_cols = c("DAid", "Disease"),
-                       show_na_percentage = TRUE) {
+#' res <- hd_impute_knn(hd_object, k = 3)
+#' res$data
+hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  # Prepare data
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
   } else {
-    wide_data <- olink_data
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
   }
-  data_in <- wide_data |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
 
-  if (isTRUE(show_na_percentage)) {
-    na_percentages <- calc_na_percentage_col(data_in)
+  check_numeric <- check_numeric_columns(wide_data)
+
+  data_in <- wide_data |>
+    dplyr::select(-dplyr::any_of(sample_id))
+
+  if (isTRUE(verbose)) {
+    na_percentages <- calculate_na_percentage(data_in) |>
+      dplyr::filter(!!rlang::sym("NA_percentage") > 0)
     print(na_percentages)
   }
 
+  set.seed(123)
   recipe <- recipes::recipe(~ ., data = data_in) |>
     recipes::step_impute_knn(recipes::all_predictors(), neighbors = k)
 
@@ -232,10 +324,16 @@ impute_knn <- function(olink_data,
     recipes::bake(new_data = NULL)
 
   cols <- wide_data |>
-    dplyr::select(dplyr::any_of(exclude_cols))
+    dplyr::select(dplyr::any_of(sample_id))
+
   imputed_data <- dplyr::bind_cols(cols, imputed_data)
 
-  return(imputed_data)
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- imputed_data
+    return(dat)
+  } else {
+    return(imputed_data)
+  }
 }
 
 
@@ -243,128 +341,82 @@ impute_knn <- function(olink_data,
 #'
 #' `impute_missForest()` imputes missing values in a dataset using the `missForest` method.
 #' It allows the user to exclude certain columns from imputation and can also display the
-#' percentage of missing values in each column before imputation. The user can also specify
-#' the maximum number of iterations, the number of trees to grow, the type of parallelization
-#' ("no", "variables", or "forests"), as well as the number of cores to use for parallelization.
+#' percentage of missing values in each column before imputation.
 #'
-#' @param olink_data The input dataset.
-#' @param wide If TRUE, the data is in wide format.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
 #' @param maxiter The maximum number of iterations.
 #' @param ntree  The number of trees to grow.
-#' @param parallelize The type of parallelization to use. Options are "no", "variables", or "forests".
-#' @param ncores The number of cores to use for parallelization.
-#' @param exclude_cols The columns to exclude from imputation.
-#' @param show_na_percentage If TRUE, the percentage of missing values in each column is displayed.
+#' @param parallelize If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the `missForest` documentation.
+#' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
+#' @details This is the slowest and more complex imputation method. If KNN works fine, it is
+#' recommended to use it instead of `missForest`. In case of large datasets, it is recommended
+#' to parallelize the imputation. However, the user must have the `doParallel` package installed
+#' and register a cluster before running the function. An example of how to parallelize the
+#' imputation is provided in the examples section.
+#'
 #' @export
 #'
 #' @examples
-#' # Data before imputation
-#' test_data <- example_data |>
-#'   dplyr::select(DAid, Assay, NPX) |>
-#'   tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
-#'   dplyr::slice_head(n = 100)
-#' test_data
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
 #'
 #' # Data after imputation
-#' impute_missForest(test_data, maxiter = 1, ntree = 50, parallelize = "no")
-impute_missForest <- function(olink_data,
-                              wide = TRUE,
-                              maxiter = 10,
-                              ntree = 100,
-                              parallelize = "variables",
-                              ncores = 4,
-                              exclude_cols = c("DAid", "Disease"),
-                              show_na_percentage = TRUE) {
+#' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
+#' res$data
+#'
+#' \dontrun{
+#' # Parallelize the imputation
+#' library(doParallel)  # Load the doParallel package
+#' cl <- makeCluster(4)  # Create a cluster with 4 cores
+#' registerDoParallel(cl)  # Register the cluster
+#' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
+#' }
+hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", verbose = TRUE) {
 
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  # Prepare data
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
   } else {
-    wide_data <- olink_data
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
   }
-  data_in <- wide_data |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
 
-  if (isTRUE(show_na_percentage)) {
-    na_percentages <- calc_na_percentage_col(data_in)
+  check_numeric <- check_numeric_columns(wide_data)
+
+  data_in <- wide_data |>
+    dplyr::select(-dplyr::any_of(sample_id))
+
+  if (isTRUE(verbose)) {
+    na_percentages <- calculate_na_percentage(data_in) |>
+      dplyr::filter(!!rlang::sym("NA_percentage") > 0)
     print(na_percentages)
   }
-  if (parallelize == "no") {
-    ncores <- 1
-  } else {
-    doParallel::registerDoParallel(cores = ncores)
-  }
+
   set.seed(123)
   data_in <- as.data.frame(data_in)  # Convert to data frame for missForest
-  imputed_data <- missForest::missForest(data_in, maxiter = maxiter, ntree = ntree,
-                                         verbose = T, parallelize = parallelize)$ximp
+  imputed_data <- missForest::missForest(data_in,
+                                         maxiter = maxiter,
+                                         ntree = ntree,
+                                         verbose = verbose,
+                                         parallelize = parallelize)$ximp
   imputed_data <- tibble::as_tibble(imputed_data)
 
   cols <- wide_data |>
-    dplyr::select(dplyr::any_of(exclude_cols))
+    dplyr::select(dplyr::any_of(sample_id))
+
   imputed_data <- dplyr::bind_cols(cols, imputed_data)
 
-  return(imputed_data)
-}
-
-
-#' Impute via MICE
-#'
-#' `impute_mice()` imputes missing values in a dataset using the MICE algorithm.
-#' It allows the user to exclude certain columns from imputation and can also display the
-#' percentage of missing values in each column before imputation. The user can also specify
-#' the number of imputed datasets to create, the maximum number of iterations, and the imputation
-#' method to use.
-#'
-#' @param olink_data The input dataset.
-#' @param wide If TRUE, the data is in wide format.
-#' @param m The number of imputed datasets to create. Default is 5.
-#' @param maxit The maximum number of iterations. Default is 5.
-#' @param method The imputation method to use. Type `methods(mice::mice)` after `library(mice)` for all options. Default is "pmm".
-#' @param exclude_cols The columns to exclude from imputation.
-#' @param show_na_percentage If TRUE, the percentage of missing values in each column is displayed.
-#'
-#' @return The imputed dataset.
-#' @export
-#'
-#' @examples
-#' # Data before imputation
-#' test_data <- example_data |>
-#'   dplyr::select(DAid, Assay, NPX) |>
-#'   tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
-#'   dplyr::slice_head(n = 100)
-#' test_data
-#'
-#' # Data after imputation
-#' impute_mice(test_data)
-impute_mice <- function(olink_data,
-                        wide = TRUE,
-                        m = 5,
-                        maxit = 5,
-                        method = "pmm",
-                        exclude_cols = c("DAid", "Disease"),
-                        show_na_percentage = TRUE) {
-
-  if (isFALSE(wide)) {
-    wide_data <- widen_data(olink_data)
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- imputed_data
+    return(dat)
   } else {
-    wide_data <- olink_data
+    return(imputed_data)
   }
-  data_in <- wide_data |>
-    dplyr::select(-dplyr::any_of(exclude_cols))
-
-  if (isTRUE(show_na_percentage)) {
-    na_percentages <- calc_na_percentage_col(data_in)
-    print(na_percentages)
-  }
-
-  data_in <- mice::mice(data_in, m = m, maxit = maxit, method = method, seed = 123, printFlag = F)
-  imputed_data <- mice::complete(data_in)
-
-  cols <- wide_data |>
-    dplyr::select(dplyr::any_of(exclude_cols))
-  imputed_data <- dplyr::bind_cols(cols, imputed_data)
-
-  return(imputed_data)
 }

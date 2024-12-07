@@ -4,10 +4,12 @@
 \alias{calc_na_percentage_row}
 \title{Calculate the percentage of NAs in each row of the dataset}
 \usage{
-calc_na_percentage_row(df)
+calc_na_percentage_row(dat, sample_id)
 }
 \arguments{
-\item{df}{The input dataset.}
+\item{dat}{The input dataset.}
+
+\item{sample_id}{The name of the column containing the sample IDs.}
 }
 \value{
 A tibble with the DAids and the percentage of NAs in each row.

@@ -2,23 +2,21 @@
 % Please edit documentation in R/dim_reduction.R
 \name{plot_loadings}
 \alias{plot_loadings}
-\title{Plot PCA loadings}
+\title{Prepare PCA loadings to be plotted on the 2D plane}
 \usage{
-plot_loadings(tidied_res, npcs = 4, nproteins = 8)
+plot_loadings(dim_object, plot_loadings, nloadings)
 }
 \arguments{
-\item{tidied_res}{A tibble with the results of the PCA analysis.}
+\item{dim_object}{A PCA object containing the PCA loadings. Created by \code{hd_run_pca()}.}
 
-\item{npcs}{The number of PCs to be plotted. Default is 4.}
+\item{plot_loadings}{The component to be plotted. Default is NULL.}
 
-\item{nproteins}{The number of proteins to be plotted. Default is 8.}
+\item{nloadings}{The number of loadings to be plotted. Default is 5.}
 }
 \value{
-A PCA loadings ggplot object.
+A tibble with the PCA loadings to be plotted.
 }
 \description{
-\code{plot_loadings()} plots the PCA loadings for the top n features and first m PCs.
-n and m are defined by the user. The contribution direction of the features
-is indicated by the color of the bars.
+\code{plot_loadings()} prepares the PCA loadings to be plotted on the 2D plane.
 }
 \keyword{internal}

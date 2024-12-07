@@ -1,6 +1,6 @@
 Package: HDAnalyzeR
 Title: HDA Internal Package for Streamed-line Proteomics Analysis
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     c(
       person("Konstantinos", "Antonopoulos", , "konstantinos.antonopoulos@scilifelab.se", 
@@ -21,23 +21,21 @@ biocViews:
 Imports: 
     arrow,
     broom,
-    clusterProfiler,
     dials,
-    doParallel,
     dplyr,
-    easyPubMed,
     embed,
     forcats,
+    ggnewscale,
     ggplot2,
+    ggplotify,
+    ggraph,
     ggrepel,
     ggridges,
     limma,
-    mice,
     missForest,
-    org.Hs.eg.db,
+    multiROC,
     parsnip,
     purrr,
-    ReactomePA,
     readr,
     readxl,
     recipes,
@@ -47,26 +45,30 @@ Imports:
     stats,
     stringr,
     tibble,
+    tidygraph,
     tidyheatmaps,
     tidyr,
     tidyselect,
     tidytext,
     tune,
-    umap,
     UpSetR,
     utils,
     vip,
-    viridis,
     workflows,
     yardstick
 Suggests: 
+    clusterProfiler,
+    easyPubMed,
+    enrichplot,
     glmnet,
     knitr,
+    org.Hs.eg.db,
     ranger,
+    ReactomePA,
     rmarkdown,
     testthat (>= 3.0.0),
-    writexl,
-    xgboost
+    umap,
+    writexl
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)

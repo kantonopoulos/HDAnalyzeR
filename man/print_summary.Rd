@@ -9,11 +9,9 @@ print_summary(
   var_n,
   class_summary,
   na_percentage_col,
-  na_percentage_row,
-  normality_results = FALSE,
-  cor_results = FALSE,
-  heatmap = FALSE,
-  threshold = FALSE
+  na_percentage_row = NULL,
+  cor_results = NULL,
+  cor_threshold = 0.8
 )
 }
 \arguments{
@@ -27,13 +25,9 @@ print_summary(
 
 \item{na_percentage_row}{A tibble with the DAids and the percentage of NAs in each row.}
 
-\item{normality_results}{A tibble with the protein names, p-values, adjusted p-values, and normality status.}
-
 \item{cor_results}{A tibble with the filtered protein pairs and their correlation values.}
 
-\item{heatmap}{A heatmap of protein-protein correlations.}
-
-\item{threshold}{The reporting protein-protein correlation threshold.}
+\item{cor_threshold}{The reporting protein-protein correlation threshold.}
 }
 \description{
 \code{print_summary()} prints the summary of the quality control results of the

@@ -6,22 +6,22 @@
 \usage{
 plot_metadata_summary(
   metadata,
-  categorical = "Sex",
-  numerical = "Age",
-  disease_palette = NULL,
-  categ_palette = "sex_hpa"
+  sample_id,
+  variable,
+  palette = NULL,
+  unique_threshold = 5
 )
 }
 \arguments{
-\item{metadata}{The metadata dataframe.}
+\item{metadata}{A dataset containing the metadata information with the sample ID as the first column.}
 
-\item{categorical}{The categorical variables to summarize. Default is "Sex".}
+\item{sample_id}{The name of the column containing the sample IDs.}
 
-\item{numerical}{The numerical variables to summarize. Default is "Age".}
+\item{variable}{The name of the column containing the different classes.}
 
-\item{disease_palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}.}
+\item{palette}{A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.}
 
-\item{categ_palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}. Default is "sex_hpa".}
+\item{unique_threshold}{The threshold to consider a numeric variable as categorical. Default is 5.}
 }
 \value{
 A list containing plots and sample counts.

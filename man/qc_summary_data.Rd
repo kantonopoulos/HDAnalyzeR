@@ -5,34 +5,29 @@
 \title{Summarize the quality control results of Olink data}
 \usage{
 qc_summary_data(
-  df,
-  wide = TRUE,
-  threshold = 0.8,
+  wide_data,
+  sample_id,
+  unique_threshold = 5,
+  cor_threshold = 0.8,
   cor_method = "pearson",
-  report = TRUE
+  verbose = TRUE
 )
 }
 \arguments{
-\item{df}{The input dataset.}
+\item{wide_data}{A dataset in wide format and sample_id as its first column.}
 
-\item{wide}{Whether the input dataset is in wide format. Default is TRUE.}
+\item{sample_id}{The name of the column containing the sample IDs.}
 
-\item{threshold}{The reporting protein-protein correlation threshold. Default is 0.8.}
+\item{unique_threshold}{The threshold to consider a numeric variable as categorical. Default is 5.}
 
-\item{cor_method}{The correlation method. Default is "pearson".}
+\item{cor_threshold}{The threshold to consider a protein-protein correlation as high. Default is 0.8.}
 
-\item{report}{Whether to print the summary. Default is TRUE.}
+\item{cor_method}{The method to calculate the correlation. Default is "pearson".}
+
+\item{verbose}{Whether to print the summary. Default is TRUE.}
 }
 \value{
-A list containing the following elements:
-\itemize{
-\item na_percentage_col: A tibble with the column names and the percentage of NAs in each column.
-\item na_percentage_row: A tibble with the DAids and the percentage of NAs in each row.
-\item normality_results: A tibble with the protein names, p-values, adjusted p-values, and normality status.
-\item cor_matrix: A matrix of protein-protein correlations.
-\item cor_results: A tibble with the filtered protein pairs and their correlation values.
-\item heatmap: A heatmap of protein-protein correlations.
-}
+A list containing the qc summery of data
 }
 \description{
 \code{qc_summary_data()} summarizes the quality control results of the input dataset.
@@ -41,13 +36,4 @@ calculates the percentage of NAs in each column and row, performs a normality te
 calculates the protein-protein correlations, and creates a heatmap of the correlations.
 The user can specify the reporting protein-protein correlation threshold.
 }
-\details{
-The correlation method is Pearson and the normality test is Shapiro-Wilk.
-If the wide dataset contains more than 5000 rows, a random sample of 5000 rows
-is taken to assess normality as it is a requirement from Shapiro-Wilk test.
-}
-\examples{
-qc_res <- qc_summary_data(example_data, wide = FALSE, threshold = 0.7)
-
-qc_res$heatmap
-}
+\keyword{internal}

@@ -4,10 +4,10 @@
 \alias{calc_na_percentage_col}
 \title{Calculate the percentage of NAs in each column of the dataset}
 \usage{
-calc_na_percentage_col(df)
+calc_na_percentage_col(dat)
 }
 \arguments{
-\item{df}{The input dataset.}
+\item{dat}{The input dataset.}
 }
 \value{
 A tibble with the column names and the percentage of NAs in each column.

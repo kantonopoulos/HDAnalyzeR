@@ -6,43 +6,32 @@
 \usage{
 qc_summary_metadata(
   metadata,
-  categorical = "Sex",
-  numerical = "Age",
-  disease_palette = NULL,
-  categ_palette = "sex_hpa",
-  report = TRUE
+  sample_id,
+  variable,
+  palette = NULL,
+  unique_threshold = 5,
+  verbose = TRUE
 )
 }
 \arguments{
-\item{metadata}{The metadata dataframe.}
+\item{metadata}{A dataset containing the metadata information with the sample ID as the first column.}
 
-\item{categorical}{The categorical variables to summarize. Default is "Sex".}
+\item{sample_id}{The name of the column containing the sample IDs.}
 
-\item{numerical}{The numeric variables to summarize. Default is "Age".}
+\item{variable}{The name of the column containing the different classes.}
 
-\item{disease_palette}{The color palette for the different diseases. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}.}
+\item{palette}{A list of color palettes for the plots. The names of the list should match the column names in the metadata. Default is NULL.}
 
-\item{categ_palette}{The categorical color palette. If it is a character, it should be one of the palettes from \code{get_hpa_palettes()}. Default is "sex_hpa".}
+\item{unique_threshold}{The threshold to consider a numeric variable as categorical. Default is 5.}
 
-\item{report}{Whether to print the summary. Default is TRUE.}
+\item{verbose}{Whether to print the summary. Default is TRUE.}
 }
 \value{
-A list containing the following elements:
-\itemize{
-\item na_percentage_col: A tibble with the column names and the percentage of NAs in each column.
-\item na_percentage_row: A tibble with the DAids and the percentage of NAs in each row.
-\item Several distribution and barplots, as well as the counts of samples.
-}
+A list of the qc summary of data
 }
 \description{
 \code{qc_summary_metadata()} summarizes the quality control results of the metadata dataframe.
 It checks the column types, calculates the percentage of NAs in each column and row,
-and creates summary visualizations for user selected categorical and numeric variables.
+and creates summary visualizations for categorical and numeric variables.
 }
-\examples{
-qc_res <- qc_summary_metadata(example_metadata, disease_palette = "cancers12")
-
-# Metadata distributions
-qc_res$barplot_Sex
-qc_res$distplot_Age
-}
+\keyword{internal}

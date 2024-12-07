@@ -14,111 +14,92 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will guide you through the initial steps of data preprocessing. Except from HDAnalyzeR we will import dplyr in order to perform some basic data manipulation.
+This vignette will guide you through the initial steps of data preprocessing. Except from HDAnalyzeR we will import viridis for the color palettes.
 
 ```{r setup, results = 'hide', message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
-library(dplyr)
+library(viridis)
 ```
 
-> 📓 This vignette is just a basic example of how to preprocess the data. Every dataset is different and may require different preprocessing steps. Please make sure to check the data and metadata before proceeding with the analysis. Remember that in order to run the package without issues, make sure that your data include the following columns: DAid, Assay and NPX, while your metadata include the following columns: DAid and Disease. Also, if you have a Sex column in your metadata, the data should be encoded as M and F.
+> 📓 This vignette is just a basic example of how to preprocess the data and perform quality control. Every dataset is different and may require different processing. 
 
-Let's start with loading the example data and metadata that come with the package.
+> ⚠️ Please make sure to check the data and metadata before proceeding with the analysis. For the most common proteomics data formats, we provide some recommendations in the package documentation under articles "Before using HDAnalyzeR".
+
+Let's start with loading the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r}
-head(example_data)
-head(example_metadata)
+hd_obj <- hd_initialize(dat = example_data, 
+                        metadata = example_metadata, 
+                        is_wide = FALSE, 
+                        sample_id = "DAid",
+                        var_name = "Assay",
+                        value_name = "NPX")
 ```
 
-We will check the structure of the data, as well as the unique values of the columns `Assay_Warning` and `PlateID`.
+Now, we will perform a quality control check on the data. `hd_run_qc_summary()` will return the percentage of missing values for each column and row and histograms of their distributions both for data and metadata, the protein-protein correlation and the metadata variable distributions. 
 
-```{r}
-str(example_data)
+As `variable` we should pass the column name of the metadata that we contains the different classes, for example the case and control groups, the different diseases, or the different stages of a disease. The palettes are optional and can be used to color the plots of the metadata variable distributions. You should pass a list with the variable name and the palette name, for example list(Sex = c("F" = "red", "M" = "blue"), Disease = "cancers12"). As you can see, the palettes can be either a named vector or a character vector with the name of a palette from the package. You can display all available palettes by running `hd_show_palettes()`.
 
-unique(example_data$Assay_Warning)
-unique(example_data$PlateID)
+```{r, message = FALSE, warning = FALSE}
+qc_data <- hd_run_qc_summary(hd_obj, 
+                             variable = "Disease", 
+                             palette = list(Disease = "cancers12", Sex = "sex"), 
+                             cor_threshold = 0.7)
+
+qc_data$data_summary$na_col_hist
+qc_data$data_summary$na_row_hist
+qc_data$data_summary$cor_heatmap
+qc_data$metadata_summary$na_col_hist
+qc_data$metadata_summary$na_row_hist
+qc_data$metadata_summary$Sex
+qc_data$metadata_summary$Stage
+qc_data$metadata_summary$Age
+qc_data$metadata_summary$BMI
 ```
 
-We will count the number of warnings for each assay to see if there is a bias between the different assays.
+From the QC results we can see that all assays have less than 10% missing values, while only a few samples have more than 20% missing values. The protein-protein correlation plot shows that there are no extremely highly correlated proteins. Also, the metadata variable `Stage` has a high percentage of missing values that are not correctly stated as NA values but as "" or "Unknown". These are only a few examples of the information that we can extract from the QC results.
 
-```{r}
-example_data |> 
-  filter(Assay_Warning == "WARN") |> 
-  group_by(Assay) |> 
-  summarize(nWarnings = n()) |> 
-  arrange(nWarnings) |> 
-  tail()
+Based on these we can take decisions on filtering samples with high missing values, excluding assays and metadata variables from statistical analysis.
+
+Finally we will run a PCA and UMAP analysis on the data to check if the data contain any outliers or cluster in an unexpected way. From the PCA analysis we can also check how the variance in the data is explained by the different principal components. The PCA plot will be colored based on `Disease`, while the UMAP plot will be colored based on `Age`.
+
+The `hd_run_pca()` and `hd_run_umap()` functions will run the respective analysis while the `hd_plot_dim()` will plot the data on a 2D plane. For the PCA analysis we can also utilize `hd_plot_pca_loadings()` and `hd_plot_pca_variance()` to plot the loadings of the different proteins on the principal components and the variance explained by each principal component respectively.
+
+In the `hd_plot_dim()` function we can pass the `color` parameter to color the data points based on a metadata variable. We should not forget to pass again the hd_obj object to the `metadata` argument!
+
+```{r, message = FALSE, warning = FALSE}
+pca_res <- hd_run_pca(hd_obj, components = 15) |> 
+  hd_plot_dim(hd_obj, "PC1", "PC2", color = "Disease", palette = "cancers12", axis_variance = TRUE) |> 
+  hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 10) |> 
+  hd_plot_pca_variance()
+
+head(pca_res$pca_res)
+pca_res$pca_plot
+pca_res$pca_loadings_plot
+pca_res$pca_variance_plot
 ```
 
-As we see there is not a bias between the different assays. We will now clean the data by keeping only the columns `DAid`, `Assay`, `NPX`, and `PlateID`, and filtering out the assays with warnings and the `Run004` plate.
+This time we want to color based on a continuous variable, the `Age`. In this case, we can either bin the data into categories or use a continuous color palette after the plot is created. We will set the palette argument to NULL and use the `viridis` palette afterwards for this example.
 
-```{r}
-long_data <- clean_data(example_data, 
-                        keep_cols = c("DAid", "Assay", "NPX", "PlateID"),
-                        filter_assay_warning = TRUE,
-                        filter_plates = "Run004")
+```{r, message = FALSE, warning = FALSE}
+umap_res <- hd_run_umap(hd_obj, components = 2) |> 
+  hd_plot_dim(hd_obj, "UMAP1", "UMAP2", color = "Age", palette = NULL)
 
-head(long_data)
-```
-We will do the same for the metadata, keeping only the columns `DAid`, `Disease`, `Sex`, and `Age`, and keeping only the `UCAN` cohort.
-
-```{r}
-str(example_metadata)
-
-unique(example_metadata$Cohort)
+umap_res$umap_plot + scale_color_viridis()
 ```
 
-```{r}
-metadata <- clean_metadata(example_metadata, c("DAid", "Disease", "Sex", "Age"), cohort = "UCAN")
+We can also run a UMAP where the data points are Proteins (or any feature) instead of samples. The only thing we need to do is to set the `by_sample` parameter to `FALSE` and pass the `Assay` column as the `plot_color` parameter. We can also pass a custom palette to color the different assays. This time we will use the wrapper function `hd_auto_umap()`. The wrapper functions are a bit less flexible but they are easier to use and require less code.
 
-head(metadata)
+```{r, message = FALSE, warning = FALSE}
+umap_res <- hd_auto_umap(hd_obj, 
+                         by_sample = FALSE, 
+                         plot_color = "Assay",
+                         plot_palette = c("ADA" = "darkblue", 
+                                          "ABL1" = "red3", 
+                                          "ACAN" = "green3"))
+
+head(umap_res$umap_res)
+umap_res$umap_plot
 ```
 
-> 💡 Don't forget to match your data with the metadata!
-
-```{r}
-long_data <- metadata |> 
-  inner_join(long_data, by = "DAid") |> 
-  select(-any_of(c("Disease", "Sex", "Age")))
-```
-
-We will generate the wide data which will have assays as names, NPX as values and the rows will be the samples with a unique DAid.
-
-```{r}
-wide_data <- widen_data(long_data)
-```
-
-Now, we will perform a quality control check on the data. `qc_summary_data()` will return the percentage of missing values for each column and row and plot their distributions, the protein-protein correlation and check if there are any highly correlated proteins (above the threshold of 0.9), as well as the normality of the different assays.
-
-```{r}
-qc_data <- qc_summary_data(wide_data, threshold = 0.9, report = TRUE)
-
-qc_data$na_col_dist
-qc_data$na_row_dist
-```
-
-From the QC results we can see that all assays have less than 10% missing values, while only a few samples have more than 20% missing values. The protein-protein correlation plot shows that there are no highly correlated proteins. The normality plot shows that most of the assays are not normally distributed, but this is expected for this artificial dataset. Based on these we can take decisions on filtering samples with high missing values or excluding assays from statistical analysis with normality assumptions.
-
-Let's do the same for the metadata, this time using the `qc_summary_metadata()` function. This function will return the percentage of missing values for each row and column and plot their distributions, as well as the distributions of selected metadata columns like `Sex` and `Age`.
-
-```{r}
-qc_metadata <- qc_summary_metadata(metadata, 
-                                   categorical = "Sex", 
-                                   numerical = "Age", 
-                                   disease_palette = "cancers12")
-
-qc_metadata$barplot_Sex
-qc_metadata$distplot_Age
-```
-
-Finally we will run a PCA and UMAP analysis on the data to check if the data contain any outliers or cluster in an unexpected way. From the PCA analysis we can also check how the variance in the data is explained by the different principal components. The PCA plot will be colored based on `Disease`, while the UMAP plot will be colored based on `Sex`. We can also run a UMAP where the points are Assays instead of samples.
-
-```{r}
-do_pca(wide_data, metadata, color = "Disease", palette = "cancers12")
-
-do_umap(wide_data, metadata, color = "Sex", palette = "sex_hpa")
-
-do_umap(wide_data, color = "Assay", assay = TRUE, palette = c("ADA" = "darkblue", "ABL1" = "red3", "ACAN" = "green3"))
-```
-
-> 📓 Remember that these data are a dummy-dataset with fake data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.

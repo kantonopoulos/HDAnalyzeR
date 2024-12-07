@@ -14,13 +14,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-HDAnalyzeR is an R package developed to streamline and enhance proteomics analysis, particularly for biomarker selection from blood plasma samples. It is developed by and optimized to be used from Human Disease Blood Atlas group internally with Olink proteomics data. This vignette will guide you through the essential steps to use the package, from data loading and quality control to data cleaning, dimensionality reduction, and biomarker identification. Let's get started by loading the package!
+HDAnalyzeR is an R package developed to streamline and enhance proteomics analysis, particularly for biomarker selection from blood plasma samples. It is developed by the Human Disease Blood Atlas group. This vignette will guide you through the essential steps to use the package, from data loading and quality control to data cleaning, dimensionality reduction, and biomarker identification. Let's get started by loading the package!
 
 ```{r setup}
 library(HDAnalyzeR)
 ```
 
-This document introduces you to HDAnalyzeR's basic set of tools, and shows you how to analyze and identify biomarkers in a dataset of cancer blood plasma samples.
+This document introduces you to HDAnalyzeR's basic set of tools, and shows you how to analyze and identify biomarkers in a artificial dataset of cancer blood plasma samples.
 
 ## Loading the Data
 
@@ -34,161 +34,119 @@ head(example_data)
 head(example_metadata)
 ```
 
-> 📓 In real-world scenarios, you would load your own data and metadata files instead of using the example dataset. In order to run the package without issues, make sure that your data include the following columns: DAid, Assay and NPX, while your metadata include the following columns: DAid and Disease. Also, if you have a Sex column in your metadata, the data should be encoded as M and F.
+We will initialize the HDAnalyzeR object with the data and metadata. The `hd_initialize()` function will create an object that will be used throughout the analysis. We will specify the sample ID, variable name, and value name in order to correctly load and widen the data. In this case, the data is in long format, so we set `is_wide = FALSE`.
+
+```{r}
+hd_obj <- hd_initialize(dat = example_data, 
+                        metadata = example_metadata, 
+                        is_wide = FALSE, 
+                        sample_id = "DAid",
+                        var_name = "Assay",
+                        value_name = "NPX")
+
+# See the data transformed into a wide format!
+head(hd_obj$data)
+```
+
+> 📓 In real-world scenarios, you would load your own data and metadata files instead of using the example dataset.
+
+> ⚠️ It is strongly recommended to use `hd_initialize()` function to initialize an HDAnalyzeR object before starting any analysis. This initialization step ensures that your input data and metadata are correctly formatted and compatible with the package. While it is possible to use HDAnalyzeR functions on data outside of an HDAnalyzeR object, users must ensure that the data adheres to the required structure: the first column must contain sample IDs, followed by numeric columns in wide format. Additionally, the metadata must include the same set of sample IDs. Proper initialization or careful adherence to these requirements is crucial for accurate and efficient analysis.
 
 ## Quality Control (QC)
 
-### Data QC
+`hd_run_qc_summary()` provides a comprehensive summary of the input data and metadata. 
 
-`qc_summary_data()` provides a comprehensive summary of the input dataset. It will check the column types, calculate the percentage of NAs in each column and row and plot their distributions, perform normality tests for all the different Assays, calculate protein-protein correlations, and create a heatmap of these correlations. Users can also specify the threshold for reporting protein-protein correlations.
+Regarding the data, it will check the column types, calculate the percentage of NAs in each column and row and plot their distributions, calculate protein-protein correlations, and create a heatmap of these correlations. Users can also specify the threshold for reporting protein-protein correlations.
 
-```{r}
-qc_data <- qc_summary_data(example_data, wide = FALSE, threshold = 0.7)
+Regarding the metadata, it will check the column types and calculate the percentage of NAs in each column and row exactly as before.  It will also create summary visualizations for the metadata variables like "Sex", "Disease", and "Age".
 
-qc_data$na_col_dist
-qc_data$na_row_dist
-```
-
-### Metadata QC
-
-`qc_summary_metadata()` summarizes quality control results of the metadata dataframe. It checks the column types, calculates the percentage of NAs in each column and row exactly as `qc_summary_data()`, and creates summary visualizations for key metadata variables such as Sex, Age, and BMI.
+Let's run the QC summary and take a look at some results!
 
 ```{r}
-qc_metadata <- qc_summary_metadata(example_metadata, disease_palette = "cancers12")
-qc_metadata$barplot_Sex
-qc_metadata$distplot_Age
+qc_data <- hd_run_qc_summary(hd_obj, 
+                             variable = "Disease", 
+                             palette = list(Disease = "cancers12", Sex = "sex"), 
+                             cor_threshold = 0.7)
+
+qc_data$data_summary$na_col_hist
+qc_data$data_summary$cor_heatmap
+qc_data$metadata_summary$Sex
+qc_data$metadata_summary$Age
 ```
-
-## Data Cleaning
-
-### Data Cleaning
-
-As we saw from the QC results, the data contains NAs and other issues that need to be addressed. `clean_data()` preprocesses the dataset by filtering out rows based on specified criteria. In this case we will keep only the data which Assay_Warning is "PASS" and only DAid, Assay and NPX columns.
-
-```{r}
-clean_data <- clean_data(example_data, 
-                         keep_cols = c("DAid", "Assay", "NPX"),
-                         filter_assay_warning = TRUE)
-head(clean_data)
-```
-
-### Metadata Cleaning
-
-In our case, `clean_metadata()` preprocesses the metadata just by keeping only the specified columns.
-
-```{r}
-clean_metadata <- clean_metadata(example_metadata, 
-                                 keep_cols = c("DAid", "Disease", "Sex", "Age"))
-head(clean_metadata)
-```
-
-### Data Transformation
-
-Once the data is cleaned, we recommend transforming it into a tidy format (wide format) if it's not already in that form. `widen_data()` will create for us the wide Olink dataset.
-
-```{r}
-wide_data <- widen_data(clean_data)
-head(wide_data)
-```
-
-> 📓 While HDAnalyzeR can work with long format data, most functions will transform it into a wide format, which can slightly slow down the pipeline. Thus, starting with tidy data is advisable.
 
 ## Imputation and Dimensionality Reduction
 
-Next, we will impute missing values using K-nearest neighbors (KNN) with 3 neighbors via `impute_knn()`.
+As we saw from the QC results, the data contains NAs and other issues that need to be addressed. We will impute missing values using K-nearest neighbors (KNN) with 5 neighbors via `hd_impute_knn()`.
 
 ```{r}
-imputed_data <- impute_knn(wide_data, 
-                           k = 3,
-                           exclude_cols = c("DAid"),
-                           show_na_percentage = FALSE)
-head(imputed_data)
+hd_obj <- hd_impute_knn(hd_obj, k = 5, verbose = FALSE)
+head(hd_obj$data)
 ```
 
-After imputation, we will run Principal Component Analysis (PCA) via `do_pca()` and Uniform Manifold Approximation and Projection (UMAP) via `do_umap()` to check for outliers, batch effects, and other potential issues.
+After imputation, we will run Principal Component Analysis (PCA) via `hd_auto_pca()` and Uniform Manifold Approximation and Projection (UMAP) via `hd_auto_umap()` to check for outliers, batch effects, and other potential issues. These are wrapper functions that will run the necessary steps to perform PCA and UMAP, including scaling the data and coloring the plots by metadata variables.
 
 ```{r}
-pca_res <- do_pca(imputed_data, 
-                  clean_metadata,
-                  color = "Sex",
-                  palette = "sex_hpa",
-                  impute = FALSE,
-                  pcs = 6)
+pca_res <- hd_auto_pca(hd_obj, 
+                       components = 10, 
+                       plot_color = "Disease", 
+                       plot_palette = "cancers12")
 
+head(pca_res$pca_res)
 pca_res$pca_plot
-pca_res$loadings_plot
-pca_res$variance_plot
+pca_res$pca_loadings_plot
+pca_res$pca_variance_plot
 ```
+
+Let's color UMAP by Sex instead of Disease to see if there are any sex related differences.
 
 ```{r}
-umap_res <- do_umap(imputed_data, 
-                    clean_metadata,
-                    color = "Disease",
-                    palette = "cancers12",
-                    impute = FALSE)
+umap_res <- hd_auto_umap(hd_obj, 
+                         plot_color = "Sex", 
+                         plot_palette = "sex")
 
+head(umap_res$umap_res)
 umap_res$umap_plot
-```
-
-We will perform another QC check to ensure that everything is as expected after cleaning and imputing the data. We will not showcase the output again for brevity.
-
-```{r, results = 'hide', message = FALSE, warning = FALSE}
-qc_data <- qc_summary_data(imputed_data, wide = TRUE, threshold = 0.7, report = FALSE)
-
-qc_metadata <- qc_summary_metadata(clean_metadata, disease_palette = "cancers12", report = FALSE)
 ```
 
 ## Biomarker Identification
 
 ### Differential Expression Analysis
 
-We will run a differential expression analysis to identify potential biomarkers. We will use `do_limma()` so that we will be able to correct also for Age. This method will help us pinpoint proteins that are significantly different between conditions. We will present only the results for AML (Acute Myeloid Leukemia).
+We will run a differential expression analysis to identify potential biomarkers. We will use `hd_run_de_limma()` so that we will be able to correct also for Sex and Age. This method will help us pinpoint proteins that are significantly different between conditions. We will run the analysis 3 times for different case classes against all other classes each time. We will also run `hd_plot_volcano()` to visualize the results. We will present only the results for Acute Myeloid Leukemia (AML).
 
 ```{r}
-de_res_aml <- do_limma(imputed_data, 
-                       clean_metadata,
-                       case = "AML",
-                       control = c("BRC", "PRC"),
-                       correct = c("Sex", "Age"),
-                       correct_type = c("factor", "numeric"),
-                       only_female = "BRC",
-                       only_male = "PRC")
+de_res_aml <- hd_run_de_limma(hd_obj,
+                              variable = "Disease",
+                              case = "AML",
+                              correct = c("Sex", "Age"))
+de_res_aml <- hd_plot_volcano(de_res_aml, logfc_lim = 1)
 
-de_res_aml$de_results
-
+head(de_res_aml$de_res)
 de_res_aml$volcano_plot
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-de_res_brc <- do_limma(imputed_data, 
-                       clean_metadata,
-                       case = "BRC",
-                       control = c("AML", "PRC"),
-                       correct = c("Sex", "Age"),
-                       correct_type = c("factor", "numeric"),
-                       only_female = "BRC",
-                       only_male = "PRC")
+de_res_crc <- hd_run_de_limma(hd_obj,
+                              variable = "Disease",
+                              case = "CRC",
+                              correct = c("Sex", "Age"))
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-de_res_prc <- do_limma(imputed_data, 
-                       clean_metadata,
-                       case = "PRC",
-                       control = c("BRC", "AML"),
-                       correct = c("Sex", "Age"),
-                       correct_type = c("factor", "numeric"),
-                       only_female = "BRC",
-                       only_male = "PRC")
+de_res_lungc <- hd_run_de_limma(hd_obj,
+                                variable = "Disease",
+                                case = "LUNGC",
+                                correct = c("Sex", "Age"))
 ```
 
-We can also summarize the results via `plot_de_summary()`.  In order to use this function we need to store the results in a list.
+We can also summarize the results via `hd_plot_de_summary()`. In order to use this function we need to store all the results in a list.
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 de_res <- list("AML" = de_res_aml, 
-               "BRC" = de_res_brc, 
-               "PRC" = de_res_prc)
+               "CRC" = de_res_crc, 
+               "LUNGC" = de_res_lungc)
 
-de_summary <- plot_de_summary(de_res, disease_palette = "cancers12")
+de_summary <- hd_plot_de_summary(de_res, class_palette = "cancers12")
 ```
 
 ```{r}
@@ -199,113 +157,89 @@ de_summary$upset_plot_down
 
 ### Lasso Machine Learning Classification Model
 
-In addition to differential expression analysis, we will use a Lasso machine learning classification model to identify significant features. This model will help us understand which proteins are most predictive of the conditions being studied. Once again, we will present only the results for AML.
+In addition to differential expression analysis, we will use a Lasso machine learning classification model to identify significant features. This model will help us understand which proteins are most predictive of the conditions being studied. 
 
-```{r}
-lasso_res_aml <- do_rreg(imputed_data, 
-                         clean_metadata, 
-                         case = "AML",
-                         control = c("BRC", "PRC"),
-                         only_female = "BRC",
-                         only_male = "PRC",
-                         exclude_cols = c("Sex", "Age"),
-                         type = "lasso",
-                         palette = "cancers12",
-                         subtitle = c("accuracy", 
-                                      "sensitivity", 
-                                      "specificity", 
-                                      "auc", 
-                                      "features",
-                                      "top-features"),
-                         nfeatures = 12,
-                         points = FALSE)
+We will start by creating the data split with `hd_run_data_split()` so we don't have any data leakage between train and test data and then we will run the model with `hd_run_rreg()`. Once again, we will run the analysis 3 times but we will present only the results for AML.
 
-lasso_res_aml$hypopt_res$hypopt_vis
+```{r, warning = FALSE, message = FALSE}
+hd_split <- hd_run_data_split(hd_obj, variable = "Disease")
 
-lasso_res_aml$testfit_res$metrics
+lasso_res_aml <- hd_run_rreg(hd_split, 
+                             variable = "Disease",
+                             case = "AML",
+                             mixture = 1,
+                             grid_size = 5,
+                             palette = "cancers12",
+                             verbose = FALSE)
 
-lasso_res_aml$var_imp_res$features
-
-lasso_res_aml$var_imp_res$var_imp_plot
-
-lasso_res_aml$boxplot_res
+lasso_res_aml$metrics
+lasso_res_aml$roc_curve
+lasso_res_aml$probability_plot
+lasso_res_aml$var_imp_plot
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-lasso_res_brc <- do_rreg(imputed_data, 
-                         clean_metadata, 
-                         case = "BRC",
-                         control = c("AML", "PRC"),
-                         only_female = "BRC",
-                         only_male = "PRC",
-                         exclude_cols = c("Sex", "Age"),
-                         type = "lasso",
-                         palette = "cancers12",
-                         subtitle = c("accuracy", 
-                                      "sensitivity", 
-                                      "specificity", 
-                                      "auc", 
-                                      "features",
-                                      "top-features"),
-                         nfeatures = 12,
-                         points = FALSE)
+lasso_res_crc <- hd_run_rreg(hd_split, 
+                             variable = "Disease",
+                             case = "CRC",
+                             mixture = 1,
+                             grid_size = 5,
+                             palette = "cancers12",
+                             verbose = FALSE)
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-lasso_res_prc <- do_rreg(imputed_data, 
-                         clean_metadata, 
-                         case = "PRC",
-                         control = c("BRC", "AML"),
-                         only_female = "BRC",
-                         only_male = "PRC",
-                         exclude_cols = c("Sex", "Age"),
-                         type = "lasso",
-                         palette = "cancers12",
-                         subtitle = c("accuracy", 
-                                      "sensitivity", 
-                                      "specificity", 
-                                      "auc", 
-                                      "features",
-                                      "top-features"),
-                         nfeatures = 12,
-                         points = FALSE)
+lasso_res_lungc <- hd_run_rreg(hd_split, 
+                               variable = "Disease",
+                               case = "LUNGC",
+                               mixture = 1,
+                               grid_size = 5,
+                               palette = "cancers12",
+                               verbose = FALSE)
 ```
 
-We can get a visual summary of the results via `plot_features_summary()` too. In order to use this function we need to store the results in a list.
+We can get a visual summary of the results via `hd_plot_model_summary()`. In order to use this function we need to store the results in a list as before.
 
 ```{r, results = 'hide'}
 lasso_res <- list("AML" = lasso_res_aml, 
-                  "BRC" = lasso_res_brc, 
-                  "PRC" = lasso_res_prc)
+                  "CRC" = lasso_res_crc, 
+                  "LUNGC" = lasso_res_lungc)
 
-features_summary <- plot_features_summary(lasso_res, case_palette = "cancers12")
+features_summary <- hd_plot_model_summary(lasso_res, class_palette = "cancers12")
 ```
 
 ```{r}
-features_summary$metrics_lineplot
+features_summary$metrics_barplot
 features_summary$features_barplot
 features_summary$upset_plot_features
 ```
 
 ## One step further
 
-The final step involves performing an Over-Representation Analysis for the up-regulated proteins from differential expression, that are also identified as features by the ML model. In this example, we will use the Gene Ontology (GO) database and show the results only for AML.
+The final step involves performing an Over-Representation Analysis for the up-regulated proteins from differential expression, that are also identified as features by the ML model. In this example, we will use the Gene Ontology (GO) database and show the results only for AML. We will use `hd_run_ora()` and `hd_plot_ora()` to perform and visualize the analysis.
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 # Extract the proteins identified by both DE and Lasso
-de_proteins <- de_res_aml$de_results |> 
-  dplyr::filter(sig == "significant up") |> 
-  dplyr::pull(Assay)
+de_proteins <- de_res_aml$de_res |> 
+  dplyr::filter(adj.P.Val < 0.05) |> 
+  dplyr::pull(Feature)
 
-lasso_proteins <- lasso_res_aml$var_imp_res$features |> 
+lasso_proteins <- lasso_res_aml$features |> 
   dplyr::filter(Scaled_Importance > 0) |> 
-  dplyr::pull(Variable)
+  dplyr::pull(Feature)
 
 intersect_proteins <- intersect(de_proteins, lasso_proteins)
 
 # Perform ORA with GO database and visualize results
-enrichment <- do_ora(intersect_proteins, database = "GO")
-plot_ora(enrichment, intersect_proteins, ncateg = 5)
+enrichment <- hd_run_ora(intersect_proteins, 
+                         database = "GO", 
+                         ontology = "BP", 
+                         pval_lim_enrichment = 0.2)  # We will use a higher p-value threshold for this example
+enrichment_plots <- hd_plot_ora(enrichment)
+
+enrichment_plots$dotplot
+enrichment_plots$treeplot
+enrichment_plots$cnetplot
 ```
 
-> 📓 Remember that these data are a dummy-dataset with fake data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.

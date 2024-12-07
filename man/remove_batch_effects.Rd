@@ -4,12 +4,14 @@
 \alias{remove_batch_effects}
 \title{Remove batch effects}
 \usage{
-remove_batch_effects(wide_data, metadata, batch, batch2 = NULL)
+remove_batch_effects(wide_data, metadata, sample_id, batch, batch2 = NULL)
 }
 \arguments{
 \item{wide_data}{A tibble containing the data to be normalized. The data should be in wide format.}
 
 \item{metadata}{A tibble containing the metadata information.}
+
+\item{sample_id}{The column containing the sample ID information.}
 
 \item{batch}{The metadata column containing the batch information.}
 

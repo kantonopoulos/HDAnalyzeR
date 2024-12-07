@@ -4,10 +4,12 @@
 \alias{check_col_types}
 \title{Check the column types of the dataset}
 \usage{
-check_col_types(df)
+check_col_types(dat, unique_threshold = 5)
 }
 \arguments{
-\item{df}{The input dataset.}
+\item{dat}{The input dataset.}
+
+\item{unique_threshold}{The threshold to consider a numeric variable as categorical. Default is 5.}
 }
 \value{
 A table with the counts of each class in the dataset.
