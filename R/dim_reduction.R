@@ -484,11 +484,11 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
-#' # Run the PCA analysis
-#' hd_run_umap(hd_object, components = 5, by_sample = TRUE, seed = 123)
+#' # Run the UMAP analysis
+#' hd_run_umap(hd_object, components = 2, by_sample = TRUE, seed = 123)
 #'
-#' # Run the PCA analysis by feature
-#' hd_run_umap(hd_object, components = 5, by_sample = FALSE, seed = 123)
+#' # Run the UMAP analysis by feature
+#' hd_run_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
 hd_run_umap <- function(dat,
                         by_sample = TRUE,
                         components = 2,

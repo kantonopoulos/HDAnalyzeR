@@ -412,3 +412,58 @@ check_numeric_columns <- function(dat) {
 
   invisible(non_numeric)
 }
+
+
+#' Filter data and metadata by sex
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
+#' @param variable The name of the variable in the metadata contain information for sex. Default is "Sex".
+#' @param sex The value of the sex variable to filter by.
+#'
+#' @return A list containing the filtered data and metadata.
+#' @export
+#'
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' hd_filter_by_sex(hd_object, variable = "Sex", sex = "F")
+hd_filter_by_sex <- function(dat, metadata = NULL, variable = "Sex", sex) {
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+    }
+    wide_data <- dat[["data"]]
+    metadata <- dat[["metadata"]]
+    sample_id <- dat[["sample_id"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+  }
+
+  if (!variable %in% names(example_metadata)) {
+    stop(paste("The variable", variable, "does not exist in the metadata."))
+  }
+  if (!sex %in% unique(metadata[[variable]])) {
+    stop(paste(sex, "is not a valid value for the", variable, "variable."))
+  }
+
+  # Filter metadata based on sex
+  filtered_metadata <- metadata[metadata[[variable]] == sex, ]
+
+  # Extract the sample IDs from the filtered metadata
+  sample_ids <- filtered_metadata[[sample_id]]
+
+  # Subset the data based on the sample IDs
+  filtered_data <- wide_data |> dplyr::filter(!!rlang::sym(sample_id) %in% sample_ids)
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- filtered_data
+    dat[["metadata"]] <- filtered_metadata
+    return(dat)
+  } else {
+    return(list("data" = filtered_data, "metadata" = filtered_metadata))
+  }
+}

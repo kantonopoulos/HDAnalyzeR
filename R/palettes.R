@@ -32,22 +32,6 @@ hd_palettes <- function() {
                   "OVC" = "#603479",
                   "PRC" = "#E7662B"),
 
-    cancers15 = c("AML" = "#A6CEE3",
-                  "CLL" = "#2271B5",
-                  "LYMPH" = "#08585A",
-                  "MYEL" = "#66C2A5",
-                  "CRC" = "#B89B74",
-                  "LUNGC" = "#ADC74F",
-                  "GLIOM" = "#FFD321",
-                  "BRC" = "#E8A29A",
-                  "CVX" = "#9E0142",
-                  "ENDC" = "#B195AE",
-                  "OVC" = "#603479",
-                  "PRC" = "#E7662B",
-                  "MENI" = "#FFFF80",
-                  "SI-NET" = "#504538",
-                  "PIT-NET" = "#FFFF00"),
-
     # HPA Palettes -----------------------------------------------
     secreted = c("Secreted to blood" = "#B30000",
                  "Secreted in brain" = "#FFDD00",

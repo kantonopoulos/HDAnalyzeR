@@ -27,9 +27,9 @@ to be calculated is defined by the user. The function returns a tibble with the 
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
-# Run the PCA analysis
-hd_run_umap(hd_object, components = 5, by_sample = TRUE, seed = 123)
+# Run the UMAP analysis
+hd_run_umap(hd_object, components = 2, by_sample = TRUE, seed = 123)
 
-# Run the PCA analysis by feature
-hd_run_umap(hd_object, components = 5, by_sample = FALSE, seed = 123)
+# Run the UMAP analysis by feature
+hd_run_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
 }
