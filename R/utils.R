@@ -443,7 +443,7 @@ hd_filter_by_sex <- function(dat, metadata = NULL, variable = "Sex", sex) {
     sample_id <- colnames(dat)[1]
   }
 
-  if (!variable %in% names(example_metadata)) {
+  if (!variable %in% names(metadata)) {
     stop(paste("The variable", variable, "does not exist in the metadata."))
   }
   if (!sex %in% unique(metadata[[variable]])) {

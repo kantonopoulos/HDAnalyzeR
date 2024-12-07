@@ -7,7 +7,7 @@
 hd_plot_feature_heatmap(
   de_results,
   model_results,
-  order_by = NULL,
+  order_by,
   pval_lim = 0.05,
   logfc_lim = 0
 )

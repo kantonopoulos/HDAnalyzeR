@@ -192,7 +192,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   }
 
   enrichment[["dotplot"]] <- dot_plot
-  enrichment[["tree_plot"]] <- tree_plot
+  enrichment[["treeplot"]] <- tree_plot
   enrichment[["cnetplot"]] <- cnet_plot
 
   return(enrichment)
