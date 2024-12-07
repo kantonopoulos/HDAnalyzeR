@@ -14,53 +14,78 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
+This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
 
-Let's start by loading the packages, widen the example dataset, load the metadata, and run some differential expression analysis to get the results for the post analysis. For the Over Representation Analysis we could also use the features list from the classification models or even run both and get the intersect as it is done in the Get Started guide.
+This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r setup, results = 'hide', message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
 library(dplyr)
-library(utils)
 
-wide_data <- widen_data(example_data)
-metadata <- example_metadata
-de_res <- do_limma(wide_data, metadata, case = "AML", control = c("CLL", "MYEL", "GLIOM"))
+hd_obj <- hd_initialize(dat = example_data, 
+                        metadata = example_metadata, 
+                        is_wide = FALSE, 
+                        sample_id = "DAid",
+                        var_name = "Assay",
+                        value_name = "NPX")
 ```
 
-First, we will perform an Over Representation Analysis (ORA) using the Gene Ontology database. We will use the `do_ora()` function. The function requires a list of proteins. In this example we will extract the top-20 up-regulated proteins.
+For the Over Representation Analysis we are going to use a list of differentially expressed proteins. In this example we are going to use the up-regulated proteins. We could also use the features list from the classification models or even run both and get the intersect as it is done in the Get Started guide.
 
-```{r}
-proteins <- de_res$de_results |> filter(logFC > 0) |> pull(Assay) |> head(20)
-
-ora_res <- do_ora(proteins, "GO")
-plot_ora(ora_res, proteins)
+```{results = 'hide', message = FALSE, warning = FALSE}
+de_res <- hd_run_de_limma(hd_obj, case = "AML")
 ```
-> 📓 When working with a real Olink dataset, it is recommended to use a background list of proteins that are present in the Olink panel to minimize bias. This can be done by using the `background` parameter in the `do_ora()` function.
+
+First, we will perform an Over Representation Analysis (ORA) using the Gene Ontology database and the BP ontology. We will use the `hd_run_ora()` and `hd_plot_ora()` functions to run the analysis and plot the results respectively.
+
+```{r, message = FALSE, warning = FALSE}
+proteins <- de_res$de_res |> filter(logFC > 0 & adj.P.Val < 0.05) |> pull(Feature)
+
+enrichment <- hd_run_ora(proteins, database = "GO", ontology = "BP")
+
+enrichment_plots <- hd_plot_ora(ora_res)
+
+enrichment_plots$dotplot
+enrichment_plots$treeplot
+enrichment_plots$cnetplot
+```
 
 Let's change the database and the p-value threshold.
 
 ```{r, message = FALSE, warning = FALSE}
-ora_res <- do_ora(proteins, "Reactome", pval = 0.2)
-plot_ora(ora_res, proteins, pval = 0.2, fontsize = 6)
+enrichment  <- hd_run_ora(proteins, database = "Reactome", pval_lim_enrichment = 0.2)
+
+enrichment_plots <- hd_plot_ora(enrichment)
+
+enrichment_plots$dotplot
+enrichment_plots$treeplot
+enrichment_plots$cnetplot
 ```
 
-We can also run a Gene Set Enrichment Analysis (GSEA) using the `do_gsea()` function. In this case, the function requires differential expression results. 
+We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_run_gsea()` and `hd_plot_gsea` functions. In `hd_run_gsea()` we can select if we want to include only up, down or both up and down regulated proteins, as well as the adjusted P value and logFC limits to consider a protein as differentially expressed. The `hd_plot_gsea()` function will plot the results.
+
+> 📓 In this case, the function requires strictly differential expression results.
 
 ```{r, message = FALSE, warning = FALSE}
-gsea_res <- do_gsea(de_res$de_results, "GO", pval_lim = 0.7)
-plot_gsea(gsea_res, de_res$de_results, pval_lim = 0.7, fontsize = 7)
+enrichment <- hd_run_gsea(de_res, database = "GO", ontology = "BP", pval_lim_enrichment = 0.5)
+
+enrichment_plots <- hd_plot_gsea(enrichment)
+
+enrichment_plots$dotplot
+enrichment_plots$gseaplot
+enrichment_plots$cnetplot
+enrichment_plots$ridgeplot
 ```
 
-Finally, let's perform an automated literature search using the `literature_search()`. The function requires a list with disease names as names and proteins as values. We will create the list, run the search and preview the results.
+Finally, let's perform an automated literature search using the `hd_run_literature_search()`. The function requires a list with disease names as names and proteins as values. We will create the list, run the search and preview the results.
 
 ```{r}
 biomarkers <- list("acute myeloid leukemia" = c("FLT3", "EPO"),
                    "chronic lymphocytic leukemia" = c("PARP1", "FCER2"))
 
-lit_res <- literature_search(biomarkers, max_articles = 5)
+lit_res <- hd_run_literature_search(biomarkers, max_articles = 5)
 
 lit_res$`acute myeloid leukemia`$FLT3$title
 ```
 
-> 📓 Remember that these data are a dummy-dataset with fake data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.

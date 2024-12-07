@@ -1,6 +1,3 @@
-build:
-  vignettes: false
-
 url: https://hda1472.github.io/HDAnalyzeR
 template:
   bootstrap: 5
@@ -16,101 +13,105 @@ footer:
     legal: Provided without **any warranty**.
 
 reference:
-- title: Preprocessing Data
-- subtitle: Preprocessing
-  desc: |
-    Functions that help you prepare your data for analysis.
-  contents:
-  - clean_data
-  - clean_metadata
-- subtitle: Data Normalization and Imputation
-  desc: |
-    Functions that normalize data, remove batch effects, and impute missing values.
-  contents:
-  - normalize_data
-  - impute_median
-  - impute_knn
-  - impute_missForest
-  - impute_mice
-- title: Data Quality Control
-- subtitle: Quality Control
-  desc: |
-    Functions that perform quality control check on your data.
-  contents:
-  - na_search
-  - qc_summary_data
-  - qc_summary_metadata
-- subtitle: Correlation and Clustering
-  desc: |
-    Functions that perform protein-protein correlation and can order data based on their hierarchical clustering.
-  contents:
-  - create_corr_heatmap
-  - cluster_data
-- subtitle: Dimensionality Reduction
-  desc: |
-    Functions that perform dimensionality reduction on your data.
-  contents:
-  - do_pca
-  - do_umap
-- title: Main Proteomics Analysis
-- subtitle: Differential Expression Analysis
-  desc: |
-    Functions that perform protein differential expression analysis.
-  contents:
-  - do_limma
-  - do_limma_continuous
-  - do_ttest
-- subtitle: Classification Models
-  desc: |
-    Functions that run Machine Learning classification model pipelines.
-  contents:
-  - do_rreg
-  - do_rreg_multi
-  - do_rf
-  - do_rf_multi
-  - do_xgboost
-  - do_xgboost_multi
-  - do_lreg
-- subtitle: Visualize Results
-  desc: |
-    Functions that visualize the results of your analysis.
-  contents:
-  - plot_de_summary
-  - plot_features_summary
-  - plot_biomarkers_summary_heatmap
-  - plot_protein_boxplot
-  - plot_scatter_with_regression
-- title: Post Analysis
-  desc: |
-    Functions that analyze the potential biormarkers and their biological impact further.
-  contents:
-  - literature_search
-  - do_ora
-  - plot_ora
-  - do_gsea
-  - plot_gsea
 - title: Generic Utilities
   desc: |
-    Functions that perform general tasks.
+    Functions that help you perform general tasks.
   contents:
+  - hd_initialize
   - hd_save_path
   - hd_save_data
   - hd_import_data
   - hd_widen_data
+  - hd_long_data
+  - hd_bin_columns
   - hd_detect_vartype
+  - hd_filter_by_sex
+- title: Data Preprocessing & Quality Control
+- subtitle: Data Normalization and Imputation
+  desc: |
+    Functions that perform normalizaztion, remove batch effects and impute missing values.
+  contents:
+  - hd_run_normalization
+  - hd_omit_na
+  - hd_impute_median
+  - hd_impute_knn
+  - hd_impute_missForest
+- subtitle: Quality Control
+  desc: |
+    Functions that perform automated data quality control check.
+  contents:
+  - hd_run_na_search
+  - hd_run_qc_summary
+- subtitle: Correlation and Clustering
+  desc: |
+    Functions that perform protein-protein correlation and can order data based on selected clustering method.
+  contents:
+  - hd_run_correlation
+  - hd_plot_cor_heatmap
+  - hd_run_clustering
+- subtitle: Dimensionality Reduction
+  desc: |
+    Functions that perform dimensionality reduction.
+  contents:
+  - hd_run_pca
+  - hd_run_umap
+  - hd_plot_dim
+  - hd_plot_pca_loadings
+  - hd_plot_pca_variance
+  - hd_auto_pca
+  - hd_auto_umap
+- title: Main Proteomics Analysis
+- subtitle: Differential Expression Analysis
+  desc: |
+    Functions that perform differential expression analysis.
+  contents:
+  - hd_run_de_limma
+  - hd_run_de_ttest
+  - hd_plot_volcano
+- subtitle: Classification Models
+  desc: |
+    Functions that run Machine Learning classification model pipelines.
+  contents:
+  - hd_run_data_split
+  - hd_run_lr
+  - hd_run_rreg
+  - hd_run_rf
+- subtitle: Summary Visualizations
+  desc: |
+    Functions that visually summarize the results.
+  contents:
+  - hd_plot_de_summary
+  - hd_plot_model_summary
+  - hd_plot_feature_heatmap
+- subtitle: Other Visualizations
+  desc: |
+    Functions that visualize data.
+  contents:
+  - hd_plot_regression
+  - hd_plot_feature_boxplot
+  - hd_plot_feature_network
+- title: Post Analysis
+  desc: |
+    Functions that analyze further the potential biormarkers and their biological impact.
+  contents:
+  - hd_run_literature_search
+  - hd_run_ora
+  - hd_plot_ora
+  - hd_run_gsea
+  - hd_plot_gsea
 - title: Palettes and Themes
   desc: |
     Functions that customize the appearance of your plots.
   contents:
-  - get_hpa_palettes
-  - scale_color_hpa
-  - scale_fill_hpa
-  - theme_hpa
+  - hd_show_palettes
+  - hd_palettes
+  - scale_color_hd
+  - scale_fill_hd
+  - theme_hd
 - title: Built in datasets
   contents:
   - example_data
   - example_metadata
-
 articles:
 - title: Get started
   navbar: ~

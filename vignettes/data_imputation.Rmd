@@ -23,25 +23,38 @@ library(ggplot2)
 library(patchwork)
 ```
 
-```{r}
-wide_data <- widen_data(example_data)
-```
-
-We can simply check our data for NA values by using the `qc_summary_data()`.
+Let's start with loading the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r}
-qc_data <- qc_summary_data(wide_data, report = FALSE)
-
-qc_data$na_row_dist
-qc_data$na_col_dist
+hd_obj <- hd_initialize(dat = example_data, 
+                        metadata = example_metadata, 
+                        is_wide = FALSE, 
+                        sample_id = "DAid",
+                        var_name = "Assay",
+                        value_name = "NPX")
 ```
 
-We will start the imputation with the simplest and fastest method, which is the median imputation by using the `impute_median()`. After the imputation, we will check the sample distribution of a random Assay that contains missing values to see if these values are imputed logically.
+We can simply check our data for NA values by using the `hd_run_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA
+
+```{r}
+na_res <- hd_run_na_search(hd_obj,
+                           annotation_vars = c("Sex", "Age", "Disease"),
+                           palette = list(Disease = hd_palettes()$cancers12, 
+                                                    Sex = hd_palettes()$sex),
+                           x_labels = FALSE,
+                           y_labels = FALSE)
+
+na_res$na_heatmap
+```
+
+This heatmap is useful to evaluate if there are NA specific patterns in the data. In this case, we can see that the NA values are spread across the different Assays, samples and metadata variables. In this case, we can try impute them!
+
+We will start the imputation with the simplest and fastest method, which is the median imputation by using the `hd_impute_median()`. After the imputation, we will check the sample distribution of a random Assay that contains missing values to see if these values are imputed logically.
 
 ```{r, message = FALSE, warning = FALSE}
-imputed_data <- impute_median(wide_data, show_na_percentage = FALSE)
+imputed_hd_obj <- hd_impute_median(hd_obj, verbose = FALSE)
 
-plot_before <- wide_data |> 
+plot_before <- hd_obj$data |> 
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightblue", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "Before imputation",
@@ -49,7 +62,7 @@ plot_before <- wide_data |>
   ylim(0, 90) +
   theme_minimal()
 
-plot_after <- imputed_data |> 
+plot_after <- imputed_hd_obj$data |> 
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightpink", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "After median imputation",
@@ -62,12 +75,12 @@ plot_before + plot_after
 
 As observed in the plots, the distribution of the ACTA2 assay shifts slightly after imputation, with an exaggerated median value in the imputed data. This highlights a key drawback of median imputation: the more missing values there are, the greater the potential bias.
 
-A better approach is to use the `impute_knn()` with 5 neighbors, which imputes missing values based on the 5-nearest neighbors. We will use the same assay to compare the imputed data with the original data.
+A better approach is to use the `hd_impute_knn()` with 5 neighbors, which imputes missing values based on the 5-nearest neighbors. We will use the same assay to compare the imputed data with the original data.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-imputed_data <- impute_knn(wide_data, k = 5, show_na_percentage = FALSE)
+imputed_hd_obj <- hd_impute_knn(hd_obj, k = 5, verbose = FALSE)
 
-plot_before <- wide_data |> 
+plot_before <- hd_obj$data |> 
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightblue", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "Before imputation",
@@ -75,7 +88,7 @@ plot_before <- wide_data |>
   ylim(0, 90) +
   theme_minimal()
 
-plot_after <- imputed_data |>
+plot_after <- imputed_hd_obj$data |>
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightpink", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "After KNN imputation",
@@ -86,14 +99,14 @@ plot_after <- imputed_data |>
 plot_before + plot_after
 ```
 
-In this case, the distribution of the ACTA2 assay is more similar to the original data after imputation. This is because the KNN imputation method uses the nearest neighbors to impute missing values, which is more accurate and representative than median imputation.
+In this case, the distribution of the ACTA2 assay after imputation is more similar to the original distribution. This is because the KNN imputation method uses the nearest neighbors to impute missing values, which is more accurate and representative than median imputation.
 
-Another imputation method is the `impute_mice()`, which uses multiple imputation by chained equations. We will use the default values for the number of imputations, the number of iterations and the imputation method.
+Finally, we will use the `hd_impute_missForest()` method, which uses the random forest algorithm to impute missing values. We will use the default values for the number of trees and the number of iterations.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-imputed_data <- impute_mice(wide_data, show_na_percentage = FALSE)
+imputed_hd_obj <- hd_impute_missForest(hd_obj, verbose = FALSE)
 
-plot_before <- wide_data |> 
+plot_before <- hd_obj$data |> 
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightblue", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "Before imputation",
@@ -101,33 +114,7 @@ plot_before <- wide_data |>
   ylim(0, 90) +
   theme_minimal()
 
-plot_after <- imputed_data |>
-  ggplot(aes(x = ACTA2)) +
-  geom_histogram(fill = "lightpink", color = "black", alpha = 0.5, bins = 30) +
-  labs(title = "After MICE imputation",
-       x = "ACTA2", y = "Count") +
-  ylim(0, 90) +
-  theme_minimal()
-
-plot_before + plot_after
-```
-
-This imputed dataset is even closer to the original data, as the MICE imputation method uses multiple imputations to estimate missing values. This is a more robust and accurate method than median or KNN imputation. However, it is the most computationally expensive method.
-
-Finally, we will use the `impute_missForest()` method, which uses the random forest algorithm to impute missing values. We will use the default values for the number of trees and the number of iterations.
-
-```{r, results = 'hide', message = FALSE, warning = FALSE}
-imputed_data <- impute_missForest(wide_data, show_na_percentage = FALSE)
-
-plot_before <- wide_data |> 
-  ggplot(aes(x = ACTA2)) +
-  geom_histogram(fill = "lightblue", color = "black", alpha = 0.5, bins = 30) +
-  labs(title = "Before imputation",
-       x = "ACTA2", y = "Count") +
-  ylim(0, 90) +
-  theme_minimal()
-
-plot_after <- imputed_data |>
+plot_after <- imputed_hd_obj$data |>
   ggplot(aes(x = ACTA2)) +
   geom_histogram(fill = "lightpink", color = "black", alpha = 0.5, bins = 30) +
   labs(title = "After MissForest imputation",
@@ -138,10 +125,38 @@ plot_after <- imputed_data |>
 plot_before + plot_after
 ```
 
-The MissForest imputation method is the most accurate and also very robust, as it uses the random forest algorithm to impute missing values. This method is particularly useful for large datasets with complex relationships between variables.
+The MissForest imputation method is the most accurate and also very robust, as it uses the random forest algorithm to impute missing values. This method is particularly useful for large datasets with complex relationships between variables. On the other hand, it is the most computationally expensive and it would help parallelize it. You can do that by creating and registering a cluster with a package like `doParallel` and then setting the `parallelize` argument to "forests" or "variables".
 
 > 📓 All methods assume that the data is missing at random, which is a common assumption in imputation methods. If the data are missing in a biased way (either technical or biological), the imputation methods may introduce bias into the data. In such cases, it is important to carefully consider the way the data were collected and what they represent.
 
-In this vignette we showed that via HDAnalyzeR the user can impute their data with different methods, each of them with its own advantages and drawbacks. The user can choose the method that best fits their data and their analysis needs. When using KNN, MICE or MissForest imputation methods, the user should experiment with the parameters and look at the distributions of assays before and after to pick the most suitable.
+If for any reason do not want to impute the data, you can use the `hd_omit_na()` function to remove the rows with missing values in specific variables. This function will remove all rows with missing values in any of the assays.
 
-> 📓 Remember that these data are a dummy-dataset with fake data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+```{r, message = FALSE, warning = FALSE}
+imputed_hd_obj <- hd_omit_na(hd_obj)
+
+plot_before <- hd_obj$data |> 
+  ggplot(aes(x = ACTA2)) +
+  geom_histogram(fill = "lightblue", color = "black", alpha = 0.5, bins = 30) +
+  labs(title = "Before imputation",
+       x = "ACTA2", y = "Count") +
+  ylim(0, 90) +
+  theme_minimal()
+
+plot_after <- imputed_hd_obj$data |>
+  ggplot(aes(x = ACTA2)) +
+  geom_histogram(fill = "lightpink", color = "black", alpha = 0.5, bins = 30) +
+  labs(title = "After removing missing values",
+       x = "ACTA2", y = "Count") +
+  ylim(0, 90) +
+  theme_minimal()
+
+plot_before + plot_after
+
+# Data after removing missing values only in specific columns
+res <- hd_omit_na(hd_obj, columns = "AARSD1")
+res$data
+```
+
+In this vignette we showed that via HDAnalyzeR the user can impute their data with different methods, each of them with its own advantages and drawbacks. The user can choose the method that best fits their data and their analysis needs. When using KNN or MissForest imputation methods, the user should experiment with the parameters and look at the distributions of assays before and after to pick the most suitable.
+
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
