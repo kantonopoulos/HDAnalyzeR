@@ -586,6 +586,7 @@ evaluate_model <- function(dat,
     ggplot2::coord_equal() +
     theme_hd()
 
+  dat[["final_workflow"]] <- final_wf
   dat[["final"]] <- final
   dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
                            "sensitivity" = sensitivity$.estimate,
@@ -736,6 +737,7 @@ evaluate_multiclass_model <- function(dat,
   auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
                         AUC = unlist(auc[["AUC"]][["glmnet"]]))
 
+  dat[["final_workflow"]] <- final_wf
   dat[["final"]] <- final
   dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
                            "sensitivity" = sensitivity$.estimate,

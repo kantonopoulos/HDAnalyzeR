@@ -361,7 +361,7 @@ hd_plot_regression <- function(dat,
 #' hd_plot_feature_heatmap(res_de, res_model, order_by = "MYEL")
 hd_plot_feature_heatmap <- function(de_results,
                                     model_results,
-                                    order_by = NULL,
+                                    order_by,
                                     pval_lim = 0.05,
                                     logfc_lim = 0) {
 
