@@ -47,7 +47,7 @@ It colors and labels the top up and down regulated proteins.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis for AML vs all others
-de_results <- hd_run_de_limma(hd_object, case = "AML")
+de_results <- hd_de_limma(hd_object, case = "AML")
 
 # Create a volcano plot
 hd_plot_volcano(de_results)

@@ -319,12 +319,19 @@ qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, u
 #'                            example_metadata |> dplyr::select(-Sample))
 #'
 #' # Run the quality control summary
-#' hd_run_qc_summary(hd_object,
-#'                   variable = "Disease",
-#'                   palette = list(Disease = "cancers12", Sex = "sex"),
-#'                   cor_threshold = 0.7,
-#'                   verbose = FALSE)
-hd_run_qc_summary <- function(dat, metadata = NULL, variable, palette = NULL, unique_threshold = 5, cor_threshold = 0.8, cor_method = "pearson", verbose = TRUE) {
+#' hd_qc_summary(hd_object,
+#'               variable = "Disease",
+#'               palette = list(Disease = "cancers12", Sex = "sex"),
+#'               cor_threshold = 0.7,
+#'               verbose = FALSE)
+hd_qc_summary <- function(dat,
+                          metadata = NULL,
+                          variable,
+                          palette = NULL,
+                          unique_threshold = 5,
+                          cor_threshold = 0.8,
+                          cor_method = "pearson",
+                          verbose = TRUE) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")

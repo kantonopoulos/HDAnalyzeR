@@ -17,7 +17,7 @@ hd_plot_dim(
 )
 }
 \arguments{
-\item{dim_object}{A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by \code{hd_run_pca()} or \code{hd_run_umap()}.}
+\item{dim_object}{A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by \code{hd_pca()} or \code{hd_umap()}.}
 
 \item{metadata}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
@@ -47,6 +47,6 @@ The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run the PCA analysis
-pca_object <- hd_run_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
+pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_dim(hd_object, x = "PC1", y = "PC2", color = "Disease", palette = "cancers12")
 }

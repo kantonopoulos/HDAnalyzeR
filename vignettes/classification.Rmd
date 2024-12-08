@@ -28,25 +28,25 @@ hd_obj <- hd_initialize(dat = example_data,
                         value_name = "NPX")
 ```
 
-First, we will create the data split object using the `hd_run_data_split()` function. This function will create a list of data frames with the training and testing sets. We can change the ratio of the training and testing sets, the seed for reproducibility, and the variable to classify. We can also add metadata columns as predictors in this stage. In this example, we will use the `Disease` column as the variable to classify and the `Sex` and `Age` columns as a metadata predictor.
+First, we will create the data split object using the `hd_split_data()` function. This function will create a list of data frames with the training and testing sets. We can change the ratio of the training and testing sets, the seed for reproducibility, and the variable to classify. We can also add metadata columns as predictors in this stage. In this example, we will use the `Disease` column as the variable to classify and the `Sex` and `Age` columns as a metadata predictor.
 
 ```{r, message = FALSE, warning = FALSE}
-split_obj <- hd_run_data_split(hd_obj, 
-                               variable = "Disease", 
-                               ratio = 0.8, 
-                               seed = 123, 
-                               metadata_cols = c("Sex", "Age"))
+split_obj <- hd_split_data(hd_obj, 
+                           variable = "Disease", 
+                           ratio = 0.8, 
+                           seed = 123, 
+                           metadata_cols = c("Sex", "Age"))
 ```
 
-let's start with a regularized regression LASSO model via `hd_run_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
+let's start with a regularized regression LASSO model via `hd_model_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
 
 ```{r, message = FALSE, warning = FALSE}
-model_res <- hd_run_rreg(split_obj,
-                         case = "AML",
-                         control = c("CLL", "MYEL", "GLIOM"),
-                         grid_size = 5,
-                         mixture = 1,
-                         verbose = FALSE)
+model_res <- hd_model_rreg(split_obj,
+                           case = "AML",
+                           control = c("CLL", "MYEL", "GLIOM"),
+                           grid_size = 5,
+                           mixture = 1,
+                           verbose = FALSE)
 
 model_res$final_workflow
 model_res$metrics
@@ -55,18 +55,18 @@ model_res$probability_plot
 model_res$var_imp_plot
 ```
 
-We can change several parameters in the `hd_run_rreg()` function. For example, we can change the number of cross-validation folds, the number of grid points for the hyperparameter optimization, or the feature correlation threshold. Also, exactly as with the DE functions, if the `control` parameter is not set, the function will use all the other classes as controls. For more information, please refer to `hd_run_rreg()` documentation.
+We can change several parameters in the `hd_model_rreg()` function. For example, we can change the number of cross-validation folds, the number of grid points for the hyperparameter optimization, or the feature correlation threshold. Also, exactly as with the DE functions, if the `control` parameter is not set, the function will use all the other classes as controls. For more information, please refer to `hd_model_rreg()` documentation.
 
 We will also set mixture to NULL to allow the model to optimize this parameter (elastic net regression instead of LASSO regression) and set a palette for our classes.
 
 ```{r, message = FALSE, warning = FALSE}
-model_res <- hd_run_rreg(split_obj,
-                         case = "AML",
-                         cv_sets = 3,
-                         grid_size = 5,
-                         cor_threshold = 0.7,
-                         palette = "cancers12",
-                         verbose = FALSE)
+model_res <- hd_model_rreg(split_obj,
+                           case = "AML",
+                           cv_sets = 3,
+                           grid_size = 5,
+                           cor_threshold = 0.7,
+                           palette = "cancers12",
+                           verbose = FALSE)
 
 model_res$final_workflow
 model_res$roc_curve
@@ -74,12 +74,12 @@ model_res$probability_plot
 model_res$var_imp_plot
 ```
 
-We can use a different variable to classify like `Sex` and even a different algorithm like random forest via `hd_run_rf()`. However, do not forget that we should create a new split object for this new model. In this case, because the classes are already balanced, we will not use the `balance_groups` parameter to FALSE to consider all the samples in the training dataset. Let's also remove everything except from number of features and AUC from the variable importance plot title.
+We can use a different variable to classify like `Sex` and even a different algorithm like random forest via `hd_model_rf()`. However, do not forget that we should create a new split object for this new model. In this case, because the classes are already balanced, we will not use the `balance_groups` parameter to FALSE to consider all the samples in the training dataset. Let's also remove everything except from number of features and AUC from the variable importance plot title.
 
 ```{r, message = FALSE, warning = FALSE}
-split_obj <- hd_run_data_split(hd_obj, variable = "Sex", ratio = 0.8)
+split_obj <- hd_split_data(hd_obj, variable = "Sex", ratio = 0.8)
                                
-model_res <- hd_run_rf(split_obj,
+model_res <- hd_model_rf(split_obj,
                        variable = "Sex",
                        case = "F",
                        palette = "sex",
@@ -95,7 +95,7 @@ model_res$probability_plot
 model_res$var_imp_plot
 ```
 
-If our data have a single predictor, we can use `hd_run_lr()` instead of `hd_run_rreg()` to perform a logistic regression. Random forest can be used as it was for multiple predictors.
+If our data have a single predictor, we can use `hd_model_lr()` instead of `hd_model_rreg()` to perform a logistic regression. Random forest can be used as it was for multiple predictors.
 
 ```{r, message = FALSE, warning = FALSE}
 hd_obj_single <- hd_initialize(dat = example_data |> filter(Assay == "ADA"), 
@@ -105,9 +105,9 @@ hd_obj_single <- hd_initialize(dat = example_data |> filter(Assay == "ADA"),
                                var_name = "Assay",
                                value_name = "NPX")
 
-split_obj <- hd_run_data_split(hd_obj_single, variable = "Disease", ratio = 0.8)
+split_obj <- hd_split_data(hd_obj_single, variable = "Disease", ratio = 0.8)
 
-model_res <- hd_run_lr(split_obj, case = "AML", palette = "cancers12", verbose = FALSE)
+model_res <- hd_model_lr(split_obj, case = "AML", palette = "cancers12", verbose = FALSE)
 
 model_res$roc_curve
 model_res$probability_plot
@@ -125,9 +125,9 @@ hd_obj <- hd_initialize(dat = example_data,
                         var_name = "Assay",
                         value_name = "NPX")
 
-split_obj <- hd_run_data_split(hd_obj, variable = "Disease", ratio = 0.8)
+split_obj <- hd_split_data(hd_obj, variable = "Disease", ratio = 0.8)
 
-model_res <- hd_run_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_res <- hd_model_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
 features <- model_res$features |> arrange(desc(Scaled_Importance)) |> head(9) |> pull(Feature)
 
@@ -147,12 +147,12 @@ hd_plot_feature_boxplot(hd_obj,
 We can also do multiclassification predictions with all available classes in the data. The only thing that we should change is set the `case` argument to NULL so that the model understands that we want to classify all the classes. Let's see an example with regularized regression!
 
 ```{r, message = FALSE, warning = FALSE}
-model_res <- hd_run_rreg(split_obj, 
-                         case = NULL, 
-                         cv_sets = 3, 
-                         grid_size = 5, 
-                         palette = "cancers12",
-                         verbose = FALSE)
+model_res <- hd_model_rreg(split_obj, 
+                           case = NULL, 
+                           cv_sets = 3, 
+                           grid_size = 5, 
+                           palette = "cancers12",
+                           verbose = FALSE)
 
 model_res$final_workflow
 model_res$roc_curve
@@ -165,15 +165,15 @@ To summarize the results for multiple binary models we can use the `hd_plot_mode
 > 📓 Do not forget that Ovarian Cancer is sex specific and we should consider run the analysis only with samples of that sex. We can easily integrate that into our pipeline using the `hd_filter_by_sex()` function.
 
 ```{r, message = FALSE, warning = FALSE}
-model_aml <- hd_run_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_aml <- hd_model_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
-model_gliom <- hd_run_rreg(split_obj, case = "GLIOM", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_gliom <- hd_model_rreg(split_obj, case = "GLIOM", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
-split_obj_sex <- hd_run_data_split(hd_obj |> hd_filter_by_sex(variable = "Sex", sex = "F"), 
-                                   variable = "Disease", 
-                                   ratio = 0.8)
+split_obj_sex <- hd_split_data(hd_obj |> hd_filter_by_sex(variable = "Sex", sex = "F"),
+                               variable = "Disease",
+                               ratio = 0.8)
 
-model_ovc <- hd_run_rreg(split_obj_sex, case = "OVC", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_ovc <- hd_model_rreg(split_obj_sex, case = "OVC", cv_sets = 3, grid_size = 5, verbose = FALSE)
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -192,25 +192,25 @@ model_summary_res$upset_plot_features
 In case we have one case and multiple controls we can use the `hd_plot_feature_heatmap()` function to visualize the protein features in a heatmap. This function is usefull as we can easily see if the same features are important in multiple models. Let's see an example with the AML model and 3 different controls groups. We will also combine DE results of the same comparisons.
 
 ```{r, message = FALSE, warning = FALSE}
-model_cll <- hd_run_rreg(split_obj, case = "AML", control = "CLL", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_cll <- hd_model_rreg(split_obj, case = "AML", control = "CLL", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
-model_blood <- hd_run_rreg(split_obj, 
-                           case = "AML", 
-                           control = c("CLL", "MYEL", "LYMPH"), 
-                           cv_sets = 3, 
-                           grid_size = 5, 
-                           verbose = FALSE)
+model_blood <- hd_model_rreg(split_obj, 
+                             case = "AML", 
+                             control = c("CLL", "MYEL", "LYMPH"), 
+                             cv_sets = 3, 
+                             grid_size = 5, 
+                             verbose = FALSE)
 
-model_all <- hd_run_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_all <- hd_model_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
-de_cll <- hd_run_de_limma(hd_obj, case = "AML", control = "CLL", correct = c("Sex", "Age"))
+de_cll <- hd_model_de_limma(hd_obj, case = "AML", control = "CLL", correct = c("Sex", "Age"))
 
-de_blood <- hd_run_de_limma(hd_obj, 
-                            case = "AML", 
-                            control = c("CLL", "MYEL", "LYMPH"), 
-                            correct = c("Sex", "Age"))
+de_blood <- hd_model_de_limma(hd_obj, 
+                              case = "AML", 
+                              control = c("CLL", "MYEL", "LYMPH"), 
+                              correct = c("Sex", "Age"))
 
-de_all <- hd_run_de_limma(hd_obj, case = "AML", correct = c("Sex", "Age"))
+de_all <- hd_model_de_limma(hd_obj, case = "AML", correct = c("Sex", "Age"))
 ```
 
 ```{r, message = FALSE, warning = FALSE}

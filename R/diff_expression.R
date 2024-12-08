@@ -1,7 +1,7 @@
 utils::globalVariables(c(":=", "sig.label"))
 #' Differential expression analysis with limma
 #'
-#' `hd_run_de_limma()` performs differential expression analysis using limma package.
+#' `hd_de_limma()` performs differential expression analysis using limma package.
 #' It can correct the results for metadata columns like Sex, Age, or BMI.
 #' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
 #' The function removes the NAs from the columns that are used to correct for.
@@ -25,22 +25,22 @@ utils::globalVariables(c(":=", "sig.label"))
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' hd_run_de_limma(hd_object, case = "AML")
+#' hd_de_limma(hd_object, case = "AML")
 #'
 #' # Run differential expression analysis for AML vs CLL and MYEL and correct for metadata variables
-#' hd_run_de_limma(hd_object,
+#' hd_de_limma(hd_object,
 #'                 case = "AML",
 #'                 control = c("CLL", "MYEL"),
 #'                 correct = c("Sex", "Age", "BMI"))
 #'
 #' # Run differential expression analysis for continuous variable
-#' hd_run_de_limma(hd_object, variable = "Age", case = NULL, correct = c("Sex"))
-hd_run_de_limma <- function(dat,
-                            metadata = NULL,
-                            variable = "Disease",
-                            case,
-                            control = NULL,
-                            correct = NULL) {
+#' hd_de_limma(hd_object, variable = "Age", case = NULL, correct = c("Sex"))
+hd_de_limma <- function(dat,
+                        metadata = NULL,
+                        variable = "Disease",
+                        case,
+                        control = NULL,
+                        correct = NULL) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -168,7 +168,7 @@ hd_run_de_limma <- function(dat,
 
 #' Differential expression analysis with t-test
 #'
-#' `hd_run_de_ttest()` performs differential expression analysis using t-test.
+#' `hd_de_ttest()` performs differential expression analysis using t-test.
 #' It separates the data in case-control groups, checks for data normality and
 #' perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
 #'
@@ -186,15 +186,15 @@ hd_run_de_limma <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' hd_run_de_ttest(hd_object, case = "AML")
+#' hd_de_ttest(hd_object, case = "AML")
 #'
 #' # Run differential expression analysis for AML vs CLL
-#' hd_run_de_ttest(hd_object, case = "AML", control = "CLL")
-hd_run_de_ttest <- function(dat,
-                            metadata = NULL,
-                            variable = "Disease",
-                            case,
-                            control = NULL) {
+#' hd_de_ttest(hd_object, case = "AML", control = "CLL")
+hd_de_ttest <- function(dat,
+                        metadata = NULL,
+                        variable = "Disease",
+                        case,
+                        control = NULL) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -304,7 +304,7 @@ hd_run_de_ttest <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
 #' # Create a volcano plot
 #' hd_plot_volcano(de_results)
@@ -469,11 +469,11 @@ extract_protein_list <- function(upset_data, proteins) {
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML", control)
-#' de_results_lungc <- hd_run_de_limma(hd_object, case = "LUNGC")
-#' de_results_cll <- hd_run_de_limma(hd_object, case = "CLL")
-#' de_results_myel <- hd_run_de_limma(hd_object, case = "MYEL")
-#' de_results_gliom <- hd_run_de_limma(hd_object, case = "GLIOM")
+#' de_results_aml <- hd_de_limma(hd_object, case = "AML", control)
+#' de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
+#' de_results_cll <- hd_de_limma(hd_object, case = "CLL")
+#' de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
+#' de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
 #'
 #' res <- list("AML" = de_results_aml,
 #'             "LUNGC" = de_results_lungc,

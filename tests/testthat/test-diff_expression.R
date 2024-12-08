@@ -1,5 +1,5 @@
-# Test hd_run_de_limma ---------------------------------------------------------
-test_that("hd_run_de_limma works with categorical variables", {
+# Test hd_de_limma ---------------------------------------------------------
+test_that("hd_de_limma works with categorical variables", {
   # Mock dataset
   dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5"),
@@ -14,7 +14,7 @@ test_that("hd_run_de_limma works with categorical variables", {
   )
 
   # Run differential expression analysis
-  result <- hd_run_de_limma(
+  result <- hd_de_limma(
     dat,
     metadata = metadata,
     variable = "Disease",
@@ -27,7 +27,7 @@ test_that("hd_run_de_limma works with categorical variables", {
   expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
 })
 
-test_that("hd_run_de_limma works with continuous variables", {
+test_that("hd_de_limma works with continuous variables", {
   # Mock dataset
   dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
@@ -41,7 +41,7 @@ test_that("hd_run_de_limma works with continuous variables", {
   )
 
   # Run differential expression analysis
-  result <- hd_run_de_limma(
+  result <- hd_de_limma(
     dat,
     metadata = metadata,
     variable = "Age",
@@ -54,7 +54,7 @@ test_that("hd_run_de_limma works with continuous variables", {
   expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
 })
 
-test_that("hd_run_de_limma raises an error for invalid input", {
+test_that("hd_de_limma raises an error for invalid input", {
   dat <- data.frame(
     SampleID = c("S1", "S2"),
     Protein1 = c(5, 6)
@@ -64,7 +64,7 @@ test_that("hd_run_de_limma raises an error for invalid input", {
     Disease = c("AML", "CLL")
   )
 
-  expect_error(hd_run_de_limma(
+  expect_error(hd_de_limma(
     dat,
     metadata = metadata,
     variable = "NonexistentColumn",
@@ -72,7 +72,7 @@ test_that("hd_run_de_limma raises an error for invalid input", {
   ), "The variable is not be present in the metadata.")
 })
 
-test_that("hd_run_de_limma removes rows with NAs in relevant columns", {
+test_that("hd_de_limma removes rows with NAs in relevant columns", {
   dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5"),
     Protein1 = c(5, 6, 7, 8, 9),
@@ -85,21 +85,21 @@ test_that("hd_run_de_limma removes rows with NAs in relevant columns", {
     Age = c(30, 40, NA, 60, 70)
   )
 
-  result <- expect_warning(hd_run_de_limma(
+  result <- expect_warning(hd_de_limma(
     dat,
     metadata = metadata,
     variable = "Disease",
     case = "AML"
   ))
-  suppressWarnings(result <- hd_run_de_limma(dat,
-                                             metadata = metadata,
-                                             variable = "Disease",
-                                             case = "AML"))
+  suppressWarnings(result <- hd_de_limma(dat,
+                                         metadata = metadata,
+                                         variable = "Disease",
+                                         case = "AML"))
 
   expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
 })
 
-test_that("hd_run_de_limma works with correction variables", {
+test_that("hd_de_limma works with correction variables", {
     dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
     Protein1 = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
@@ -112,7 +112,7 @@ test_that("hd_run_de_limma works with correction variables", {
     Age = c(30, 40, 50, 60, 70, 35, 45, 55, 65, 75)
   )
 
-  result <- hd_run_de_limma(
+  result <- hd_de_limma(
     dat,
     metadata = metadata,
     variable = "Disease",
@@ -127,8 +127,8 @@ test_that("hd_run_de_limma works with correction variables", {
 })
 
 
-# Test hd_run_de_ttest ---------------------------------------------------------
-test_that("hd_run_de_ttest works with categorical variables", {
+# Test hd_de_ttest ---------------------------------------------------------
+test_that("hd_de_ttest works with categorical variables", {
   # Mock dataset
   dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5"),
@@ -143,7 +143,7 @@ test_that("hd_run_de_ttest works with categorical variables", {
   )
 
   # Run differential expression analysis
-  result <- hd_run_de_ttest(
+  result <- hd_de_ttest(
     dat,
     metadata = metadata,
     variable = "Disease",
@@ -156,7 +156,7 @@ test_that("hd_run_de_ttest works with categorical variables", {
   expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
 })
 
-test_that("hd_run_de_ttest raises an error for invalid input", {
+test_that("hd_de_ttest raises an error for invalid input", {
   dat <- data.frame(
     SampleID = c("S1", "S2"),
     Protein1 = c(5, 6)
@@ -166,7 +166,7 @@ test_that("hd_run_de_ttest raises an error for invalid input", {
     Disease = c("AML", "CLL")
   )
 
-  expect_error(hd_run_de_ttest(
+  expect_error(hd_de_ttest(
     dat,
     metadata = metadata,
     variable = "NonexistentColumn",
@@ -174,7 +174,7 @@ test_that("hd_run_de_ttest raises an error for invalid input", {
   ), "The variable is not be present in the metadata.")
 })
 
-test_that("hd_run_de_ttest removes rows with NAs in relevant columns", {
+test_that("hd_de_ttest removes rows with NAs in relevant columns", {
   dat <- data.frame(
     SampleID = c("S1", "S2", "S3", "S4", "S5"),
     Protein1 = c(5, 6, 7, 8, 9),
@@ -187,16 +187,16 @@ test_that("hd_run_de_ttest removes rows with NAs in relevant columns", {
     Age = c(30, 40, NA, 60, 70)
   )
 
-  result <- expect_warning(hd_run_de_ttest(
+  result <- expect_warning(hd_de_ttest(
     dat,
     metadata = metadata,
     variable = "Disease",
     case = "AML"
   ))
-  suppressWarnings(result <- hd_run_de_ttest(dat,
-                                             metadata = metadata,
-                                             variable = "Disease",
-                                             case = "AML"))
+  suppressWarnings(result <- hd_de_ttest(dat,
+                                         metadata = metadata,
+                                         variable = "Disease",
+                                         case = "AML"))
 
   expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
 })

@@ -34,38 +34,38 @@ performance metrics.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Split the data into training and test sets
-hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+hd_split <- hd_split_data(hd_object, variable = "Disease")
 
 # Run the regularized regression model pipeline
-model_results_aml <- hd_run_rreg(hd_split,
-                                 variable = "Disease",
-                                 case = "AML",
-                                 grid_size = 2,
-                                 cv_sets = 2)
+model_results_aml <- hd_model_rreg(hd_split,
+                                   variable = "Disease",
+                                   case = "AML",
+                                   grid_size = 2,
+                                   cv_sets = 2)
 
-model_results_cll <- hd_run_rreg(hd_split,
-                                 variable = "Disease",
-                                 case = "CLL",
-                                 grid_size = 2,
-                                 cv_sets = 2)
+model_results_cll <- hd_model_rreg(hd_split,
+                                   variable = "Disease",
+                                   case = "CLL",
+                                   grid_size = 2,
+                                   cv_sets = 2)
 
-model_results_myel <- hd_run_rreg(hd_split,
+model_results_myel <- hd_model_rreg(hd_split,
                                   variable = "Disease",
                                   case = "MYEL",
                                   grid_size = 2,
                                   cv_sets = 2)
 
-model_results_lungc <- hd_run_rreg(hd_split,
-                                   variable = "Disease",
-                                   case = "LUNGC",
-                                   grid_size = 2,
-                                   cv_sets = 2)
+model_results_lungc <- hd_model_rreg(hd_split,
+                                     variable = "Disease",
+                                     case = "LUNGC",
+                                     grid_size = 2,
+                                     cv_sets = 2)
 
-model_results_gliom <- hd_run_rreg(hd_split,
-                                   variable = "Disease",
-                                   case = "GLIOM",
-                                   grid_size = 2,
-                                   cv_sets = 2)
+model_results_gliom <- hd_model_rreg(hd_split,
+                                     variable = "Disease",
+                                     case = "GLIOM",
+                                     grid_size = 2,
+                                     cv_sets = 2)
 
 res <- list("AML" = model_results_aml,
             "LUNGC" = model_results_lungc,

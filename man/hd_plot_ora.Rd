@@ -7,7 +7,7 @@
 hd_plot_ora(enrichment, seed = 123)
 }
 \arguments{
-\item{enrichment}{The enrichment results obtained from \code{hd_run_ora()}.}
+\item{enrichment}{The enrichment results obtained from \code{hd_ora()}.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
@@ -27,7 +27,7 @@ For GO and Reactome databases the ENTREZIDs are converted to gene names.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis for AML vs all others
-de_results <- hd_run_de_limma(hd_object, case = "AML")
+de_results <- hd_de_limma(hd_object, case = "AML")
 
 # Extract the up-regulated proteins for AML
 sig_up_proteins_aml <- de_results$de_res |>
@@ -35,7 +35,7 @@ sig_up_proteins_aml <- de_results$de_res |>
   dplyr::pull(Feature)
 
 # Perform ORA with `GO` database and `BP` ontology
-enrichment <- hd_run_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 
 # Plot the results
 hd_plot_ora(enrichment)

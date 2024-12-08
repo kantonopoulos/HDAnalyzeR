@@ -30,7 +30,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 
 #' Run over-representation analysis
 #'
-#' `hd_run_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
+#' `hd_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
 #'
 #' @param gene_list A character vector containing the gene names. These can be differentially expressed proteins or selected protein features from classification models.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
@@ -58,12 +58,12 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'   dplyr::pull(Feature)
 #'
 #' # Perform ORA with `GO` database and `BP` ontology
-#' hd_run_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
-hd_run_ora <- function(gene_list,
-                       database = c("GO", "Reactome", "KEGG"),
-                       ontology = c("BP", "CC", "MF", "ALL"),
-                       background = NULL,
-                       pval_lim_enrichment = 0.05) {
+#' hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+hd_ora <- function(gene_list,
+                   database = c("GO", "Reactome", "KEGG"),
+                   ontology = c("BP", "CC", "MF", "ALL"),
+                   background = NULL,
+                   pval_lim_enrichment = 0.05) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
@@ -142,7 +142,7 @@ hd_run_ora <- function(gene_list,
 #' `hd_plot_ora()` generates useful visualizations for the results of the
 #' over-representation analysis.
 #'
-#' @param enrichment The enrichment results obtained from `hd_run_ora()`.
+#' @param enrichment The enrichment results obtained from `hd_ora()`.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return The input object enriched with the plots.
@@ -158,7 +158,7 @@ hd_run_ora <- function(gene_list,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
 #' # Extract the up-regulated proteins for AML
 #' sig_up_proteins_aml <- de_results$de_res |>
@@ -166,7 +166,7 @@ hd_run_ora <- function(gene_list,
 #'   dplyr::pull(Feature)
 #'
 #' # Perform ORA with `GO` database and `BP` ontology
-#' enrichment <- hd_run_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 #'
 #' # Plot the results
 #' hd_plot_ora(enrichment)
@@ -220,24 +220,24 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
 #' # Run GSEA with Reactome database
-#' hd_run_gsea(de_results,
-#'             database = "GO",
-#'             ontology = "BP",
-#'             expression = "both",
-#'             ranked_by = "logFC",
-#'             pval_lim_enrichment = 0.9)
+#' hd_gsea(de_results,
+#'         database = "GO",
+#'         ontology = "BP",
+#'         expression = "both",
+#'         ranked_by = "logFC",
+#'         pval_lim_enrichment = 0.9)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
-hd_run_gsea <- function(de_results,
-                        database = c("GO", "Reactome", "KEGG"),
-                        ontology = c("BP", "CC", "MF", "ALL"),
-                        expression = c("both", "up", "down"),
-                        ranked_by = c("logFC", "adj.P.Val"),
-                        pval_lim = 0.05,
-                        logfc_lim = 0,
-                        pval_lim_enrichment = 0.05) {
+hd_gsea <- function(de_results,
+                    database = c("GO", "Reactome", "KEGG"),
+                    ontology = c("BP", "CC", "MF", "ALL"),
+                    expression = c("both", "up", "down"),
+                    ranked_by = c("logFC", "adj.P.Val"),
+                    pval_lim = 0.05,
+                    logfc_lim = 0,
+                    pval_lim_enrichment = 0.05) {
 
   database <- match.arg(database)
   ontology <- match.arg(ontology)
@@ -334,7 +334,7 @@ hd_run_gsea <- function(de_results,
 #' `hd_plot_gsea()` produces useful plots to visualize the results of the
 #' gene set enrichment analysis.
 #'
-#' @param enrichment The enrichment results obtained from `hd_run_gsea()`.
+#' @param enrichment The enrichment results obtained from `hd_gsea()`.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return The input object enriched with the plots.
@@ -350,15 +350,15 @@ hd_run_gsea <- function(de_results,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
 #' # Run GSEA with Reactome database
-#' enrichment <- hd_run_gsea(de_results,
-#'                           database = "GO",
-#'                           ontology = "BP",
-#'                           expression = "both",
-#'                           ranked_by = "logFC",
-#'                           pval_lim_enrichment = 0.9)
+#' enrichment <- hd_gsea(de_results,
+#'                       database = "GO",
+#'                       ontology = "BP",
+#'                       expression = "both",
+#'                       ranked_by = "logFC",
+#'                       pval_lim_enrichment = 0.9)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Plot the results
