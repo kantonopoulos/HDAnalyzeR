@@ -37,7 +37,7 @@ qvalueCutoff was set to be 4 times the pvalueCutoff.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis for AML vs all others
-de_results <- hd_run_de_limma(hd_object, case = "AML")
+de_results <- hd_de_limma(hd_object, case = "AML")
 
 # Extract the up-regulated proteins for AML
 sig_up_proteins_aml <- de_results$de_res |>

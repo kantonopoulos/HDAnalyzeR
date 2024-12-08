@@ -50,7 +50,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results <- hd_run_de_limma(hd_object, case = "AML")
+#' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
 #' # Extract the up-regulated proteins for AML
 #' sig_up_proteins_aml <- de_results$de_res |>
@@ -201,7 +201,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 
 #' Perform gene set enrichment analysis
 #'
-#' `hd_run_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
+#' `hd_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 #'
 #' @param de_results A tibble containing the results of a differential expression analysis.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".

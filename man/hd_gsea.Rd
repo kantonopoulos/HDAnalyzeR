@@ -36,7 +36,7 @@ hd_gsea(
 A list containing the results of the GSEA.
 }
 \description{
-\code{hd_run_gsea()} performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
+\code{hd_gsea()} performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 }
 \examples{
 # Initialize an HDAnalyzeR object
