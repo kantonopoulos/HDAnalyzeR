@@ -91,7 +91,7 @@ hd_plot_feature_network(feature_panel,
 
 
 # Create a feature panel from differential expression results
-de_results_aml <- hd_de_limma(hd_object, case = "AML", control)
+de_results_aml <- hd_de_limma(hd_object, case = "AML")
 de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
 de_results_cll <- hd_de_limma(hd_object, case = "CLL")
 de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
