@@ -124,7 +124,7 @@ the package and initialize the HDAnalyzeR object.</p>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>Now, we will perform a quality control check on the data.
-<code><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary()</a></code> will return the percentage of missing
+<code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> will return the percentage of missing
 values for each column and row and histograms of their distributions
 both for data and metadata, the protein-protein correlation and the
 metadata variable distributions.</p>
@@ -139,10 +139,10 @@ palettes can be either a named vector or a character vector with the
 name of a palette from the package. You can display all available
 palettes by running <code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
-<span>                             variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
-<span>                             palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
-<span>                             cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_qc_summary.html">hd_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                         variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
+<span>                         palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
+<span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Summary:"</span></span>
 <span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
 <span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
@@ -266,10 +266,10 @@ PCA analysis we can also check how the variance in the data is explained
 by the different principal components. The PCA plot will be colored
 based on <code>Disease</code>, while the UMAP plot will be colored based
 on <code>Age</code>.</p>
-<p>The <code><a href="../reference/hd_run_pca.html">hd_run_pca()</a></code> and <code><a href="../reference/hd_run_umap.html">hd_run_umap()</a></code>
-functions will run the respective analysis while the
-<code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> will plot the data on a 2D plane. For the PCA
-analysis we can also utilize <code><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings()</a></code> and
+<p>The <code><a href="../reference/hd_pca.html">hd_pca()</a></code> and <code><a href="../reference/hd_umap.html">hd_umap()</a></code> functions will
+run the respective analysis while the <code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> will
+plot the data on a 2D plane. For the PCA analysis we can also utilize
+<code><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings()</a></code> and
 <code><a href="../reference/hd_plot_pca_variance.html">hd_plot_pca_variance()</a></code> to plot the loadings of the
 different proteins on the principal components and the variance
 explained by each principal component respectively.</p>
@@ -278,7 +278,7 @@ explained by each principal component respectively.</p>
 metadata variable. We should not forget to pass again the hd_obj object
 to the <code>metadata</code> argument!</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pca_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_pca.html">hd_run_pca</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">15</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">pca_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_pca.html">hd_pca</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">15</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"PC1"</span>, <span class="st">"PC2"</span>, color <span class="op">=</span> <span class="st">"Disease"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, axis_variance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings</a></span><span class="op">(</span>displayed_pcs <span class="op">=</span> <span class="fl">6</span>, displayed_features <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_pca_variance.html">hd_plot_pca_variance</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -309,7 +309,7 @@ categories or use a continuous color palette after the plot is created.
 We will set the palette argument to NULL and use the
 <code>viridis</code> palette afterwards for this example.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_umap.html">hd_run_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_umap.html">hd_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"UMAP1"</span>, <span class="st">"UMAP2"</span>, color <span class="op">=</span> <span class="st">"Age"</span>, palette <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span> <span class="op">+</span> <span class="fu"><a href="https://sjmgarnier.github.io/viridis/reference/scale_viridis.html" class="external-link">scale_color_viridis</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

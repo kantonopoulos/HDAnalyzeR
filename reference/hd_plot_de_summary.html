@@ -88,7 +88,7 @@ It also creates upset plots both for the significant up and down regulated prote
 
 
 <dl><dt id="arg-de-results">de_results<a class="anchor" aria-label="anchor" href="#arg-de-results"></a></dt>
-<dd><p>A list of differential expression results. It should be a list of objects created by <code><a href="hd_run_de_limma.html">hd_run_de_limma()</a></code> with the classes as names. See the examples for more details.</p></dd>
+<dd><p>A list of differential expression results. It should be a list of objects created by <code><a href="hd_de_limma.html">hd_de_limma()</a></code> with the classes as names. See the examples for more details.</p></dd>
 
 
 <dt id="arg-variable">variable<a class="anchor" aria-label="anchor" href="#arg-variable"></a></dt>
@@ -122,11 +122,11 @@ It also creates upset plots both for the significant up and down regulated prote
 <span class="r-in"><span><span class="va">hd_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">example_data</span>, <span class="va">example_metadata</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run differential expression analysis for AML vs all others</span></span></span>
-<span class="r-in"><span><span class="va">de_results_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, <span class="va">control</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"LUNGC"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"MYEL"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, <span class="va">control</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"LUNGC"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"MYEL"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">de_results_aml</span>,</span></span>
 <span class="r-in"><span>            <span class="st">"LUNGC"</span> <span class="op">=</span> <span class="va">de_results_lungc</span>,</span></span>

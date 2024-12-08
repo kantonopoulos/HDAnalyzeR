@@ -88,7 +88,7 @@ The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.</p>
 
 
 <dl><dt id="arg-dim-object">dim_object<a class="anchor" aria-label="anchor" href="#arg-dim-object"></a></dt>
-<dd><p>A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by <code><a href="hd_run_pca.html">hd_run_pca()</a></code> or <code><a href="hd_run_umap.html">hd_run_umap()</a></code>.</p></dd>
+<dd><p>A PCA or UMAP object containing the results of the dimensionality reduction analysis. Created by <code><a href="hd_pca.html">hd_pca()</a></code> or <code><a href="hd_umap.html">hd_umap()</a></code>.</p></dd>
 
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
@@ -134,7 +134,7 @@ The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.</p>
 <span class="r-in"><span><span class="va">hd_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">example_data</span>, <span class="va">example_metadata</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the PCA analysis</span></span></span>
-<span class="r-in"><span><span class="va">pca_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_pca.html">hd_run_pca</a></span><span class="op">(</span><span class="va">hd_object</span>, components <span class="op">=</span> <span class="fl">5</span>, by_sample <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="va">pca_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_pca.html">hd_pca</a></span><span class="op">(</span><span class="va">hd_object</span>, components <span class="op">=</span> <span class="fl">5</span>, by_sample <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">hd_plot_dim</span><span class="op">(</span><span class="va">hd_object</span>, x <span class="op">=</span> <span class="st">"PC1"</span>, y <span class="op">=</span> <span class="st">"PC2"</span>, color <span class="op">=</span> <span class="st">"Disease"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

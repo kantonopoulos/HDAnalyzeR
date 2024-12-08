@@ -78,7 +78,7 @@ gene set enrichment analysis.</p>
 
 
 <dl><dt id="arg-enrichment">enrichment<a class="anchor" aria-label="anchor" href="#arg-enrichment"></a></dt>
-<dd><p>The enrichment results obtained from <code><a href="hd_run_gsea.html">hd_run_gsea()</a></code>.</p></dd>
+<dd><p>The enrichment results obtained from <code><a href="hd_gsea.html">hd_gsea()</a></code>.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -101,17 +101,15 @@ For GO and Reactome databases the ENTREZIDs are converted to gene names.</p>
 <span class="r-in"><span><span class="va">hd_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">example_data</span>, <span class="va">example_metadata</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run differential expression analysis for AML vs all others</span></span></span>
-<span class="r-in"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run GSEA with Reactome database</span></span></span>
-<span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_gsea.html">hd_run_gsea</a></span><span class="op">(</span><span class="va">de_results</span>,</span></span>
-<span class="r-in"><span>                          database <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
-<span class="r-in"><span>                          ontology <span class="op">=</span> <span class="st">"BP"</span>,</span></span>
-<span class="r-in"><span>                          expression <span class="op">=</span> <span class="st">"both"</span>,</span></span>
-<span class="r-in"><span>                          ranked_by <span class="op">=</span> <span class="st">"logFC"</span>,</span></span>
-<span class="r-in"><span>                          pval_lim_enrichment <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_results</span>,</span></span>
+<span class="r-in"><span>                      database <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
+<span class="r-in"><span>                      ontology <span class="op">=</span> <span class="st">"BP"</span>,</span></span>
+<span class="r-in"><span>                      expression <span class="op">=</span> <span class="st">"both"</span>,</span></span>
+<span class="r-in"><span>                      ranked_by <span class="op">=</span> <span class="st">"logFC"</span>,</span></span>
+<span class="r-in"><span>                      pval_lim_enrichment <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing geneSet collections...</span>

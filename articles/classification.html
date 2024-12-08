@@ -112,34 +112,34 @@ HDAnalyzeR object.</p>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>First, we will create the data split object using the
-<code><a href="../reference/hd_run_data_split.html">hd_run_data_split()</a></code> function. This function will create a
-list of data frames with the training and testing sets. We can change
-the ratio of the training and testing sets, the seed for
-reproducibility, and the variable to classify. We can also add metadata
-columns as predictors in this stage. In this example, we will use the
+<code><a href="../reference/hd_split_data.html">hd_split_data()</a></code> function. This function will create a list
+of data frames with the training and testing sets. We can change the
+ratio of the training and testing sets, the seed for reproducibility,
+and the variable to classify. We can also add metadata columns as
+predictors in this stage. In this example, we will use the
 <code>Disease</code> column as the variable to classify and the
 <code>Sex</code> and <code>Age</code> columns as a metadata
 predictor.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
-<span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
-<span>                               ratio <span class="op">=</span> <span class="fl">0.8</span>, </span>
-<span>                               seed <span class="op">=</span> <span class="fl">123</span>, </span>
-<span>                               metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                           variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
+<span>                           ratio <span class="op">=</span> <span class="fl">0.8</span>, </span>
+<span>                           seed <span class="op">=</span> <span class="fl">123</span>, </span>
+<span>                           metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>let’s start with a regularized regression LASSO model via
-<code><a href="../reference/hd_run_rreg.html">hd_run_rreg()</a></code>. Exactly like in the previous vignette with
+<code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>. Exactly like in the previous vignette with
 the differential expression functions, we have to state the case and
 control(s) groups. To do specifically LASSO we will set the
 <code>mixture</code> parameter to 1. We will also set the
 <code>verbose</code> parameter to <code>FALSE</code> to not print the
 progress of the model in shake of clarity for this vignette.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
-<span>                         case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>                         control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>,</span>
-<span>                         grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                         mixture <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                         verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
+<span>                           case <span class="op">=</span> <span class="st">"AML"</span>,</span>
+<span>                           control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>,</span>
+<span>                           grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                           mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                           verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">final_workflow</span></span>
 <span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
@@ -189,25 +189,25 @@ progress of the model in shake of clarity for this vignette.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
-<p>We can change several parameters in the <code><a href="../reference/hd_run_rreg.html">hd_run_rreg()</a></code>
+<p>We can change several parameters in the <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 function. For example, we can change the number of cross-validation
 folds, the number of grid points for the hyperparameter optimization, or
 the feature correlation threshold. Also, exactly as with the DE
 functions, if the <code>control</code> parameter is not set, the
 function will use all the other classes as controls. For more
-information, please refer to <code><a href="../reference/hd_run_rreg.html">hd_run_rreg()</a></code>
+information, please refer to <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 documentation.</p>
 <p>We will also set mixture to NULL to allow the model to optimize this
 parameter (elastic net regression instead of LASSO regression) and set a
 palette for our classes.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
-<span>                         case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>                         cv_sets <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                         grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span>,</span>
-<span>                         palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
-<span>                         verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
+<span>                           case <span class="op">=</span> <span class="st">"AML"</span>,</span>
+<span>                           cv_sets <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                           grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                           cor_threshold <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>                           palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
+<span>                           verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">final_workflow</span></span>
 <span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
@@ -241,16 +241,16 @@ palette for our classes.</p>
 <p><img src="classification_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
 <p>We can use a different variable to classify like <code>Sex</code> and
 even a different algorithm like random forest via
-<code><a href="../reference/hd_run_rf.html">hd_run_rf()</a></code>. However, do not forget that we should create a
-new split object for this new model. In this case, because the classes
+<code><a href="../reference/hd_model_rf.html">hd_model_rf()</a></code>. However, do not forget that we should create
+a new split object for this new model. In this case, because the classes
 are already balanced, we will not use the <code>balance_groups</code>
 parameter to FALSE to consider all the samples in the training dataset.
 Let’s also remove everything except from number of features and AUC from
 the variable importance plot title.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span>                               </span>
-<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rf.html">hd_run_rf</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rf.html">hd_model_rf</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
 <span>                       variable <span class="op">=</span> <span class="st">"Sex"</span>,</span>
 <span>                       case <span class="op">=</span> <span class="st">"F"</span>,</span>
 <span>                       palette <span class="op">=</span> <span class="st">"sex"</span>,</span>
@@ -295,7 +295,7 @@ the variable importance plot title.</p>
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
 <p>If our data have a single predictor, we can use
-<code><a href="../reference/hd_run_lr.html">hd_run_lr()</a></code> instead of <code><a href="../reference/hd_run_rreg.html">hd_run_rreg()</a></code> to
+<code><a href="../reference/hd_model_lr.html">hd_model_lr()</a></code> instead of <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code> to
 perform a logistic regression. Random forest can be used as it was for
 multiple predictors.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -306,9 +306,9 @@ multiple predictors.</p>
 <span>                               var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                               value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj_single</span>, variable <span class="op">=</span> <span class="st">"Disease"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj_single</span>, variable <span class="op">=</span> <span class="st">"Disease"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_lr.html">hd_run_lr</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_lr.html">hd_model_lr</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
@@ -335,9 +335,9 @@ visualize protein features.</p>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">features</span> <span class="op">&lt;-</span> <span class="va">model_res</span><span class="op">$</span><span class="va">features</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">Scaled_Importance</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">9</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span>
 <span></span>
@@ -361,12 +361,12 @@ classes in the data. The only thing that we should change is set the
 want to classify all the classes. Let’s see an example with regularized
 regression!</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
-<span>                         case <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>                         cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
-<span>                         grid_size <span class="op">=</span> <span class="fl">5</span>, </span>
-<span>                         palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
-<span>                         verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
+<span>                           case <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>                           cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
+<span>                           grid_size <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>                           palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
+<span>                           verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">final_workflow</span></span>
 <span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
@@ -409,15 +409,15 @@ integrate that into our pipeline using the
 <code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code> function.</p>
 </blockquote>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">model_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">split_obj_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>, </span>
-<span>                                   variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
-<span>                                   ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="va">split_obj_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>,</span>
+<span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                               ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_ovc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj_sex</span>, case <span class="op">=</span> <span class="st">"OVC"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">model_ovc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj_sex</span>, case <span class="op">=</span> <span class="st">"OVC"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">model_aml</span>, </span>
 <span>                                                <span class="st">"GLIOM"</span> <span class="op">=</span> <span class="va">model_gliom</span>, </span>
@@ -439,25 +439,25 @@ the same features are important in multiple models. Let’s see an example
 with the AML model and 3 different controls groups. We will also combine
 DE results of the same comparisons.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_blood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
-<span>                           case <span class="op">=</span> <span class="st">"AML"</span>, </span>
-<span>                           control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"LYMPH"</span><span class="op">)</span>, </span>
-<span>                           cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
-<span>                           grid_size <span class="op">=</span> <span class="fl">5</span>, </span>
-<span>                           verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">model_blood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
+<span>                             case <span class="op">=</span> <span class="st">"AML"</span>, </span>
+<span>                             control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"LYMPH"</span><span class="op">)</span>, </span>
+<span>                             cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
+<span>                             grid_size <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>                             verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">model_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">de_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">de_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">de_blood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
-<span>                            case <span class="op">=</span> <span class="st">"AML"</span>, </span>
-<span>                            control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"LYMPH"</span><span class="op">)</span>, </span>
-<span>                            correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">de_blood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                              case <span class="op">=</span> <span class="st">"AML"</span>, </span>
+<span>                              control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"LYMPH"</span><span class="op">)</span>, </span>
+<span>                              correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">de_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">de_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap</a></span><span class="op">(</span>de_results <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"CLL"</span> <span class="op">=</span> <span class="va">de_cll</span>, </span>
 <span>                                          <span class="st">"Blood"</span> <span class="op">=</span> <span class="va">de_blood</span>, </span>

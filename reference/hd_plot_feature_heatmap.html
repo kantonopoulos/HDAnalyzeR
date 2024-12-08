@@ -128,9 +128,9 @@ and in the right format (see examples).</p>
 <span class="r-in"><span><span class="va">hd_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">example_data</span>, <span class="va">example_metadata</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run differential expression analysis for AML vs all others</span></span></span>
-<span class="r-in"><span><span class="va">de_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"MYEL"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"LUNGC"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">de_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"GLIOM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"MYEL"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"LUNGC"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">de_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"GLIOM"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res_de</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"MYEL"</span> <span class="op">=</span> <span class="va">de_results_myel</span>,</span></span>
 <span class="r-in"><span>               <span class="st">"LUNGC"</span> <span class="op">=</span> <span class="va">de_results_lungc</span>,</span></span>
@@ -139,17 +139,17 @@ and in the right format (see examples).</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run Classification models</span></span></span>
 <span class="r-in"><span><span class="co"># Split the data into training and test sets</span></span></span>
-<span class="r-in"><span><span class="va">hd_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_object</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">hd_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_object</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too little data to stratify.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Resampling will be unstratified.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the regularized regression model pipeline</span></span></span>
-<span class="r-in"><span><span class="va">model_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
-<span class="r-in"><span>                                  variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
-<span class="r-in"><span>                                  case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
-<span class="r-in"><span>                                  control <span class="op">=</span> <span class="st">"MYEL"</span>,</span></span>
-<span class="r-in"><span>                                  grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                  cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
+<span class="r-in"><span>                                    variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
+<span class="r-in"><span>                                    case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
+<span class="r-in"><span>                                    control <span class="op">=</span> <span class="st">"MYEL"</span>,</span></span>
+<span class="r-in"><span>                                    grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                    cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -178,12 +178,12 @@ and in the right format (see examples).</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">model_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
-<span class="r-in"><span>                                   variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
-<span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
-<span class="r-in"><span>                                   control <span class="op">=</span> <span class="st">"LUNGC"</span>,</span></span>
-<span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
+<span class="r-in"><span>                                     variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
+<span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
+<span class="r-in"><span>                                     control <span class="op">=</span> <span class="st">"LUNGC"</span>,</span></span>
+<span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -212,12 +212,12 @@ and in the right format (see examples).</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">model_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
-<span class="r-in"><span>                                   variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
-<span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
-<span class="r-in"><span>                                   control <span class="op">=</span> <span class="st">"GLIOM"</span>,</span></span>
-<span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
+<span class="r-in"><span>                                     variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
+<span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
+<span class="r-in"><span>                                     control <span class="op">=</span> <span class="st">"GLIOM"</span>,</span></span>
+<span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>

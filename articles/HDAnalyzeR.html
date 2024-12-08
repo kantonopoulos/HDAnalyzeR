@@ -192,8 +192,8 @@ analysis.</p>
 <div class="section level2">
 <h2 id="quality-control-qc">Quality Control (QC)<a class="anchor" aria-label="anchor" href="#quality-control-qc"></a>
 </h2>
-<p><code><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary()</a></code> provides a comprehensive summary of
-the input data and metadata.</p>
+<p><code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> provides a comprehensive summary of the
+input data and metadata.</p>
 <p>Regarding the data, it will check the column types, calculate the
 percentage of NAs in each column and row and plot their distributions,
 calculate protein-protein correlations, and create a heatmap of these
@@ -205,10 +205,10 @@ also create summary visualizations for the metadata variables like
 “Sex”, “Disease”, and “Age”.</p>
 <p>Let’s run the QC summary and take a look at some results!</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
-<span>                             variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
-<span>                             palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
-<span>                             cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_qc_summary.html">hd_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                         variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
+<span>                         palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
+<span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Summary:"</span></span>
 <span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
 <span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
@@ -385,19 +385,19 @@ sex related differences.</p>
 <h3 id="differential-expression-analysis">Differential Expression Analysis<a class="anchor" aria-label="anchor" href="#differential-expression-analysis"></a>
 </h3>
 <p>We will run a differential expression analysis to identify potential
-biomarkers. We will use <code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code> so that we will
-be able to correct also for Sex and Age. This method will help us
-pinpoint proteins that are significantly different between conditions.
-We will run the analysis 3 times for different case classes against all
-other classes each time. We will also run <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code>
-to visualize the results. We will present only the results for Acute
+biomarkers. We will use <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> so that we will be
+able to correct also for Sex and Age. This method will help us pinpoint
+proteins that are significantly different between conditions. We will
+run the analysis 3 times for different case classes against all other
+classes each time. We will also run <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to
+visualize the results. We will present only the results for Acute
 Myeloid Leukemia (AML).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
-<span>                              variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                              case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>                              correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">de_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="va">de_res_aml</span>, logfc_lim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">de_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
+<span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                          case <span class="op">=</span> <span class="st">"AML"</span>,</span>
+<span>                          correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>logfc_lim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">de_res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
@@ -412,15 +412,15 @@ Myeloid Leukemia (AML).</p>
 <span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
-<span>                              variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                              case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
-<span>                              correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
+<span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                          case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
+<span>                          correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
-<span>                                variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                                case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
-<span>                                correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
+<span>                            variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                            case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
+<span>                            correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We can also summarize the results via
 <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code>. In order to use this function we need
 to store all the results in a list.</p>
@@ -448,20 +448,20 @@ machine learning classification model to identify significant features.
 This model will help us understand which proteins are most predictive of
 the conditions being studied.</p>
 <p>We will start by creating the data split with
-<code><a href="../reference/hd_run_data_split.html">hd_run_data_split()</a></code> so we don’t have any data leakage
-between train and test data and then we will run the model with
-<code><a href="../reference/hd_run_rreg.html">hd_run_rreg()</a></code>. Once again, we will run the analysis 3 times
-but we will present only the results for AML.</p>
+<code><a href="../reference/hd_split_data.html">hd_split_data()</a></code> so we don’t have any data leakage between
+train and test data and then we will run the model with
+<code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>. Once again, we will run the analysis 3
+times but we will present only the results for AML.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hd_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_data_split.html">hd_run_data_split</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">hd_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">lasso_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
-<span>                             variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                             case <span class="op">=</span> <span class="st">"AML"</span>,</span>
-<span>                             mixture <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                             grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                             palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
-<span>                             verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">lasso_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
+<span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                               case <span class="op">=</span> <span class="st">"AML"</span>,</span>
+<span>                               mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                               grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                               palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
+<span>                               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">metrics</span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
@@ -490,21 +490,21 @@ but we will present only the results for AML.</p>
 <code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-3.png" width="700"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lasso_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
-<span>                             variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                             case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
-<span>                             mixture <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                             grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                             palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
-<span>                             verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lasso_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_rreg.html">hd_run_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
+<code class="sourceCode R"><span><span class="va">lasso_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
 <span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
-<span>                               case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
+<span>                               case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
 <span>                               mixture <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                               grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                               palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
 <span>                               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lasso_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
+<span>                                 variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                                 case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
+<span>                                 mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                                 grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                                 palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
+<span>                                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can get a visual summary of the results via
 <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code>. In order to use this function we
 need to store the results in a list as before.</p>
@@ -532,7 +532,7 @@ need to store the results in a list as before.</p>
 for the up-regulated proteins from differential expression, that are
 also identified as features by the ML model. In this example, we will
 use the Gene Ontology (GO) database and show the results only for AML.
-We will use <code><a href="../reference/hd_run_ora.html">hd_run_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> to
+We will use <code><a href="../reference/hd_ora.html">hd_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> to
 perform and visualize the analysis.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract the proteins identified by both DE and Lasso</span></span>
@@ -547,10 +547,10 @@ perform and visualize the analysis.</p>
 <span><span class="va">intersect_proteins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">de_proteins</span>, <span class="va">lasso_proteins</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Perform ORA with GO database and visualize results</span></span>
-<span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_ora.html">hd_run_ora</a></span><span class="op">(</span><span class="va">intersect_proteins</span>, </span>
-<span>                         database <span class="op">=</span> <span class="st">"GO"</span>, </span>
-<span>                         ontology <span class="op">=</span> <span class="st">"BP"</span>, </span>
-<span>                         pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>  <span class="co"># We will use a higher p-value threshold for this example</span></span>
+<span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">intersect_proteins</span>, </span>
+<span>                     database <span class="op">=</span> <span class="st">"GO"</span>, </span>
+<span>                     ontology <span class="op">=</span> <span class="st">"BP"</span>, </span>
+<span>                     pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>  <span class="co"># We will use a higher p-value threshold for this example</span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>

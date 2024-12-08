@@ -124,15 +124,15 @@ the up-regulated proteins. We could also use the features list from the
 classification models or even run both and get the intersect as it is
 done in the Get Started guide.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></code></pre></div>
 <p>First, we will perform an Over Representation Analysis (ORA) using
 the Gene Ontology database and the BP ontology. We will use the
-<code><a href="../reference/hd_run_ora.html">hd_run_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> functions to
-run the analysis and plot the results respectively.</p>
+<code><a href="../reference/hd_ora.html">hd_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> functions to run
+the analysis and plot the results respectively.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proteins</span> <span class="op">&lt;-</span> <span class="va">de_res</span><span class="op">$</span><span class="va">de_res</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_ora.html">hd_run_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span>
+<span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
@@ -146,7 +146,7 @@ run the analysis and plot the results respectively.</p>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
 <p>Let’s change the database and the p-value threshold.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_ora.html">hd_run_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
@@ -159,18 +159,17 @@ run the analysis and plot the results respectively.</p>
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
 <p>We can also run a Gene Set Enrichment Analysis (GSEA) using the
-<code><a href="../reference/hd_run_gsea.html">hd_run_gsea()</a></code> and <code>hd_plot_gsea</code> functions. In
-<code><a href="../reference/hd_run_gsea.html">hd_run_gsea()</a></code> we can select if we want to include only up,
-down or both up and down regulated proteins, as well as the adjusted P
-value and logFC limits to consider a protein as differentially
-expressed. The <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code> function will plot the
-results.</p>
+<code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> and <code>hd_plot_gsea</code> functions. In
+<code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> we can select if we want to include only up, down
+or both up and down regulated proteins, as well as the adjusted P value
+and logFC limits to consider a protein as differentially expressed. The
+<code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code> function will plot the results.</p>
 <blockquote>
 <p>📓 In this case, the function requires strictly differential
 expression results.</p>
 </blockquote>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_gsea.html">hd_run_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
@@ -186,14 +185,14 @@ expression results.</p>
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
 <p>Finally, let’s perform an automated literature search using the
-<code><a href="../reference/hd_run_literature_search.html">hd_run_literature_search()</a></code>. The function requires a list
-with disease names as names and proteins as values. We will create the
-list, run the search and preview the results.</p>
+<code><a href="../reference/hd_literature_search.html">hd_literature_search()</a></code>. The function requires a list with
+disease names as names and proteins as values. We will create the list,
+run the search and preview the results.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biomarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"acute myeloid leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FLT3"</span>, <span class="st">"EPO"</span><span class="op">)</span>,</span>
 <span>                   <span class="st">"chronic lymphocytic leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PARP1"</span>, <span class="st">"FCER2"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">lit_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_literature_search.html">hd_run_literature_search</a></span><span class="op">(</span><span class="va">biomarkers</span>, max_articles <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">lit_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_literature_search.html">hd_literature_search</a></span><span class="op">(</span><span class="va">biomarkers</span>, max_articles <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Searching for articles on FLT3 and acute myeloid leukemia</span></span>
 <span><span class="co">#&gt; Searching for articles on EPO and acute myeloid leukemia</span></span>
 <span><span class="co">#&gt; Searching for articles on PARP1 and chronic lymphocytic leukemia</span></span>

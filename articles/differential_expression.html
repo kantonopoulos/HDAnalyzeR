@@ -111,15 +111,15 @@ object.</p>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>We will start by running a simple differential expression analysis
-using the <code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code> function. In this function we
-have to state the group that will be the case, as well as the
-control(s). We will also correct for both <code>Sex</code> and
-<code>Age</code> variables. After the analysis is done, we will use
+using the <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> function. In this function we have
+to state the group that will be the case, as well as the control(s). We
+will also correct for both <code>Sex</code> and <code>Age</code>
+variables. After the analysis is done, we will use
 <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to visualize the results.</p>
 <p>In the first example, we will run a differential expression analysis
 for the <code>AML</code> case against the <code>CLL</code> control.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">de_results</span><span class="op">$</span><span class="va">de_res</span><span class="op">)</span></span>
@@ -138,7 +138,7 @@ for the <code>AML</code> case against the <code>CLL</code> control.</p>
 change the correction for the variables as well as both the p-value and
 logFC significance thresholds.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                              case <span class="op">=</span> <span class="st">"AML"</span>, </span>
 <span>                              control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>, </span>
 <span>                              correct <span class="op">=</span> <span class="st">"BMI"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -149,7 +149,7 @@ logFC significance thresholds.</p>
 <p>If we do not set a control group, the function will compare the case
 group against all other groups.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
@@ -159,7 +159,7 @@ displaying the number of significant proteins. We can also change the
 number of significant proteins that will be displayed with their names
 in the plot.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>                  title <span class="op">=</span> <span class="st">"AML vs all other groups"</span>,</span>
 <span>                  top_up_prot <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -168,12 +168,12 @@ in the plot.</p>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <p>Let’s move to another method. We will use the
-<code><a href="../reference/hd_run_de_ttest.html">hd_run_de_ttest()</a></code> that performs a t-test for each protein.
-This function works in a similar way with <code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code>
-but it cannot correct for other variables like <code>Sex</code> and
+<code><a href="../reference/hd_de_ttest.html">hd_de_ttest()</a></code> that performs a t-test for each protein. This
+function works in a similar way with <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> but it
+cannot correct for other variables like <code>Sex</code> and
 <code>Age</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_ttest.html">hd_run_de_ttest</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_ttest.html">hd_de_ttest</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
@@ -188,7 +188,7 @@ able to correct for sex.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="va">hd_obj</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span>case <span class="op">=</span> <span class="st">"BRC"</span>, control <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span>case <span class="op">=</span> <span class="st">"BRC"</span>, control <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
@@ -196,18 +196,18 @@ able to correct for sex.</p>
 <p>We could also run differential expression against another categorical
 variable like <code>Sex</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, case <span class="op">=</span> <span class="st">"F"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, case <span class="op">=</span> <span class="st">"F"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"Sex Comparison"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Moreover, we can also perform Differential Expression Analysis
 against a continuous variable such as <code>Age</code> once again using
-<code><a href="../reference/hd_run_de_limma.html">hd_run_de_limma()</a></code>! We can also correct for categorical and
+<code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code>! We can also correct for categorical and
 other continuous variables. In this case, no <code>case</code> or
 <code>control</code> groups are needed.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Age"</span>, case <span class="op">=</span> <span class="cn">NULL</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"BMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Age"</span>, case <span class="op">=</span> <span class="cn">NULL</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"BMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"DE against Age"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
@@ -216,13 +216,13 @@ other continuous variables. In this case, no <code>case</code> or
 <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code>. Let’s first run a differential
 expression analysis for 4 different cases (1 vs 3).</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"CLL"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"CLL"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"MYEL"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"MYEL"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_de_limma.html">hd_run_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"MYEL"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span> , control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AML"</span>, <span class="st">"CLL"</span>, <span class="st">"MYEL"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_summary_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">res_aml</span>, </span>
 <span>                                          <span class="st">"CLL"</span> <span class="op">=</span> <span class="va">res_cll</span>, </span>

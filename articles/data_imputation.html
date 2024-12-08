@@ -116,15 +116,15 @@ the package and initialize the HDAnalyzeR object.</p>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
 <p>We can simply check our data for NA values by using the
-<code><a href="../reference/hd_run_qc_summary.html">hd_run_qc_summary()</a></code> as we did in previous vignettes. This
-time we will use something specific to NA</p>
+<code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> as we did in previous vignettes. This time
+we will use something specific to NA</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">na_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_run_na_search.html">hd_run_na_search</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
-<span>                           annotation_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span>, <span class="st">"Disease"</span><span class="op">)</span>,</span>
-<span>                           palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="fu"><a href="../reference/hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">cancers12</span>, </span>
-<span>                                                    Sex <span class="op">=</span> <span class="fu"><a href="../reference/hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">sex</span><span class="op">)</span>,</span>
-<span>                           x_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                           y_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">na_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_na_search.html">hd_na_search</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
+<span>                       annotation_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span>, <span class="st">"Disease"</span><span class="op">)</span>,</span>
+<span>                       palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="fu"><a href="../reference/hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">cancers12</span>,</span>
+<span>                                      Sex <span class="op">=</span> <span class="fu"><a href="../reference/hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">sex</span><span class="op">)</span>,</span>
+<span>                       x_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                       y_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">na_res</span><span class="op">$</span><span class="va">na_heatmap</span></span></code></pre></div>
 <p><img src="data_imputation_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
