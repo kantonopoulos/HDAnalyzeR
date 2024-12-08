@@ -32,8 +32,67 @@ color variable which can be either the importance, the logFC or any value that c
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
+# Create a feature panel from classification models results
+# Split the data into training and test sets
+hd_split <- hd_split_data(hd_object, variable = "Disease")
+
+# Run the regularized regression model pipeline
+model_results_aml <- hd_model_rreg(hd_split,
+                                   variable = "Disease",
+                                   case = "AML",
+                                   grid_size = 2,
+                                   cv_sets = 2)
+
+model_results_cll <- hd_model_rreg(hd_split,
+                                   variable = "Disease",
+                                   case = "CLL",
+                                   grid_size = 2,
+                                   cv_sets = 2)
+
+model_results_myel <- hd_model_rreg(hd_split,
+                                  variable = "Disease",
+                                  case = "MYEL",
+                                  grid_size = 2,
+                                  cv_sets = 2)
+
+model_results_lungc <- hd_model_rreg(hd_split,
+                                     variable = "Disease",
+                                     case = "LUNGC",
+                                     grid_size = 2,
+                                     cv_sets = 2)
+
+model_results_gliom <- hd_model_rreg(hd_split,
+                                     variable = "Disease",
+                                     case = "GLIOM",
+                                     grid_size = 2,
+                                     cv_sets = 2)
+
+feature_panel <- model_results_aml[["features"]] |>
+  dplyr::filter(Scaled_Importance > 0.5) |>
+  dplyr::mutate(Class = "AML") |>
+  dplyr::bind_rows(model_results_cll[["features"]] |>
+                     dplyr::filter(Scaled_Importance > 0.5) |>
+                     dplyr::mutate(Class = "CLL"),
+                   model_results_myel[["features"]] |>
+                     dplyr::filter(Scaled_Importance > 0.5) |>
+                     dplyr::mutate(Class = "MYEL"),
+                   model_results_lungc[["features"]] |>
+                     dplyr::filter(Scaled_Importance > 0.5) |>
+                     dplyr::mutate(Class = "LUNGC"),
+                   model_results_gliom[["features"]] |>
+                     dplyr::filter(Scaled_Importance > 0.5) |>
+                     dplyr::mutate(Class = "GLIOM"))
+
+print(head(feature_panel, 5))  # Preview of the feature panel
+
+hd_plot_feature_network(feature_panel,
+                        plot_color = "Scaled_Importance",
+                        class_palette = "cancers12")
+
+
 # Create a feature panel from differential expression results
 de_results_aml <- hd_de_limma(hd_object, case = "AML")
+de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
 de_results_cll <- hd_de_limma(hd_object, case = "CLL")
 de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
 de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
@@ -47,6 +106,9 @@ feature_panel <- de_results_aml[["de_res"]] |>
                    de_results_myel[["de_res"]] |>
                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
                      dplyr::mutate(Class = "MYEL"),
+                   de_results_lungc[["de_res"]] |>
+                     dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
+                     dplyr::mutate(Class = "LUNGC"),
                    de_results_gliom[["de_res"]] |>
                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
                      dplyr::mutate(Class = "GLIOM"))
