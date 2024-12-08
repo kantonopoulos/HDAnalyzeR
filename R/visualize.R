@@ -457,6 +457,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -546,8 +547,9 @@ hd_plot_feature_heatmap <- function(de_results,
 #' hd_plot_feature_network(feature_panel,
 #'                         plot_color = "logFC",
 #'                         class_palette = "cancers12")
+#' }
 hd_plot_feature_network <- function(feature_panel,
-                                    plot_color = "logFC",
+                                    plot_color = "Scaled_Importance",
                                     class_palette = NULL,
                                     seed = 123) {
 
@@ -602,7 +604,7 @@ hd_plot_feature_network <- function(feature_panel,
       stroke = 0
     ) +
     ggplot2::scale_color_manual(values = pal[levels], guide = "none") +
-    ggplot2::scale_fill_gradient(high = "grey30", low = "grey80", name = "Importance") +
+    ggplot2::scale_fill_gradient(high = "grey30", low = "grey80", name = plot_color) +
     ggnewscale::new_scale_color() +
     ggraph::geom_node_text(
       ggplot2::aes(label = stringr::str_wrap(!!rlang::sym("name"), width = 10), color = !!rlang::sym("text_color")),
