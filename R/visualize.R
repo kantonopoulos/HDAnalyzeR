@@ -462,7 +462,6 @@ hd_plot_feature_heatmap <- function(de_results,
 #'
 #' # Create a feature panel from differential expression results
 #' de_results_aml <- hd_de_limma(hd_object, case = "AML")
-#' de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
 #' de_results_cll <- hd_de_limma(hd_object, case = "CLL")
 #' de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
 #' de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
@@ -476,9 +475,6 @@ hd_plot_feature_heatmap <- function(de_results,
 #'                    de_results_myel[["de_res"]] |>
 #'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
 #'                      dplyr::mutate(Class = "MYEL"),
-#'                    de_results_lungc[["de_res"]] |>
-#'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
-#'                      dplyr::mutate(Class = "LUNGC"),
 #'                    de_results_gliom[["de_res"]] |>
 #'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
 #'                      dplyr::mutate(Class = "GLIOM"))
