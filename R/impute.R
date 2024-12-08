@@ -77,6 +77,9 @@ hd_run_na_search <- function(dat,
 
   check_numeric <- check_numeric_columns(wide_data)
 
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (!all(annotation_vars %in% colnames(metadata))) {
     message("Some category columns provided do not exist in the dataset.")
   }

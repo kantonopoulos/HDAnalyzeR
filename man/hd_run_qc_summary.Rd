@@ -6,7 +6,7 @@
 \usage{
 hd_run_qc_summary(
   dat,
-  metadata,
+  metadata = NULL,
   variable,
   palette = NULL,
   unique_threshold = 5,

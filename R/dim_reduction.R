@@ -244,7 +244,7 @@ prepare_plot_data <- function(dim_object, metadata, color, x, y) {
     metadata <- metadata[["metadata"]]
     if (!is.null(color)) {
       if (is.null(metadata)) {
-        stop("The 'metadata' slot of the HDAnalyzeR object is empty. Please provide the metadata to plot the points color.")
+        stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata to plot the points color.")
       }
     }
   } else {

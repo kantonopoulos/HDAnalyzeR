@@ -43,6 +43,9 @@ hd_run_data_split <- function(dat,
 
   check_numeric <- check_numeric_columns(wide_data)
 
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }

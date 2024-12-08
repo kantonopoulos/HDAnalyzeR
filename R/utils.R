@@ -443,6 +443,9 @@ hd_filter_by_sex <- function(dat, metadata = NULL, variable = "Sex", sex) {
     sample_id <- colnames(dat)[1]
   }
 
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (!variable %in% names(metadata)) {
     stop(paste("The variable", variable, "does not exist in the metadata."))
   }

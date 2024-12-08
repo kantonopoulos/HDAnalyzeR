@@ -105,11 +105,19 @@ hd_plot_feature_boxplot <- function(dat,
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
-
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
-
+  if (!is.null(!features %in% colnames(wide_data))) {
+    warning(paste("The features", {features[!features %in% colnames(wide_data)]}, "are not present in the data and will be skipped."))
+    features <- features[features %in% colnames(wide_data)]
+    if (length(features) == 0) {
+      stop("None of the features are present in the data.")
+    }
+  }
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, variable))),
@@ -249,7 +257,12 @@ hd_plot_regression <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
-
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
+  if (is.null(metadata_cols %in% colnames(metadata))) {
+    stop("The metadata columns provided are not present in the metadata.")
+  }
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, metadata_cols))),

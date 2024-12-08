@@ -99,6 +99,9 @@ hd_run_normalization <- function(dat,
 
   # Remove batch effects
   if (!is.null(batch)) {
+    if (is.null(metadata)) {
+      stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    }
     data_wo_batch_effects <- remove_batch_effects(wide_data,
                                                   metadata,
                                                   colnames(id_col),
