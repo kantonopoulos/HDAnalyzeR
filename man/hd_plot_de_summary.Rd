@@ -14,7 +14,7 @@ hd_plot_de_summary(
 )
 }
 \arguments{
-\item{de_results}{A list of differential expression results. It should be a list of objects created by \code{hd_run_de_limma()} with the classes as names. See the examples for more details.}
+\item{de_results}{A list of differential expression results. It should be a list of objects created by \code{hd_de_limma()} with the classes as names. See the examples for more details.}
 
 \item{variable}{The name of the column containing the case and control groups.}
 

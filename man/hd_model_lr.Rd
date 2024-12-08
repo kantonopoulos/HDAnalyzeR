@@ -57,7 +57,7 @@ The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. Logistic regression models are not supported for
 multiclass classification. \code{case} is required for binary classification. If
-multi-class classification is needed, use \code{hd_run_rreg()} instead.
+multi-class classification is needed, use \code{hd_model_rreg()} instead.
 }
 \examples{
 # Initialize an HDAnalyzeR object with only a subset of the predictors

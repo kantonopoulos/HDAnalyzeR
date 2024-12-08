@@ -286,7 +286,7 @@ hd_de_ttest <- function(dat,
 #' `hd_plot_volcano()` creates volcano plots for the differential expression results.
 #' It colors and labels the top up and down regulated proteins.
 #'
-#' @param de_object The differential expression object. Created by `hd_run_de_limma()`.
+#' @param de_object The differential expression object. Created by `hd_de_limma()`.
 #' @param pval_lim The p-value limit for significance. Default is 0.05.
 #' @param logfc_lim The logFC limit for significance. Default is 0.
 #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 10.
@@ -454,7 +454,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #' It plots a barplot with the number of significant proteins for each disease.
 #' It also creates upset plots both for the significant up and down regulated proteins for each disease.
 #'
-#' @param de_results A list of differential expression results. It should be a list of objects created by `hd_run_de_limma()` with the classes as names. See the examples for more details.
+#' @param de_results A list of differential expression results. It should be a list of objects created by `hd_de_limma()` with the classes as names. See the examples for more details.
 #' @param variable The name of the column containing the case and control groups.
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".

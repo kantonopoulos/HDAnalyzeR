@@ -17,7 +17,7 @@ hd_plot_volcano(
 )
 }
 \arguments{
-\item{de_object}{The differential expression object. Created by \code{hd_run_de_limma()}.}
+\item{de_object}{The differential expression object. Created by \code{hd_de_limma()}.}
 
 \item{pval_lim}{The p-value limit for significance. Default is 0.05.}
 

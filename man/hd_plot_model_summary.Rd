@@ -12,7 +12,7 @@ hd_plot_model_summary(
 )
 }
 \arguments{
-\item{model_results}{A list of binary classification model results. It should be a list of objects created by \code{hd_run_rreg()}, \code{hd_run_rf()} or \code{hd_run_lr()} with the classes as names. See the examples for more details.}
+\item{model_results}{A list of binary classification model results. It should be a list of objects created by \code{hd_model_rreg()}, \code{hd_model_rf()} or \code{hd_model_lr()} with the classes as names. See the examples for more details.}
 
 \item{importance}{The importance threshold to consider a feature as top. Default is 0.5.}
 

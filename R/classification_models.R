@@ -1020,7 +1020,7 @@ hd_model_rreg <- function(dat,
   dat <- check_data(dat = dat, variable = variable)
 
   if (dat[["train_data"]] |> ncol() <= 3) {
-    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_run_lr()`.")
+    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_model_lr()`.")
   }
 
   dat <- prepare_data(dat = dat,
@@ -1240,7 +1240,7 @@ hd_model_rf <- function(dat,
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. Logistic regression models are not supported for
 #' multiclass classification. `case` is required for binary classification. If
-#' multi-class classification is needed, use `hd_run_rreg()` instead.
+#' multi-class classification is needed, use `hd_model_rreg()` instead.
 #'
 #' @export
 #'
@@ -1290,7 +1290,7 @@ hd_model_lr <- function(dat,
                       seed = seed)
 
   if (dat[["model_type"]] == "multi_class") {
-    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_run_rreg()`.")
+    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_model_rreg()`.")
   }
 
   dat <- tune_lr_model(dat = dat,
@@ -1336,7 +1336,7 @@ hd_model_lr <- function(dat,
 #' top or all protein features, as well as a summary line plot of the model
 #' performance metrics.
 #'
-#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_run_rreg()`, `hd_run_rf()` or `hd_run_lr()` with the classes as names. See the examples for more details.
+#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_model_rreg()`, `hd_model_rf()` or `hd_model_lr()` with the classes as names. See the examples for more details.
 #' @param importance The importance threshold to consider a feature as top. Default is 0.5.
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param upset_top_features Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).
