@@ -201,7 +201,7 @@ model_blood <- hd_model_rreg(split_obj,
                              grid_size = 5, 
                              verbose = FALSE)
 
-model_all <- hd_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
+model_all <- hd_model_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
 de_cll <- hd_de_limma(hd_obj, case = "AML", control = "CLL", correct = c("Sex", "Age"))
 
