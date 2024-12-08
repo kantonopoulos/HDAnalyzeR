@@ -119,7 +119,7 @@ de_res_aml <- hd_de_limma(hd_obj,
                           variable = "Disease",
                           case = "AML",
                           correct = c("Sex", "Age")) |> 
-  hd_plot_volcano(de_res_aml, logfc_lim = 1)
+  hd_plot_volcano(logfc_lim = 1)
 
 head(de_res_aml$de_res)
 de_res_aml$volcano_plot
