@@ -34,15 +34,15 @@ hd_obj <- hd_initialize(dat = example_data,
                         value_name = "NPX")
 ```
 
-We can simply check our data for NA values by using the `hd_run_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA
+We can simply check our data for NA values by using the `hd_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA
 
 ```{r}
-na_res <- hd_run_na_search(hd_obj,
-                           annotation_vars = c("Sex", "Age", "Disease"),
-                           palette = list(Disease = hd_palettes()$cancers12, 
-                                                    Sex = hd_palettes()$sex),
-                           x_labels = FALSE,
-                           y_labels = FALSE)
+na_res <- hd_na_search(hd_obj,
+                       annotation_vars = c("Sex", "Age", "Disease"),
+                       palette = list(Disease = hd_palettes()$cancers12,
+                                      Sex = hd_palettes()$sex),
+                       x_labels = FALSE,
+                       y_labels = FALSE)
 
 na_res$na_heatmap
 ```

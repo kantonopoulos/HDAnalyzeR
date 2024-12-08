@@ -7,7 +7,7 @@
 add_axis_variance(dim_object, dim_plot, x, y)
 }
 \arguments{
-\item{dim_object}{A PCA object containing the PCA variance. Created by \code{hd_run_pca()}.}
+\item{dim_object}{A PCA object containing the PCA variance. Created by \code{hd_pca()}.}
 
 \item{dim_plot}{A ggplot object with the data points on the 2D plane.}
 

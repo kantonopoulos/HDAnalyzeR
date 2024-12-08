@@ -14,7 +14,7 @@ fix_components_names(
 )
 }
 \arguments{
-\item{pca_res}{A tibble with the PCA results. Created by \code{hd_run_pca()}.}
+\item{pca_res}{A tibble with the PCA results. Created by \code{hd_pca()}.}
 
 \item{components}{The number of PCs to be calculated.}
 

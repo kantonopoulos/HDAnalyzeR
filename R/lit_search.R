@@ -1,6 +1,6 @@
 #' Run literature search for gene-disease pairs in PubMed
 #'
-#' `hd_run_literature_search()` searches for articles for gene-disease pairs in PubMed.
+#' `hd_literature_search()` searches for articles for gene-disease pairs in PubMed.
 #' A list of proteins and diseases is provided as input. The function retrieves the
 #' articles for each gene-disease pair. The input should be in the correct format,
 #' a list with diseases as names and gene vectors associated with each disease as
@@ -27,16 +27,16 @@
 #'                            "chronic lymphocytic leukemia" = c("PARP1"))
 #'
 #' # Run the literature search
-#' lit_search_results <- hd_run_literature_search(feature_class_list, max_articles = 1)
+#' lit_search_results <- hd_literature_search(feature_class_list, max_articles = 1)
 #'
 #' # Results for FLT3 in acute myeloid leukemia
 #' lit_search_results$`acute myeloid leukemia`$FLT3
-hd_run_literature_search <- function(feature_class_list,
-                                     max_articles = 10,
-                                     keywords = NULL,
-                                     fields = "All Fields",
-                                     api_key = NULL,
-                                     verbose = TRUE) {
+hd_literature_search <- function(feature_class_list,
+                                 max_articles = 10,
+                                 keywords = NULL,
+                                 fields = "All Fields",
+                                 api_key = NULL,
+                                 verbose = TRUE) {
 
   # Ensure 'easyPubMed' package is loaded
   if (!requireNamespace("easyPubMed", quietly = TRUE)) {

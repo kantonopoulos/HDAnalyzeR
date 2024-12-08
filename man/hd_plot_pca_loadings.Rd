@@ -7,7 +7,7 @@
 hd_plot_pca_loadings(pca_object, displayed_pcs = 6, displayed_features = 15)
 }
 \arguments{
-\item{pca_object}{A PCA object containing the PCA loadings. Created by \code{hd_run_pca()}.}
+\item{pca_object}{A PCA object containing the PCA loadings. Created by \code{hd_pca()}.}
 
 \item{displayed_pcs}{The number of PCs to be displayed. Default is 6.}
 
@@ -26,7 +26,7 @@ is indicated by the color of the bars.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run the PCA analysis and create the loadings plot
-pca_object <- hd_run_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
+pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_pca_loadings()
 pca_object$pca_loadings_plot
 }

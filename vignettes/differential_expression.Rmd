@@ -27,12 +27,12 @@ hd_obj <- hd_initialize(dat = example_data,
                         value_name = "NPX")
 ```
 
-We will start by running a simple differential expression analysis using the `hd_run_de_limma()` function. In this function we have to state the group that will be the case, as well as the control(s). We will also correct for both `Sex` and `Age` variables. After the analysis is done, we will use `hd_plot_volcano()` to visualize the results.
+We will start by running a simple differential expression analysis using the `hd_de_limma()` function. In this function we have to state the group that will be the case, as well as the control(s). We will also correct for both `Sex` and `Age` variables. After the analysis is done, we will use `hd_plot_volcano()` to visualize the results.
 
 In the first example, we will run a differential expression analysis for the `AML` case against the `CLL` control.
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, case = "AML", control = "CLL", correct = c("Age", "Sex")) |> 
+de_results <- hd_de_limma(hd_obj, case = "AML", control = "CLL", correct = c("Age", "Sex")) |> 
   hd_plot_volcano()
 
 head(de_results$de_res)
@@ -42,7 +42,7 @@ de_results$volcano_plot
 We are able to state more control groups if we want to. We can also change the correction for the variables as well as both the p-value and logFC significance thresholds. 
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, 
+de_results <- hd_de_limma(hd_obj, 
                               case = "AML", 
                               control = c("CLL", "MYEL", "GLIOM"), 
                               correct = "BMI") |> 
@@ -54,7 +54,7 @@ de_results$volcano_plot
 If we do not set a control group, the function will compare the case group against all other groups. 
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |> 
+de_results <- hd_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |> 
   hd_plot_volcano()
 
 de_results$volcano_plot
@@ -63,7 +63,7 @@ de_results$volcano_plot
 We can customize the volcano plot further by adding a title and not displaying the number of significant proteins. We can also change the number of significant proteins that will be displayed with their names in the plot. 
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |> 
+de_results <- hd_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |> 
   hd_plot_volcano(report_nproteins = FALSE, 
                   title = "AML vs all other groups",
                   top_up_prot = 3,
@@ -72,10 +72,10 @@ de_results <- hd_run_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |
 de_results$volcano_plot
 ```
 
-Let's move to another method. We will use the `hd_run_de_ttest()` that performs a t-test for each protein. This function works in a similar way with `hd_run_de_limma()` but it cannot correct for other variables like `Sex` and `Age`.
+Let's move to another method. We will use the `hd_de_ttest()` that performs a t-test for each protein. This function works in a similar way with `hd_de_limma()` but it cannot correct for other variables like `Sex` and `Age`.
 
 ```{r}
-de_results <- hd_run_de_ttest(hd_obj, case = "AML") |> 
+de_results <- hd_de_ttest(hd_obj, case = "AML") |> 
   hd_plot_volcano()
 
 de_results$volcano_plot
@@ -86,7 +86,7 @@ de_results$volcano_plot
 ```{r}
 de_results <- hd_obj |> 
   hd_filter_by_sex(variable = "Sex", sex = "F") |> 
-  hd_run_de_limma(case = "BRC", control = "AML", correct = "Age") |> 
+  hd_de_limma(case = "BRC", control = "AML", correct = "Age") |> 
   hd_plot_volcano()
 
 de_results$volcano_plot
@@ -95,16 +95,16 @@ de_results$volcano_plot
 We could also run differential expression against another categorical variable like `Sex`.
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, variable = "Sex", case = "F", correct = "Age") |> 
+de_results <- hd_de_limma(hd_obj, variable = "Sex", case = "F", correct = "Age") |> 
   hd_plot_volcano(report_nproteins = FALSE, title = "Sex Comparison")
 
 de_results$volcano_plot
 ```
 
-Moreover, we can also perform Differential Expression Analysis against a continuous variable such as `Age` once again using `hd_run_de_limma()`! We can also correct for categorical and other continuous variables. In this case, no `case` or `control` groups are needed.
+Moreover, we can also perform Differential Expression Analysis against a continuous variable such as `Age` once again using `hd_de_limma()`! We can also correct for categorical and other continuous variables. In this case, no `case` or `control` groups are needed.
 
 ```{r}
-de_results <- hd_run_de_limma(hd_obj, variable = "Age", case = NULL, correct = c("Sex", "BMI")) |> 
+de_results <- hd_de_limma(hd_obj, variable = "Age", case = NULL, correct = c("Sex", "BMI")) |> 
   hd_plot_volcano(report_nproteins = FALSE, title = "DE against Age")
 
 de_results$volcano_plot
@@ -113,13 +113,13 @@ de_results$volcano_plot
 As a last step, we can summarize the results via `hd_plot_de_summary()`. Let's first run a differential expression analysis for 4 different cases (1 vs 3).
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-res_aml <- hd_run_de_limma(hd_obj, case = "AML", control = c("CLL", "MYEL", "GLIOM"))
+res_aml <- hd_de_limma(hd_obj, case = "AML", control = c("CLL", "MYEL", "GLIOM"))
 
-res_cll <- hd_run_de_limma(hd_obj, case = "CLL", control = c("AML", "MYEL", "GLIOM"))
+res_cll <- hd_de_limma(hd_obj, case = "CLL", control = c("AML", "MYEL", "GLIOM"))
 
-res_myel <- hd_run_de_limma(hd_obj, case = "MYEL" , control = c("AML", "CLL", "GLIOM"))
+res_myel <- hd_de_limma(hd_obj, case = "MYEL" , control = c("AML", "CLL", "GLIOM"))
 
-res_gliom <- hd_run_de_limma(hd_obj, case = "GLIOM" , control = c("AML", "CLL", "MYEL"))
+res_gliom <- hd_de_limma(hd_obj, case = "GLIOM" , control = c("AML", "CLL", "MYEL"))
 
 de_summary_res <- hd_plot_de_summary(list("AML" = res_aml, 
                                           "CLL" = res_cll, 

@@ -7,7 +7,7 @@
 plot_loadings(dim_object, plot_loadings, nloadings)
 }
 \arguments{
-\item{dim_object}{A PCA object containing the PCA loadings. Created by \code{hd_run_pca()}.}
+\item{dim_object}{A PCA object containing the PCA loadings. Created by \code{hd_pca()}.}
 
 \item{plot_loadings}{The component to be plotted. Default is NULL.}
 

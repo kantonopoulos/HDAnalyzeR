@@ -36,15 +36,15 @@ hd_obj <- hd_initialize(dat = example_data,
                         value_name = "NPX")
 ```
 
-Now, we will perform a quality control check on the data. `hd_run_qc_summary()` will return the percentage of missing values for each column and row and histograms of their distributions both for data and metadata, the protein-protein correlation and the metadata variable distributions. 
+Now, we will perform a quality control check on the data. `hd_qc_summary()` will return the percentage of missing values for each column and row and histograms of their distributions both for data and metadata, the protein-protein correlation and the metadata variable distributions. 
 
 As `variable` we should pass the column name of the metadata that we contains the different classes, for example the case and control groups, the different diseases, or the different stages of a disease. The palettes are optional and can be used to color the plots of the metadata variable distributions. You should pass a list with the variable name and the palette name, for example list(Sex = c("F" = "red", "M" = "blue"), Disease = "cancers12"). As you can see, the palettes can be either a named vector or a character vector with the name of a palette from the package. You can display all available palettes by running `hd_show_palettes()`.
 
 ```{r, message = FALSE, warning = FALSE}
-qc_data <- hd_run_qc_summary(hd_obj, 
-                             variable = "Disease", 
-                             palette = list(Disease = "cancers12", Sex = "sex"), 
-                             cor_threshold = 0.7)
+qc_data <- hd_qc_summary(hd_obj, 
+                         variable = "Disease", 
+                         palette = list(Disease = "cancers12", Sex = "sex"), 
+                         cor_threshold = 0.7)
 
 qc_data$data_summary$na_col_hist
 qc_data$data_summary$na_row_hist
@@ -63,12 +63,12 @@ Based on these we can take decisions on filtering samples with high missing valu
 
 Finally we will run a PCA and UMAP analysis on the data to check if the data contain any outliers or cluster in an unexpected way. From the PCA analysis we can also check how the variance in the data is explained by the different principal components. The PCA plot will be colored based on `Disease`, while the UMAP plot will be colored based on `Age`.
 
-The `hd_run_pca()` and `hd_run_umap()` functions will run the respective analysis while the `hd_plot_dim()` will plot the data on a 2D plane. For the PCA analysis we can also utilize `hd_plot_pca_loadings()` and `hd_plot_pca_variance()` to plot the loadings of the different proteins on the principal components and the variance explained by each principal component respectively.
+The `hd_pca()` and `hd_umap()` functions will run the respective analysis while the `hd_plot_dim()` will plot the data on a 2D plane. For the PCA analysis we can also utilize `hd_plot_pca_loadings()` and `hd_plot_pca_variance()` to plot the loadings of the different proteins on the principal components and the variance explained by each principal component respectively.
 
 In the `hd_plot_dim()` function we can pass the `color` parameter to color the data points based on a metadata variable. We should not forget to pass again the hd_obj object to the `metadata` argument!
 
 ```{r, message = FALSE, warning = FALSE}
-pca_res <- hd_run_pca(hd_obj, components = 15) |> 
+pca_res <- hd_pca(hd_obj, components = 15) |> 
   hd_plot_dim(hd_obj, "PC1", "PC2", color = "Disease", palette = "cancers12", axis_variance = TRUE) |> 
   hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 10) |> 
   hd_plot_pca_variance()
@@ -82,7 +82,7 @@ pca_res$pca_variance_plot
 This time we want to color based on a continuous variable, the `Age`. In this case, we can either bin the data into categories or use a continuous color palette after the plot is created. We will set the palette argument to NULL and use the `viridis` palette afterwards for this example.
 
 ```{r, message = FALSE, warning = FALSE}
-umap_res <- hd_run_umap(hd_obj, components = 2) |> 
+umap_res <- hd_umap(hd_obj, components = 2) |> 
   hd_plot_dim(hd_obj, "UMAP1", "UMAP2", color = "Age", palette = NULL)
 
 umap_res$umap_plot + scale_color_viridis()

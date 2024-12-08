@@ -1,6 +1,6 @@
 #' Cluster data
 #'
-#' `hd_run_clustering()` takes a dataset and returns the same dataset ordered
+#' `hd_cluster()` takes a dataset and returns the same dataset ordered
 #' according to the hierarchical clustering of the rows and columns. This data
 #' can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
 #'
@@ -12,7 +12,7 @@
 #' "median" (= WPGMC) or "centroid" (= UPGMC)
 #' @param cluster_rows Whether to cluster rows. Default is TRUE.
 #' @param cluster_cols Whether to cluster columns. Default is TRUE.
-#' @param normalize A logical value indicating whether to normalize the data. Z-score normalization is applied using the `hd_run_normalization()` function. Default is TRUE.
+#' @param normalize A logical value indicating whether to normalize the data. Z-score normalization is applied using the `hd_normalize()` function. Default is TRUE.
 #'
 #' @return A list with the dataset ordered according to the clustering of the rows and columns and the hierarchical clustering object for rows and columns.
 #' @details
@@ -26,13 +26,13 @@
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Clustered data
-#' hd_run_clustering(hd_object)
-hd_run_clustering <- function(dat,
-                              distance_method = "euclidean",
-                              clustering_method = "ward.D2",
-                              cluster_rows = TRUE,
-                              cluster_cols = TRUE,
-                              normalize = TRUE) {
+#' hd_cluster(hd_object)
+hd_cluster <- function(dat,
+                       distance_method = "euclidean",
+                       clustering_method = "ward.D2",
+                       cluster_rows = TRUE,
+                       cluster_cols = TRUE,
+                       normalize = TRUE) {
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
@@ -48,7 +48,7 @@ hd_run_clustering <- function(dat,
   check_numeric <- check_numeric_columns(wide_data)
 
   if (normalize) {
-    wide_data <- hd_run_normalization(wide_data, center = TRUE, scale = TRUE)
+    wide_data <- hd_normalize(wide_data, center = TRUE, scale = TRUE)
   }
 
   order_row <- rownames(wide_data)

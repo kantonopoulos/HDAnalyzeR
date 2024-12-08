@@ -7,7 +7,7 @@
 hd_plot_gsea(enrichment, seed = 123)
 }
 \arguments{
-\item{enrichment}{The enrichment results obtained from \code{hd_run_gsea()}.}
+\item{enrichment}{The enrichment results obtained from \code{hd_gsea()}.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
@@ -27,15 +27,15 @@ For GO and Reactome databases the ENTREZIDs are converted to gene names.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis for AML vs all others
-de_results <- hd_run_de_limma(hd_object, case = "AML")
+de_results <- hd_de_limma(hd_object, case = "AML")
 
 # Run GSEA with Reactome database
-enrichment <- hd_run_gsea(de_results,
-                          database = "GO",
-                          ontology = "BP",
-                          expression = "both",
-                          ranked_by = "logFC",
-                          pval_lim_enrichment = 0.9)
+enrichment <- hd_gsea(de_results,
+                      database = "GO",
+                      ontology = "BP",
+                      expression = "both",
+                      ranked_by = "logFC",
+                      pval_lim_enrichment = 0.9)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Plot the results

@@ -105,11 +105,19 @@ hd_plot_feature_boxplot <- function(dat,
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
-
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
-
+  if (!is.null(!features %in% colnames(wide_data))) {
+    warning(paste("The features", {features[!features %in% colnames(wide_data)]}, "are not present in the data and will be skipped."))
+    features <- features[features %in% colnames(wide_data)]
+    if (length(features) == 0) {
+      stop("None of the features are present in the data.")
+    }
+  }
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, variable))),
@@ -249,7 +257,12 @@ hd_plot_regression <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
-
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
+  if (is.null(metadata_cols %in% colnames(metadata))) {
+    stop("The metadata columns provided are not present in the metadata.")
+  }
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, metadata_cols))),
@@ -316,9 +329,9 @@ hd_plot_regression <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run differential expression analysis for AML vs all others
-#' de_results_myel <- hd_run_de_limma(hd_object, case = "AML", control = "MYEL")
-#' de_results_lungc <- hd_run_de_limma(hd_object, case = "AML", control = "LUNGC")
-#' de_results_gliom <- hd_run_de_limma(hd_object, case = "AML", control = "GLIOM")
+#' de_results_myel <- hd_de_limma(hd_object, case = "AML", control = "MYEL")
+#' de_results_lungc <- hd_de_limma(hd_object, case = "AML", control = "LUNGC")
+#' de_results_gliom <- hd_de_limma(hd_object, case = "AML", control = "GLIOM")
 #'
 #' res_de <- list("MYEL" = de_results_myel,
 #'                "LUNGC" = de_results_lungc,
@@ -327,29 +340,29 @@ hd_plot_regression <- function(dat,
 #'
 #' # Run Classification models
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' model_results_myel <- hd_run_rreg(hd_split,
-#'                                   variable = "Disease",
-#'                                   case = "AML",
-#'                                   control = "MYEL",
-#'                                   grid_size = 2,
-#'                                   cv_sets = 2)
+#' model_results_myel <- hd_model_rreg(hd_split,
+#'                                     variable = "Disease",
+#'                                     case = "AML",
+#'                                     control = "MYEL",
+#'                                     grid_size = 2,
+#'                                     cv_sets = 2)
 #'
-#' model_results_lungc <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "AML",
-#'                                    control = "LUNGC",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_lungc <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "AML",
+#'                                      control = "LUNGC",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
-#' model_results_gliom <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "AML",
-#'                                    control = "GLIOM",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_gliom <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "AML",
+#'                                      control = "GLIOM",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
 #' # The models are in the same order as the DE results
 #' res_model <- list("MYEL" = model_results_myel,
@@ -449,38 +462,38 @@ hd_plot_feature_heatmap <- function(de_results,
 #'
 #' # Create a feature panel from classification models results
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' model_results_aml <- hd_run_rreg(hd_split,
-#'                                  variable = "Disease",
-#'                                  case = "AML",
-#'                                  grid_size = 2,
-#'                                  cv_sets = 2)
+#' model_results_aml <- hd_model_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "AML",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
-#' model_results_cll <- hd_run_rreg(hd_split,
-#'                                  variable = "Disease",
-#'                                  case = "CLL",
-#'                                  grid_size = 2,
-#'                                  cv_sets = 2)
+#' model_results_cll <- hd_model_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "CLL",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
-#' model_results_myel <- hd_run_rreg(hd_split,
+#' model_results_myel <- hd_model_rreg(hd_split,
 #'                                   variable = "Disease",
 #'                                   case = "MYEL",
 #'                                   grid_size = 2,
 #'                                   cv_sets = 2)
 #'
-#' model_results_lungc <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "LUNGC",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_lungc <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "LUNGC",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
-#' model_results_gliom <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "GLIOM",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_gliom <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "GLIOM",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
 #' feature_panel <- model_results_aml[["features"]] |>
 #'   dplyr::filter(Scaled_Importance > 0.5) |>
@@ -506,11 +519,11 @@ hd_plot_feature_heatmap <- function(de_results,
 #'
 #'
 #' # Create a feature panel from differential expression results
-#' de_results_aml <- hd_run_de_limma(hd_object, case = "AML", control)
-#' de_results_lungc <- hd_run_de_limma(hd_object, case = "LUNGC")
-#' de_results_cll <- hd_run_de_limma(hd_object, case = "CLL")
-#' de_results_myel <- hd_run_de_limma(hd_object, case = "MYEL")
-#' de_results_gliom <- hd_run_de_limma(hd_object, case = "GLIOM")
+#' de_results_aml <- hd_de_limma(hd_object, case = "AML")
+#' de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
+#' de_results_cll <- hd_de_limma(hd_object, case = "CLL")
+#' de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
+#' de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
 #'
 #' feature_panel <- de_results_aml[["de_res"]] |>
 #'   dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>

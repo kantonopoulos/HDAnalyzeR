@@ -2,7 +2,7 @@ utils::globalVariables(c(":="))
 
 #' Split data into training and test sets
 #'
-#' `hd_run_data_split()` splits the data into training and test sets based on the ratio
+#' `hd_split_data()` splits the data into training and test sets based on the ratio
 #' provided. It also stratifies the data based on the variable provided.
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
@@ -20,13 +20,13 @@ utils::globalVariables(c(":="))
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
-hd_run_data_split <- function(dat,
-                              metadata = NULL,
-                              variable = "Disease",
-                              metadata_cols = NULL,
-                              ratio = 0.75,
-                              seed = 123){
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
+hd_split_data <- function(dat,
+                          metadata = NULL,
+                          variable = "Disease",
+                          metadata_cols = NULL,
+                          ratio = 0.75,
+                          seed = 123){
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -43,6 +43,9 @@ hd_run_data_split <- function(dat,
 
   check_numeric <- check_numeric_columns(wide_data)
 
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
@@ -940,7 +943,7 @@ variable_imp <- function(dat,
 
 #' Run regularized regression model pipeline
 #'
-#' `hd_run_rreg()` runs the regularized regression model pipeline. It creates
+#' `hd_model_rreg()` runs the regularized regression model pipeline. It creates
 #' class-balanced case-control groups for the train set, tunes the model, evaluates
 #' the model, and plots the variable importance.
 #'
@@ -962,7 +965,7 @@ variable_imp <- function(dat,
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
 #' @details
 #' This model will not work if the number of predictors is less than 2.
-#' However, if this is the case, consider using `hd_run_lr()` instead.
+#' However, if this is the case, consider using `hd_model_lr()` instead.
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
@@ -977,47 +980,47 @@ variable_imp <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' hd_run_rreg(hd_split,
-#'             variable = "Disease",
-#'             case = "AML",
-#'             grid_size = 5,
-#'             palette = "cancers12")
+#' hd_model_rreg(hd_split,
+#'               variable = "Disease",
+#'               case = "AML",
+#'               grid_size = 5,
+#'               palette = "cancers12")
 #'
 #' # Run the multiclass regularized regression model pipeline
-#' hd_run_rreg(hd_split,
-#'             variable = "Disease",
-#'             case = NULL,
-#'             grid_size = 2,
-#'             cv_sets = 2,
-#'             verbose = FALSE)
-hd_run_rreg <- function(dat,
-                        variable = "Disease",
-                        case,
-                        control = NULL,
-                        balance_groups = TRUE,
-                        cor_threshold = 0.9,
-                        grid_size = 30,
-                        cv_sets = 5,
-                        mixture = NULL,
-                        palette = NULL,
-                        plot_y_labels = FALSE,
-                        verbose = TRUE,
-                        plot_title = c("accuracy",
-                                       "sensitivity",
-                                       "specificity",
-                                       "auc",
-                                       "features",
-                                       "top-features",
-                                       "mixture"),
-                        seed = 123) {
+#' hd_model_rreg(hd_split,
+#'               variable = "Disease",
+#'               case = NULL,
+#'               grid_size = 2,
+#'               cv_sets = 2,
+#'               verbose = FALSE)
+hd_model_rreg <- function(dat,
+                          variable = "Disease",
+                          case,
+                          control = NULL,
+                          balance_groups = TRUE,
+                          cor_threshold = 0.9,
+                          grid_size = 30,
+                          cv_sets = 5,
+                          mixture = NULL,
+                          palette = NULL,
+                          plot_y_labels = FALSE,
+                          verbose = TRUE,
+                          plot_title = c("accuracy",
+                                         "sensitivity",
+                                         "specificity",
+                                         "auc",
+                                         "features",
+                                         "top-features",
+                                         "mixture"),
+                          seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
 
   if (dat[["train_data"]] |> ncol() <= 3) {
-    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_run_lr()`.")
+    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_model_lr()`.")
   }
 
   dat <- prepare_data(dat = dat,
@@ -1081,7 +1084,7 @@ hd_run_rreg <- function(dat,
 
 #' Run random forest model pipeline
 #'
-#' `hd_run_rf()` runs the random forest model pipeline. It creates
+#' `hd_model_rf()` runs the random forest model pipeline. It creates
 #' class-balanced case-control groups for the train set, tunes the model, evaluates
 #' the model, and plots the variable importance.
 #'
@@ -1115,40 +1118,40 @@ hd_run_rreg <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' hd_run_rf(hd_split,
-#'           variable = "Disease",
-#'           case = "AML",
-#'           grid_size = 5,
-#'           palette = "cancers12")
+#' hd_model_rf(hd_split,
+#'             variable = "Disease",
+#'             case = "AML",
+#'             grid_size = 5,
+#'             palette = "cancers12")
 #'
 #' # Run the multiclass regularized regression model pipeline
-#' hd_run_rf(hd_split,
-#'           variable = "Disease",
-#'           case = NULL,
-#'           grid_size = 2,
-#'           cv_sets = 2,
-#'           verbose = FALSE)
-hd_run_rf <- function(dat,
-                      variable = "Disease",
-                      case,
-                      control = NULL,
-                      balance_groups = TRUE,
-                      cor_threshold = 0.9,
-                      grid_size = 30,
-                      cv_sets = 5,
-                      palette = NULL,
-                      plot_y_labels = FALSE,
-                      verbose = TRUE,
-                      plot_title = c("accuracy",
-                                     "sensitivity",
-                                     "specificity",
-                                     "auc",
-                                     "features",
-                                     "top-features"),
-                      seed = 123) {
+#' hd_model_rf(hd_split,
+#'             variable = "Disease",
+#'             case = NULL,
+#'             grid_size = 2,
+#'             cv_sets = 2,
+#'             verbose = FALSE)
+hd_model_rf <- function(dat,
+                        variable = "Disease",
+                        case,
+                        control = NULL,
+                        balance_groups = TRUE,
+                        cor_threshold = 0.9,
+                        grid_size = 30,
+                        cv_sets = 5,
+                        palette = NULL,
+                        plot_y_labels = FALSE,
+                        verbose = TRUE,
+                        plot_title = c("accuracy",
+                                       "sensitivity",
+                                       "specificity",
+                                       "auc",
+                                       "features",
+                                       "top-features"),
+                        seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
   dat <- prepare_data(dat = dat,
@@ -1213,7 +1216,7 @@ hd_run_rf <- function(dat,
 
 #' Run logistic regression model pipeline
 #'
-#' `hd_run_lr()` runs the logistic regression model pipeline. It creates
+#' `hd_model_lr()` runs the logistic regression model pipeline. It creates
 #' class-balanced case-control groups for the train set, tunes the model, evaluates
 #' the model, and plots the variable importance.
 #'
@@ -1232,12 +1235,12 @@ hd_run_rf <- function(dat,
 #' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
 #' @details
 #' This model is ideal when the number of features is small. Otherwise, use
-#' `hd_run_rreg()` as it is more robust to high-dimensional data.
+#' `hd_model_rreg()` as it is more robust to high-dimensional data.
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. Logistic regression models are not supported for
 #' multiclass classification. `case` is required for binary classification. If
-#' multi-class classification is needed, use `hd_run_rreg()` instead.
+#' multi-class classification is needed, use `hd_model_rreg()` instead.
 #'
 #' @export
 #'
@@ -1249,18 +1252,18 @@ hd_run_rf <- function(dat,
 #' )
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(
+#' hd_split <- hd_split_data(
 #'   hd_object,
 #'   metadata_cols = c("Age", "Sex"),  # Include metadata columns
 #'   variable = "Disease"
 #' )
 #'
 #' # Run the regularized regression model pipeline
-#' hd_run_lr(hd_split,
-#'           variable = "Disease",
-#'           case = "AML",
-#'           palette = "cancers12")
-hd_run_lr <- function(dat,
+#' hd_model_lr(hd_split,
+#'             variable = "Disease",
+#'             case = "AML",
+#'             palette = "cancers12")
+hd_model_lr <- function(dat,
                       variable = "Disease",
                       case,
                       control = NULL,
@@ -1287,7 +1290,7 @@ hd_run_lr <- function(dat,
                       seed = seed)
 
   if (dat[["model_type"]] == "multi_class") {
-    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_run_rreg()`.")
+    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_model_rreg()`.")
   }
 
   dat <- tune_lr_model(dat = dat,
@@ -1333,7 +1336,7 @@ hd_run_lr <- function(dat,
 #' top or all protein features, as well as a summary line plot of the model
 #' performance metrics.
 #'
-#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_run_rreg()`, `hd_run_rf()` or `hd_run_lr()` with the classes as names. See the examples for more details.
+#' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_model_rreg()`, `hd_model_rf()` or `hd_model_lr()` with the classes as names. See the examples for more details.
 #' @param importance The importance threshold to consider a feature as top. Default is 0.5.
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param upset_top_features Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).
@@ -1346,38 +1349,38 @@ hd_run_lr <- function(dat,
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Split the data into training and test sets
-#' hd_split <- hd_run_data_split(hd_object, variable = "Disease")
+#' hd_split <- hd_split_data(hd_object, variable = "Disease")
 #'
 #' # Run the regularized regression model pipeline
-#' model_results_aml <- hd_run_rreg(hd_split,
-#'                                  variable = "Disease",
-#'                                  case = "AML",
-#'                                  grid_size = 2,
-#'                                  cv_sets = 2)
+#' model_results_aml <- hd_model_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "AML",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
-#' model_results_cll <- hd_run_rreg(hd_split,
-#'                                  variable = "Disease",
-#'                                  case = "CLL",
-#'                                  grid_size = 2,
-#'                                  cv_sets = 2)
+#' model_results_cll <- hd_model_rreg(hd_split,
+#'                                    variable = "Disease",
+#'                                    case = "CLL",
+#'                                    grid_size = 2,
+#'                                    cv_sets = 2)
 #'
-#' model_results_myel <- hd_run_rreg(hd_split,
+#' model_results_myel <- hd_model_rreg(hd_split,
 #'                                   variable = "Disease",
 #'                                   case = "MYEL",
 #'                                   grid_size = 2,
 #'                                   cv_sets = 2)
 #'
-#' model_results_lungc <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "LUNGC",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_lungc <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "LUNGC",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
-#' model_results_gliom <- hd_run_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "GLIOM",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
+#' model_results_gliom <- hd_model_rreg(hd_split,
+#'                                      variable = "Disease",
+#'                                      case = "GLIOM",
+#'                                      grid_size = 2,
+#'                                      cv_sets = 2)
 #'
 #' res <- list("AML" = model_results_aml,
 #'             "LUNGC" = model_results_lungc,

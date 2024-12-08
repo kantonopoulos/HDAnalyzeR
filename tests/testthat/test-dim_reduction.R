@@ -52,8 +52,8 @@ test_that("fix_components_names assigns correct column names for UMAP by variabl
 })
 
 
-# Test hd_run_pca --------------------------------------------------------------
-test_that("hd_run_pca performs PCA correctly with by_sample = TRUE", {
+# Test hd_pca --------------------------------------------------------------
+test_that("hd_pca performs PCA correctly with by_sample = TRUE", {
   # Create example data and metadata
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
@@ -70,7 +70,7 @@ test_that("hd_run_pca performs PCA correctly with by_sample = TRUE", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run PCA
-  pca_res <- hd_run_pca(hd_obj, components = 2, by_sample = TRUE)
+  pca_res <- hd_pca(hd_obj, components = 2, by_sample = TRUE)
 
   # Check output class
   expect_s3_class(pca_res, "hd_pca")
@@ -83,7 +83,7 @@ test_that("hd_run_pca performs PCA correctly with by_sample = TRUE", {
   expect_equal(nrow(pca_res$pca_variance), 2) # 2 components
 })
 
-test_that("hd_run_pca performs PCA correctly with by_sample = FALSE", {
+test_that("hd_pca performs PCA correctly with by_sample = FALSE", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
@@ -99,7 +99,7 @@ test_that("hd_run_pca performs PCA correctly with by_sample = FALSE", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run PCA
-  pca_res <- hd_run_pca(hd_obj, components = 2, by_sample = FALSE)
+  pca_res <- hd_pca(hd_obj, components = 2, by_sample = FALSE)
 
   # Check output class
   expect_s3_class(pca_res, "hd_pca")
@@ -112,7 +112,7 @@ test_that("hd_run_pca performs PCA correctly with by_sample = FALSE", {
   expect_equal(nrow(pca_res$pca_variance), 2) # 2 components
 })
 
-test_that("hd_run_pca warns when components exceed available features", {
+test_that("hd_pca warns when components exceed available features", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
@@ -129,23 +129,23 @@ test_that("hd_run_pca warns when components exceed available features", {
 
   # Run PCA with excessive components
   expect_error(
-    hd_run_pca(hd_obj, components = 5),
+    hd_pca(hd_obj, components = 5),
     "The number of PCs to be calculated is higher than the number of features in the data."
   )
 })
 
-test_that("hd_run_pca stops if hd_object$data is NULL", {
+test_that("hd_pca stops if hd_object$data is NULL", {
   # Create an invalid hd_object with NULL data
   hd_obj <- list(data = NULL, metadata = NULL)
   class(hd_obj) <- "HDAnalyzeR"
   # Run PCA and expect an error
   expect_error(
-    hd_run_pca(hd_obj),
+    hd_pca(hd_obj),
     "The 'data' slot of the HDAnalyzeR object is empty."
   )
 })
 
-test_that("hd_run_pca produces consistent results for fixed seed", {
+test_that("hd_pca produces consistent results for fixed seed", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
@@ -161,8 +161,8 @@ test_that("hd_run_pca produces consistent results for fixed seed", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run PCA twice with the same seed
-  pca_res1 <- hd_run_pca(hd_obj, components = 2, seed = 123)
-  pca_res2 <- hd_run_pca(hd_obj, components = 2, seed = 123)
+  pca_res1 <- hd_pca(hd_obj, components = 2, seed = 123)
+  pca_res2 <- hd_pca(hd_obj, components = 2, seed = 123)
 
   # Compare results
   expect_equal(pca_res1$pca_res, pca_res2$pca_res)
@@ -450,8 +450,8 @@ test_that("hd_auto_pca works correctly", {
 })
 
 
-# hd_run_umap ------------------------------------------------------------------
-test_that("hd_run_umap performs UMAP correctly with by_sample = TRUE", {
+# hd_umap ------------------------------------------------------------------
+test_that("hd_umap performs UMAP correctly with by_sample = TRUE", {
   # Create example data and metadata
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
@@ -467,7 +467,7 @@ test_that("hd_run_umap performs UMAP correctly with by_sample = TRUE", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run UMAP
-  umap_res <- hd_run_umap(hd_obj, components = 2, by_sample = TRUE)
+  umap_res <- hd_umap(hd_obj, components = 2, by_sample = TRUE)
 
   # Check output class
   expect_s3_class(umap_res, "hd_umap")
@@ -477,7 +477,7 @@ test_that("hd_run_umap performs UMAP correctly with by_sample = TRUE", {
   expect_equal(nrow(umap_res$umap_res), 10)
 })
 
-test_that("hd_run_umap performs UMAP correctly with by_sample = FALSE", {
+test_that("hd_umap performs UMAP correctly with by_sample = FALSE", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
@@ -493,7 +493,7 @@ test_that("hd_run_umap performs UMAP correctly with by_sample = FALSE", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run UMAP
-  umap_res <- hd_run_umap(hd_obj, components = 2, by_sample = FALSE)
+  umap_res <- hd_umap(hd_obj, components = 2, by_sample = FALSE)
 
   # Check output class
   expect_s3_class(umap_res, "hd_umap")
@@ -503,7 +503,7 @@ test_that("hd_run_umap performs UMAP correctly with by_sample = FALSE", {
   expect_equal(nrow(umap_res$umap_res), 3)
 })
 
-test_that("hd_run_pca produces consistent results for fixed seed", {
+test_that("hd_pca produces consistent results for fixed seed", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
@@ -519,8 +519,8 @@ test_that("hd_run_pca produces consistent results for fixed seed", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run UMAP twice with the same seed
-  umap_res1 <- hd_run_umap(hd_obj, components = 2, seed = 123)
-  umap_res2 <- hd_run_umap(hd_obj, components = 2, seed = 123)
+  umap_res1 <- hd_umap(hd_obj, components = 2, seed = 123)
+  umap_res2 <- hd_umap(hd_obj, components = 2, seed = 123)
 
   # Compare results
   expect_equal(umap_res1$umap_res, umap_res2$umap_res)

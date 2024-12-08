@@ -16,7 +16,7 @@ calculate_na_percentage <- function(dat) {
 
 #' Summary of missing values
 #'
-#' `hd_run_na_search()` provides a summary of missing values in a dataset. It allows the user to
+#' `hd_na_search()` provides a summary of missing values in a dataset. It allows the user to
 #' specify the metadata columns to include in the summary and the color palette to use for
 #' the heatmap annotations.
 #'
@@ -43,21 +43,21 @@ calculate_na_percentage <- function(dat) {
 #'
 #' # Use custom palettes for coloring annotations
 #' palette = list(Sex = c(M = "blue", F = "pink"))
-#' na_res <- hd_run_na_search(hd_object,
-#'                            annotation_vars = c("Age", "Sex"),
-#'                            palette = palette)
+#' na_res <- hd_na_search(hd_object,
+#'                        annotation_vars = c("Age", "Sex"),
+#'                        palette = palette)
 #'
 #' # Use HPA palettes for coloring annotations
 #' palette = list(Disease = hd_palettes()$cancers12, Sex = hd_palettes()$sex)
-#' na_res <- hd_run_na_search(hd_object,
-#'                            annotation_vars = c("Disease", "Sex"),
-#'                            palette = palette)
-hd_run_na_search <- function(dat,
-                             metadata = NULL,
-                             annotation_vars = NULL,
-                             palette = NULL,
-                             x_labels = FALSE,
-                             y_labels = FALSE) {
+#' na_res <- hd_na_search(hd_object,
+#'                        annotation_vars = c("Disease", "Sex"),
+#'                        palette = palette)
+hd_na_search <- function(dat,
+                         metadata = NULL,
+                         annotation_vars = NULL,
+                         palette = NULL,
+                         x_labels = FALSE,
+                         y_labels = FALSE) {
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
@@ -77,6 +77,9 @@ hd_run_na_search <- function(dat,
 
   check_numeric <- check_numeric_columns(wide_data)
 
+  if (is.null(metadata)) {
+    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+  }
   if (!all(annotation_vars %in% colnames(metadata))) {
     message("Some category columns provided do not exist in the dataset.")
   }

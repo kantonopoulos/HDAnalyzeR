@@ -7,7 +7,7 @@
 hd_plot_pca_variance(pca_object)
 }
 \arguments{
-\item{pca_object}{A PCA object containing the PCA variance. Created by \code{hd_run_pca()}.}
+\item{pca_object}{A PCA object containing the PCA variance. Created by \code{hd_pca()}.}
 }
 \value{
 A ggplot object
@@ -20,7 +20,7 @@ A ggplot object
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run the PCA analysis and create the variance plot
-pca_object <- hd_run_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
+pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_pca_variance()
 pca_object$pca_variance_plot
 }

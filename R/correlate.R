@@ -1,6 +1,6 @@
 #' Correlate data
 #'
-#' `hd_run_correlation()` calculates the correlation matrix of the input dataset.
+#' `hd_correlate()` calculates the correlation matrix of the input dataset.
 #'
 #' @param x A numeric vector, matrix or tibble.
 #' @param y A numeric vector, matrix or tibble with compatible dimensions with `x`. Default is NULL.
@@ -17,13 +17,13 @@
 #'  tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
 #'  dplyr::select(-DAid)
 #'
-#' hd_run_correlation(dat)[1:5, 1:5]  # Subset of the correlation matrix
+#' hd_correlate(dat)[1:5, 1:5]  # Subset of the correlation matrix
 #'
 #' # Correlate 2 vectors
 #' vec1 <- c(1, 2, 3, 4, 5)
 #' vec2 <- c(5, 4, 3, 2, 1)
-#' hd_run_correlation(vec1, vec2)
-hd_run_correlation <- function(x, y = NULL, use = "pairwise.complete.obs", method = "pearson") {
+#' hd_correlate(vec1, vec2)
+hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "pearson") {
 
   cor_matrix <- round(
     stats::cor(x, y, use = use, method = method),
@@ -82,7 +82,7 @@ hd_plot_cor_heatmap <- function(x,
                                 cluster_rows = TRUE,
                                 cluster_cols = TRUE) {
 
-  cor_matrix <- hd_run_correlation(x = x, y = y, use = use, method = method)
+  cor_matrix <- hd_correlate(x = x, y = y, use = use, method = method)
 
   cor_long <- as.data.frame(as.table(cor_matrix),
                             .name_repair = "minimal",
