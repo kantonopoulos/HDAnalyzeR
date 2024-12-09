@@ -135,12 +135,16 @@ format (check examples bellow).</p>
 <span class="r-in"><span><span class="va">na_res</span> <span class="op">&lt;-</span> <span class="fu">hd_na_search</span><span class="op">(</span><span class="va">hd_object</span>,</span></span>
 <span class="r-in"><span>                       annotation_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                       palette <span class="op">=</span> <span class="va">palette</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">na_res</span><span class="op">$</span><span class="va">na_heatmap</span></span></span>
+<span class="r-plt img"><img src="hd_na_search-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use HPA palettes for coloring annotations</span></span></span>
-<span class="r-in"><span><span class="va">palette</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="fu"><a href="hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">cancers12</span>, Sex <span class="op">=</span> <span class="fu"><a href="hd_palettes.html">hd_palettes</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">sex</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Use a mix of custom and HPA palettes for coloring annotations</span></span></span>
+<span class="r-in"><span><span class="va">palette</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>M <span class="op">=</span> <span class="st">"blue"</span>, F <span class="op">=</span> <span class="st">"pink"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">na_res</span> <span class="op">&lt;-</span> <span class="fu">hd_na_search</span><span class="op">(</span><span class="va">hd_object</span>,</span></span>
 <span class="r-in"><span>                       annotation_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Disease"</span>, <span class="st">"Sex"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                       palette <span class="op">=</span> <span class="va">palette</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">na_res</span><span class="op">$</span><span class="va">na_heatmap</span></span></span>
+<span class="r-plt img"><img src="hd_na_search-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

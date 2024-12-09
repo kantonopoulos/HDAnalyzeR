@@ -63,61 +63,130 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="hdanalyzer-110">HDAnalyzeR 1.1.0<a class="anchor" aria-label="anchor" href="#hdanalyzer-110"></a></h2>
 <div class="section level3">
-<h3 id="general-1-1-0">General<a class="anchor" aria-label="anchor" href="#general-1-1-0"></a></h3>
-<ul><li>Changed function nomenclature to be more consistent, easier to understand and to search for. All functions now start with <code>hd_</code> which is convenient for searching in RStudio especially when working together with other packages.</li>
-<li>Convert all heatmaps from <code>tidyheatmaps</code> to ggplot objects with <code>ggplotify</code>.</li>
-<li>Make vignettes more readable by suppressing non necessary results and messages.</li>
-<li>Solve bugs and issues.</li>
-<li>Informative warnings were added to functions to guide the user in case of potential issues.</li>
-<li>Preprocess module was removed as it was considered redundant and limited.</li>
+<h3 id="general-updates-1-1-0">General Updates<a class="anchor" aria-label="anchor" href="#general-updates-1-1-0"></a></h3>
+<ul><li><p><strong>Improved Function Naming:</strong><br>
+All functions now start with <code>hd_</code> for consistency and easier searching in RStudio, especially when using multiple packages simultaneously.</p></li>
+<li><p><strong>Heatmap Updates:</strong><br>
+Heatmaps are now converted to <code>ggplot</code> objects using <code>ggplotify</code>, enhancing flexibility and uniformity. Now all plots are ggplot objects.</p></li>
+<li><p><strong>Enhanced Vignettes:</strong><br>
+Vignettes have been streamlined by suppressing unnecessary outputs and messages.</p></li>
+<li><p><strong>Bug Fixes &amp; Warnings:</strong><br>
+Addressed several bugs and added informative warnings and error handling to guide users when potential issues arise.</p></li>
+<li><p><strong>Preprocess Module Removal:</strong><br>
+The preprocess module was removed due to redundancy and limited functionality.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="utils-1-1-0">Utils<a class="anchor" aria-label="anchor" href="#utils-1-1-0"></a></h3>
-<ul><li>Added <code><a href="../reference/hd_initialize.html">hd_initialize()</a></code> to create an initial object that is used in all other functions. This is making the package usage much more straightforward and concise.</li>
-<li>Added <code><a href="../reference/hd_detect_vartype.html">hd_detect_vartype()</a></code> to detect if a variable is categorical or continuous.</li>
-<li>Simplified the arguments in <code><a href="../reference/hd_save_data.html">hd_save_data()</a></code> (former <code>save_df()</code>) to make it more user friendly and similar to <code><a href="../reference/hd_import_data.html">hd_import_data()</a></code> (former <code>import_df()</code>).</li>
-<li>Made <code><a href="../reference/hd_widen_data.html">hd_widen_data()</a></code> more flexible to allow for user defined columns to be used for wide data generation with <code>exclude</code>, <code>names_from</code> and <code>values_from</code> arguments.</li>
+<h3 id="utility-functions-1-1-0">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions-1-1-0"></a></h3>
+<ul><li>
+<strong>New Features:</strong>
+<ul><li>
+<code><a href="../reference/hd_initialize.html">hd_initialize()</a></code>: Initializes a base object used across all functions for simplified and consistent workflows.<br></li>
 <li>
-<code>generate_df()</code> was deprecated as it is considered redundant.</li>
+<code><a href="../reference/hd_detect_vartype.html">hd_detect_vartype()</a></code>: Identifies if a variable is categorical or continuous.</li>
+<li>
+<code><a href="../reference/hd_bin_columns.html">hd_bin_columns()</a></code>: Bins continuous variables into categories.</li>
+<li>
+<code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code>: Filters data based on sex and updates the data and metadata automatically</li>
+<li>
+<code><a href="../reference/hd_log_transform.html">hd_log_transform()</a></code>: Log-transforms data.</li>
+<li>
+<code><a href="../reference/hd_long_data.html">hd_long_data()</a></code>: Converts wide data to long format.</li>
+</ul></li>
+<li>
+<strong>Simplified Usage:</strong>
+<ul><li>
+<code><a href="../reference/hd_save_data.html">hd_save_data()</a></code> (formerly <code>save_df()</code>) now has more user-friendly arguments, aligning with <code><a href="../reference/hd_import_data.html">hd_import_data()</a></code> (formerly <code>import_df()</code>).</li>
+<li>
+<code><a href="../reference/hd_widen_data.html">hd_widen_data()</a></code> supports custom column selection for wide data creation with arguments like <code>exclude</code>, <code>names_from</code>, and <code>values_from</code>.</li>
+</ul></li>
+<li>
+<strong>Deprecated Functions:</strong>
+<ul><li>
+<code>generate_df()</code> was deprecated as it is now redundant.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
 <h3 id="dimensionality-reduction-1-1-0">Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#dimensionality-reduction-1-1-0"></a></h3>
-<ul><li>Fix bug with <code><a href="../reference/hd_auto_pca.html">hd_auto_pca()</a></code> (former <code>do_pca()</code>) and PC component numbers above 9.</li>
+<ul><li>
+<strong>Bug Fixes:</strong><br>
+Fixed an issue in <code><a href="../reference/hd_auto_pca.html">hd_auto_pca()</a></code> (formerly <code>do_pca()</code>) when handling more than 9 principal components.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="palettes--themes-1-1-0">Palettes &amp; Themes<a class="anchor" aria-label="anchor" href="#palettes--themes-1-1-0"></a></h3>
-<ul><li>Added <code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code> to display all available palettes in the package.</li>
-<li>Added selected palettes from ggsci package.</li>
+<ul><li>
+<strong>New Functions:</strong>
+<ul><li>
+<code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code>: Displays all available palettes in the package.</li>
+<li>Added selected palettes from the <code>ggsci</code> package.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
 <h3 id="imputation-1-1-0">Imputation<a class="anchor" aria-label="anchor" href="#imputation-1-1-0"></a></h3>
-<ul><li>Add <code><a href="../reference/hd_na_search.html">hd_na_search()</a></code> that summarizes the distribution of NA values in a heatmap. It also makes it able to annotate by user defined metadata variables.</li>
-<li>Removed <code>impute_mice()</code> function as it is considered too complicated for the package. If needed, the user can use the <code>mice</code> package directly.</li>
-<li>Add <code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code> to remove rows with NA values based on specified columns of the data.</li>
+<ul><li>
+<strong>New Features:</strong>
+<ul><li>
+<code><a href="../reference/hd_na_search.html">hd_na_search()</a></code>: Summarizes NA distributions in heatmaps and supports user-defined metadata annotations.<br></li>
+<li>
+<code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code>: Removes rows with NA values based on specified columns.</li>
+</ul></li>
+<li>
+<strong>Removed Features:</strong>
+<ul><li>
+<code>impute_mice()</code> was removed for simplicity. Users requiring advanced imputation can directly use the <code>mice</code> package.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="qc-summary-1-1-0">QC Summary<a class="anchor" aria-label="anchor" href="#qc-summary-1-1-0"></a></h3>
-<ul><li>Add <code>cor_method</code> argument to <code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> to allow the user to choose the correlation method.</li>
-<li>Remove normality check as it is invalid for large datasets. The tests are very sensitive and will always return significant results. If the user still wants to check normality we recommend histograms or QQ plots.</li>
-<li>Merge <code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> and <code><a href="../reference/qc_summary_metadata.html">qc_summary_metadata()</a></code> into one function <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code>.</li>
-<li>Add <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> visualizes all metadata columns instead of requiring manual selection.</li>
+<h3 id="quality-control-qc-summary-1-1-0">Quality Control (QC) Summary<a class="anchor" aria-label="anchor" href="#quality-control-qc-summary-1-1-0"></a></h3>
+<ul><li>
+<strong>New &amp; Enhanced Features:</strong>
+<ul><li>Added a <code>cor_method</code> argument to <code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> for customizable correlation methods.<br></li>
+<li>Merged <code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> and <code><a href="../reference/qc_summary_metadata.html">qc_summary_metadata()</a></code> into a single function, <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code>, which now visualizes all metadata columns.</li>
+</ul></li>
+<li>
+<strong>Simplified Normality Checks:</strong><br>
+Removed automatic normality checks for large datasets due to sensitivity issues. Instead, users are encouraged to use histograms or QQ plots for this purpose.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="differential-expression-analysis-1-1-0">Differential Expression Analysis<a class="anchor" aria-label="anchor" href="#differential-expression-analysis-1-1-0"></a></h3>
-<ul><li>Merge <code>do_limma()</code> and <code>do_limma_continuous()</code> to new <code>hd_run_de_limma()</code> that recognizes the variable type automatically.</li>
+<ul><li>
+<strong>Streamlined Functions:</strong>
+<ul><li>Merged <code>do_limma()</code> and <code>do_limma_continuous()</code> into <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code>, which auto-detects variable types.<br></li>
 <li>
-<code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> is now a function alone.</li>
+<code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> is now a standalone function to reduce the number of arguments but still keep the flexibility.</li>
+</ul></li>
+<li>
+<strong>Improved Customization:</strong>
+<ul><li>Added a <code>user_defined_proteins</code> argument to <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code>, allowing users to label specific proteins on volcano plots.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
 <h3 id="classification-models-1-1-0">Classification Models<a class="anchor" aria-label="anchor" href="#classification-models-1-1-0"></a></h3>
-<ul><li><p>Multiclassification models now return variable importance plot as well.</p></li>
-<li><p>AUC barplot in multiclassification models are now ordered.</p></li>
-<li><p>Add <code>plot_biomarkers_summary_heatmap()</code> to summarize the results of differential expression analysis and classification models in one summary heatmap.</p></li>
-<li><p>Fix issue with color matching with the bars of Upset plots in <code>plot_de_summary()</code> and <code>plot_features_summary()</code> because of frequency ties. Now the bars are colored correctly even in case of frequency ties.</p></li>
-<li><p>Add verbose argument to <code>plot_de_summary()</code> and <code>plot_features_summary()</code> to suppress printing of proteins/features sets in different cases.</p></li>
-<li><p>Remove non necessary return from <code>plot_gsea()</code>.</p></li>
-<li><p>Add <code>user_defined_proteins</code> argument to <code>plot_volcano()</code> and all differential expression functions in order for the user to specify which proteins to label on top of the volcano plot.</p></li>
+<ul><li>
+<strong>Enhanced Visualizations:</strong>
+<ul><li>Multiclassification models now include a variable importance plot.<br></li>
+<li>AUC bar plots were removed to make the output more consistent with the binary classification models.</li>
+<li>Probability plots were added to visualize the distribution of probabilities for each class.</li>
+</ul></li>
 </ul></div>
+<div class="section level3">
+<h3 id="visualization-functions-1-1-0">Visualization Functions<a class="anchor" aria-label="anchor" href="#visualization-functions-1-1-0"></a></h3>
+<ul><li>
+<strong>New Functions:</strong>
+<ul><li>Added <code>plot_feature_summary_heatmap()</code>: Summarizes differential expression and classification model results in a single heatmap.</li>
+<li>Added <code>plot_feature_summary_network()</code>: Summarizes differential expression or classification model features results in a single network.</li>
+</ul></li>
+<li>
+<strong>Bug Fixes &amp; Improvements:</strong>
+<ul><li>Fixed color-matching issues in bar plots for <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code> and <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code> caused by frequency ties. Bars are now colored correctly.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="pathway-enrichment-analysis-1-1-0">Pathway Enrichment Analysis<a class="anchor" aria-label="anchor" href="#pathway-enrichment-analysis-1-1-0"></a></h3>
+<ul><li>
+<strong>Streamlined Outputs:</strong>
+<ul><li>Removed unnecessary returns from <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code>.</li>
+</ul></li>
+</ul><hr></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="hdanalyzer-100-2024-08-19">HDAnalyzeR 1.0.0 (2024-08-19)<a class="anchor" aria-label="anchor" href="#hdanalyzer-100-2024-08-19"></a></h2>
