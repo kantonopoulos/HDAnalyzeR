@@ -449,3 +449,74 @@ test_that("Numeric-like character columns are handled correctly", {
                  "The following columns are not numeric: F")
   expect_equal(non_numeric, "F") # Only F should be flagged
 })
+
+
+# Test hd_filter_by_sex --------------------------------------------------------
+test_that("hd_filter_by_sex filters data by sex correctly", {
+  test_data <- data.frame(
+    sample_id = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(1.5, 2.3, 0.7, 4.1, 2.5),
+    Protein2 = c(0.8, 2.5, 3.1, 0.3, 4.0)
+  )
+
+  test_metadata <- data.frame(
+    sample_id = c("S1", "S2", "S3", "S4", "S5"),
+    Sex = c("M", "F", "M", "F", "M")
+  )
+
+  hd_object <- hd_initialize(test_data, test_metadata, sample_id = "sample_id", is_wide = TRUE)
+
+  # Test filtering by male
+  filtered_data_male <- hd_filter_by_sex(hd_object, variable = "Sex", sex = "M")
+  expect_equal(nrow(filtered_data_male$data), 3)  # Should only include male samples
+  expect_true(all(filtered_data_male$metadata$Sex == "M"))
+
+  # Test filtering by female
+  filtered_data_female <- hd_filter_by_sex(hd_object, variable = "Sex", sex = "F")
+  expect_equal(nrow(filtered_data_female$data), 2)  # Should only include female samples
+  expect_true(all(filtered_data_female$metadata$Sex == "F"))
+
+  # Test invalid sex input
+  expect_error(hd_filter_by_sex(hd_object, variable = "Sex", sex = "InvalidSex"),
+               "InvalidSex is not a valid value for the Sex variable.")
+
+  # Test missing metadata
+  no_metadata_object <- hd_object
+  no_metadata_object$metadata <- NULL
+  expect_error(hd_filter_by_sex(no_metadata_object, metadata = NULL, variable = "Sex", sex = "M"),
+               "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+
+  # Test non-existent variable in metadata
+  expect_error(hd_filter_by_sex(hd_object, variable = "NonExistentVariable", sex = "M"),
+               "The variable NonExistentVariable does not exist in the metadata.")
+})
+
+
+# Test hd_log_transform --------------------------------------------------------
+test_that("hd_log_transform log transforms data correctly", {
+
+  test_data <- data.frame(
+    sample_id = c("S1", "S2", "S3", "S4", "S5"),
+    Protein1 = c(1.5, 2.3, 0.7, 4.1, 2.5),
+    Protein2 = c(0.8, 2.5, 3.1, 0.3, 4.0)
+  )
+
+  test_metadata <- data.frame(
+    sample_id = c("S1", "S2", "S3", "S4", "S5"),
+    Sex = c("M", "F", "M", "F", "M")
+  )
+
+  hd_object <- hd_initialize(test_data, test_metadata, sample_id = "sample_id", is_wide = TRUE)
+
+  # Test log transformation with positive values
+  transformed_data <- hd_log_transform(hd_object)
+  expect_true(all(!is.na(transformed_data$data[,-1])))  # Should not have NA values except for zero/negative entries
+
+  # Test handling of non-positive values (<= 0) replaced by NA
+  data_with_zeros <- test_data
+  data_with_zeros$Protein1[3] <- 0  # Add a zero value
+  data_with_zeros$Protein2[4] <- -1  # Add a negative value
+  transformed_data_with_zeros <- hd_log_transform(hd_initialize(data_with_zeros, test_metadata, sample_id = "sample_id", is_wide = TRUE))
+  expect_true(all(is.na(transformed_data_with_zeros$data$Protein1[3])))  # Zero should be NA after log transform
+  expect_true(all(is.na(transformed_data_with_zeros$data$Protein2[4])))  # Negative should be NA after log transform
+})

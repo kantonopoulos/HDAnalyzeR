@@ -111,7 +111,7 @@ hd_plot_feature_boxplot <- function(dat,
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
-  if (!is.null(!features %in% colnames(wide_data))) {
+  if (any(!(features %in% colnames(wide_data)))) {
     warning(paste("The features", {features[!features %in% colnames(wide_data)]}, "are not present in the data and will be skipped."))
     features <- features[features %in% colnames(wide_data)]
     if (length(features) == 0) {

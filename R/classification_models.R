@@ -209,6 +209,10 @@ prepare_data <- function(dat,
       dplyr::filter(!!Variable %in% c(case, control)) |>
       dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
 
+    if (length(unique(train_set[[variable]])) < 2) {
+      stop("The variable in train set has less than 2 classes. Please provide a variable with at least 2 classes.")
+    }
+
     if (balance_groups) {
       train_set <- balance_groups(train_set, variable, 1, seed)
     }
@@ -216,6 +220,10 @@ prepare_data <- function(dat,
     test_set <- test_data |>
       dplyr::filter(!!Variable %in% c(case, control)) |>
       dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
+
+    if (length(unique(test_set[[variable]])) < 2) {
+      stop("The variable in test set has less than 2 classes. Please provide a variable with at least 2 classes.")
+    }
 
   } else {
 
