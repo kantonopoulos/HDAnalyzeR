@@ -123,8 +123,7 @@ hd_ora <- function(gene_list,
   }
 
   if (!any(enrichment@result[["p.adjust"]] < pval_lim_enrichment)) {
-    message("No significant terms found.")
-    return(NULL)
+    stop("No significant terms found.")
   }
 
   enrichment <- list("gene_list" = gene_list, "background" = background, "enrichment" = enrichment)
@@ -185,10 +184,10 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   tree_plot <- enrichplot::treeplot(tree_plot_data)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue")
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue", colorEdge = TRUE)
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue")
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue", colorEdge = TRUE)
   }
 
   enrichment[["dotplot"]] <- dot_plot
@@ -318,8 +317,7 @@ hd_gsea <- function(de_results,
   }
 
   if (!any(enrichment@result[["p.adjust"]] < pval_lim_enrichment)) {
-    message("No significant terms found.")
-    return(NULL)
+    stop("No significant terms found.")
   }
 
   enrichment <- list("gene_list" = gene_list, "enrichment" = enrichment)
@@ -377,10 +375,10 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
                                         geneSetID = 1)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue")
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue", colorEdge = TRUE)
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue")
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue", colorEdge = TRUE)
   }
 
   ridgeplot <- clusterProfiler::ridgeplot(enrichment[["enrichment"]]) +
