@@ -72,7 +72,6 @@ hd_literature_search <- function(feature_class_list,
       }, error = function(e) {
         # Handle any errors during the query or processing
         message(paste0("An error occurred while searching for ", gene, " and ", disease, ": ", e$message))
-        next
       })
 
       if (is.null(abstracts_xml) || length(abstracts_xml) == 0) {
