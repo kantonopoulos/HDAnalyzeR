@@ -12,11 +12,14 @@ utils::globalVariables(c(":=", "sig.label"))
 #' @param case The case group. In case of a continuous variable, it must be NULL.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.
 #' @param correct The variables to correct the results with. Default is NULL.
+#' @param log_transform If the data should be log transformed. Default is FALSE.
 #'
 #' @return An object with the DE results.
 #' @details
 #' In case of a continuous variable or if you are correcting based on a continuous variable,
 #' the variable should be numeric and contain at least 6 unique variables.
+#' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
+#' transform the data with base 2 before the analysis start.
 #'
 #' @export
 #'
@@ -40,7 +43,8 @@ hd_de_limma <- function(dat,
                         variable = "Disease",
                         case,
                         control = NULL,
-                        correct = NULL) {
+                        correct = NULL,
+                        log_transform = FALSE) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -62,6 +66,10 @@ hd_de_limma <- function(dat,
   }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
+  }
+
+  if (log_transform) {
+    wide_data <- hd_log_transform(wide_data)
   }
 
   # If control is NULL, set it to the unique values of the variable that are not the case
@@ -177,8 +185,14 @@ hd_de_limma <- function(dat,
 #' @param variable The name of the column containing the case and control groups.
 #' @param case The case group.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case.
+#' @param log_transform If the data should be log transformed. Default is FALSE.
 #'
 #' @return An object with the DE results.
+#'
+#' @details
+#' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
+#' transform the data with base 2 before the analysis start.
+#'
 #' @export
 #'
 #' @examples
@@ -194,7 +208,8 @@ hd_de_ttest <- function(dat,
                         metadata = NULL,
                         variable = "Disease",
                         case,
-                        control = NULL) {
+                        control = NULL,
+                        log_transform = FALSE) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -216,6 +231,10 @@ hd_de_ttest <- function(dat,
   }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
+  }
+
+  if (log_transform) {
+    wide_data <- hd_log_transform(wide_data)
   }
 
   # If control is NULL, set it to the unique values of the variable that are not the case

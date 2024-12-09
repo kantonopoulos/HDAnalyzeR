@@ -10,7 +10,8 @@ hd_de_limma(
   variable = "Disease",
   case,
   control = NULL,
-  correct = NULL
+  correct = NULL,
+  log_transform = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ hd_de_limma(
 \item{control}{The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.}
 
 \item{correct}{The variables to correct the results with. Default is NULL.}
+
+\item{log_transform}{If the data should be log transformed. Default is FALSE.}
 }
 \value{
 An object with the DE results.
@@ -38,6 +41,8 @@ The function removes the NAs from the columns that are used to correct for.
 \details{
 In case of a continuous variable or if you are correcting based on a continuous variable,
 the variable should be numeric and contain at least 6 unique variables.
+In case your data are not already log transformed, you can set \code{log_transform = TRUE} to log
+transform the data with base 2 before the analysis start.
 }
 \examples{
 # Initialize an HDAnalyzeR object
