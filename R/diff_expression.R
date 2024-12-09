@@ -12,11 +12,14 @@ utils::globalVariables(c(":=", "sig.label"))
 #' @param case The case group. In case of a continuous variable, it must be NULL.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.
 #' @param correct The variables to correct the results with. Default is NULL.
+#' @param log_transform If the data should be log transformed. Default is FALSE.
 #'
 #' @return An object with the DE results.
 #' @details
 #' In case of a continuous variable or if you are correcting based on a continuous variable,
 #' the variable should be numeric and contain at least 6 unique variables.
+#' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
+#' transform the data with base 2 before the analysis start.
 #'
 #' @export
 #'
@@ -40,7 +43,8 @@ hd_de_limma <- function(dat,
                         variable = "Disease",
                         case,
                         control = NULL,
-                        correct = NULL) {
+                        correct = NULL,
+                        log_transform = FALSE) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -62,6 +66,10 @@ hd_de_limma <- function(dat,
   }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
+  }
+
+  if (log_transform) {
+    wide_data <- hd_log_transform(wide_data)
   }
 
   # If control is NULL, set it to the unique values of the variable that are not the case
@@ -177,8 +185,14 @@ hd_de_limma <- function(dat,
 #' @param variable The name of the column containing the case and control groups.
 #' @param case The case group.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case.
+#' @param log_transform If the data should be log transformed. Default is FALSE.
 #'
 #' @return An object with the DE results.
+#'
+#' @details
+#' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
+#' transform the data with base 2 before the analysis start.
+#'
 #' @export
 #'
 #' @examples
@@ -194,7 +208,8 @@ hd_de_ttest <- function(dat,
                         metadata = NULL,
                         variable = "Disease",
                         case,
-                        control = NULL) {
+                        control = NULL,
+                        log_transform = FALSE) {
 
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
@@ -216,6 +231,10 @@ hd_de_ttest <- function(dat,
   }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
+  }
+
+  if (log_transform) {
+    wide_data <- hd_log_transform(wide_data)
   }
 
   # If control is NULL, set it to the unique values of the variable that are not the case
@@ -242,8 +261,8 @@ hd_de_ttest <- function(dat,
                    "!"))
   }
 
-  de_res <- matrix(nrow=0, ncol=5)
-  colnames(de_res) <- c("Feature", "logFC", "t", "P.Value", variable)
+  de_res <- matrix(nrow=0, ncol=7)
+  colnames(de_res) <- c("Feature", "logFC", "CI.L", "CI.R", "t", "P.Value", variable)
 
   # Run statistical test for each assay
   de_res_list <- lapply(names(wide_data[-1]), function(assay) {
@@ -260,9 +279,10 @@ hd_de_ttest <- function(dat,
 
     t.val <- test_res[["statistic"]]
     p.val <- test_res[["p.value"]]
+    conf_int <- test_res[["conf.int"]]
     difference <- mean(case_group, na.rm = TRUE) - mean(control_group, na.rm = TRUE)
 
-    de_res <- rbind(de_res, c(assay, difference, t.val, p.val, case))
+    de_res <- rbind(de_res, c(assay, difference, round(conf_int[1], 2), round(conf_int[2], 2), round(t.val, 2), p.val, case))
   })
 
   combined_de_res <- do.call(rbind, de_res_list)
@@ -369,7 +389,9 @@ hd_plot_volcano <- function(de_object,
     ggplot2::geom_hline(yintercept = -log10(pval_lim), linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = logfc_lim, linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = -logfc_lim, linetype = 'dashed') +
-    ggplot2::labs(color = "Significance")
+    ggplot2::labs(x = "log2 Fold Change",
+                  y = "-log10(Adjusted P-value)",
+                  color = "Significance")
 
   # Title and subtitle
   title_text <- ""

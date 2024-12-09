@@ -4,7 +4,14 @@
 \alias{hd_de_ttest}
 \title{Differential expression analysis with t-test}
 \usage{
-hd_de_ttest(dat, metadata = NULL, variable = "Disease", case, control = NULL)
+hd_de_ttest(
+  dat,
+  metadata = NULL,
+  variable = "Disease",
+  case,
+  control = NULL,
+  log_transform = FALSE
+)
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
@@ -16,6 +23,8 @@ hd_de_ttest(dat, metadata = NULL, variable = "Disease", case, control = NULL)
 \item{case}{The case group.}
 
 \item{control}{The control groups. If NULL, it will be set to all other unique values of the variable that are not the case.}
+
+\item{log_transform}{If the data should be log transformed. Default is FALSE.}
 }
 \value{
 An object with the DE results.
@@ -24,6 +33,10 @@ An object with the DE results.
 \code{hd_de_ttest()} performs differential expression analysis using t-test.
 It separates the data in case-control groups, checks for data normality and
 perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
+}
+\details{
+In case your data are not already log transformed, you can set \code{log_transform = TRUE} to log
+transform the data with base 2 before the analysis start.
 }
 \examples{
 # Initialize an HDAnalyzeR object

@@ -39,8 +39,8 @@ We can simply check our data for NA values by using the `hd_qc_summary()` as we 
 ```{r}
 na_res <- hd_na_search(hd_obj,
                        annotation_vars = c("Sex", "Age", "Disease"),
-                       palette = list(Disease = hd_palettes()$cancers12,
-                                      Sex = hd_palettes()$sex),
+                       palette = list(Disease = "cancers12",
+                                      Sex = "sex"),
                        x_labels = FALSE,
                        y_labels = FALSE)
 

@@ -65,24 +65,32 @@ hd_literature_search <- function(feature_class_list,
       if (ids[["Count"]] == 0) {
         message(paste0("No articles found for ", gene, " and ", disease))
         next
-      } else {
+      }
+
+      tryCatch({
         abstracts_xml <- easyPubMed::fetch_pubmed_data(pubmed_id_list = ids, retmax = max_articles)
+      }, error = function(e) {
+        # Handle any errors during the query or processing
+        message(paste0("An error occurred while searching for ", gene, " and ", disease, ": ", e$message))
+      })
+
+      if (is.null(abstracts_xml) || length(abstracts_xml) == 0) {
+        message(paste0("No abstracts could be fetched for ", gene, " and ", disease))
+        next
       }
 
-      # Extract data and store them in dataframe
-      if(!is.null(abstracts_xml)) {
-        abstracts_list <- easyPubMed::articles_to_list(abstracts_xml)
+      # Extract data and store them in a dataframe
+      abstracts_list <- easyPubMed::articles_to_list(abstracts_xml)
 
-        abstract_table <- abstracts_list |>
-          purrr::map_df(function(abstract) {
-            easyPubMed::article_to_df(pubmedArticle = abstract, autofill = FALSE) |>
-              utils::head(1) |>
-              dplyr::select(dplyr::all_of(c("pmid", "year", "journal", "firstname", "lastname", "title"))) |>
-              dplyr::mutate(First_author = paste0(!!rlang::sym("lastname"), ", ", !!rlang::sym("firstname"))) |>
-              dplyr::relocate(!!rlang::sym("First_author"), .before = !!rlang::sym("year")) |>
-              dplyr::select(-dplyr::all_of(c("firstname", "lastname")))
-          })
-      }
+      abstract_table <- abstracts_list |>
+        purrr::map_df(function(abstract) {
+          easyPubMed::article_to_df(pubmedArticle = abstract, autofill = FALSE) |>
+            utils::head(1) |>
+            dplyr::select(dplyr::all_of(c("pmid", "year", "journal", "firstname", "lastname", "title"))) |>
+            dplyr::mutate(First_author = paste0(!!rlang::sym("lastname"), ", ", !!rlang::sym("firstname"))) |>
+            dplyr::relocate(!!rlang::sym("First_author"), .before = !!rlang::sym("year")) |>
+            dplyr::select(-dplyr::all_of(c("firstname", "lastname")))
+        })
       articles_database[[disease]][[gene]] <- abstract_table
     }
   }

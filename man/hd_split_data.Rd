@@ -38,5 +38,5 @@ provided. It also stratifies the data based on the variable provided.
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Split the data into training and test sets
-hd_split <- hd_split_data(hd_object, variable = "Disease")
+hd_split_data(hd_object, variable = "Disease")
 }

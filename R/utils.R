@@ -470,3 +470,59 @@ hd_filter_by_sex <- function(dat, metadata = NULL, variable = "Sex", sex) {
     return(list("data" = filtered_data, "metadata" = filtered_metadata))
   }
 }
+
+
+#' Log transform data with base 2
+#'
+#' `hd_log_transform()` log transforms the data in a dataset.
+#' It replaces non-positive values (<= 0) with NA values and informs the user.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format.
+#'
+#' @return The log-transformed data.
+#' @export
+#'
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#' hd_object$data
+#'
+#' # Log transform the data
+#' hd_object_transformed <- hd_log_transform(hd_object)
+#' # Normally you should not transform Olink data as they are already log-transformed
+#' hd_object_transformed$data
+hd_log_transform <- function(dat) {
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    if (is.null(dat$data)) {
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+    }
+    wide_data <- dat[["data"]]
+    sample_id <- dat[["sample_id"]]
+  } else {
+    wide_data <- dat
+    sample_id <- colnames(dat)[1]
+  }
+
+  check_numeric <- check_numeric_columns(wide_data)
+
+  # Check for negative or zero values
+  if (any(wide_data[, -1] <= 0, na.rm = TRUE)) {
+    warning("Data contains non-positive values (<= 0). These will be replaced with NA during log transformation.")
+  }
+
+  suppressWarnings({
+    wide_data[, -1] <- lapply(wide_data[, -1], function(col) {
+      transformed <- log2(ifelse(col > 0, col, NA))
+      transformed[is.nan(transformed)] <- NA  # Replace NaN with NA
+      return(transformed)
+    })
+  })
+
+  if (inherits(dat, "HDAnalyzeR")) {
+    dat[["data"]] <- wide_data
+    return(dat)
+  } else {
+    return(wide_data)
+  }
+}
