@@ -261,8 +261,8 @@ hd_de_ttest <- function(dat,
                    "!"))
   }
 
-  de_res <- matrix(nrow=0, ncol=5)
-  colnames(de_res) <- c("Feature", "logFC", "t", "P.Value", variable)
+  de_res <- matrix(nrow=0, ncol=7)
+  colnames(de_res) <- c("Feature", "logFC", "CI.L", "CI.R", "t", "P.Value", variable)
 
   # Run statistical test for each assay
   de_res_list <- lapply(names(wide_data[-1]), function(assay) {
@@ -279,9 +279,10 @@ hd_de_ttest <- function(dat,
 
     t.val <- test_res[["statistic"]]
     p.val <- test_res[["p.value"]]
+    conf_int <- test_res[["conf.int"]]
     difference <- mean(case_group, na.rm = TRUE) - mean(control_group, na.rm = TRUE)
 
-    de_res <- rbind(de_res, c(assay, difference, t.val, p.val, case))
+    de_res <- rbind(de_res, c(assay, difference, round(conf_int[1], 2), round(conf_int[2], 2), round(t.val, 2), p.val, case))
   })
 
   combined_de_res <- do.call(rbind, de_res_list)
