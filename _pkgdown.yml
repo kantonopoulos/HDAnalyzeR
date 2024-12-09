@@ -26,6 +26,7 @@ reference:
   - hd_bin_columns
   - hd_detect_vartype
   - hd_filter_by_sex
+  - hd_log_transform
 - title: Data Preprocessing & Quality Control
 - subtitle: Data Normalization and Imputation
   desc: |
