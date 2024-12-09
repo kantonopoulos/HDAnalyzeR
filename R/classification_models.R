@@ -706,9 +706,24 @@ evaluate_multiclass_model <- function(dat,
   pred_cols <- grep("^\\.pred_", names(res |> dplyr::select(-!!rlang::sym(".pred_class"))), value = TRUE)
 
   roc_data <- yardstick::roc_curve(res, truth = !!Variable, !!!rlang::syms(pred_cols))
-  roc <- ggplot2::autoplot(roc_data) +
+
+  roc <- roc_data |>
+    ggplot2::ggplot(ggplot2::aes(x = 1 - !!rlang::sym("specificity"),
+                                 y = !!rlang::sym("sensitivity"),
+                                 color = !!rlang::sym(".level"))) +
+    ggplot2::geom_path(linewidth = 1) +
+    ggplot2::geom_abline(lty = 3) +
+    ggplot2::coord_equal() +
+    ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(".level")))
+
+  if (is.null(palette)) {
+    palette <- rep("black", length(unique(train_set[[variable]])))
+    names(palette) <- unique(train_set[[variable]])
+  }
+  roc <- apply_palette(roc, palette) +
     theme_hd() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
+    ggplot2::theme(legend.position = "none",
+                   axis.text.x = ggplot2::element_text(angle = 90))
 
   # ROC AUC for each class
   final_predictions <- prob_predictions |>
