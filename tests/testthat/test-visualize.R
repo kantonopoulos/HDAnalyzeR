@@ -7,8 +7,8 @@ test_that("apply_palette correctly applies palettes to plots", {
   # Create a basic ggplot
   p <- hd_object[["data"]] |>
     left_join(hd_object[["metadata"]], by = "DAid") |>
-    ggplot(aes(x = ADA, y = Age)) +
-    geom_point(aes(color = factor(Disease)))
+    ggplot2::ggplot(ggplot2::aes(x = ADA, y = Age)) +
+    ggplot2::geom_point(ggplot2::aes(color = factor(Disease)))
 
   # Test 1: Apply a valid predefined palette from hd_palettes()
   result <- apply_palette(p, "cancers12", type = "color")

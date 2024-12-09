@@ -156,10 +156,10 @@ test_that("tune_rreg_model works correctly with binary classification", {
   split_object <- hd_split_data(hd_object, variable = "Disease", ratio = 0.75, seed = 123)
 
   mock <- list(
-    train_data = split_object$train_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
-    test_data = split_object$test_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
+    train_data = split_object$train_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
+    test_data = split_object$test_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
     model_type = "binary_class",
-    train_folds = rsample::vfold_cv(split_object$train_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")), v = 2)
+    train_folds = rsample::vfold_cv(split_object$train_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")), v = 2)
   )
   # Call the function
   tuned_model <- tune_rreg_model(mock, variable = "Disease", grid_size = 2, verbose = FALSE)
@@ -180,10 +180,10 @@ test_that("tune_rf_model works correctly with binary classification", {
   split_object <- hd_split_data(hd_object, variable = "Disease", ratio = 0.75, seed = 123)
 
   mock <- list(
-    train_data = split_object$train_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
-    test_data = split_object$test_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
+    train_data = split_object$train_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
+    test_data = split_object$test_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
     model_type = "binary_class",
-    train_folds = rsample::vfold_cv(split_object$train_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")), v = 2)
+    train_folds = rsample::vfold_cv(split_object$train_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")), v = 2)
   )
   # Call the function
   tuned_model <- tune_rf_model(mock, variable = "Disease", grid_size = 2, verbose = FALSE)
@@ -203,8 +203,8 @@ test_that("tune_lr_model works correctly with binary classification", {
   split_object <- hd_split_data(hd_object, variable = "Disease", ratio = 0.75, seed = 123)
 
   mock <- list(
-    train_data = split_object$train_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
-    test_data = split_object$test_data |> mutate(Disease = if_else(Disease == "AML", "1", "0")),
+    train_data = split_object$train_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
+    test_data = split_object$test_data |> dplyr::mutate(Disease = dplyr::if_else(Disease == "AML", "1", "0")),
     model_type = "binary_class")
   # Call the function
   tuned_model <- tune_lr_model(mock, variable = "Disease", verbose = FALSE)
@@ -393,10 +393,10 @@ test_that("hd_plot_model_summary creates expected plots and handles inputs corre
   result_with_palette <- hd_plot_model_summary(model_results, importance = 0.5, class_palette = "cancers12", upset_top_features = FALSE)
 
   # Ensure that the color palette was correctly applied
-  expect_true("fill" %in% names(ggplot_build(result_with_palette$features_barplot)$data[[1]]))
+  expect_true("fill" %in% names(ggplot2::ggplot_build(result_with_palette$features_barplot)$data[[1]]))
 
   # Check that the palette has the expected colors
-  ggplot_data <- ggplot_build(result_with_palette$features_barplot)$data[[1]]
+  ggplot_data <- ggplot2::ggplot_build(result_with_palette$features_barplot)$data[[1]]
   expect_true(any(ggplot_data$fill == "pink"))
   expect_true(any(ggplot_data$fill == "midnightblue"))
 
@@ -404,6 +404,6 @@ test_that("hd_plot_model_summary creates expected plots and handles inputs corre
   result_no_palette <- hd_plot_model_summary(model_results, importance = 0.5, class_palette = NULL, upset_top_features = FALSE)
 
   # Ensure no palette was set
-  ggplot_data_no_palette <- ggplot_build(result_no_palette$features_barplot)$data[[1]]
+  ggplot_data_no_palette <- ggplot2::ggplot_build(result_no_palette$features_barplot)$data[[1]]
   expect_true(all(ggplot_data_no_palette$fill == "pink" | ggplot_data_no_palette$fill == "midnightblue"))
 })
