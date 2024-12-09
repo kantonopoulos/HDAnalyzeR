@@ -46,12 +46,14 @@ calculate_na_percentage <- function(dat) {
 #' na_res <- hd_na_search(hd_object,
 #'                        annotation_vars = c("Age", "Sex"),
 #'                        palette = palette)
+#' na_res$na_heatmap
 #'
-#' # Use HPA palettes for coloring annotations
-#' palette = list(Disease = hd_palettes()$cancers12, Sex = hd_palettes()$sex)
+#' # Use a mix of custom and HPA palettes for coloring annotations
+#' palette = list(Disease = "cancers12", Sex = c(M = "blue", F = "pink"))
 #' na_res <- hd_na_search(hd_object,
 #'                        annotation_vars = c("Disease", "Sex"),
 #'                        palette = palette)
+#' na_res$na_heatmap
 hd_na_search <- function(dat,
                          metadata = NULL,
                          annotation_vars = NULL,
@@ -61,7 +63,7 @@ hd_na_search <- function(dat,
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -128,6 +130,13 @@ hd_na_search <- function(dat,
     y_labs <- NULL
   }
 
+  # Prepare palettes
+  for (i in seq_along(palette)) {
+    if (isTRUE(palette[[i]] %in% names(hd_palettes()))) {
+      palette[[names(palette[i])]] <- hd_palettes()[[palette[[i]]]]
+    }
+  }
+
   na_heatmap <- ggplotify::as.ggplot(
     tidyheatmaps::tidyheatmap(na_data,
                               rows = !!rlang::sym("Categories"),
@@ -176,7 +185,7 @@ hd_omit_na <- function(dat, columns = NULL){
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
     }
     wide_data <- dat[["data"]]
   } else {
@@ -229,7 +238,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -298,7 +307,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -382,7 +391,7 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]

@@ -51,10 +51,12 @@ palette = list(Sex = c(M = "blue", F = "pink"))
 na_res <- hd_na_search(hd_object,
                        annotation_vars = c("Age", "Sex"),
                        palette = palette)
+na_res$na_heatmap
 
-# Use HPA palettes for coloring annotations
-palette = list(Disease = hd_palettes()$cancers12, Sex = hd_palettes()$sex)
+# Use a mix of custom and HPA palettes for coloring annotations
+palette = list(Disease = "cancers12", Sex = c(M = "blue", F = "pink"))
 na_res <- hd_na_search(hd_object,
                        annotation_vars = c("Disease", "Sex"),
                        palette = palette)
+na_res$na_heatmap
 }
