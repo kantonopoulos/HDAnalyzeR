@@ -40,7 +40,7 @@ the model, and plots the variable importance."><meta property="og:image" content
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -169,11 +169,12 @@ multi-class classification is needed, use <code><a href="hd_model_rreg.html">hd_
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too little data to stratify.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Resampling will be unstratified.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run the regularized regression model pipeline</span></span></span>
+<span class="r-in"><span><span class="co"># Run the logistic regression model pipeline</span></span></span>
 <span class="r-in"><span><span class="fu">hd_model_lr</span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
 <span class="r-in"><span>            variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>            case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
 <span class="r-in"><span>            palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning logistic regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>

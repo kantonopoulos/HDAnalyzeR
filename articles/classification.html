@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Classification Models • HDAnalyzeR</title>
+<title>Machine Learning Models • HDAnalyzeR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Classification Models">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Machine Learning Models">
 </head>
 <body>
 <p>
@@ -57,7 +57,7 @@
 <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul>
 </li>
@@ -88,7 +88,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Classification Models</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Machine Learning Models</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/HDA1472/HDAnalyzeR/blob/main/vignettes/classification.Rmd" class="external-link"><code>vignettes/classification.Rmd</code></a></small>
@@ -111,6 +111,12 @@ HDAnalyzeR object.</p>
 <span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p>📓 In the whole vignette the <code>verbose</code> parameter of the
+model functions will be set to FALSE in order to keep this guide clean
+and concise. However, in a real case we recommend to leave it to default
+(TRUE) in order to know the model’s progress.</p>
+</blockquote>
 <p>First, we will create the data split object using the
 <code><a href="../reference/hd_split_data.html">hd_split_data()</a></code> function. This function will create a list
 of data frames with the training and testing sets. We can change the
@@ -230,15 +236,7 @@ palette for our classes.</p>
 <span><span class="co">#&gt;   penalty = 0.00355590672132398</span></span>
 <span><span class="co">#&gt;   mixture = 0.0638105825171806</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Computational engine: glmnet</span></span>
-<span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
+<span><span class="co">#&gt; Computational engine: glmnet</span></span></code></pre></div>
 <p>We can use a different variable to classify like <code>Sex</code> and
 even a different algorithm like random forest via
 <code><a href="../reference/hd_model_rf.html">hd_model_rf()</a></code>. However, do not forget that we should create
@@ -247,7 +245,7 @@ are already balanced, we will not use the <code>balance_groups</code>
 parameter to FALSE to consider all the samples in the training dataset.
 Let’s also remove everything except from number of features and AUC from
 the variable importance plot title.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span>                               </span>
 <span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rf.html">hd_model_rf</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
@@ -258,47 +256,12 @@ the variable importance plot title.</p>
 <span>                       grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                       balance_groups <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                       plot_title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"features"</span>, <span class="st">"auc"</span><span class="op">)</span>,</span>
-<span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">model_res</span><span class="op">$</span><span class="va">final_workflow</span></span>
-<span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
-<span><span class="co">#&gt; <span style="font-style: italic;">Preprocessor:</span> Recipe</span></span>
-<span><span class="co">#&gt; <span style="font-style: italic;">Model:</span> rand_forest()</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; 5 Recipe Steps</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; • step_dummy()</span></span>
-<span><span class="co">#&gt; • step_nzv()</span></span>
-<span><span class="co">#&gt; • step_normalize()</span></span>
-<span><span class="co">#&gt; • step_corr()</span></span>
-<span><span class="co">#&gt; • step_impute_knn()</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Random Forest Model Specification (classification)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Main Arguments:</span></span>
-<span><span class="co">#&gt;   mtry = 11</span></span>
-<span><span class="co">#&gt;   trees = 1000</span></span>
-<span><span class="co">#&gt;   min_n = 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Engine-Specific Arguments:</span></span>
-<span><span class="co">#&gt;   importance = permutation</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Computational engine: ranger</span></span>
-<span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
+<span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>If our data have a single predictor, we can use
 <code><a href="../reference/hd_model_lr.html">hd_model_lr()</a></code> instead of <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code> to
 perform a logistic regression. Random forest can be used as it was for
 multiple predictors.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_obj_single</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Assay</span> <span class="op">==</span> <span class="st">"ADA"</span><span class="op">)</span>, </span>
 <span>                               metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
 <span>                               is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
@@ -308,13 +271,7 @@ multiple predictors.</p>
 <span></span>
 <span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj_single</span>, variable <span class="op">=</span> <span class="st">"Disease"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_lr.html">hd_model_lr</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-6-2.png" width="700"></p>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_lr.html">hd_model_lr</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>At this point we should also check how our selected protein features
 look in boxplots. We will run a model as before, extract the features,
 select the top-9 of them based on their importance in the model and plot
@@ -327,7 +284,7 @@ remove them from the feature vector before using the
 <code><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feature_boxplot()</a></code> function as it is made to
 visualize protein features.</p>
 </blockquote>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
 <span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
 <span>                        is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
@@ -347,7 +304,7 @@ visualize protein features.</p>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
 <span>                        type <span class="op">=</span> <span class="st">"case_vs_control"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feature_boxplot</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                        features <span class="op">=</span> <span class="va">features</span>, </span>
@@ -360,7 +317,7 @@ classes in the data. The only thing that we should change is set the
 <code>case</code> argument to NULL so that the model understands that we
 want to classify all the classes. Let’s see an example with regularized
 regression!</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
 <span>                           case <span class="op">=</span> <span class="cn">NULL</span>, </span>
 <span>                           cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
@@ -392,12 +349,139 @@ regression!</p>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
+<p>Instead of a classification we can run a regression model. That means
+that we will try to predict a continuous variable instead of a
+categorical one. We can use either <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code> or
+<code><a href="../reference/hd_model_rf.html">hd_model_rf()</a></code> functions with the <code>case</code>
+parameter set to NULL. Let’s see an example with the <code>Age</code>
+variable. Do not forget that we have to create a new split object for
+this new model with <code>Age</code> as the variable of interest.</p>
+<blockquote>
+<p>📓 We should not forget to update the <code>plot_title</code>
+argument by changing the metrics from “accuracy”, “sensitivity”,
+“apwcificity”, and “auc” to “rmse” and “rsq”.</p>
+</blockquote>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Age"</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
+<span>                           variable <span class="op">=</span> <span class="st">"Age"</span>,</span>
+<span>                           case <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>                           cv_sets <span class="op">=</span> <span class="fl">3</span>, </span>
+<span>                           grid_size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                           plot_title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rmse"</span>, <span class="st">"rsq"</span>, <span class="st">"features"</span>, <span class="st">"mixture"</span><span class="op">)</span>,</span>
+<span>                           verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_res</span><span class="op">$</span><span class="va">final_workflow</span></span>
+<span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
+<span><span class="co">#&gt; <span style="font-style: italic;">Preprocessor:</span> Recipe</span></span>
+<span><span class="co">#&gt; <span style="font-style: italic;">Model:</span> linear_reg()</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; 5 Recipe Steps</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; • step_dummy()</span></span>
+<span><span class="co">#&gt; • step_nzv()</span></span>
+<span><span class="co">#&gt; • step_normalize()</span></span>
+<span><span class="co">#&gt; • step_corr()</span></span>
+<span><span class="co">#&gt; • step_impute_knn()</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Linear Regression Model Specification (regression)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Main Arguments:</span></span>
+<span><span class="co">#&gt;   penalty = 4.45590449619826e-06</span></span>
+<span><span class="co">#&gt;   mixture = 0.220184963848442</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Computational engine: glmnet</span></span>
+<span><span class="va">model_res</span><span class="op">$</span><span class="va">comparison_plot</span></span></code></pre></div>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" width="700"></p>
+<p>Furthermore, we can validate our trained model in new data. For this
+example we will not use another dataset, but we will split the data
+initially to create a train and a validation set and then split the
+validation set to a train and a test set. We will use this second split
+to initially train the model and then evaluate it with the validation
+data. In a real case scenario, you can do either this, or use a
+completely different dataset to check that our model generalizes
+properly. We will use the <code><a href="../reference/hd_model_test.html">hd_model_test()</a></code> function to do
+this. Let’s see an example with the AML model.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Split the data for training and validation sets</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">hd_obj</span><span class="op">$</span><span class="va">data</span></span>
+<span><span class="va">train_indices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fl">0.8</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">train_data</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="va">train_indices</span>, <span class="op">]</span></span>
+<span><span class="va">validation_data</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="va">train_indices</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="va">hd_object_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">train_data</span>, <span class="va">example_metadata</span>, is_wide <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">hd_object_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span><span class="va">validation_data</span>, <span class="va">example_metadata</span>, is_wide <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Split the training set into training and inner test sets</span></span>
+<span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_object_train</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run the regularized regression model pipeline</span></span>
+<span><span class="va">model_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
+<span>                              variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
+<span>                              case <span class="op">=</span> <span class="st">"AML"</span>,</span>
+<span>                              grid_size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                              palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run the model evaluation pipeline</span></span>
+<span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_test.html">hd_model_test</a></span><span class="op">(</span><span class="va">model_object</span>, </span>
+<span>                           <span class="va">hd_object_train</span>, </span>
+<span>                           <span class="va">hd_object_val</span>, </span>
+<span>                           case <span class="op">=</span> <span class="st">"AML"</span>, </span>
+<span>                           palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_res</span><span class="op">$</span><span class="va">metrics</span></span>
+<span><span class="co">#&gt; $accuracy</span></span>
+<span><span class="co">#&gt; [1] 0.6666667</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sensitivity</span></span>
+<span><span class="co">#&gt; [1] 0.7142857</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $specificity</span></span>
+<span><span class="co">#&gt; [1] 0.6601942</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $auc</span></span>
+<span><span class="co">#&gt; [1] 0.7274619</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $confusion_matrix</span></span>
+<span><span class="co">#&gt;           Truth</span></span>
+<span><span class="co">#&gt; Prediction  0  1</span></span>
+<span><span class="co">#&gt;          0 68  4</span></span>
+<span><span class="co">#&gt;          1 35 10</span></span>
+<span><span class="va">model_res</span><span class="op">$</span><span class="va">test_metrics</span>  <span class="co"># Results from the validation set</span></span>
+<span><span class="co">#&gt; $accuracy</span></span>
+<span><span class="co">#&gt; [1] 0.720339</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sensitivity</span></span>
+<span><span class="co">#&gt; [1] 0.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $specificity</span></span>
+<span><span class="co">#&gt; [1] 0.7037037</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $auc</span></span>
+<span><span class="co">#&gt; [1] 0.9138889</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $confusion_matrix</span></span>
+<span><span class="co">#&gt;           Truth</span></span>
+<span><span class="co">#&gt; Prediction  0  1</span></span>
+<span><span class="co">#&gt;          0 76  1</span></span>
+<span><span class="co">#&gt;          1 32  9</span></span>
+<span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">test_roc_curve</span>  <span class="co"># Results from the validation set</span></span></code></pre></div>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
 <p>To summarize the results for multiple binary models we can use the
 <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code> function. We can create models of
 different cases and compare them. Let’s run three different models for
@@ -408,8 +492,10 @@ consider run the analysis only with samples of that sex. We can easily
 integrate that into our pipeline using the
 <code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code> function.</p>
 </blockquote>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -418,27 +504,27 @@ integrate that into our pipeline using the
 <span>                               ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_ovc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj_sex</span>, case <span class="op">=</span> <span class="st">"OVC"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">model_aml</span>, </span>
 <span>                                                <span class="st">"GLIOM"</span> <span class="op">=</span> <span class="va">model_gliom</span>, </span>
 <span>                                                <span class="st">"OVC"</span> <span class="op">=</span> <span class="va">model_ovc</span><span class="op">)</span>, </span>
 <span>                                           class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">metrics_barplot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-11-2.png" width="700"></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<p><img src="classification_files/figure-html/unnamed-chunk-13-2.png" width="700"></p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">upset_plot_features</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-11-3.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" width="700"></p>
 <p>In case we have one case and multiple controls we can use the
 <code><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap()</a></code> function to visualize the protein
 features in a heatmap. This function is usefull as we can easily see if
 the same features are important in multiple models. Let’s see an example
 with the AML model and 3 different controls groups. We will also combine
 DE results of the same comparisons.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model_blood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, </span>
@@ -458,7 +544,7 @@ DE results of the same comparisons.</p>
 <span>                              correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap</a></span><span class="op">(</span>de_results <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"CLL"</span> <span class="op">=</span> <span class="va">de_cll</span>, </span>
 <span>                                          <span class="st">"Blood"</span> <span class="op">=</span> <span class="va">de_blood</span>, </span>
 <span>                                          <span class="st">"All"</span> <span class="op">=</span> <span class="va">de_all</span><span class="op">)</span>, </span>
@@ -466,13 +552,13 @@ DE results of the same comparisons.</p>
 <span>                                             <span class="st">"Blood"</span> <span class="op">=</span> <span class="va">model_blood</span>, </span>
 <span>                                             <span class="st">"All"</span> <span class="op">=</span> <span class="va">model_all</span><span class="op">)</span>, </span>
 <span>                        order_by <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 <p>Finally, we can use the <code><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network()</a></code>
 function to visualize the protein features in a network. This function
 is useful as we can easily see the connections between the features and
 the importance of each feature in the model. Let’s see an example with
 the same 3 models from before.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">feature_panel</span> <span class="op">&lt;-</span> <span class="va">model_aml</span><span class="op">[[</span><span class="st">"features"</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Scaled_Importance</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -485,19 +571,19 @@ the same 3 models from before.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">feature_panel</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Preview of the feature panel</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
-<span><span class="co">#&gt;   Feature Importance Sign  Scaled_Importance Class</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AHCY         0.577 POS               1     AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> APEX1        0.573 POS               0.993 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ANGPT1       0.488 NEG               0.845 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ADGRG1       0.450 POS               0.780 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ANXA11       0.439 NEG               0.762 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> AMY2A        0.385 POS               0.667 AML</span></span>
+<span><span class="co">#&gt;   Feature  Importance Sign  Scaled_Importance Class</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ANGPT1        1.31  NEG               1     AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ADGRG1        1.02  POS               0.779 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> AMY2A         0.848 POS               0.648 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ADAMTS16      0.788 NEG               0.602 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ADA           0.769 POS               0.587 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ADAM8         0.721 NEG               0.551 AML</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network</a></span><span class="op">(</span><span class="va">feature_panel</span>,</span>
 <span>                        plot_color <span class="op">=</span> <span class="st">"Scaled_Importance"</span>,</span>
 <span>                        class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.

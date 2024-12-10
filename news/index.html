@@ -36,7 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -100,10 +100,7 @@ The preprocess module was removed due to redundancy and limited functionality.</
 <code><a href="../reference/hd_widen_data.html">hd_widen_data()</a></code> supports custom column selection for wide data creation with arguments like <code>exclude</code>, <code>names_from</code>, and <code>values_from</code>.</li>
 </ul></li>
 <li>
-<strong>Deprecated Functions:</strong>
-<ul><li>
-<code>generate_df()</code> was deprecated as it is now redundant.</li>
-</ul></li>
+<strong>Deprecated Functions:</strong><br><code>generate_df()</code> was deprecated as it is now redundant.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="dimensionality-reduction-1-1-0">Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#dimensionality-reduction-1-1-0"></a></h3>
@@ -130,10 +127,7 @@ Fixed an issue in <code><a href="../reference/hd_auto_pca.html">hd_auto_pca()</a
 <code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code>: Removes rows with NA values based on specified columns.</li>
 </ul></li>
 <li>
-<strong>Removed Features:</strong>
-<ul><li>
-<code>impute_mice()</code> was removed for simplicity. Users requiring advanced imputation can directly use the <code>mice</code> package.</li>
-</ul></li>
+<strong>Removed Features:</strong><br><code>impute_mice()</code> was removed for simplicity. Users requiring advanced imputation can directly use the <code>mice</code> package.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="quality-control-qc-summary-1-1-0">Quality Control (QC) Summary<a class="anchor" aria-label="anchor" href="#quality-control-qc-summary-1-1-0"></a></h3>
@@ -155,14 +149,15 @@ Removed automatic normality checks for large datasets due to sensitivity issues.
 <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> is now a standalone function to reduce the number of arguments but still keep the flexibility.</li>
 </ul></li>
 <li>
-<strong>Improved Customization:</strong>
-<ul><li>Added a <code>user_defined_proteins</code> argument to <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code>, allowing users to label specific proteins on volcano plots.</li>
-</ul></li>
+<strong>Improved Customization:</strong><br>
+Added a <code>user_defined_proteins</code> argument to <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code>, allowing users to label specific proteins on volcano plots.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="classification-models-1-1-0">Classification Models<a class="anchor" aria-label="anchor" href="#classification-models-1-1-0"></a></h3>
-<ul><li>
-<strong>Enhanced Visualizations:</strong>
+<ul><li><p><strong>Model Updates:</strong><br>
+Merged multiclass and binary models.</p></li>
+<li>
+<p><strong>Enhanced Visualizations:</strong></p>
 <ul><li>Multiclassification models now include a variable importance plot.<br></li>
 <li>AUC bar plots were removed to make the output more consistent with the binary classification models.</li>
 <li>Probability plots were added to visualize the distribution of probabilities for each class.</li>
@@ -176,16 +171,14 @@ Removed automatic normality checks for large datasets due to sensitivity issues.
 <li>Added <code>plot_feature_summary_network()</code>: Summarizes differential expression or classification model features results in a single network.</li>
 </ul></li>
 <li>
-<strong>Bug Fixes &amp; Improvements:</strong>
-<ul><li>Fixed color-matching issues in bar plots for <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code> and <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code> caused by frequency ties. Bars are now colored correctly.</li>
-</ul></li>
+<strong>Bug Fixes &amp; Improvements:</strong><br>
+Fixed color-matching issues in bar plots for <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code> and <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code> caused by frequency ties. Bars are now colored correctly.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="pathway-enrichment-analysis-1-1-0">Pathway Enrichment Analysis<a class="anchor" aria-label="anchor" href="#pathway-enrichment-analysis-1-1-0"></a></h3>
 <ul><li>
-<strong>Streamlined Outputs:</strong>
-<ul><li>Removed unnecessary returns from <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code>.</li>
-</ul></li>
+<strong>Streamlined Outputs:</strong><br>
+Removed unnecessary returns from <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code>.</li>
 </ul><hr></div>
 </div>
     <div class="section level2">

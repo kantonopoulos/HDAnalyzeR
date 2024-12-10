@@ -36,7 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -69,10 +69,12 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generate_title</span><span class="op">(</span></span>
 <span>  <span class="va">features</span>,</span>
-<span>  <span class="va">accuracy</span>,</span>
-<span>  <span class="va">sensitivity</span>,</span>
-<span>  <span class="va">specificity</span>,</span>
-<span>  <span class="va">auc</span>,</span>
+<span>  accuracy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sensitivity <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  specificity <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rmse <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rsq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mixture <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accuracy"</span>, <span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>, <span class="st">"auc"</span>, <span class="st">"features"</span>, <span class="st">"top-features"</span>,</span>
 <span>    <span class="st">"mixture"</span><span class="op">)</span></span>

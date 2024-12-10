@@ -40,7 +40,7 @@ If the directory already exists, a message is printed."><meta property="og:image
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -102,7 +102,7 @@ If the directory already exists, a message is printed.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create a directory and an inner directory with the current date as name</span></span></span>
 <span class="r-in"><span><span class="fu">hd_save_path</span><span class="op">(</span><span class="st">"my_directory"</span>, date <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "my_directory/2024_12_09"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "my_directory/2024_12_10"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="st">"my_directory"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create a directory inside another directory</span></span></span>
@@ -121,7 +121,7 @@ If the directory already exists, a message is printed.</p>
 <span class="r-in"><span><span class="fu">hd_save_path</span><span class="op">(</span><span class="st">"outer_directory"</span>, date <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "outer_directory"</span>
 <span class="r-in"><span><span class="fu">hd_save_path</span><span class="op">(</span><span class="st">"outer_directory"</span>, date <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "outer_directory/2024_12_09"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "outer_directory/2024_12_10"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="st">"outer_directory"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

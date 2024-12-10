@@ -22,6 +22,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/check_numeric_columns.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_model.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_multiclass_model.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_regression_model.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/example_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/example_metadata.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/extract_protein_list.html</loc></url>
@@ -49,6 +50,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_model_lr.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_model_rf.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_model_rreg.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_model_test.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_na_search.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_normalize.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_omit_na.html</loc></url>
@@ -82,6 +84,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/plot_points.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/prepare_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/prepare_plot_data.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/prepare_set.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/print_summary.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/qc_summary_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/qc_summary_metadata.html</loc></url>

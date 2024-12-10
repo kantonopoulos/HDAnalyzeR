@@ -42,7 +42,7 @@ performance metrics."><meta property="og:image" content="https://hda1472.github.
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/classification.html">Classification Models</a></li>
+    <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
     <li><a class="dropdown-item" href="../articles/post_analysis.html">Post Analysis: Pathway Enrichment &amp; Automated Literature Search</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -125,6 +125,7 @@ performance metrics.</p>
 <span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
 <span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -158,6 +159,7 @@ performance metrics.</p>
 <span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"CLL"</span>,</span></span>
 <span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -191,6 +193,7 @@ performance metrics.</p>
 <span class="r-in"><span>                                  case <span class="op">=</span> <span class="st">"MYEL"</span>,</span></span>
 <span class="r-in"><span>                                  grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                                  cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -224,6 +227,7 @@ performance metrics.</p>
 <span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span></span>
 <span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
@@ -257,6 +261,7 @@ performance metrics.</p>
 <span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"GLIOM"</span>,</span></span>
 <span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
