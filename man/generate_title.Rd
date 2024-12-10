@@ -6,10 +6,12 @@
 \usage{
 generate_title(
   features,
-  accuracy,
-  sensitivity,
-  specificity,
-  auc,
+  accuracy = NULL,
+  sensitivity = NULL,
+  specificity = NULL,
+  auc = NULL,
+  rmse = NULL,
+  rsq = NULL,
   mixture = NULL,
   title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features",
     "mixture")

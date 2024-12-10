@@ -73,7 +73,7 @@ hd_split <- hd_split_data(
   variable = "Disease"
 )
 
-# Run the regularized regression model pipeline
+# Run the logistic regression model pipeline
 hd_model_lr(hd_split,
             variable = "Disease",
             case = "AML",

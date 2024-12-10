@@ -34,7 +34,7 @@ A model object containing the train and test data and cross-validation sets.
 }
 \description{
 \code{prepare_data()} prepares the data for model fitting. It filters out rows with
-NAs in the variable column, converts the variable to a factor, and creates
-cross-validation sets.
+NAs in the variable column, converts the variable to a factor if it is not a
+continuous variable, and creates cross-validation sets.
 }
 \keyword{internal}

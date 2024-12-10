@@ -61,13 +61,19 @@ the model, and plots the variable importance.
 }
 \details{
 This model will not work if the number of predictors is less than 2.
-However, if this is the case, consider using \code{hd_model_lr()} instead.
+However, if this is the case, consider using \code{hd_model_lr()} instead if it is
+a classification problem. In case it is a regression problem, consider using
+\code{hd_plot_regression()} directly to plot your feature against the target variable.
 The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If \code{case} is provided, the model will be a binary
 classification model. If \code{case} is NULL, the model will be a multiclass classification model.
+
 In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
-are calculated via macro-averaging.
+are calculated via macro-averaging. In case the model is run against a continuous variable,
+the palette will be ignored and we have to change the \code{plot_title} to \code{rmse} and \code{rsq}
+to plot the RMSE and RSQ instead of \code{accuracy}, \code{sensitivity}, \code{specificity}, and \code{auc}
+(see the examples).
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -90,4 +96,19 @@ hd_model_rreg(hd_split,
               grid_size = 2,
               cv_sets = 2,
               verbose = FALSE)
+
+# Run the regularized regression model pipeline for a continuous variable
+# Split the data into training and test sets
+hd_split <- hd_split_data(hd_object, variable = "Age")
+
+# Run the regularized regression model pipeline
+hd_model_rreg(hd_split,
+              variable = "Age",
+              case = NULL,
+              grid_size = 2,
+              cv_sets = 2,
+              plot_title = c("rmse",
+                             "rsq",
+                             "features",
+                             "mixture"))
 }

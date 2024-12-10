@@ -46,6 +46,18 @@ The model object containing the validation set, the metrics, the ROC curve, the 
 the validation (new test) set, calculates the metrics and plots the probability
 and ROC curve based on the new data.
 }
+\details{
+In order to run this function, the train and test sets should be in exactly
+the same format and have the same columns in the same order. Some function arguments
+like the case/control, variable, and metadata_cols should be also the same.
+If the data contain missing values, KNN (k=5) imputation
+will be used to impute. If \code{case} is provided, the model will be a binary
+classification model. If \code{case} is NULL, the model will be a multiclass classification model.
+
+In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
+are calculated via macro-averaging. In case the model is run against a continuous variable,
+the palette will be ignored.
+}
 \examples{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
@@ -71,4 +83,19 @@ model_object <- hd_model_rreg(hd_split,
 
 # Run the model evaluation pipeline
 hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palette = "cancers12")
+
+# Run the pipeline against continuous variable
+# Split the training set into training and inner test sets
+hd_split <- hd_split_data(hd_object_train, variable = "Age")
+
+# Run the regularized regression model pipeline
+model_object <- hd_model_rreg(hd_split,
+                              variable = "Age",
+                              case = "AML",
+                              grid_size = 2,
+                              cv_sets = 2,
+                              plot_title = NULL)
+
+# Run the model evaluation pipeline
+hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)
 }
