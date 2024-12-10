@@ -30,7 +30,7 @@
   - `hd_widen_data()` supports custom column selection for wide data creation with arguments like `exclude`, `names_from`, and `values_from`.
 
 - **Deprecated Functions:**  
-  - `generate_df()` was deprecated as it is now redundant.
+  `generate_df()` was deprecated as it is now redundant.
 
 ## Dimensionality Reduction
 - **Bug Fixes:**  
@@ -47,7 +47,7 @@
   - `hd_omit_na()`: Removes rows with NA values based on specified columns.
 
 - **Removed Features:**  
-  - `impute_mice()` was removed for simplicity. Users requiring advanced imputation can directly use the `mice` package.
+  `impute_mice()` was removed for simplicity. Users requiring advanced imputation can directly use the `mice` package.
 
 ## Quality Control (QC) Summary
 - **New & Enhanced Features:**  
@@ -63,9 +63,12 @@
   - `hd_plot_volcano()` is now a standalone function to reduce the number of arguments but still keep the flexibility.
 
 - **Improved Customization:**  
-  - Added a `user_defined_proteins` argument to `hd_plot_volcano()`, allowing users to label specific proteins on volcano plots.
+  Added a `user_defined_proteins` argument to `hd_plot_volcano()`, allowing users to label specific proteins on volcano plots.
 
 ## Classification Models
+- **Model Updates:**  
+  Merged multiclass and binary models.
+  
 - **Enhanced Visualizations:**  
   - Multiclassification models now include a variable importance plot.  
   - AUC bar plots were removed to make the output more consistent with the binary classification models.
@@ -77,11 +80,11 @@
   - Added `plot_feature_summary_network()`: Summarizes differential expression or classification model features results in a single network.
 
 - **Bug Fixes & Improvements:**  
-  - Fixed color-matching issues in bar plots for `hd_plot_de_summary()` and `hd_plot_model_summary()` caused by frequency ties. Bars are now colored correctly.  
+  Fixed color-matching issues in bar plots for `hd_plot_de_summary()` and `hd_plot_model_summary()` caused by frequency ties. Bars are now colored correctly.  
 
 ## Pathway Enrichment Analysis
 - **Streamlined Outputs:**  
-  - Removed unnecessary returns from `hd_plot_gsea()`.
+  Removed unnecessary returns from `hd_plot_gsea()`.
 
 ---
 
