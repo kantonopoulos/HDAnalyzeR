@@ -184,10 +184,10 @@ hd_object_train <- hd_initialize(train_data, example_metadata, is_wide = TRUE)
 hd_object_val <- hd_initialize(validation_data, example_metadata, is_wide = TRUE)
 
 # Split the training set into training and inner test sets
-hd_split <- hd_split_data(hd_object_train, variable = "Disease")
+split_obj <- hd_split_data(hd_object_train, variable = "Disease")
 
 # Run the regularized regression model pipeline
-model_object <- hd_model_rreg(hd_split,
+model_object <- hd_model_rreg(split_obj,
                               variable = "Disease",
                               case = "AML",
                               grid_size = 2,
@@ -211,6 +211,8 @@ To summarize the results for multiple binary models we can use the `hd_plot_mode
 > 📓 Do not forget that Ovarian Cancer is sex specific and we should consider run the analysis only with samples of that sex. We can easily integrate that into our pipeline using the `hd_filter_by_sex()` function.
 
 ```{r, message = FALSE, warning = FALSE}
+split_obj <- hd_split_data(hd_obj, variable = "Disease")
+
 model_aml <- hd_model_rreg(split_obj, case = "AML", cv_sets = 3, grid_size = 5, verbose = FALSE)
 
 model_gliom <- hd_model_rreg(split_obj, case = "GLIOM", cv_sets = 3, grid_size = 5, verbose = FALSE)
