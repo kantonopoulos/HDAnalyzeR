@@ -184,10 +184,10 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   tree_plot <- enrichplot::treeplot(tree_plot_data)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue", colorEdge = TRUE)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], colorEdge = TRUE, cex_label_gene = 0.5)
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue", colorEdge = TRUE)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, colorEdge = TRUE, cex_label_gene = 0.5)
   }
 
   enrichment[["dotplot"]] <- dot_plot
@@ -375,10 +375,10 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
                                         geneSetID = 1)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], categorySize = "pvalue", colorEdge = TRUE)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], colorEdge = TRUE, cex_label_gene = 0.5)
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, categorySize = "pvalue", colorEdge = TRUE)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, colorEdge = TRUE, cex_label_gene = 0.5)
   }
 
   ridgeplot <- clusterProfiler::ridgeplot(enrichment[["enrichment"]]) +
