@@ -30,7 +30,7 @@ If you need help with the package, you can use the `?` operator to access the do
 ?hd_initialize
 ```
 
-For whole example workflows you can visit any of the package articles.
+All package functions can be found in the [HDAnalyzeR Function Reference](https://hda1472.github.io/HDAnalyzeR/reference/index.html) page. For whole example workflows you can visit any of the package articles.
 
 This document introduces you to HDAnalyzeR's basic set of tools, and shows you how to analyze and identify biomarkers in a artificial dataset of cancer blood plasma samples.
 
