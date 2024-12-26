@@ -5,7 +5,17 @@
 [![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/HDA1472/HDAnalyzeR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/HDA1472/HDAnalyzeR/blob/main/LICENSE.md)
 
-HDAnalyzeR is an R package developed by the Human Disease Blood Atlas project, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. HDAnalyzeR offers ready-to-use functions for common proteomics tasks such as protein differential expression analysis, classification models, imputation methods, dimensionality reduction, and data visualization, aiming to streamline workflows and enhance the standardization and efficiency of biomarker discovery in disease research.
+HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to simplify proteomics data analysis for biomarker discovery in disease research. It provides a set of user-friendly functions to efficiently process blood plasma proteomics data and gain insights into disease mechanisms. With HDAnalyzeR, you can easily perform tasks like protein differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. 
+
+The package is designed to be intuitive and accessible, even for those with limited programming experience, making it ideal for bioinformaticians, clinicians, and molecular biologists. It offers ready-to-use functions that reduce analysis time while ensuring high-quality results. Its powerful visualization tools also help present findings in clear, publication-ready plots, improving both the analysis and communication of results. Whether you're analyzing omics data for research or clinical applications, HDAnalyzeR simplifies the process, enhances reproducibility, and supports the discovery of potential biomarkers in disease research.
+
+## Key Features
+- **Differential Expression Analysis:** Perform protein differential expression analysis with built-in support for multiple methods.
+- **Machine Learning Models:** Train and evaluate classification models with integrated variable importance visualization.
+- **Pathway Enrichment Analysis:** Identify enriched pathways and visualize results in multiple formats.
+- **Dimensionality Reduction:** Easily apply PCA or other dimensionality reduction techniques to explore complex data.
+- **Imputation and NA Handling:** Handle missing data with imputation techniques and filtering options.
+- **Publication-Ready Visualizations:** Generate high-quality plots, including volcano plots, heatmaps, and feature importance plots.
 
 ## Installation
 
@@ -30,7 +40,7 @@ devtools::install_github("HDA1472/HDAnalyzeR")
 
 ## Usage
 
-The following example showcases how to perform a differential expression analysis. It is one of the many features of HDAnalyzeR. A complete guide is available through [package's documentation](https://hda1472.github.io/HDAnalyzeR/).
+The following example showcases how to perform differential expression analysis and plot the results. It is one of the many features of HDAnalyzeR. A complete guide is available through [package's documentation](https://hda1472.github.io/HDAnalyzeR/).
 
 ``` r
 library(HDAnalyzeR)
