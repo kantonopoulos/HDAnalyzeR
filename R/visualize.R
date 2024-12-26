@@ -451,6 +451,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #' @param feature_panel A dataset containing the features and the classes. The dataframe must contain at least 3 columns: Feature, Class and the color variable. See examples.
 #' @param plot_color The color variable to plot. Default is "Scaled_Importance".
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
+#' @param importance_palette A named list or vector that contains the high and low colors (for example c("high" = "grey30", "low" = "grey80")). If NULL the default colors are used. Default is NULL.
 #' @param seed seed Seed for reproducibility. Default is 123.
 #'
 #' @return The feature network plot.
@@ -546,11 +547,13 @@ hd_plot_feature_heatmap <- function(de_results,
 #'
 #' hd_plot_feature_network(feature_panel,
 #'                         plot_color = "logFC",
-#'                         class_palette = "cancers12")
+#'                         class_palette = "cancers12",
+#'                         importance_palette = c("high" = "red4", "low" = "grey90"))
 #' }
 hd_plot_feature_network <- function(feature_panel,
                                     plot_color = "Scaled_Importance",
                                     class_palette = NULL,
+                                    importance_palette = NULL,
                                     seed = 123) {
 
   set.seed(seed)
@@ -579,6 +582,13 @@ hd_plot_feature_network <- function(feature_panel,
     names(pal) <- levels
   }
 
+  if (is.null(importance_palette)) {
+    high_c <- "grey30"
+    low_c <- "grey80"
+  } else {
+    high_c <- importance_palette[["high"]]
+    low_c <- importance_palette[["low"]]
+  }
   network <- ggraph::ggraph(layout) +
     ggraph::geom_edge_link(color = "grey80", width = 1) +
     ggraph::geom_node_point(
@@ -604,7 +614,7 @@ hd_plot_feature_network <- function(feature_panel,
       stroke = 0
     ) +
     ggplot2::scale_color_manual(values = pal[levels], guide = "none") +
-    ggplot2::scale_fill_gradient(high = "grey30", low = "grey80", name = plot_color) +
+    ggplot2::scale_fill_gradient(high = high_c, low = low_c, name = plot_color) +
     ggnewscale::new_scale_color() +
     ggraph::geom_node_text(
       ggplot2::aes(label = stringr::str_wrap(!!rlang::sym("name"), width = 10), color = !!rlang::sym("text_color")),
