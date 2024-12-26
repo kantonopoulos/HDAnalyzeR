@@ -1,0 +1,30 @@
+---
+title: "Data Preparation for HDAnalyzeR: What You Need Before Using the Package"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(HDAnalyzeR)
+```
+
+## Introduction
+
+Before you can start using HDAnalyzeR for biomarker discovery, it is essential to ensure that your data is prepared in the appropriate format. While HDAnalyzeR offers a variety of powerful tools, it does not include technology-specific quality control (QC) or preprocessing functions. This design choice allows the package to be flexible and usable with a wide range of proteomics technologies without being limited to specific workflows. Many labs already use their own preprocessing pipelines, tailored to their specific research needs and technologies. Integrating all these varied pipelines into the package would make it unnecessarily complex and restrictive.
+
+Therefore, the data provided to HDAnalyzeR must be preprocessed into a standard format that includes the following core components:
+-  Sample IDs: The sample identifiers corresponding to each measurement, usually matching the columns of your expression matrix.
+-  Protein or peptide names: These should be the identifiers for the proteins or peptides measured in your study.
+-  Protein or peptide expression data: The quantitative expression values for each protein or peptide in each sample.
+-  Metadata: Any additional information associated with your samples, such as disease class, patient demographic information, or experimental conditions.
+
+In this vignette, we will provide examples of how to prepare data from several common proteomics technologies to be compatible with HDAnalyzeR. These technologies include Proximity Extension Assay and Mass spectrometry. We will also touch upon the general principles that should apply when working with data from different proteomics platforms.
+
+> ⚠️ Although HDAnalyzeR is primarily designed for proteomics data, some functions in the package can also be applied to other omics data types such as genomics, transcriptomics, or metabolomics. However, it is important to note that the specific choice of functions and how they should be used will depend on the study's goals and the nature of the data. HDAnalyzeR does not provide explicit guarantees and the user must make informed decisions regarding its application to other types of omics data. Documentation and the source code of all functions is freely available.
+
+
