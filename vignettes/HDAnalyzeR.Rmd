@@ -78,7 +78,8 @@ Let's run the QC summary and take a look at some results!
 qc_data <- hd_qc_summary(hd_obj, 
                          variable = "Disease", 
                          palette = list(Disease = "cancers12", Sex = "sex"), 
-                         cor_threshold = 0.7)
+                         cor_threshold = 0.7,
+                         verbose = FALSE)
 
 qc_data$data_summary$na_col_hist
 qc_data$data_summary$cor_heatmap
