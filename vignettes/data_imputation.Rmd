@@ -23,6 +23,8 @@ library(ggplot2)
 library(patchwork)
 ```
 
+## Loading the Data
+
 Let's start with loading the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r}
@@ -33,6 +35,8 @@ hd_obj <- hd_initialize(dat = example_data,
                         var_name = "Assay",
                         value_name = "NPX")
 ```
+
+## Explore Missing Values
 
 We can simply check our data for NA values by using the `hd_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA
 
@@ -48,6 +52,10 @@ na_res$na_heatmap
 ```
 
 This heatmap is useful to evaluate if there are NA specific patterns in the data. In this case, we can see that the NA values are spread across the different Assays, samples and metadata variables. In this case, we can try impute them!
+
+## Imputation Methods
+
+### Median Imputation
 
 We will start the imputation with the simplest and fastest method, which is the median imputation by using the `hd_impute_median()`. After the imputation, we will check the sample distribution of a random Assay that contains missing values to see if these values are imputed logically.
 
@@ -75,6 +83,8 @@ plot_before + plot_after
 
 As observed in the plots, the distribution of the ACTA2 assay shifts slightly after imputation, with an exaggerated median value in the imputed data. This highlights a key drawback of median imputation: the more missing values there are, the greater the potential bias.
 
+### KNN Imputation
+
 A better approach is to use the `hd_impute_knn()` with 5 neighbors, which imputes missing values based on the 5-nearest neighbors. We will use the same assay to compare the imputed data with the original data.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -100,6 +110,8 @@ plot_before + plot_after
 ```
 
 In this case, the distribution of the ACTA2 assay after imputation is more similar to the original distribution. This is because the KNN imputation method uses the nearest neighbors to impute missing values, which is more accurate and representative than median imputation.
+
+### MissForest Imputation
 
 Finally, we will use the `hd_impute_missForest()` method, which uses the random forest algorithm to impute missing values. We will use the default values for the number of trees and the number of iterations.
 
@@ -128,6 +140,8 @@ plot_before + plot_after
 The MissForest imputation method is the most accurate and also very robust, as it uses the random forest algorithm to impute missing values. This method is particularly useful for large datasets with complex relationships between variables. On the other hand, it is the most computationally expensive and it would help parallelize it. You can do that by creating and registering a cluster with a package like `doParallel` and then setting the `parallelize` argument to "forests" or "variables".
 
 > 📓 All methods assume that the data is missing at random, which is a common assumption in imputation methods. If the data are missing in a biased way (either technical or biological), the imputation methods may introduce bias into the data. In such cases, it is important to carefully consider the way the data were collected and what they represent.
+
+## Removing Missing Values instead of Imputing
 
 If for any reason do not want to impute the data, you can use the `hd_omit_na()` function to remove the rows with missing values in specific variables. This function will remove all rows with missing values in any of the assays.
 

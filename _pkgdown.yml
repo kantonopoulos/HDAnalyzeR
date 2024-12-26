@@ -118,6 +118,7 @@ articles:
 - title: Get started
   navbar: ~
   contents:
+  - before_using_hdanalyzer
   - data_preprocessing
   - data_imputation
   - differential_expression

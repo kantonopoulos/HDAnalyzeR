@@ -1,5 +1,5 @@
 Package: HDAnalyzeR
-Title: HDA Internal Package for Streamed-line Proteomics Analysis
+Title: Streamlining Proteomic Data Analysis for Biomarker Research
 Version: 1.1.0
 Authors@R: 
     c(
@@ -12,7 +12,7 @@ Authors@R:
       person("Fredrik", "Edfors Arfwidsson", , "edfors@kth.se", role = c("aut", "cph"),
              comment = c(ORCID = "0000-0002-0017-7987"))
     )
-Description: A package developed by the Human Disease Blood Atlas group, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. It offers ready-to-use functions for tasks such as protein differential expression analysis, classification models, imputation methods, dimensionality reduction, and data visualization, aiming to streamline workflows and enhance the accuracy and efficiency of biomarker discovery in disease research.
+Description: HDAnalyzeR accelerates and simplifies proteomics data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

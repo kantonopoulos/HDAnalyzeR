@@ -149,6 +149,8 @@ hd_ora <- function(gene_list,
 #' @details
 #' When KEGG database is used, a cnetplot is generated with ENTREZIDs instead of gene names.
 #' For GO and Reactome databases the ENTREZIDs are converted to gene names.
+#' If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto),  :
+#' Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 #'
 #' @export
 #'
@@ -184,10 +186,14 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   tree_plot <- enrichplot::treeplot(tree_plot_data)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], colorEdge = TRUE, cex_label_gene = 0.5)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
+                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                                           color.params = list(edge = TRUE))
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, colorEdge = TRUE, cex_label_gene = 0.5)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
+                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                                           color.params = list(edge = TRUE))
   }
 
   enrichment[["dotplot"]] <- dot_plot
@@ -340,6 +346,8 @@ hd_gsea <- function(de_results,
 #' @details
 #' When KEGG database is used, a cnetplot is generated with ENTREZIDs instead of gene names.
 #' For GO and Reactome databases the ENTREZIDs are converted to gene names.
+#' If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto),  :
+#' Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 #'
 #' @export
 #'
@@ -375,10 +383,14 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
                                         geneSetID = 1)
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]], colorEdge = TRUE, cex_label_gene = 0.5)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
+                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                                           color.params = list(edge = TRUE))
   } else {
     enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed, colorEdge = TRUE, cex_label_gene = 0.5)
+    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
+                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                                           color.params = list(edge = TRUE))
   }
 
   ridgeplot <- clusterProfiler::ridgeplot(enrichment[["enrichment"]]) +

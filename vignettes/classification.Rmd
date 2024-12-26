@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
+## Loading the Data
+
 ```{r setup, results = 'hide', message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
 library(dplyr)
@@ -30,6 +32,8 @@ hd_obj <- hd_initialize(dat = example_data,
 
 > 📓 In the whole vignette the `verbose` parameter of the model functions will be set to FALSE in order to keep this guide clean and concise. However, in a real case we recommend to leave it to default (TRUE) in order to know the model's progress.
 
+## Splitting the Data
+
 First, we will create the data split object using the `hd_split_data()` function. This function will create a list of data frames with the training and testing sets. We can change the ratio of the training and testing sets, the seed for reproducibility, and the variable to classify. We can also add metadata columns as predictors in this stage. In this example, we will use the `Disease` column as the variable to classify and the `Sex` and `Age` columns as a metadata predictor.
 
 ```{r, message = FALSE, warning = FALSE}
@@ -40,7 +44,11 @@ split_obj <- hd_split_data(hd_obj,
                            metadata_cols = c("Sex", "Age"))
 ```
 
-let's start with a regularized regression LASSO model via `hd_model_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
+## Running the Model
+
+### Regularized Regression
+
+Let's start with a regularized regression LASSO model via `hd_model_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
 
 ```{r, message = FALSE, warning = FALSE}
 model_res <- hd_model_rreg(split_obj,
@@ -73,6 +81,8 @@ model_res <- hd_model_rreg(split_obj,
 model_res$final_workflow
 ```
 
+### Random Forest
+
 We can use a different variable to classify like `Sex` and even a different algorithm like random forest via `hd_model_rf()`. However, do not forget that we should create a new split object for this new model. In this case, because the classes are already balanced, we will not use the `balance_groups` parameter to FALSE to consider all the samples in the training dataset. Let's also remove everything except from number of features and AUC from the variable importance plot title.
 
 ```{r, message = FALSE, warning = FALSE}
@@ -103,6 +113,8 @@ split_obj <- hd_split_data(hd_obj_single, variable = "Disease", ratio = 0.8)
 
 model_res <- hd_model_lr(split_obj, case = "AML", palette = "cancers12", verbose = FALSE)
 ```
+
+## Visualizing Model Features
 
 At this point we should also check how our selected protein features look in boxplots. We will run a model as before, extract the features, select the top-9 of them based on their importance in the model and plot them with `hd_plot_feature_boxplot()`. We can either plot case vs control or case vs all other classes by changing the `type` argument.
 
@@ -135,6 +147,8 @@ hd_plot_feature_boxplot(hd_obj,
                         type = "case_vs_all")
 ```
 
+## Multi-classification Model
+
 We can also do multiclassification predictions with all available classes in the data. The only thing that we should change is set the `case` argument to NULL so that the model understands that we want to classify all the classes. Let's see an example with regularized regression!
 
 ```{r, message = FALSE, warning = FALSE}
@@ -150,6 +164,8 @@ model_res$roc_curve
 model_res$probability_plot
 model_res$var_imp_plot
 ```
+
+## Regression instead of Classification
 
 Instead of a classification we can run a regression model. That means that we will try to predict a continuous variable instead of a categorical one. We can use either `hd_model_rreg()` or  `hd_model_rf()` functions with the `case` parameter set to NULL. Let's see an example with the `Age` variable. Do not forget that we have to create a new split object for this new model with `Age` as the variable of interest.
 
@@ -170,6 +186,8 @@ model_res$final_workflow
 model_res$comparison_plot
 model_res$var_imp_plot
 ```
+
+## Test the Model on new Data
 
 Furthermore, we can validate our trained model in new data. For this example we will not use another dataset, but we will split the data initially to create a train and a validation set and then split the validation set to a train and a test set. We will use this second split to initially train the model and then evaluate it with the validation data. In a real case scenario, you can do either this, or use a completely different dataset to check that our model generalizes properly. We will use the `hd_model_test()` function to do this. Let's see an example with the AML model.
 
@@ -205,6 +223,8 @@ model_res$test_metrics  # Results from the validation set
 model_res$roc_curve
 model_res$test_roc_curve  # Results from the validation set
 ```
+
+## Summarizing Results from Multiple Binary Models
 
 To summarize the results for multiple binary models we can use the `hd_plot_model_summary()` function. We can create models of different cases and compare them. Let's run three different models for three different cancers and summarize them.
 

@@ -8,6 +8,7 @@ hd_plot_feature_network(
   feature_panel,
   plot_color = "Scaled_Importance",
   class_palette = NULL,
+  importance_palette = NULL,
   seed = 123
 )
 }
@@ -17,6 +18,8 @@ hd_plot_feature_network(
 \item{plot_color}{The color variable to plot. Default is "Scaled_Importance".}
 
 \item{class_palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
+
+\item{importance_palette}{A named list or vector that contains the high and low colors (for example c("high" = "grey30", "low" = "grey80")). If NULL the default colors are used. Default is NULL.}
 
 \item{seed}{seed Seed for reproducibility. Default is 123.}
 }
@@ -118,6 +121,7 @@ print(head(feature_panel, 5))
 
 hd_plot_feature_network(feature_panel,
                         plot_color = "logFC",
-                        class_palette = "cancers12")
+                        class_palette = "cancers12",
+                        importance_palette = c("high" = "red4", "low" = "grey90"))
 }
 }

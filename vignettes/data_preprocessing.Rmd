@@ -25,6 +25,8 @@ library(viridis)
 
 > ⚠️ Please make sure to check the data and metadata before proceeding with the analysis. For the most common proteomics data formats, we provide some recommendations in the package documentation under articles "Before using HDAnalyzeR".
 
+## Loading the Data
+
 Let's start with loading the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r}
@@ -35,6 +37,8 @@ hd_obj <- hd_initialize(dat = example_data,
                         var_name = "Assay",
                         value_name = "NPX")
 ```
+
+## Exploratory Data Analysis
 
 Now, we will perform a quality control check on the data. `hd_qc_summary()` will return the percentage of missing values for each column and row and histograms of their distributions both for data and metadata, the protein-protein correlation and the metadata variable distributions. 
 
@@ -60,6 +64,8 @@ qc_data$metadata_summary$BMI
 From the QC results we can see that all assays have less than 10% missing values, while only a few samples have more than 20% missing values. The protein-protein correlation plot shows that there are no extremely highly correlated proteins. Also, the metadata variable `Stage` has a high percentage of missing values that are not correctly stated as NA values but as "" or "Unknown". These are only a few examples of the information that we can extract from the QC results.
 
 Based on these we can take decisions on filtering samples with high missing values, excluding assays and metadata variables from statistical analysis.
+
+## Dimensionality Reduction
 
 Finally we will run a PCA and UMAP analysis on the data to check if the data contain any outliers or cluster in an unexpected way. From the PCA analysis we can also check how the variance in the data is explained by the different principal components. The PCA plot will be colored based on `Disease`, while the UMAP plot will be colored based on `Age`.
 

@@ -21,6 +21,8 @@ gene set enrichment analysis.
 \details{
 When KEGG database is used, a cnetplot is generated with ENTREZIDs instead of gene names.
 For GO and Reactome databases the ENTREZIDs are converted to gene names.
+If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto),  :
+Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 }
 \examples{
 # Initialize an HDAnalyzeR object

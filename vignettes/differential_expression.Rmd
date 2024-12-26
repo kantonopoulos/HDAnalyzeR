@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
+## Loading the Data
+
 ```{r setup, results = 'hide', message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
 
@@ -26,6 +28,8 @@ hd_obj <- hd_initialize(dat = example_data,
                         var_name = "Assay",
                         value_name = "NPX")
 ```
+
+## Running Differential Expression Analysis with limma
 
 We will start by running a simple differential expression analysis using the `hd_de_limma()` function. In this function we have to state the group that will be the case, as well as the control(s). We will also correct for both `Sex` and `Age` variables. After the analysis is done, we will use `hd_plot_volcano()` to visualize the results.
 
@@ -60,6 +64,8 @@ de_results <- hd_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |>
 de_results$volcano_plot
 ```
 
+## Customizing the Volcano Plot
+
 We can customize the volcano plot further by adding a title and not displaying the number of significant proteins. We can also change the number of significant proteins that will be displayed with their names in the plot. 
 
 ```{r}
@@ -72,6 +78,8 @@ de_results <- hd_de_limma(hd_obj, case = "AML", correct = c("Age", "Sex")) |>
 de_results$volcano_plot
 ```
 
+## Running Differential Expression Analysis with t-test
+
 Let's move to another method. We will use the `hd_de_ttest()` that performs a t-test for each protein. This function works in a similar way with `hd_de_limma()` but it cannot correct for other variables like `Sex` and `Age`.
 
 ```{r}
@@ -80,6 +88,8 @@ de_results <- hd_de_ttest(hd_obj, case = "AML") |>
 
 de_results$volcano_plot
 ```
+
+## The case of Sex-specific Diseases
 
 > 📓 If we have diseases that are sex specific as for example Breast Cancer, we should consider run the analysis only with samples of that sex. We can easily integrate that into our pipeline using the `hd_filter_by_sex()` function. In that case, we would not be able to correct for sex.
 
@@ -92,6 +102,10 @@ de_results <- hd_obj |>
 de_results$volcano_plot
 ```
 
+## Running DE against other Variables
+
+### Other Categorical Variables
+
 We could also run differential expression against another categorical variable like `Sex`.
 
 ```{r}
@@ -101,6 +115,8 @@ de_results <- hd_de_limma(hd_obj, variable = "Sex", case = "F", correct = "Age")
 de_results$volcano_plot
 ```
 
+### Continuous Variables
+
 Moreover, we can also perform Differential Expression Analysis against a continuous variable such as `Age` once again using `hd_de_limma()`! We can also correct for categorical and other continuous variables. In this case, no `case` or `control` groups are needed.
 
 ```{r}
@@ -109,6 +125,8 @@ de_results <- hd_de_limma(hd_obj, variable = "Age", case = NULL, correct = c("Se
 
 de_results$volcano_plot
 ```
+
+## Summarizing the Results from Multiple Analysis
 
 As a last step, we can summarize the results via `hd_plot_de_summary()`. Let's first run a differential expression analysis for 4 different cases (1 vs 3).
 

@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
 
+## Loading the Data
+
 This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ```{r setup, message = FALSE, warning = FALSE}
@@ -35,6 +37,8 @@ For the Over Representation Analysis we are going to use a list of differentiall
 ```{r, message = FALSE, warning = FALSE}
 de_res <- hd_de_limma(hd_obj, case = "AML")
 ```
+
+## Over Representation Analysis
 
 First, we will perform an Over Representation Analysis (ORA) using the Gene Ontology database and the BP ontology. We will use the `hd_ora()` and `hd_plot_ora()` functions to run the analysis and plot the results respectively.
 
@@ -62,6 +66,8 @@ enrichment_plots$treeplot
 enrichment_plots$cnetplot
 ```
 
+## Gene Set Enrichment Analysis
+
 We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_gsea()` and `hd_plot_gsea` functions. In `hd_gsea()` we can select if we want to include only up, down or both up and down regulated proteins, as well as the adjusted P value and logFC limits to consider a protein as differentially expressed. The `hd_plot_gsea()` function will plot the results.
 
 > 📓 In this case, the function requires strictly differential expression results.
@@ -76,6 +82,8 @@ enrichment_plots$gseaplot
 enrichment_plots$cnetplot
 enrichment_plots$ridgeplot
 ```
+
+## Searching PubMed for our Biomarkers
 
 Finally, let's perform an automated literature search using the `hd_literature_search()`. The function requires a list with disease names as names and proteins as values. We will create the list, run the search and preview the results.
 
