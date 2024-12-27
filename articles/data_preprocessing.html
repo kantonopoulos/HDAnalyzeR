@@ -54,7 +54,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -114,6 +115,9 @@ with the analysis. For the most common proteomics data formats, we
 provide some recommendations in the package documentation under articles
 “Before using HDAnalyzeR”.</p>
 </blockquote>
+<div class="section level2">
+<h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
+</h2>
 <p>Let’s start with loading the example data and metadata that come with
 the package and initialize the HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -123,6 +127,10 @@ the package and initialize the HDAnalyzeR object.</p>
 <span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+</h2>
 <p>Now, we will perform a quality control check on the data.
 <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> will return the percentage of missing
 values for each column and row and histograms of their distributions
@@ -260,6 +268,10 @@ results.</p>
 <p>Based on these we can take decisions on filtering samples with high
 missing values, excluding assays and metadata variables from statistical
 analysis.</p>
+</div>
+<div class="section level2">
+<h2 id="dimensionality-reduction">Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#dimensionality-reduction"></a>
+</h2>
 <p>Finally we will run a PCA and UMAP analysis on the data to check if
 the data contain any outliers or cluster in an unexpected way. From the
 PCA analysis we can also check how the variance in the data is explained
@@ -348,7 +360,9 @@ and the results in this guide should not be interpreted as real results.
 The purpose of this vignette is to show you how to use the package and
 its functions.</p>
 </blockquote>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

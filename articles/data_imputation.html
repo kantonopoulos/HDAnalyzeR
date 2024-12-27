@@ -54,7 +54,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -106,6 +107,9 @@ will also load and widen the Olink example dataset.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
+</h2>
 <p>Let’s start with loading the example data and metadata that come with
 the package and initialize the HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -115,6 +119,10 @@ the package and initialize the HDAnalyzeR object.</p>
 <span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="explore-missing-values">Explore Missing Values<a class="anchor" aria-label="anchor" href="#explore-missing-values"></a>
+</h2>
 <p>We can simply check our data for NA values by using the
 <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> as we did in previous vignettes. This time
 we will use something specific to NA</p>
@@ -132,6 +140,13 @@ we will use something specific to NA</p>
 in the data. In this case, we can see that the NA values are spread
 across the different Assays, samples and metadata variables. In this
 case, we can try impute them!</p>
+</div>
+<div class="section level2">
+<h2 id="imputation-methods">Imputation Methods<a class="anchor" aria-label="anchor" href="#imputation-methods"></a>
+</h2>
+<div class="section level3">
+<h3 id="median-imputation">Median Imputation<a class="anchor" aria-label="anchor" href="#median-imputation"></a>
+</h3>
 <p>We will start the imputation with the simplest and fastest method,
 which is the median imputation by using the
 <code><a href="../reference/hd_impute_median.html">hd_impute_median()</a></code>. After the imputation, we will check the
@@ -162,6 +177,10 @@ see if these values are imputed logically.</p>
 slightly after imputation, with an exaggerated median value in the
 imputed data. This highlights a key drawback of median imputation: the
 more missing values there are, the greater the potential bias.</p>
+</div>
+<div class="section level3">
+<h3 id="knn-imputation">KNN Imputation<a class="anchor" aria-label="anchor" href="#knn-imputation"></a>
+</h3>
 <p>A better approach is to use the <code><a href="../reference/hd_impute_knn.html">hd_impute_knn()</a></code> with 5
 neighbors, which imputes missing values based on the 5-nearest
 neighbors. We will use the same assay to compare the imputed data with
@@ -191,6 +210,10 @@ the original data.</p>
 more similar to the original distribution. This is because the KNN
 imputation method uses the nearest neighbors to impute missing values,
 which is more accurate and representative than median imputation.</p>
+</div>
+<div class="section level3">
+<h3 id="missforest-imputation">MissForest Imputation<a class="anchor" aria-label="anchor" href="#missforest-imputation"></a>
+</h3>
 <p>Finally, we will use the <code><a href="../reference/hd_impute_missForest.html">hd_impute_missForest()</a></code> method,
 which uses the random forest algorithm to impute missing values. We will
 use the default values for the number of trees and the number of
@@ -232,6 +255,11 @@ introduce bias into the data. In such cases, it is important to
 carefully consider the way the data were collected and what they
 represent.</p>
 </blockquote>
+</div>
+</div>
+<div class="section level2">
+<h2 id="removing-missing-values-instead-of-imputing">Removing Missing Values instead of Imputing<a class="anchor" aria-label="anchor" href="#removing-missing-values-instead-of-imputing"></a>
+</h2>
 <p>If for any reason do not want to impute the data, you can use the
 <code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code> function to remove the rows with missing
 values in specific variables. This function will remove all rows with
@@ -294,7 +322,9 @@ and the results in this guide should not be interpreted as real results.
 The purpose of this vignette is to show you how to use the package and
 its functions.</p>
 </blockquote>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

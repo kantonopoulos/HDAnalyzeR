@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>HDA Internal Package for Streamed-line Proteomics Analysis • HDAnalyzeR</title>
+<title>Streamlining Proteomic Data Analysis for Biomarker Research • HDAnalyzeR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -16,9 +16,9 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="HDA Internal Package for Streamed-line Proteomics Analysis">
-<meta name="description" content="A package developed by the Human Disease Blood Atlas group, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. It offers ready-to-use functions for tasks such as protein differential expression analysis, classification models, imputation methods, dimensionality reduction, and data visualization, aiming to streamline workflows and enhance the accuracy and efficiency of biomarker discovery in disease research.">
-<meta property="og:description" content="A package developed by the Human Disease Blood Atlas group, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. It offers ready-to-use functions for tasks such as protein differential expression analysis, classification models, imputation methods, dimensionality reduction, and data visualization, aiming to streamline workflows and enhance the accuracy and efficiency of biomarker discovery in disease research.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Streamlining Proteomic Data Analysis for Biomarker Research">
+<meta name="description" content="HDAnalyzeR accelerates and simplifies proteomics data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.">
+<meta property="og:description" content="HDAnalyzeR accelerates and simplifies proteomics data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.">
 <meta property="og:image" content="https://hda1472.github.io/HDAnalyzeR/logo.png">
 </head>
 <body>
@@ -58,7 +58,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="articles/classification.html">Machine Learning Models</a></li>
@@ -94,7 +95,26 @@
 </h1>
 </div>
 <p><a href="https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://doi.org/10.5281/zenodo.13786124" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg" alt="DOI"></a> <a href="https://github.com/HDA1472/HDAnalyzeR" class="external-link"><img src="https://img.shields.io/badge/Version-1.1.0-purple" alt="Version"></a> <a href="https://github.com/HDA1472/HDAnalyzeR/blob/main/LICENSE.md" class="external-link"><img src="https://img.shields.io/badge/license-Apache2.0-yellow" alt="License"></a></p>
-<p>HDAnalyzeR is an R package developed by the Human Disease Blood Atlas project, designed to facilitate proteomics analysis for biomarker selection from blood plasma samples. HDAnalyzeR offers ready-to-use functions for common proteomics tasks such as protein differential expression analysis, classification models, imputation methods, dimensionality reduction, and data visualization, aiming to streamline workflows and enhance the standardization and efficiency of biomarker discovery in disease research.</p>
+<p>HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to simplify proteomics data analysis for biomarker discovery in disease research. It provides a set of user-friendly functions to efficiently process blood plasma proteomics data and gain insights into disease mechanisms. With HDAnalyzeR, you can easily perform tasks like protein differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization.</p>
+<p>The package is designed to be intuitive and accessible, even for those with limited programming experience, making it ideal for bioinformaticians, clinicians, and molecular biologists. It offers ready-to-use functions that reduce analysis time while ensuring high-quality results. Its powerful visualization tools also help present findings in clear, publication-ready plots, improving both the analysis and communication of results. Whether you’re analyzing omics data for research or clinical applications, HDAnalyzeR simplifies the process, enhances reproducibility, and supports the discovery of potential biomarkers in disease research.</p>
+<div class="section level2">
+<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h2>
+<ul>
+<li>
+<strong>Differential Expression Analysis:</strong> Perform protein differential expression analysis with built-in support for multiple methods.</li>
+<li>
+<strong>Machine Learning Models:</strong> Train and evaluate classification models with integrated variable importance visualization.</li>
+<li>
+<strong>Pathway Enrichment Analysis:</strong> Identify enriched pathways and visualize results in multiple formats.</li>
+<li>
+<strong>Dimensionality Reduction:</strong> Easily apply PCA or other dimensionality reduction techniques to explore complex data.</li>
+<li>
+<strong>Imputation and NA Handling:</strong> Handle missing data with imputation techniques and filtering options.</li>
+<li>
+<strong>Publication-Ready Visualizations:</strong> Generate high-quality plots, including volcano plots, heatmaps, and feature importance plots.</li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -114,7 +134,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>The following example showcases how to perform a differential expression analysis. It is one of the many features of HDAnalyzeR. A complete guide is available through <a href="https://hda1472.github.io/HDAnalyzeR/">package’s documentation</a>.</p>
+<p>The following example showcases how to perform differential expression analysis and plot the results. It is one of the many features of HDAnalyzeR. A complete guide is available through <a href="https://hda1472.github.io/HDAnalyzeR/">package’s documentation</a>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span></span>

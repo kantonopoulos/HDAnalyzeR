@@ -54,7 +54,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -97,6 +98,9 @@
 
     
     
+<div class="section level2">
+<h2 id="what-is-hdanalyzer">What is HDAnalyzeR?<a class="anchor" aria-label="anchor" href="#what-is-hdanalyzer"></a>
+</h2>
 <p>HDAnalyzeR is an R package developed to streamline and enhance
 proteomics analysis, particularly for biomarker selection from blood
 plasma samples. It is developed by the Human Disease Blood Atlas group.
@@ -106,15 +110,29 @@ dimensionality reduction, and biomarker identification. Let’s get
 started by loading the package!</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="how-to-get-help">How to get Help?<a class="anchor" aria-label="anchor" href="#how-to-get-help"></a>
+</h2>
+<p>If you need help with the package, you can use the <code>?</code>
+operator to access the documentation for a specific function. For
+example, to access the documentation for the
+<code><a href="../reference/hd_initialize.html">hd_initialize()</a></code> function, you can run:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">?</span><span class="va">hd_initialize</span></span></code></pre></div>
+<p>All package functions can be found in the <a href="https://hda1472.github.io/HDAnalyzeR/reference/index.html">HDAnalyzeR
+Function Reference</a> page. For whole example workflows you can visit
+any of the package articles.</p>
 <p>This document introduces you to HDAnalyzeR’s basic set of tools, and
 shows you how to analyze and identify biomarkers in a artificial dataset
 of cancer blood plasma samples.</p>
+</div>
 <div class="section level2">
 <h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
 </h2>
 <p>First, we load the package’s <code>example_data</code> and
 <code>example_metadata</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      DAid    Sample  OlinkID UniProt  Assay           Panel        NPX</span></span>
 <span><span class="co">#&gt; 1 DA00001 AML_syn_1 OID21311  Q9BTE6 AARSD1        Oncology  3.3903461</span></span>
@@ -130,7 +148,7 @@ of cancer blood plasma samples.</p>
 <span><span class="co">#&gt; 4          PASS       PASS  Run001</span></span>
 <span><span class="co">#&gt; 5          PASS       PASS  Run001</span></span>
 <span><span class="co">#&gt; 6          PASS       PASS  Run001</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_metadata</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      DAid    Sample Disease   Stage Grade Sex Age  BMI Cohort</span></span>
 <span><span class="co">#&gt; 1 DA00001 AML_syn_1     AML       2  &lt;NA&gt;   F  42 22.7   UCAN</span></span>
@@ -145,13 +163,15 @@ will be used throughout the analysis. We will specify the sample ID,
 variable name, and value name in order to correctly load and widen the
 data. In this case, the data is in long format, so we set
 <code>is_wide = FALSE</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
 <span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
 <span>                        is_wide <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span></span>
 <span><span class="co"># See the data transformed into a wide format!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">hd_obj</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
@@ -204,104 +224,26 @@ the percentage of NAs in each column and row exactly as before. It will
 also create summary visualizations for the metadata variables like
 “Sex”, “Disease”, and “Age”.</p>
 <p>Let’s run the QC summary and take a look at some results!</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_qc_summary.html">hd_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                         variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
 <span>                         palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
-<span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Summary:"</span></span>
-<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 101"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "categorical : 1"</span></span>
-<span><span class="co">#&gt; [1] "continuous : 100"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 91 × 2</span></span></span>
-<span><span class="co">#&gt;    column   na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ACE2               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ACTA2              6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ACTN4              6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ADAM15             6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ADAMTS16           6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADH4               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AKR1C4             6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AMBN               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AMN                6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AOC1               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 81 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 144 × 2</span></span></span>
-<span><span class="co">#&gt;    DAid    na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00450          57.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00482          53.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00542          53.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00003          50.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00463          46.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00116          43.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00475          42.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00578          42.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00443          41.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00476          35.6</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 134 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Protein-protein correlations above 0.7:"</span></span>
-<span><span class="co">#&gt;   Protein1 Protein2 Correlation</span></span>
-<span><span class="co">#&gt; 1  ATP5IF1    AIFM1        0.76</span></span>
-<span><span class="co">#&gt; 2    AXIN1 ARHGEF12        0.76</span></span>
-<span><span class="co">#&gt; 3    AIFM1  ATP5IF1        0.76</span></span>
-<span><span class="co">#&gt; 4 ARHGEF12    AXIN1        0.76</span></span>
-<span><span class="co">#&gt; 5 ARHGEF12    AIFM1        0.71</span></span>
-<span><span class="co">#&gt; 6    AIFM1 ARHGEF12        0.71</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Summary:"</span></span>
-<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 9"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "categorical : 7"</span></span>
-<span><span class="co">#&gt; [1] "continuous : 2"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
-<span><span class="co">#&gt;   column na_percentage</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Grade           91.5</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 536 × 2</span></span></span>
-<span><span class="co">#&gt;    DAid    na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00001          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00002          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00003          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00004          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00005          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00006          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00007          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00008          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00009          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00010          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 526 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
+<span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>                         verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">na_col_hist</span></span>
 <span><span class="co">#&gt; `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">cor_heatmap</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Sex</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">cor_heatmap</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-6-2.png" width="700"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Sex</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-6-3.png" width="700"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Age</span></span>
 <span><span class="co">#&gt; Picking joint bandwidth of 6.06</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-6-4.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="imputation-and-dimensionality-reduction">Imputation and Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#imputation-and-dimensionality-reduction"></a>
@@ -309,7 +251,7 @@ also create summary visualizations for the metadata variables like
 <p>As we saw from the QC results, the data contains NAs and other issues
 that need to be addressed. We will impute missing values using K-nearest
 neighbors (KNN) with 5 neighbors via <code><a href="../reference/hd_impute_knn.html">hd_impute_knn()</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_impute_knn.html">hd_impute_knn</a></span><span class="op">(</span><span class="va">hd_obj</span>, k <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">hd_obj</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 101</span></span></span>
@@ -334,7 +276,7 @@ Projection (UMAP) via <code><a href="../reference/hd_auto_umap.html">hd_auto_uma
 batch effects, and other potential issues. These are wrapper functions
 that will run the necessary steps to perform PCA and UMAP, including
 scaling the data and coloring the plots by metadata variables.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_auto_pca.html">hd_auto_pca</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                       components <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>                       plot_color <span class="op">=</span> <span class="st">"Disease"</span>, </span>
@@ -351,16 +293,16 @@ scaling the data and coloring the plots by metadata variables.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00… -<span style="color: #BB0000;">5.04</span>  -<span style="color: #BB0000;">3.69</span>    0.820 -<span style="color: #BB0000;">5.73</span>  -<span style="color: #BB0000;">0.697</span> -<span style="color: #BB0000;">3.87</span>  -<span style="color: #BB0000;">1.01</span>   1.96  -<span style="color: #BB0000;">0.970</span>  -<span style="color: #BB0000;">1.12</span>  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00…  0.429  0.071<span style="text-decoration: underline;">4</span> -<span style="color: #BB0000;">1.86</span>  -<span style="color: #BB0000;">7.80</span>   0.809 -<span style="color: #BB0000;">2.89</span>  -<span style="color: #BB0000;">0.733</span>  0.381 -<span style="color: #BB0000;">0.617</span>   1.32</span></span>
 <span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_variance_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
 <p>Let’s color UMAP by Sex instead of Disease to see if there are any
 sex related differences.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_auto_umap.html">hd_auto_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                         plot_color <span class="op">=</span> <span class="st">"Sex"</span>, </span>
 <span>                         plot_palette <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
@@ -376,7 +318,7 @@ sex related differences.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005  2.31   1.29 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006 -<span style="color: #BB0000;">1.83</span>  -<span style="color: #BB0000;">0.203</span></span></span>
 <span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="biomarker-identification">Biomarker Identification<a class="anchor" aria-label="anchor" href="#biomarker-identification"></a>
@@ -392,7 +334,7 @@ run the analysis 3 times for different case classes against all other
 classes each time. We will also run <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to
 visualize the results. We will present only the results for Acute
 Myeloid Leukemia (AML).</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
 <span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                          case <span class="op">=</span> <span class="st">"AML"</span>,</span>
@@ -410,13 +352,13 @@ Myeloid Leukemia (AML).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ANGPT1  -<span style="color: #BB0000;">1.63</span>  -<span style="color: #BB0000;">2.09</span>  -<span style="color: #BB0000;">1.16</span>   1.72  -<span style="color: #BB0000;">6.87</span> 1.65<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span>  3.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  15.3 AML    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ARTN     0.826  0.572  1.08   0.423  6.38 3.60<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  6.00<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  12.3 AML</span></span>
 <span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
 <span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                          case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
 <span>                          correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
 <span>                            variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                            case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
@@ -424,21 +366,21 @@ Myeloid Leukemia (AML).</p>
 <p>We can also summarize the results via
 <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code>. In order to use this function we need
 to store all the results in a list.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">de_res_aml</span>, </span>
 <span>               <span class="st">"CRC"</span> <span class="op">=</span> <span class="va">de_res_crc</span>, </span>
 <span>               <span class="st">"LUNGC"</span> <span class="op">=</span> <span class="va">de_res_lungc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary</a></span><span class="op">(</span><span class="va">de_res</span>, class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-13-2.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-2.png" width="700"></p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">upset_plot_down</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-13-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-3.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="lasso-machine-learning-classification-model">Lasso Machine Learning Classification Model<a class="anchor" aria-label="anchor" href="#lasso-machine-learning-classification-model"></a>
@@ -452,7 +394,7 @@ the conditions being studied.</p>
 train and test data and then we will run the model with
 <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>. Once again, we will run the analysis 3
 times but we will present only the results for AML.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lasso_res_aml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
@@ -482,14 +424,14 @@ times but we will present only the results for AML.</p>
 <span><span class="co">#&gt;          0 106   1</span></span>
 <span><span class="co">#&gt;          1  29  11</span></span>
 <span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-14-3.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-2.png" width="700"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-3.png" width="700"></p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
 <span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                               case <span class="op">=</span> <span class="st">"CRC"</span>,</span>
@@ -497,7 +439,7 @@ times but we will present only the results for AML.</p>
 <span>                               grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                               palette <span class="op">=</span> <span class="st">"cancers12"</span>,</span>
 <span>                               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
 <span>                                 variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                                 case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span>
@@ -508,21 +450,21 @@ times but we will present only the results for AML.</p>
 <p>We can get a visual summary of the results via
 <code><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary()</a></code>. In order to use this function we
 need to store the results in a list as before.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">lasso_res_aml</span>, </span>
 <span>                  <span class="st">"CRC"</span> <span class="op">=</span> <span class="va">lasso_res_crc</span>, </span>
 <span>                  <span class="st">"LUNGC"</span> <span class="op">=</span> <span class="va">lasso_res_lungc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">features_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary</a></span><span class="op">(</span><span class="va">lasso_res</span>, class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">metrics_barplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-18-2.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">metrics_barplot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-2.png" width="700"></p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">upset_plot_features</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-18-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-3.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -534,7 +476,7 @@ also identified as features by the ML model. In this example, we will
 use the Gene Ontology (GO) database and show the results only for AML.
 We will use <code><a href="../reference/hd_ora.html">hd_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> to
 perform and visualize the analysis.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract the proteins identified by both DE and Lasso</span></span>
 <span><span class="va">de_proteins</span> <span class="op">&lt;-</span> <span class="va">de_res_aml</span><span class="op">$</span><span class="va">de_res</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -554,13 +496,13 @@ perform and visualize the analysis.</p>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span></code></pre></div>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-2.png" width="700"></p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-19-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-3.png" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.

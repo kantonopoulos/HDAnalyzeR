@@ -54,7 +54,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -101,6 +102,9 @@
 analysis of your data. We will load HDAnalyzeR, load the example data
 and metadata that come with the package and initialize the HDAnalyzeR
 object.</p>
+<div class="section level2">
+<h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span></span>
@@ -110,6 +114,10 @@ object.</p>
 <span>                        sample_id <span class="op">=</span> <span class="st">"DAid"</span>,</span>
 <span>                        var_name <span class="op">=</span> <span class="st">"Assay"</span>,</span>
 <span>                        value_name <span class="op">=</span> <span class="st">"NPX"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="running-differential-expression-analysis-with-limma">Running Differential Expression Analysis with limma<a class="anchor" aria-label="anchor" href="#running-differential-expression-analysis-with-limma"></a>
+</h2>
 <p>We will start by running a simple differential expression analysis
 using the <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> function. In this function we have
 to state the group that will be the case, as well as the control(s). We
@@ -154,6 +162,10 @@ group against all other groups.</p>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="customizing-the-volcano-plot">Customizing the Volcano Plot<a class="anchor" aria-label="anchor" href="#customizing-the-volcano-plot"></a>
+</h2>
 <p>We can customize the volcano plot further by adding a title and not
 displaying the number of significant proteins. We can also change the
 number of significant proteins that will be displayed with their names
@@ -167,6 +179,10 @@ in the plot.</p>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="running-differential-expression-analysis-with-t-test">Running Differential Expression Analysis with t-test<a class="anchor" aria-label="anchor" href="#running-differential-expression-analysis-with-t-test"></a>
+</h2>
 <p>Let’s move to another method. We will use the
 <code><a href="../reference/hd_de_ttest.html">hd_de_ttest()</a></code> that performs a t-test for each protein. This
 function works in a similar way with <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> but it
@@ -178,6 +194,10 @@ cannot correct for other variables like <code>Sex</code> and
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="the-case-of-sex-specific-diseases">The case of Sex-specific Diseases<a class="anchor" aria-label="anchor" href="#the-case-of-sex-specific-diseases"></a>
+</h2>
 <blockquote>
 <p>📓 If we have diseases that are sex specific as for example Breast
 Cancer, we should consider run the analysis only with samples of that
@@ -193,6 +213,13 @@ able to correct for sex.</p>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="running-de-against-other-variables">Running DE against other Variables<a class="anchor" aria-label="anchor" href="#running-de-against-other-variables"></a>
+</h2>
+<div class="section level3">
+<h3 id="other-categorical-variables">Other Categorical Variables<a class="anchor" aria-label="anchor" href="#other-categorical-variables"></a>
+</h3>
 <p>We could also run differential expression against another categorical
 variable like <code>Sex</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -201,6 +228,10 @@ variable like <code>Sex</code>.</p>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="continuous-variables">Continuous Variables<a class="anchor" aria-label="anchor" href="#continuous-variables"></a>
+</h3>
 <p>Moreover, we can also perform Differential Expression Analysis
 against a continuous variable such as <code>Age</code> once again using
 <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code>! We can also correct for categorical and
@@ -212,6 +243,11 @@ other continuous variables. In this case, no <code>case</code> or
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="differential_expression_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="summarizing-the-results-from-multiple-analysis">Summarizing the Results from Multiple Analysis<a class="anchor" aria-label="anchor" href="#summarizing-the-results-from-multiple-analysis"></a>
+</h2>
 <p>As a last step, we can summarize the results via
 <code><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary()</a></code>. Let’s first run a differential
 expression analysis for 4 different cases (1 vs 3).</p>
@@ -244,7 +280,9 @@ and the results in this guide should not be interpreted as real results.
 The purpose of this vignette is to show you how to use the package and
 its functions.</p>
 </blockquote>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

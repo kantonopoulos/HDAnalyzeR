@@ -54,7 +54,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+<li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -104,6 +105,9 @@ search. The pathway enrichment analysis is performed using the Gene
 Ontology, KEGG and Reactome databases from <code>clusterProfiler</code>
 and <code>ReactomePA</code> packages respectively. The automated
 literature search is performed using the the PubMed database.</p>
+<div class="section level2">
+<h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
+</h2>
 <p>This vignette will guide you through the differential expression
 analysis of your data. We will load HDAnalyzeR and dplyr, load the
 example data and metadata that come with the package and initialize the
@@ -111,6 +115,8 @@ HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span></span>
 <span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
 <span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
@@ -125,6 +131,10 @@ classification models or even run both and get the intersect as it is
 done in the Get Started guide.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="over-representation-analysis">Over Representation Analysis<a class="anchor" aria-label="anchor" href="#over-representation-analysis"></a>
+</h2>
 <p>First, we will perform an Over Representation Analysis (ORA) using
 the Gene Ontology database and the BP ontology. We will use the
 <code><a href="../reference/hd_ora.html">hd_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> functions to run
@@ -158,6 +168,10 @@ the analysis and plot the results respectively.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="gene-set-enrichment-analysis">Gene Set Enrichment Analysis<a class="anchor" aria-label="anchor" href="#gene-set-enrichment-analysis"></a>
+</h2>
 <p>We can also run a Gene Set Enrichment Analysis (GSEA) using the
 <code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> and <code>hd_plot_gsea</code> functions. In
 <code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> we can select if we want to include only up, down
@@ -184,6 +198,10 @@ expression results.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="searching-pubmed-for-our-biomarkers">Searching PubMed for our Biomarkers<a class="anchor" aria-label="anchor" href="#searching-pubmed-for-our-biomarkers"></a>
+</h2>
 <p>Finally, let’s perform an automated literature search using the
 <code><a href="../reference/hd_literature_search.html">hd_literature_search()</a></code>. The function requires a list with
 disease names as names and proteins as values. We will create the list,
@@ -199,18 +217,20 @@ run the search and preview the results.</p>
 <span><span class="co">#&gt; Searching for articles on FCER2 and chronic lymphocytic leukemia</span></span>
 <span></span>
 <span><span class="va">lit_res</span><span class="op">$</span><span class="va">`acute myeloid leukemia`</span><span class="op">$</span><span class="va">FLT3</span><span class="op">$</span><span class="va">title</span></span>
-<span><span class="co">#&gt; [1] "Quantification of the FLT3 internal tandem duplication is a reliable marker for monitoring measurable residual disease in acute myeloid leukemia with FLT3-ITD mutations."                                                </span></span>
-<span><span class="co">#&gt; [2] "The Dual PIM/FLT3 Inhibitor MEN1703 Combines Synergistically With Gilteritinib in FLT3-ITD-Mutant Acute Myeloid Leukaemia."                                                                                               </span></span>
-<span><span class="co">#&gt; [3] "Discovery and Chemical Exploration of Spiro[Benzofuran-3,3'-Pyrroles] Derivatives as Innovative FLT3 Inhibitors for Targeting Acute Myeloid Leukemia."                                                                    </span></span>
-<span><span class="co">#&gt; [4] "Mutation- and MRD-informed treatments for transplant-ineligible patients."                                                                                                                                                </span></span>
-<span><span class="co">#&gt; [5] "Allogeneic hematopoietic stem cell transplantation could overcome the poor prognosis of DNMT3A&lt;sup&gt;mut&lt;/sup&gt;NPM1&lt;sup&gt;mut&lt;/sup&gt;FLT3-ITD&lt;sup&gt;mut&lt;/sup&gt; in acute myeloid leukemia: real-world multicenter analysis in China."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Case report: Identification of a novel &lt;i&gt;TOR1AIP2::ETV6&lt;/i&gt; transcript with &lt;i&gt;FLT3&lt;/i&gt;-ITD mutation in acute myeloid leukemia progressed from myelodysplastic syndrome."                                          </span></span>
+<span><span class="co">#&gt; [2] "Strategies for the treatment of acute myeloid leukemia with FLT3 mutations: a patent review."                                                                                                                       </span></span>
+<span><span class="co">#&gt; [3] "Discovery of 3-amide-pyrimidine-based derivatives as potential fms-like tyrosine receptor kinase 3 (FLT3) inhibitors for treating acute myelogenous leukemia."                                                      </span></span>
+<span><span class="co">#&gt; [4] "Discovery of pyridine-based derivatives as FLT3 inhibitors for the treatment of acute myeloid leukemia."                                                                                                            </span></span>
+<span><span class="co">#&gt; [5] "&lt;i&gt;FLT3&lt;/i&gt; mutation-related immune checkpoint molecule absent in melanoma 2 (&lt;i&gt;AIM2&lt;/i&gt;) contributes to immune infiltration in pediatric and adult acute myeloid leukemia: evidence from bioinformatics analysis."</span></span></code></pre></div>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
 The purpose of this vignette is to show you how to use the package and
 its functions.</p>
 </blockquote>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

@@ -35,7 +35,8 @@ over-representation analysis."><meta property="og:image" content="https://hda147
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -92,7 +93,9 @@ over-representation analysis.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When KEGG database is used, a cnetplot is generated with ENTREZIDs instead of gene names.
-For GO and Reactome databases the ENTREZIDs are converted to gene names.</p>
+For GO and Reactome databases the ENTREZIDs are converted to gene names.
+If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto),  :
+Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.</p>
     </div>
 
     <div class="section level2">
