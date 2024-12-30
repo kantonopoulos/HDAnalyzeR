@@ -463,6 +463,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -495,6 +496,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #'                         plot_color = "logFC",
 #'                         class_palette = "cancers12",
 #'                         importance_palette = c("high" = "red4", "low" = "grey90"))
+#' }
 hd_plot_feature_network <- function(feature_panel,
                                     plot_color = "Scaled_Importance",
                                     class_palette = NULL,
