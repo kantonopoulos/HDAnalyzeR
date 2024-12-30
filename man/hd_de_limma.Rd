@@ -15,11 +15,11 @@ hd_de_limma(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
-\item{variable}{The name of the column containing the case and control groups or a continuous variable.}
+\item{variable}{The name of the metadata variable containing the case and control groups or a continuous variable.}
 
 \item{case}{The case group. In case of a continuous variable, it must be NULL.}
 
@@ -33,12 +33,17 @@ hd_de_limma(
 An object with the DE results.
 }
 \description{
-\code{hd_de_limma()} performs differential expression analysis using limma package.
-It can correct the results for metadata columns like Sex, Age, or BMI.
+\code{hd_de_limma()} performs differential expression analysis using the \code{limma} package.
+It can correct the results for metadata columns like Sex, Age, BMI, etc.
 The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
-The function removes the NAs from the columns that are used to correct for.
+The function removes the rows with NAs in the variables that are used to correct for as
+well as the variable of interest.
 }
 \details{
+The variable of interest can be either categorical or continuous.
+This variable and all variables in the \code{correct} argument should be present in the metadata.
+Also, the variable of interest should not be present in the \code{correct} argument.
+
 In case of a continuous variable or if you are correcting based on a continuous variable,
 the variable should be numeric and contain at least 6 unique variables.
 In case your data are not already log transformed, you can set \code{log_transform = TRUE} to log

@@ -62,7 +62,7 @@ model_res$final_workflow
 model_res$metrics
 model_res$roc_curve
 model_res$probability_plot
-model_res$var_imp_plot
+model_res$feat_imp_plot
 ```
 
 We can change several parameters in the `hd_model_rreg()` function. For example, we can change the number of cross-validation folds, the number of grid points for the hyperparameter optimization, or the feature correlation threshold. Also, exactly as with the DE functions, if the `control` parameter is not set, the function will use all the other classes as controls. For more information, please refer to `hd_model_rreg()` documentation.
@@ -162,7 +162,7 @@ model_res <- hd_model_rreg(split_obj,
 model_res$final_workflow
 model_res$roc_curve
 model_res$probability_plot
-model_res$var_imp_plot
+model_res$feat_imp_plot
 ```
 
 ## Regression instead of Classification
@@ -184,7 +184,7 @@ model_res <- hd_model_rreg(split_obj,
 
 model_res$final_workflow
 model_res$comparison_plot
-model_res$var_imp_plot
+model_res$feat_imp_plot
 ```
 
 ## Test the Model on new Data

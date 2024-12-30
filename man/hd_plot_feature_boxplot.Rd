@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{hd_plot_feature_boxplot}
 \alias{hd_plot_feature_boxplot}
-\title{Plot feature boxplots}
+\title{Feature boxplots}
 \usage{
 hd_plot_feature_boxplot(
   dat,
@@ -18,11 +18,11 @@ hd_plot_feature_boxplot(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
-\item{variable}{The name of the column containing the case and control groups. Default is "Disease".}
+\item{variable}{The name of the metadata variable containing the case and control groups. Default is "Disease".}
 
 \item{features}{The features to include in the boxplot. They should be columns of the data.}
 
@@ -39,12 +39,12 @@ hd_plot_feature_boxplot(
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 }
 \value{
-The boxplot panel of the selected features
+The boxplot panel of the selected features.
 }
 \description{
 \code{hd_plot_feature_boxplot()} plots boxplots for the specified features in the dataset.
-It annotates the boxplot with color for the selected case
-It is also possible to add points to the boxplot.
+It annotates the boxplot with color for the selected case and it is also possible to
+add the individual data points on top.
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -63,5 +63,6 @@ hd_plot_feature_boxplot(hd_object,
                         features = c("AARSD1", "ABL1"),
                         case = "AML",
                         type = "case_vs_control",
-                        palette = "cancers12")
+                        palette = "cancers12",
+                        points = FALSE)
 }

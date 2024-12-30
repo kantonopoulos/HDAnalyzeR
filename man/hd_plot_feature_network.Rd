@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{hd_plot_feature_network}
 \alias{hd_plot_feature_network}
-\title{Plot feature network}
+\title{Feature network}
 \usage{
 hd_plot_feature_network(
   feature_panel,
@@ -27,72 +27,13 @@ hd_plot_feature_network(
 The feature network plot.
 }
 \description{
-\code{hd_plot_feature_network} plots a network of the features. The bigger nodes represent the
+\code{hd_plot_feature_network} plots the network of the specified features. The bigger nodes represent the
 classes and the smaller nodes represent the features. The color of the nodes is based on the
 color variable which can be either the importance, the logFC or any value that can rank the features.
 }
 \examples{
-\dontrun{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
-
-# Create a feature panel from classification models results
-# Split the data into training and test sets
-hd_split <- hd_split_data(hd_object, variable = "Disease")
-
-# Run the regularized regression model pipeline
-model_results_aml <- hd_model_rreg(hd_split,
-                                   variable = "Disease",
-                                   case = "AML",
-                                   grid_size = 2,
-                                   cv_sets = 2)
-
-model_results_cll <- hd_model_rreg(hd_split,
-                                   variable = "Disease",
-                                   case = "CLL",
-                                   grid_size = 2,
-                                   cv_sets = 2)
-
-model_results_myel <- hd_model_rreg(hd_split,
-                                  variable = "Disease",
-                                  case = "MYEL",
-                                  grid_size = 2,
-                                  cv_sets = 2)
-
-model_results_lungc <- hd_model_rreg(hd_split,
-                                     variable = "Disease",
-                                     case = "LUNGC",
-                                     grid_size = 2,
-                                     cv_sets = 2)
-
-model_results_gliom <- hd_model_rreg(hd_split,
-                                     variable = "Disease",
-                                     case = "GLIOM",
-                                     grid_size = 2,
-                                     cv_sets = 2)
-
-feature_panel <- model_results_aml[["features"]] |>
-  dplyr::filter(Scaled_Importance > 0.5) |>
-  dplyr::mutate(Class = "AML") |>
-  dplyr::bind_rows(model_results_cll[["features"]] |>
-                     dplyr::filter(Scaled_Importance > 0.5) |>
-                     dplyr::mutate(Class = "CLL"),
-                   model_results_myel[["features"]] |>
-                     dplyr::filter(Scaled_Importance > 0.5) |>
-                     dplyr::mutate(Class = "MYEL"),
-                   model_results_lungc[["features"]] |>
-                     dplyr::filter(Scaled_Importance > 0.5) |>
-                     dplyr::mutate(Class = "LUNGC"),
-                   model_results_gliom[["features"]] |>
-                     dplyr::filter(Scaled_Importance > 0.5) |>
-                     dplyr::mutate(Class = "GLIOM"))
-
-print(head(feature_panel, 5))  # Preview of the feature panel
-
-hd_plot_feature_network(feature_panel,
-                        plot_color = "Scaled_Importance",
-                        class_palette = "cancers12")
-
 
 # Create a feature panel from differential expression results
 de_results_aml <- hd_de_limma(hd_object, case = "AML")
@@ -123,5 +64,4 @@ hd_plot_feature_network(feature_panel,
                         plot_color = "logFC",
                         class_palette = "cancers12",
                         importance_palette = c("high" = "red4", "low" = "grey90"))
-}
 }

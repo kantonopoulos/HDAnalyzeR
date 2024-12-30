@@ -188,7 +188,7 @@ lasso_res_aml <- hd_model_rreg(hd_split,
 lasso_res_aml$metrics
 lasso_res_aml$roc_curve
 lasso_res_aml$probability_plot
-lasso_res_aml$var_imp_plot
+lasso_res_aml$feat_imp_plot
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}

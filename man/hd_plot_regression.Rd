@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{hd_plot_regression}
 \alias{hd_plot_regression}
-\title{Visualize scatter plot with regression line}
+\title{Regression plot}
 \usage{
 hd_plot_regression(
   dat,
@@ -16,15 +16,15 @@ hd_plot_regression(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
-\item{metadata_cols}{The metadata columns to plot. Default is NULL.}
+\item{metadata_cols}{The metadata variables to plot. Default is NULL.}
 
-\item{x}{The column name of the x-axis variable.}
+\item{x}{The column name of the x-axis variable. It should be a variable of the data or metadata.}
 
-\item{y}{The column name of the y-axis variable.}
+\item{y}{The column name of the y-axis variable. It should be a variable of the data or metadata.}
 
 \item{se}{Whether to add the standard error of the regression line. Default is FALSE.}
 

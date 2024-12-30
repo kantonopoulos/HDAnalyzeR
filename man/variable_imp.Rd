@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{variable_imp}
 \alias{variable_imp}
-\title{Extract model features and plot variable importance}
+\title{Extract model features and plot feature importance}
 \usage{
 variable_imp(
   dat,
@@ -32,10 +32,10 @@ variable_imp(
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
 \value{
-A model object containing the features and the variable importance plot.
+A model object containing the features and the feature importance plot.
 }
 \description{
-\code{variable_imp()} calculates the variable importance of the model and plots the top features.
+\code{variable_imp()} calculates the feature importance of the model and plots the top features.
 It also generates a title for the plot based on the model metrics and the mixture parameter.
 }
 \keyword{internal}

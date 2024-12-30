@@ -18,15 +18,15 @@ hd_model_test(
 )
 }
 \arguments{
-\item{model_object}{An \code{hd_model} object coming from \code{hd_model_rreg()} and \code{hd_model_rf()} binary or multiclass classification models.}
+\item{model_object}{An \code{hd_model} object coming from \code{hd_model_rreg()} and \code{hd_model_rf()} binary or multiclass classification.}
 
-\item{train_set}{The training set as an HDAnalyzeR object or a dataset in wide format with sample_id as its first column and class column as its second column.}
+\item{train_set}{The training set as an HDAnalyzeR object or a dataset in wide format with sample ID as its first column and class column as its second column.}
 
-\item{test_set}{The validation/test set as an HDAnalyzeR object or a dataset in wide format with sample_id as its first column and class column as its second column.}
+\item{test_set}{The validation/test set as an HDAnalyzeR object or a dataset in wide format with sample ID as its first column and class column as its second column.}
 
-\item{variable}{The name of the column containing the case and control groups. Default is "Disease".}
+\item{variable}{The name of the metadata variable containing the case and control groups. Default is "Disease".}
 
-\item{metadata_cols}{The metadata columns to include in the analysis. Default is NULL.}
+\item{metadata_cols}{The metadata variables to include in the analysis. Default is NULL.}
 
 \item{case}{The case class.}
 
@@ -42,15 +42,15 @@ hd_model_test(
 The model object containing the validation set, the metrics, the ROC curve, the probability plot, and the confusion matrix for the new data.
 }
 \description{
-\code{hd_model_test()} validates the model on new data. It evaluates the model on
-the validation (new test) set, calculates the metrics and plots the probability
+\code{hd_model_test()} validates the model on new data. It takes an already tuned model,
+evaluates it on the validation (new test) set, calculates the metrics and plots the probability
 and ROC curve based on the new data.
 }
 \details{
 In order to run this function, the train and test sets should be in exactly
-the same format and have the same columns in the same order. Some function arguments
-like the case/control, variable, and metadata_cols should be also the same.
-If the data contain missing values, KNN (k=5) imputation
+the same format meaning that they must have the same columns in the same order.
+Some function arguments like the case/control, variable, and metadata_cols should
+be also the same. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If \code{case} is provided, the model will be a binary
 classification model. If \code{case} is NULL, the model will be a multiclass classification model.
 
@@ -79,7 +79,8 @@ model_object <- hd_model_rreg(hd_split,
                               variable = "Disease",
                               case = "AML",
                               grid_size = 5,
-                              palette = "cancers12")
+                              palette = "cancers12",
+                              verbose = FALSE)
 
 # Run the model evaluation pipeline
 hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palette = "cancers12")
@@ -94,7 +95,8 @@ model_object <- hd_model_rreg(hd_split,
                               case = "AML",
                               grid_size = 2,
                               cv_sets = 2,
-                              plot_title = NULL)
+                              plot_title = NULL,
+                              verbose = FALSE)
 
 # Run the model evaluation pipeline
 hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)

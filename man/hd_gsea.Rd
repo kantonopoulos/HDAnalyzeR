@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_gsea}
 \alias{hd_gsea}
-\title{Perform gene set enrichment analysis}
+\title{Gene set enrichment analysis}
 \usage{
 hd_gsea(
   de_results,
@@ -37,6 +37,10 @@ A list containing the results of the GSEA.
 }
 \description{
 \code{hd_gsea()} performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
+}
+\details{
+To perform the GSEA, \code{clusterProfiler} package is used. For more information, please
+refer to the \code{clusterProfiler} documentation.
 }
 \examples{
 # Initialize an HDAnalyzeR object

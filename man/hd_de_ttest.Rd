@@ -14,11 +14,11 @@ hd_de_ttest(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
-\item{variable}{The name of the column containing the case and control groups.}
+\item{variable}{The name of the metadata variable containing the case and control groups.}
 
 \item{case}{The case group.}
 
@@ -31,12 +31,17 @@ An object with the DE results.
 }
 \description{
 \code{hd_de_ttest()} performs differential expression analysis using t-test.
-It separates the data in case-control groups, checks for data normality and
-perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
+The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
+The function removes the rows with NAs in the variables that are used to correct for as
+well as the variable of interest.
 }
 \details{
+The variable of interest should be categorical and present in the metadata.
 In case your data are not already log transformed, you can set \code{log_transform = TRUE} to log
 transform the data with base 2 before the analysis start.
+
+When using this function you cannot correct for other variables or run it against a continuous variable.
+If you need to correct for other variables or run the analysis against a continuous variable, use \code{hd_de_limma()}.
 }
 \examples{
 # Initialize an HDAnalyzeR object

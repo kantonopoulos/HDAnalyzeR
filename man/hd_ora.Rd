@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_ora}
 \alias{hd_ora}
-\title{Run over-representation analysis}
+\title{Over-representation analysis}
 \usage{
 hd_ora(
   gene_list,
@@ -30,7 +30,8 @@ A list containing the results of the ORA.
 \code{hd_ora()} performs over-representation analysis (ORA) using the clusterProfiler package.
 }
 \details{
-qvalueCutoff was set to be 4 times the pvalueCutoff.
+qvalueCutoff was set to be 4 times the pvalueCutoff. To perform the ORA, \code{clusterProfiler} package is used.
+For more information, please refer to the \code{clusterProfiler} documentation.
 }
 \examples{
 # Initialize an HDAnalyzeR object

@@ -2,15 +2,19 @@
 % Please edit documentation in R/palettes.R
 \name{hd_palettes}
 \alias{hd_palettes}
-\title{HDAnalyzeR color palettes}
+\title{HDAnalyzeR palettes}
 \usage{
 hd_palettes()
 }
 \value{
-List of HPA color palettes.
+List of HDAnalyzeR palettes.
 }
 \description{
-\code{hd_palettes()} returns a list of color palettes used by the Human Protein Atlas (HPA) project.
+\code{hd_palettes()} returns a list of palettes used by the Human Disease Blood Atlas resource of the Human Protein Atlas (HPA) project.
+}
+\details{
+Some of the palettes are custom palettes created for the Human Disease Blood Atlas team.
+Others are taken from the \code{ggsci} package, which provides palettes inspired by scientific journals.
 }
 \examples{
 hd_palettes()

@@ -2,19 +2,19 @@
 % Please edit documentation in R/palettes.R
 \name{scale_fill_hd}
 \alias{scale_fill_hd}
-\title{HPA fill scales}
+\title{HDAnalyzeR fill scales}
 \usage{
 scale_fill_hd(palette)
 }
 \arguments{
-\item{palette}{The name of the palette to use. It should be one of the palettes from \code{get_hpa_palettes()}.}
+\item{palette}{The name of the palette to use. It should be one of the palettes from \code{hd_palettes()}.}
 }
 \value{
 A ggplot2 scale for fill aesthetics.
 }
 \description{
-\code{scale_fill_hd()} creates a ggplot2 scale for fill aesthetics using the color
-palettes from the Human Protein Atlas (HPA) project.
+\code{scale_fill_hd()} creates a ggplot2 scale for fill aesthetics using the HDAnalyzeR
+palettes.
 }
 \examples{
 # Create an example dataframe

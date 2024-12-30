@@ -2,20 +2,20 @@
 % Please edit documentation in R/palettes.R
 \name{hd_show_palettes}
 \alias{hd_show_palettes}
-\title{Display available color palettes}
+\title{Display available palettes}
 \usage{
 hd_show_palettes(palettes = hd_palettes(), n = NULL)
 }
 \arguments{
-\item{palettes}{A list of color palettes. Defaults to all palettes from \code{hd_palettes()}.}
+\item{palettes}{A list of palettes. Defaults to all palettes from \code{hd_palettes()}.}
 
 \item{n}{The number of colors to show for each palette. If \code{NULL}, all colors are shown.}
 }
 \value{
-A ggplot2 plot showing the color palettes.
+A ggplot2 plot showing the palettes.
 }
 \description{
-\code{hd_show_palettes()} displays a grid of color palettes.
+\code{hd_show_palettes()} displays a grid of palettes.
 }
 \examples{
 hd_show_palettes()

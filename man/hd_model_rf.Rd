@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{hd_model_rf}
 \alias{hd_model_rf}
-\title{Run random forest model pipeline}
+\title{Random forest model pipeline}
 \usage{
 hd_model_rf(
   dat,
@@ -24,7 +24,7 @@ hd_model_rf(
 \arguments{
 \item{dat}{An \code{hd_model} object or a list containing the train and test data.}
 
-\item{variable}{The name of the column containing the case and control groups. Default is "Disease".}
+\item{variable}{The name of the metadata variable containing the case and control groups. Default is "Disease".}
 
 \item{case}{The case class.}
 
@@ -40,21 +40,21 @@ hd_model_rf(
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
 
-\item{plot_y_labels}{Whether to show y-axis labels in the variable importance plot. Default is FALSE.}
+\item{plot_y_labels}{Whether to show y-axis labels in the feature importance plot. Default is FALSE.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
-\item{plot_title}{Vector of title elements to include in the plot.}
+\item{plot_title}{Vector of title elements to include in the plot. It should be a subset of \code{c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")}.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
 \value{
-A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+A model object containing the train and test data, the metrics, the ROC curve, the selected features, their importance, and the mixture parameter.
 }
 \description{
 \code{hd_model_rf()} runs the random forest model pipeline. It creates
 class-balanced case-control groups for the train set, tunes the model, evaluates
-the model, and plots the variable importance.
+the model, and plots the feature importance and model performance.
 }
 \details{
 The numeric predictors will be normalized and the nominal predictors will
@@ -64,7 +64,7 @@ classification model. If \code{case} is NULL, the model will be a multiclass cla
 
 In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 are calculated via macro-averaging. In case the model is run against a continuous variable,
-the palette will be ignored and we have to change the \code{plot_title} to \code{rmse} and \code{rsq}
+the palette will be ignored and we have to change the elements of  \code{plot_title} to \code{rmse} and \code{rsq}
 to plot the RMSE and RSQ instead of \code{accuracy}, \code{sensitivity}, \code{specificity}, and \code{auc}
 (see the examples).
 }
@@ -80,7 +80,8 @@ hd_model_rf(hd_split,
             variable = "Disease",
             case = "AML",
             grid_size = 5,
-            palette = "cancers12")
+            palette = "cancers12",
+            verbose = FALSE)
 
 # Run the multiclass random forest model pipeline
 hd_model_rf(hd_split,
@@ -102,5 +103,6 @@ hd_model_rf(hd_split,
             cv_sets = 2,
             plot_title = c("rmse",
                            "rsq",
-                           "features"))
+                           "features"),
+            verbose = FALSE)
 }

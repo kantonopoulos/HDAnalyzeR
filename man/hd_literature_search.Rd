@@ -2,7 +2,7 @@
 % Please edit documentation in R/lit_search.R
 \name{hd_literature_search}
 \alias{hd_literature_search}
-\title{Run literature search for gene-disease pairs in PubMed}
+\title{PubMed literature search}
 \usage{
 hd_literature_search(
   feature_class_list,
@@ -31,7 +31,7 @@ A list of tibbles. Each tibble contains the articles found for a gene-disease pa
 }
 \description{
 \code{hd_literature_search()} searches for articles for gene-disease pairs in PubMed.
-A list of proteins and diseases is provided as input. The function retrieves the
+A list of genes/proteins and diseases is provided as input. The function retrieves the
 articles for each gene-disease pair. The input should be in the correct format,
 a list with diseases as names and gene vectors associated with each disease as
 elements (see examples).
@@ -40,7 +40,8 @@ elements (see examples).
 The disease and gene names should be correct in order for the query to
 be successful. For example AML should be written as "acute myeloid leukemia".
 The query is constructed as "gene\link{field} AND disease\link{field} AND keywords".
-For more details check the \code{easyPubMed} package documentation.
+For more details check the \code{easyPubMed} package documentation. For more complicated
+queries, you can use the \code{easyPubMed} package directly or use the PubMed website directly.
 }
 \examples{
 # Prepare the list of gene-disease pairs

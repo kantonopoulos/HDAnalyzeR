@@ -1,8 +1,12 @@
-#' HDAnalyzeR color palettes
+#' HDAnalyzeR palettes
 #'
-#' `hd_palettes()` returns a list of color palettes used by the Human Protein Atlas (HPA) project.
+#' `hd_palettes()` returns a list of palettes used by the Human Disease Blood Atlas resource of the Human Protein Atlas (HPA) project.
 #'
-#' @return List of HPA color palettes.
+#' @return List of HDAnalyzeR palettes.
+#' @details
+#' Some of the palettes are custom palettes created for the Human Disease Blood Atlas team.
+#' Others are taken from the `ggsci` package, which provides palettes inspired by scientific journals.
+#'
 #' @export
 #'
 #' @examples
@@ -199,14 +203,14 @@ hd_palettes <- function() {
 }
 
 
-#' Display available color palettes
+#' Display available palettes
 #'
-#' `hd_show_palettes()` displays a grid of color palettes.
+#' `hd_show_palettes()` displays a grid of palettes.
 #'
-#' @param palettes A list of color palettes. Defaults to all palettes from `hd_palettes()`.
+#' @param palettes A list of palettes. Defaults to all palettes from `hd_palettes()`.
 #' @param n The number of colors to show for each palette. If `NULL`, all colors are shown.
 #'
-#' @return A ggplot2 plot showing the color palettes.
+#' @return A ggplot2 plot showing the palettes.
 #' @export
 #'
 #' @examples
@@ -250,12 +254,12 @@ hd_show_palettes <- function(palettes = hd_palettes(), n = NULL) {
 }
 
 
-#' HPA color scales
+#' HDAnalyzeR color scales
 #'
-#' `scale_color_hd()` creates a ggplot2 scale for color aesthetics using the color
-#' palettes from the Human Protein Atlas (HPA) project.
+#' `scale_color_hd()` creates a ggplot2 scale for color aesthetics using the HDAnalyzeR
+#' palettes.
 #'
-#' @param palette The name of the palette to use. It should be one of the palettes from `get_hpa_palettes()`.
+#' @param palette The name of the palette to use. It should be one of the palettes from `hd_palettes()`.
 #'
 #' @return A ggplot2 scale for color aesthetics.
 #' @export
@@ -286,12 +290,12 @@ scale_color_hd <- function(palette) {
 }
 
 
-#' HPA fill scales
+#' HDAnalyzeR fill scales
 #'
-#' `scale_fill_hd()` creates a ggplot2 scale for fill aesthetics using the color
-#' palettes from the Human Protein Atlas (HPA) project.
+#' `scale_fill_hd()` creates a ggplot2 scale for fill aesthetics using the HDAnalyzeR
+#' palettes.
 #'
-#' @param palette The name of the palette to use. It should be one of the palettes from `get_hpa_palettes()`.
+#' @param palette The name of the palette to use. It should be one of the palettes from `hd_palettes()`.
 #'
 #' @return A ggplot2 scale for fill aesthetics.
 #' @export

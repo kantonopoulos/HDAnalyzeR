@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{hd_model_lr}
 \alias{hd_model_lr}
-\title{Run logistic regression model pipeline}
+\title{Logistic regression model pipeline}
 \usage{
 hd_model_lr(
   dat,
@@ -22,7 +22,7 @@ hd_model_lr(
 \arguments{
 \item{dat}{An \code{hd_model} object or a list containing the train and test data.}
 
-\item{variable}{The name of the column containing the case and control groups. Default is "Disease".}
+\item{variable}{The name of the metadata variable containing the case and control groups. Default is "Disease".}
 
 \item{case}{The case class.}
 
@@ -34,30 +34,34 @@ hd_model_lr(
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
 
-\item{plot_y_labels}{Whether to show y-axis labels in the variable importance plot. Default is TRUE.}
+\item{plot_y_labels}{Whether to show y-axis labels in the feature importance plot. Default is TRUE.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
-\item{plot_title}{Vector of title elements to include in the plot.}
+\item{plot_title}{Vector of title elements to include in the plot. It should be a subset of \code{c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")}.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
 \value{
-A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+A model object containing the train and test data, the metrics, the ROC curve, the selected features and their importance.
 }
 \description{
 \code{hd_model_lr()} runs the logistic regression model pipeline. It creates
-class-balanced case-control groups for the train set, tunes the model, evaluates
-the model, and plots the variable importance.
+class-balanced case-control groups for the train set, fits the model, evaluates
+the model, and plots the feature importance and model performance.
 }
 \details{
 This model is ideal when the number of features is small. Otherwise, use
 \code{hd_model_rreg()} as it is more robust to high-dimensional data.
 The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
-will be used to impute. Logistic regression models are not supported for
-multiclass classification. \code{case} is required for binary classification. If
+will be used to impute. If less than 3 features are selected, the feature
+importance plot will not be generated.
+
+Logistic regression models are not supported for
+multiclass classification, so \code{case} argument is always required. If
 multi-class classification is needed, use \code{hd_model_rreg()} instead.
+This function utilizes the "glm" engine.
 }
 \examples{
 # Initialize an HDAnalyzeR object with only a subset of the predictors
