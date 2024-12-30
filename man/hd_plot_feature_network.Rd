@@ -32,6 +32,7 @@ classes and the smaller nodes represent the features. The color of the nodes is 
 color variable which can be either the importance, the logFC or any value that can rank the features.
 }
 \examples{
+\dontrun{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -64,4 +65,5 @@ hd_plot_feature_network(feature_panel,
                         plot_color = "logFC",
                         class_palette = "cancers12",
                         importance_palette = c("high" = "red4", "low" = "grey90"))
+}
 }
