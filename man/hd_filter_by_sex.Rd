@@ -7,7 +7,7 @@
 hd_filter_by_sex(dat, metadata = NULL, variable = "Sex", sex)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
@@ -19,7 +19,8 @@ hd_filter_by_sex(dat, metadata = NULL, variable = "Sex", sex)
 A list containing the filtered data and metadata.
 }
 \description{
-Filter data and metadata by sex
+\code{hd_filter_by_sex()} filters the data and metadata by the metadata Sex variable and a specified value.
+It can be used in cases of sex specific diseases before running differential expression or classification analysis.
 }
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata

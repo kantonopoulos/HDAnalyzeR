@@ -14,7 +14,7 @@ hd_normalize(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{metadata}{A dataset containing the metadata information. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
@@ -31,8 +31,7 @@ The normalized dataset.
 }
 \description{
 \code{hd_normalize()} normalizes the data by scaling them and removing their batch effects.
-It first converts the data to wide format if they are not already. It then removes
-the batch effects and scales or centers the data. To remove batch effects, it uses the
+It removes the batch effects and scales or centers the data. To remove batch effects, it uses the
 \code{remove_batch_effects()}, that utilizes limma package. For scaling, it uses the \code{scale()}
 from base R.
 }
@@ -45,11 +44,18 @@ as well as about the method for removing batch effects in the documentation of t
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Center data
-hd_normalize(hd_object, center = TRUE, scale = FALSE)
+scaled_dat <- hd_normalize(hd_object, center = TRUE, scale = FALSE)
+scaled_dat$data
+round(mean(scaled_dat$data$ABL1, na.rm = TRUE), 4)  # should be 0
+round(sd(scaled_dat$data$ABL1, na.rm = TRUE), 4)
 
 # Center and scale data (z-score scaling)
-hd_normalize(hd_object, center = TRUE, scale = TRUE)
+scaled_dat <- hd_normalize(hd_object, center = TRUE, scale = TRUE)
+scaled_dat$data
+round(mean(scaled_dat$data$ABL1, na.rm = TRUE), 4)  # should be 0
+round(sd(scaled_dat$data$ABL1, na.rm = TRUE), 4)  # should be 1
 
 # Center, scale and remove batch effects
-hd_normalize(hd_object, batch = "Cohort")
+scaled_dat <- hd_normalize(hd_object, batch = "Cohort")
+scaled_dat$data
 }

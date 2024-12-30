@@ -7,7 +7,7 @@
 hd_umap(dat, by_sample = TRUE, components = 2, seed = 123)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
 

@@ -14,7 +14,7 @@ hd_cluster(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{distance_method}{The distance method to use. Default is "euclidean".
 Other options are "maximum", "manhattan", "canberra", "binary" or "minkowski".}
@@ -34,8 +34,8 @@ A list with the dataset ordered according to the clustering of the rows and colu
 }
 \description{
 \code{hd_cluster()} takes a dataset and returns the same dataset ordered
-according to the hierarchical clustering of the rows and columns. This data
-can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
+according to the clustering method of the rows and columns. This dataset
+can then be used to plot a heatmap with ggplot2 that is not having clustering functionality.
 }
 \details{
 You can read more about the distance and clustering methods in the documentation

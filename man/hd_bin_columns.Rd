@@ -2,24 +2,28 @@
 % Please edit documentation in R/utils.R
 \name{hd_bin_columns}
 \alias{hd_bin_columns}
-\title{Bin columns}
+\title{Bin variables}
 \usage{
 hd_bin_columns(dat, column_types, bins = 5, round_digits = 0)
 }
 \arguments{
 \item{dat}{The data to bin.}
 
-\item{column_types}{A vector containing the type of each column in the dataframe.}
+\item{column_types}{A vector containing the type of each variable (column) in the dataframe.}
 
 \item{bins}{The number of bins to create. Default is 5.}
 
 \item{round_digits}{The number of digits to round the bin ranges to. Default is 0.}
 }
 \value{
-The data with binned continuous columns.
+The data with continuous variables binned.
 }
 \description{
-\code{hd_bin_columns()} bins continuous columns and labels them with ranges.
+\code{hd_bin_columns()} bins continuous variables and labels them with ranges.
+}
+\details{
+In case of a dataset with many variables, it is recommended to use the function
+\code{hd_detect_vartype()} to automatically detect the type of each variable. See examples.
 }
 \examples{
 # Example dataframe
@@ -31,4 +35,13 @@ test_data <- data.frame(
 
 column_types <- c("continuous", "continuous", "categorical")
 hd_bin_columns(test_data, column_types, bins = 3)
+
+# Automatically detect variable types
+test_data <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
+                        Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9))
+column_types <- sapply(test_data, hd_detect_vartype)
+
+# The variable to be binned has one significant digit
+# So we will also round the bins to one digit
+hd_bin_columns(test_data, column_types, bins = 3, round_digits = 1)
 }

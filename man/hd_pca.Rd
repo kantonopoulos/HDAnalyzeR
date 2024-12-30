@@ -7,7 +7,7 @@
 hd_pca(dat, components = 10, by_sample = TRUE, seed = 123)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{components}{The number of PCs to be calculated. Default is 10.}
 

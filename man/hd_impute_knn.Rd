@@ -7,9 +7,9 @@
 hd_impute_knn(dat, k = 5, verbose = TRUE)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
-\item{k}{The number of neighbors to consider for imputation.}
+\item{k}{The number of neighbors to consider for imputation. Default is 5.}
 
 \item{verbose}{If TRUE, the percentage of missing values in each column is displayed.}
 }
@@ -18,9 +18,8 @@ The imputed dataset.
 }
 \description{
 \code{hd_impute_knn()} imputes missing values in a dataset using the k-nearest neighbors method.
-It allows the user to exclude certain columns from imputation and can also display the
-percentage of missing values in each column before imputation. The user can also specify
-the number of neighbors to consider for imputation.
+It can also display the percentage of missing values in each column before imputation.
+The user can also specify the number of neighbors to consider for imputation.
 }
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata

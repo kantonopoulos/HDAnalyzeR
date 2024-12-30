@@ -1,10 +1,10 @@
 #' Cluster data
 #'
 #' `hd_cluster()` takes a dataset and returns the same dataset ordered
-#' according to the hierarchical clustering of the rows and columns. This data
-#' can be used to plot a heatmap with ggplot2 that is not having clustering functionality.
+#' according to the clustering method of the rows and columns. This dataset
+#' can then be used to plot a heatmap with ggplot2 that is not having clustering functionality.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param distance_method The distance method to use. Default is "euclidean".
 #' Other options are "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param clustering_method The clustering method to use. Default is "ward.D2".
