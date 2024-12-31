@@ -34,7 +34,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -80,15 +80,15 @@
 
 
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
-<dd><p>The name of the columns to exclude from the transformation.</p></dd>
+<dd><p>The name of the columns to exclude from the transformation. Default is "DAid".</p></dd>
 
 
 <dt id="arg-names-to">names_to<a class="anchor" aria-label="anchor" href="#arg-names-to"></a></dt>
-<dd><p>The name of the column to create for the variable names.</p></dd>
+<dd><p>The name of the column to create for the variable names. Default is "Assay".</p></dd>
 
 
 <dt id="arg-values-to">values_to<a class="anchor" aria-label="anchor" href="#arg-values-to"></a></dt>
-<dd><p>The name of the column to create for the values.</p></dd>
+<dd><p>The name of the column to create for the values. Default is "NPX".</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -137,6 +137,26 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> DA00001 ACP6    2.15  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> DA00001 ACTA2   2.81  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> DA00001 ACTN4   0.742 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 58,590 more rows</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use Sample name instead of Sample ID and Olink IDs instead of Assay names</span></span></span>
+<span class="r-in"><span><span class="va">example_data_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_widen_data.html">hd_widen_data</a></span><span class="op">(</span><span class="va">example_data</span>,</span></span>
+<span class="r-in"><span>                                   exclude <span class="op">=</span> <span class="st">"Sample"</span>,</span></span>
+<span class="r-in"><span>                                   names_from <span class="op">=</span> <span class="st">"OlinkID"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">hd_long_data</span><span class="op">(</span><span class="va">example_data_wide</span>, exclude <span class="op">=</span> <span class="st">"Sample"</span>, names_to <span class="op">=</span> <span class="st">"OlinkID"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 58,600 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Sample    OlinkID      NPX</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AML_syn_1 OID21311  3.39  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> AML_syn_1 OID21280  2.76  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> AML_syn_1 OID21269  1.71  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> AML_syn_1 OID20159  0.033<span style="text-decoration: underline;">3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> AML_syn_1 OID20105  1.76  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> AML_syn_1 OID20124 -<span style="color: #BB0000;">0.919</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> AML_syn_1 OID20314  1.54  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> AML_syn_1 OID21432  2.15  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> AML_syn_1 OID20079  2.81  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> AML_syn_1 OID20435  0.742 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 58,590 more rows</span></span>
 </code></pre></div>
     </div>

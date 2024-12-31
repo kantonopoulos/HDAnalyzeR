@@ -34,7 +34,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -138,7 +138,7 @@ Fixed an issue in <code><a href="../reference/hd_auto_pca.html">hd_auto_pca()</a
 <li>Merged <code><a href="../reference/qc_summary_data.html">qc_summary_data()</a></code> and <code><a href="../reference/qc_summary_metadata.html">qc_summary_metadata()</a></code> into a single function, <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code>, which now visualizes all metadata columns.</li>
 </ul></li>
 <li>
-<strong>Simplified Normality Checks:</strong><br>
+<strong>Removed Normality Checks:</strong><br>
 Removed automatic normality checks for large datasets due to sensitivity issues. Instead, users are encouraged to use histograms or QQ plots for this purpose.</li>
 </ul></div>
 <div class="section level3">

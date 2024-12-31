@@ -55,7 +55,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -98,10 +98,10 @@
 
     
     
-<p>This vignette will guide you through the differential expression
-analysis of your data. We will load HDAnalyzeR and dplyr, load the
-example data and metadata that come with the package and initialize the
-HDAnalyzeR object.</p>
+<p>This vignette will show you how you can easily construct machine
+learning pipelines using HDAnalyzeR. We will load HDAnalyzeR and dplyr,
+load the example data and metadata that come with the package and
+initialize the HDAnalyzeR object.</p>
 <div class="section level2">
 <h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
 </h2>
@@ -118,8 +118,9 @@ HDAnalyzeR object.</p>
 <blockquote>
 <p>📓 In the whole vignette the <code>verbose</code> parameter of the
 model functions will be set to FALSE in order to keep this guide clean
-and concise. However, in a real case we recommend to leave it to default
-(TRUE) in order to know the model’s progress.</p>
+and concise. However, we recommend to leave it to default (TRUE) in
+order to know the model’s progress and that everything is running
+smoothly.</p>
 </blockquote>
 </div>
 <div class="section level2">
@@ -127,13 +128,13 @@ and concise. However, in a real case we recommend to leave it to default
 </h2>
 <p>First, we will create the data split object using the
 <code><a href="../reference/hd_split_data.html">hd_split_data()</a></code> function. This function will create a list
-of data frames with the training and testing sets. We can change the
-ratio of the training and testing sets, the seed for reproducibility,
-and the variable to classify. We can also add metadata columns as
-predictors in this stage. In this example, we will use the
-<code>Disease</code> column as the variable to classify and the
-<code>Sex</code> and <code>Age</code> columns as a metadata
-predictor.</p>
+of the train and test sets. We can change the ratio of the train and
+test sets, the seed for reproducibility, and the metadata variable to
+classify. At this stage, we can also add metadata columns as
+predictors.</p>
+<p>We will use the <code>Disease</code> column as the variable to
+classify and the <code>Sex</code> and <code>Age</code> columns as a
+metadata predictor.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                           variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
@@ -149,13 +150,14 @@ predictor.</p>
 </h3>
 <p>Let’s start with a regularized regression LASSO model via
 <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>. Exactly like in the previous vignette with
-the differential expression functions, we have to state the case and
-control(s) groups. To do specifically LASSO we will set the
+the differential expression functions, we have to state the variable,
+case and control(s) groups. To do specifically LASSO we will set the
 <code>mixture</code> parameter to 1. We will also set the
 <code>verbose</code> parameter to <code>FALSE</code> to not print the
 progress of the model in shake of clarity for this vignette.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
+<span>                           variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                           case <span class="op">=</span> <span class="st">"AML"</span>,</span>
 <span>                           control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CLL"</span>, <span class="st">"MYEL"</span>, <span class="st">"GLIOM"</span><span class="op">)</span>,</span>
 <span>                           grid_size <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -208,7 +210,7 @@ progress of the model in shake of clarity for this vignette.</p>
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
 <p>We can change several parameters in the <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 function. For example, we can change the number of cross-validation
@@ -219,7 +221,7 @@ function will use all the other classes as controls. For more
 information, please refer to <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 documentation.</p>
 <p>We will also set mixture to NULL to allow the model to optimize this
-parameter (elastic net regression instead of LASSO regression) and set a
+parameter as well (elastic net regression instead of LASSO) and set a
 palette for our classes.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>,</span>
@@ -260,7 +262,7 @@ palette for our classes.</p>
 even a different algorithm like random forest via
 <code><a href="../reference/hd_model_rf.html">hd_model_rf()</a></code>. However, do not forget that we should create
 a new split object for this new model. In this case, because the classes
-are already balanced, we will not use the <code>balance_groups</code>
+are already balanced, we will set the <code>balance_groups</code>
 parameter to FALSE to consider all the samples in the training dataset.
 Let’s also remove everything except from number of features and AUC from
 the variable importance plot title.</p>
@@ -276,6 +278,10 @@ the variable importance plot title.</p>
 <span>                       balance_groups <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                       plot_title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"features"</span>, <span class="st">"auc"</span><span class="op">)</span>,</span>
 <span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="logistic-regression">Logistic Regression<a class="anchor" aria-label="anchor" href="#logistic-regression"></a>
+</h3>
 <p>If our data have a single predictor, we can use
 <code><a href="../reference/hd_model_lr.html">hd_model_lr()</a></code> instead of <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code> to
 perform a logistic regression. Random forest can be used as it was for
@@ -303,7 +309,7 @@ them with <code><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feat
 case vs control or case vs all other classes by changing the
 <code>type</code> argument.</p>
 <blockquote>
-<p>📓 In case you have metadata variables as features, you will have to
+<p>⚠️ In case you have metadata variables as features, you will have to
 remove them from the feature vector before using the
 <code><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feature_boxplot()</a></code> function as it is made to
 visualize protein features.</p>
@@ -326,7 +332,8 @@ visualize protein features.</p>
 <span>                        features <span class="op">=</span> <span class="va">features</span>, </span>
 <span>                        case <span class="op">=</span> <span class="st">"AML"</span>, </span>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
-<span>                        type <span class="op">=</span> <span class="st">"case_vs_control"</span><span class="op">)</span></span></code></pre></div>
+<span>                        type <span class="op">=</span> <span class="st">"case_vs_control"</span>,</span>
+<span>                        points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -381,7 +388,7 @@ regression!</p>
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
 </div>
 <div class="section level2">
@@ -395,7 +402,7 @@ parameter set to NULL. Let’s see an example with the <code>Age</code>
 variable. Do not forget that we have to create a new split object for
 this new model with <code>Age</code> as the variable of interest.</p>
 <blockquote>
-<p>📓 We should not forget to update the <code>plot_title</code>
+<p>⚠️ We should not forget to update the <code>plot_title</code>
 argument by changing the metrics from “accuracy”, “sensitivity”,
 “apwcificity”, and “auc” to “rmse” and “rsq”.</p>
 </blockquote>
@@ -435,7 +442,7 @@ argument by changing the metrics from “accuracy”, “sensitivity”,
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">comparison_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">var_imp_plot</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
 <p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" width="700"></p>
 </div>
 <div class="section level2">
@@ -444,10 +451,10 @@ argument by changing the metrics from “accuracy”, “sensitivity”,
 <p>Furthermore, we can validate our trained model in new data. For this
 example we will not use another dataset, but we will split the data
 initially to create a train and a validation set and then split the
-validation set to a train and a test set. We will use this second split
-to initially train the model and then evaluate it with the validation
-data. In a real case scenario, you can do either this, or use a
-completely different dataset to check that our model generalizes
+train set to an inner train and a test set. We will use this second
+split to initially train the model and then evaluate it with the
+validation data. In a real case scenario, you can do either this, or use
+a completely different dataset to check that the model generalizes
 properly. We will use the <code><a href="../reference/hd_model_test.html">hd_model_test()</a></code> function to do
 this. Let’s see an example with the AML model.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -560,10 +567,10 @@ integrate that into our pipeline using the
 <p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" width="700"></p>
 <p>In case we have one case and multiple controls we can use the
 <code><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap()</a></code> function to visualize the protein
-features in a heatmap. This function is usefull as we can easily see if
+features in a heatmap. This function is useful as we can easily see if
 the same features are important in multiple models. Let’s see an example
-with the AML model and 3 different controls groups. We will also combine
-DE results of the same comparisons.</p>
+with the AML model and 3 different controls groups. We will combine DE
+results of the same comparisons.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>

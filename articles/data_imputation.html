@@ -55,7 +55,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -100,8 +100,8 @@
     
 <p>This vignette will guide you to the different imputation methods
 HDAnalyzeR offers. First of all, we will load the package, as well as
-dplyr, ggplot2 and patchwork for data manipulation and visualization. We
-will also load and widen the Olink example dataset.</p>
+dplyr, ggplot2 and patchwork for data manipulation and
+visualization.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -125,7 +125,13 @@ the package and initialize the HDAnalyzeR object.</p>
 </h2>
 <p>We can simply check our data for NA values by using the
 <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> as we did in previous vignettes. This time
-we will use something specific to NA</p>
+we will use something specific to NA values, the
+<code><a href="../reference/hd_na_search.html">hd_na_search()</a></code> function. This function will return a
+summary heatmap showing the distribution of NA values across the data
+and metadata variables. This function is ideal to dive into the missing
+values and understand if there are any patterns in the missing data.
+This is important in order to decide how to handle them (e.g., impute or
+remove).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">na_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_na_search.html">hd_na_search</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
 <span>                       annotation_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"Age"</span>, <span class="st">"Disease"</span><span class="op">)</span>,</span>
@@ -136,10 +142,10 @@ we will use something specific to NA</p>
 <span></span>
 <span><span class="va">na_res</span><span class="op">$</span><span class="va">na_heatmap</span></span></code></pre></div>
 <p><img src="data_imputation_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>This heatmap is useful to evaluate if there are NA specific patterns
-in the data. In this case, we can see that the NA values are spread
-across the different Assays, samples and metadata variables. In this
-case, we can try impute them!</p>
+<p>In this case, we can see that the NA values are generally spread
+across the different Assays, samples and metadata variables. There is a
+higher concentration of missing values in Myeloma that may require
+further investigation. In our case, we will try impute them!</p>
 </div>
 <div class="section level2">
 <h2 id="imputation-methods">Imputation Methods<a class="anchor" aria-label="anchor" href="#imputation-methods"></a>
@@ -151,7 +157,8 @@ case, we can try impute them!</p>
 which is the median imputation by using the
 <code><a href="../reference/hd_impute_median.html">hd_impute_median()</a></code>. After the imputation, we will check the
 sample distribution of a random Assay that contains missing values to
-see if these values are imputed logically.</p>
+see if these values are imputed logically. In a real case, this check
+should be done to more than just one assay.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imputed_hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_impute_median.html">hd_impute_median</a></span><span class="op">(</span><span class="va">hd_obj</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -174,9 +181,9 @@ see if these values are imputed logically.</p>
 <span><span class="va">plot_before</span> <span class="op">+</span> <span class="va">plot_after</span></span></code></pre></div>
 <p><img src="data_imputation_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <p>As observed in the plots, the distribution of the ACTA2 assay shifts
-slightly after imputation, with an exaggerated median value in the
-imputed data. This highlights a key drawback of median imputation: the
-more missing values there are, the greater the potential bias.</p>
+after imputation, with an exaggerated median value in the imputed data.
+This highlights a key drawback of median imputation: the more missing
+values there are, the greater the potential bias.</p>
 </div>
 <div class="section level3">
 <h3 id="knn-imputation">KNN Imputation<a class="anchor" aria-label="anchor" href="#knn-imputation"></a>
@@ -239,14 +246,14 @@ iterations.</p>
 <span></span>
 <span><span class="va">plot_before</span> <span class="op">+</span> <span class="va">plot_after</span></span></code></pre></div>
 <p><img src="data_imputation_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<p>The MissForest imputation method is the most accurate and also very
-robust, as it uses the random forest algorithm to impute missing values.
-This method is particularly useful for large datasets with complex
-relationships between variables. On the other hand, it is the most
-computationally expensive and it would help parallelize it. You can do
-that by creating and registering a cluster with a package like
-<code>doParallel</code> and then setting the <code>parallelize</code>
-argument to “forests” or “variables”.</p>
+<p>The MissForest imputation method is usually the most accurate and
+also very robust, as it uses the complex random forest algorithm to
+impute missing values. This method is particularly useful for large
+datasets with complex relationships between variables. On the other
+hand, it is by far the most computationally expensive and it would help
+parallelize it. You can do that by creating and registering a cluster
+with a package like <code>doParallel</code> and then setting the
+<code>parallelize</code> argument to “forests” or “variables”.</p>
 <blockquote>
 <p>📓 All methods assume that the data is missing at random, which is a
 common assumption in imputation methods. If the data are missing in a
@@ -260,10 +267,10 @@ represent.</p>
 <div class="section level2">
 <h2 id="removing-missing-values-instead-of-imputing">Removing Missing Values instead of Imputing<a class="anchor" aria-label="anchor" href="#removing-missing-values-instead-of-imputing"></a>
 </h2>
-<p>If for any reason do not want to impute the data, you can use the
-<code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code> function to remove the rows with missing
-values in specific variables. This function will remove all rows with
-missing values in any of the assays.</p>
+<p>If for any reason you do not want to impute the data, you can use the
+<code><a href="../reference/hd_omit_na.html">hd_omit_na()</a></code> function to easily remove the rows with
+missing values in specific variables. In this example, we will remove
+all rows with missing values in any of the assays.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imputed_hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_omit_na.html">hd_omit_na</a></span><span class="op">(</span><span class="va">hd_obj</span><span class="op">)</span></span>
 <span></span>
@@ -310,12 +317,12 @@ missing values in any of the assays.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ADGRG1 &lt;dbl&gt;, ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   AGR3 &lt;dbl&gt;, AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   AIF1 &lt;dbl&gt;, AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, …</span></span></span></code></pre></div>
-<p>In this vignette we showed that via HDAnalyzeR the user can impute
-their data with different methods, each of them with its own advantages
-and drawbacks. The user can choose the method that best fits their data
-and their analysis needs. When using KNN or MissForest imputation
-methods, the user should experiment with the parameters and look at the
-distributions of assays before and after to pick the most suitable.</p>
+<p>In this vignette we showed that via HDAnalyzeR you can impute your
+data with different methods, each of them with its own advantages and
+drawbacks. You can choose the method that best fits your data and your
+analysis needs. When using KNN or MissForest imputation methods, you
+should experiment with the parameters and look at the distributions of
+assays before and after to pick the most suitable.</p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.

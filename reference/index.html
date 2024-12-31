@@ -34,7 +34,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -88,7 +88,7 @@
           <code><a href="hd_save_data.html">hd_save_data()</a></code>
 
         </dt>
-        <dd>Save tibbles or R objects</dd>
+        <dd>Save tibble or R object</dd>
       </dl><dl><dt>
 
           <code><a href="hd_import_data.html">hd_import_data()</a></code>
@@ -112,7 +112,7 @@
           <code><a href="hd_bin_columns.html">hd_bin_columns()</a></code>
 
         </dt>
-        <dd>Bin columns</dd>
+        <dd>Bin variables</dd>
       </dl><dl><dt>
 
           <code><a href="hd_detect_vartype.html">hd_detect_vartype()</a></code>
@@ -194,13 +194,13 @@
           <code><a href="hd_na_search.html">hd_na_search()</a></code>
 
         </dt>
-        <dd>Summary of missing values</dd>
+        <dd>Heatmap summary of missing values</dd>
       </dl><dl><dt>
 
           <code><a href="hd_qc_summary.html">hd_qc_summary()</a></code>
 
         </dt>
-        <dd>Summarize the quality control results of the input dataset</dd>
+        <dd>Summarize quality control information</dd>
       </dl></div><div class="section level2">
 
       <h3 id="correlation-and-clustering">Correlation and Clustering<a class="anchor" aria-label="anchor" href="#correlation-and-clustering"></a></h3>
@@ -317,7 +317,7 @@
           <code><a href="hd_plot_volcano.html">hd_plot_volcano()</a></code>
 
         </dt>
-        <dd>Create volcano plots</dd>
+        <dd>Visualize differential expression results</dd>
       </dl></div><div class="section level2">
 
       <h3 id="classification-models">Classification Models<a class="anchor" aria-label="anchor" href="#classification-models"></a></h3>
@@ -334,25 +334,25 @@
           <code><a href="hd_split_data.html">hd_split_data()</a></code>
 
         </dt>
-        <dd>Split data into training and test sets</dd>
+        <dd>Split data</dd>
       </dl><dl><dt>
 
           <code><a href="hd_model_lr.html">hd_model_lr()</a></code>
 
         </dt>
-        <dd>Run logistic regression model pipeline</dd>
+        <dd>Logistic regression model pipeline</dd>
       </dl><dl><dt>
 
           <code><a href="hd_model_rreg.html">hd_model_rreg()</a></code>
 
         </dt>
-        <dd>Run regularized regression model pipeline</dd>
+        <dd>Regularized regression model pipeline</dd>
       </dl><dl><dt>
 
           <code><a href="hd_model_rf.html">hd_model_rf()</a></code>
 
         </dt>
-        <dd>Run random forest model pipeline</dd>
+        <dd>Random forest model pipeline</dd>
       </dl><dl><dt>
 
           <code><a href="hd_model_test.html">hd_model_test()</a></code>
@@ -375,19 +375,19 @@
           <code><a href="hd_plot_de_summary.html">hd_plot_de_summary()</a></code>
 
         </dt>
-        <dd>Plot summary visualizations for the differential expression results</dd>
+        <dd>Summarize differential expression results</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_model_summary.html">hd_plot_model_summary()</a></code>
 
         </dt>
-        <dd>Plot features summary visualizations</dd>
+        <dd>Summarize model features</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_feature_heatmap.html">hd_plot_feature_heatmap()</a></code>
 
         </dt>
-        <dd>Plot a summary heatmap of the combined differential expression and classification models results</dd>
+        <dd>Summary the combined DE and model results</dd>
       </dl></div><div class="section level2">
 
       <h3 id="other-visualizations">Other Visualizations<a class="anchor" aria-label="anchor" href="#other-visualizations"></a></h3>
@@ -404,19 +404,19 @@
           <code><a href="hd_plot_regression.html">hd_plot_regression()</a></code>
 
         </dt>
-        <dd>Visualize scatter plot with regression line</dd>
+        <dd>Regression plot</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_feature_boxplot.html">hd_plot_feature_boxplot()</a></code>
 
         </dt>
-        <dd>Plot feature boxplots</dd>
+        <dd>Feature boxplots</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_feature_network.html">hd_plot_feature_network()</a></code>
 
         </dt>
-        <dd>Plot feature network</dd>
+        <dd>Feature network</dd>
       </dl></div><div class="section level2">
       <h2 id="post-analysis">Post Analysis<a class="anchor" aria-label="anchor" href="#post-analysis"></a></h2>
 
@@ -433,31 +433,31 @@
           <code><a href="hd_literature_search.html">hd_literature_search()</a></code>
 
         </dt>
-        <dd>Run literature search for gene-disease pairs in PubMed</dd>
+        <dd>PubMed literature search</dd>
       </dl><dl><dt>
 
           <code><a href="hd_ora.html">hd_ora()</a></code>
 
         </dt>
-        <dd>Run over-representation analysis</dd>
+        <dd>Over-representation analysis</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_ora.html">hd_plot_ora()</a></code>
 
         </dt>
-        <dd>Generate visualizations for the over-representation analysis</dd>
+        <dd>Plot over-representation analysis</dd>
       </dl><dl><dt>
 
           <code><a href="hd_gsea.html">hd_gsea()</a></code>
 
         </dt>
-        <dd>Perform gene set enrichment analysis</dd>
+        <dd>Gene set enrichment analysis</dd>
       </dl><dl><dt>
 
           <code><a href="hd_plot_gsea.html">hd_plot_gsea()</a></code>
 
         </dt>
-        <dd>Plot the results of the gene set enrichment analysis</dd>
+        <dd>Plot gene set enrichment analysis</dd>
       </dl></div><div class="section level2">
       <h2 id="palettes-and-themes">Palettes and Themes<a class="anchor" aria-label="anchor" href="#palettes-and-themes"></a></h2>
 
@@ -474,31 +474,31 @@
           <code><a href="hd_show_palettes.html">hd_show_palettes()</a></code>
 
         </dt>
-        <dd>Display available color palettes</dd>
+        <dd>Display available palettes</dd>
       </dl><dl><dt>
 
           <code><a href="hd_palettes.html">hd_palettes()</a></code>
 
         </dt>
-        <dd>HDAnalyzeR color palettes</dd>
+        <dd>HDAnalyzeR palettes</dd>
       </dl><dl><dt>
 
           <code><a href="scale_color_hd.html">scale_color_hd()</a></code>
 
         </dt>
-        <dd>HPA color scales</dd>
+        <dd>HDAnalyzeR color scales</dd>
       </dl><dl><dt>
 
           <code><a href="scale_fill_hd.html">scale_fill_hd()</a></code>
 
         </dt>
-        <dd>HPA fill scales</dd>
+        <dd>HDAnalyzeR fill scales</dd>
       </dl><dl><dt>
 
           <code><a href="theme_hd.html">theme_hd()</a></code>
 
         </dt>
-        <dd>HPA theme</dd>
+        <dd>HDAnalyzeR theme</dd>
       </dl></div><div class="section level2">
       <h2 id="built-in-datasets">Built in datasets<a class="anchor" aria-label="anchor" href="#built-in-datasets"></a></h2>
 

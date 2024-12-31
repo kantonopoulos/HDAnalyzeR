@@ -38,7 +38,7 @@ is indicated by the color of the bars."><meta property="og:image" content="https
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -106,6 +106,7 @@ is indicated by the color of the bars.</p>
 <span class="r-in"><span><span class="co"># Run the PCA analysis and create the loadings plot</span></span></span>
 <span class="r-in"><span><span class="va">pca_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_pca.html">hd_pca</a></span><span class="op">(</span><span class="va">hd_object</span>, components <span class="op">=</span> <span class="fl">5</span>, by_sample <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">hd_plot_pca_loadings</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pca_object</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></span>
 <span class="r-plt img"><img src="hd_plot_pca_loadings-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>

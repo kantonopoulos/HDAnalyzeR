@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Data Preprocessing &amp; Quality Control Check • HDAnalyzeR</title>
+<title>Exploratory Data Analysis • HDAnalyzeR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Data Preprocessing &amp; Quality Control Check">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Exploratory Data Analysis">
 </head>
 <body>
 <p>
@@ -55,7 +55,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -89,7 +89,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Data Preprocessing &amp; Quality Control Check</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/HDA1472/HDAnalyzeR/blob/main/vignettes/data_preprocessing.Rmd" class="external-link"><code>vignettes/data_preprocessing.Rmd</code></a></small>
@@ -98,22 +98,24 @@
 
     
     
-<p>This vignette will guide you through the initial steps of data
-preprocessing. Except from HDAnalyzeR we will import viridis for the
-color palettes.</p>
+<p>This vignette will guide you through the initial steps of a
+proteomics pipeline, which is the exploratory data analysis. Except from
+HDAnalyzeR we will import viridis for the color palettes.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">viridis</a></span><span class="op">)</span></span></code></pre></div>
 <blockquote>
-<p>📓 This vignette is just a basic example of how to preprocess the
-data and perform quality control. Every dataset is different and may
-require different processing.</p>
+<p>📓 This vignette is just a basic example of how to explore the data
+and perform dimensionality reduction to identify potential issues and
+trends. However, every dataset is different and may require different
+exploration techniques other than the ones contained in the package.</p>
 </blockquote>
 <blockquote>
-<p>⚠️ Please make sure to check the data and metadata before proceeding
-with the analysis. For the most common proteomics data formats, we
-provide some recommendations in the package documentation under articles
-“Before using HDAnalyzeR”.</p>
+<p>⚠️ Please make sure to preprocess the data and metadata before
+proceeding with the analysis. For the most common proteomics data
+formats, we provide some recommendations in the package documentation
+under articles “Data Preparation for HDAnalyzeR: What You Need Before
+Using the Package”.</p>
 </blockquote>
 <div class="section level2">
 <h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
@@ -131,21 +133,28 @@ the package and initialize the HDAnalyzeR object.</p>
 <div class="section level2">
 <h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
 </h2>
-<p>Now, we will perform a quality control check on the data.
-<code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> will return the percentage of missing
-values for each column and row and histograms of their distributions
-both for data and metadata, the protein-protein correlation and the
-metadata variable distributions.</p>
+<p>Now, we will perform an automated exploratory data analysis (QC
+check) on the data. <code><a href="../reference/hd_qc_summary.html">hd_qc_summary()</a></code> will return the
+percentage of missing values for each column and row and histograms of
+their distributions both for data and metadata, the variable-variable
+(in this case protein-protein) correlation and the metadata variable
+distributions.</p>
+<blockquote>
+<p>⚠️ This should not be confused with the quality control of the data,
+which is a different process that is usually performed right after the
+proteomics experiments. The exploratory data analysis is a first step to
+understand the data and identify potential issues.</p>
+</blockquote>
 <p>As <code>variable</code> we should pass the column name of the
-metadata that we contains the different classes, for example the case
-and control groups, the different diseases, or the different stages of a
+metadata that contains the different classes, for example the case and
+control groups, the different diseases, or the different stages of a
 disease. The palettes are optional and can be used to color the plots of
 the metadata variable distributions. You should pass a list with the
 variable name and the palette name, for example list(Sex = c(“F” =
 “red”, “M” = “blue”), Disease = “cancers12”). As you can see, the
 palettes can be either a named vector or a character vector with the
 name of a palette from the package. You can display all available
-palettes by running <code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code>.</p>
+HDAnalyzeR palettes by running <code><a href="../reference/hd_show_palettes.html">hd_show_palettes()</a></code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_qc_summary.html">hd_qc_summary</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
 <span>                         variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
@@ -257,17 +266,17 @@ palettes by running <code><a href="../reference/hd_show_palettes.html">hd_show_p
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">BMI</span></span></code></pre></div>
 <p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-9.png" width="700"></p>
-<p>From the QC results we can see that all assays have less than 10%
+<p>From the EDA results we can see that all assays have less than 10%
 missing values, while only a few samples have more than 20% missing
 values. The protein-protein correlation plot shows that there are no
 extremely highly correlated proteins. Also, the metadata variable
 <code>Stage</code> has a high percentage of missing values that are not
 correctly stated as NA values but as “” or “Unknown”. These are only a
-few examples of the information that we can extract from the QC
+few examples of the information that we can extract from the EDA
 results.</p>
 <p>Based on these we can take decisions on filtering samples with high
-missing values, excluding assays and metadata variables from statistical
-analysis.</p>
+missing values, excluding whole assays and metadata variables from
+statistical analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="dimensionality-reduction">Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#dimensionality-reduction"></a>
@@ -275,12 +284,12 @@ analysis.</p>
 <p>Finally we will run a PCA and UMAP analysis on the data to check if
 the data contain any outliers or cluster in an unexpected way. From the
 PCA analysis we can also check how the variance in the data is explained
-by the different principal components. The PCA plot will be colored
-based on <code>Disease</code>, while the UMAP plot will be colored based
-on <code>Age</code>.</p>
+by the different principal components. In this example, we will color
+the PCA plot based on <code>Disease</code>, while the UMAP plot based on
+<code>Age</code>.</p>
 <p>The <code><a href="../reference/hd_pca.html">hd_pca()</a></code> and <code><a href="../reference/hd_umap.html">hd_umap()</a></code> functions will
 run the respective analysis while the <code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> will
-plot the data on a 2D plane. For the PCA analysis we can also utilize
+plot the data on a 2D plane. For the PCA analysis we can also use
 <code><a href="../reference/hd_plot_pca_loadings.html">hd_plot_pca_loadings()</a></code> and
 <code><a href="../reference/hd_plot_pca_variance.html">hd_plot_pca_variance()</a></code> to plot the loadings of the
 different proteins on the principal components and the variance
@@ -288,7 +297,8 @@ explained by each principal component respectively.</p>
 <p>In the <code><a href="../reference/hd_plot_dim.html">hd_plot_dim()</a></code> function we can pass the
 <code>color</code> parameter to color the data points based on a
 metadata variable. We should not forget to pass again the hd_obj object
-to the <code>metadata</code> argument!</p>
+to the <code>metadata</code> argument so the package can search the
+metadata and identify the <code>color</code> variable.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_pca.html">hd_pca</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">15</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"PC1"</span>, <span class="st">"PC2"</span>, color <span class="op">=</span> <span class="st">"Disease"</span>, palette <span class="op">=</span> <span class="st">"cancers12"</span>, axis_variance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -317,9 +327,10 @@ to the <code>metadata</code> argument!</p>
 <p><img src="data_preprocessing_files/figure-html/unnamed-chunk-4-3.png" width="700"></p>
 <p>This time we want to color based on a continuous variable, the
 <code>Age</code>. In this case, we can either bin the data into
-categories or use a continuous color palette after the plot is created.
-We will set the palette argument to NULL and use the
-<code>viridis</code> palette afterwards for this example.</p>
+categories using <code><a href="../reference/hd_bin_columns.html">hd_bin_columns()</a></code> and use a categorical
+palette as before or use a continuous color palette directly after the
+plot is created. We will do the second by setting the palette argument
+to NULL and using the <code>viridis</code> palette afterwards.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">umap_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_umap.html">hd_umap</a></span><span class="op">(</span><span class="va">hd_obj</span>, components <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_dim.html">hd_plot_dim</a></span><span class="op">(</span><span class="va">hd_obj</span>, <span class="st">"UMAP1"</span>, <span class="st">"UMAP2"</span>, color <span class="op">=</span> <span class="st">"Age"</span>, palette <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>

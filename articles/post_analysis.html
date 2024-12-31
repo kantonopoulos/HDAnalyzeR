@@ -55,7 +55,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -108,10 +108,8 @@ literature search is performed using the the PubMed database.</p>
 <div class="section level2">
 <h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
 </h2>
-<p>This vignette will guide you through the differential expression
-analysis of your data. We will load HDAnalyzeR and dplyr, load the
-example data and metadata that come with the package and initialize the
-HDAnalyzeR object.</p>
+<p>We will load HDAnalyzeR and dplyr, load the example data and metadata
+that come with the package and initialize the HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -179,7 +177,7 @@ or both up and down regulated proteins, as well as the adjusted P value
 and logFC limits to consider a protein as differentially expressed. The
 <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code> function will plot the results.</p>
 <blockquote>
-<p>📓 In this case, the function requires strictly differential
+<p>⚠️ In this case, the function requires strictly differential
 expression results.</p>
 </blockquote>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -204,8 +202,8 @@ expression results.</p>
 </h2>
 <p>Finally, let’s perform an automated literature search using the
 <code><a href="../reference/hd_literature_search.html">hd_literature_search()</a></code>. The function requires a list with
-disease names as names and proteins as values. We will create the list,
-run the search and preview the results.</p>
+disease names as names and genes/proteins as values. We will create the
+list, run the search and preview the results.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biomarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"acute myeloid leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FLT3"</span>, <span class="st">"EPO"</span><span class="op">)</span>,</span>
 <span>                   <span class="st">"chronic lymphocytic leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PARP1"</span>, <span class="st">"FCER2"</span><span class="op">)</span><span class="op">)</span></span>
@@ -217,11 +215,11 @@ run the search and preview the results.</p>
 <span><span class="co">#&gt; Searching for articles on FCER2 and chronic lymphocytic leukemia</span></span>
 <span></span>
 <span><span class="va">lit_res</span><span class="op">$</span><span class="va">`acute myeloid leukemia`</span><span class="op">$</span><span class="va">FLT3</span><span class="op">$</span><span class="va">title</span></span>
-<span><span class="co">#&gt; [1] "Case report: Identification of a novel &lt;i&gt;TOR1AIP2::ETV6&lt;/i&gt; transcript with &lt;i&gt;FLT3&lt;/i&gt;-ITD mutation in acute myeloid leukemia progressed from myelodysplastic syndrome."                                          </span></span>
-<span><span class="co">#&gt; [2] "Strategies for the treatment of acute myeloid leukemia with FLT3 mutations: a patent review."                                                                                                                       </span></span>
-<span><span class="co">#&gt; [3] "Discovery of 3-amide-pyrimidine-based derivatives as potential fms-like tyrosine receptor kinase 3 (FLT3) inhibitors for treating acute myelogenous leukemia."                                                      </span></span>
-<span><span class="co">#&gt; [4] "Discovery of pyridine-based derivatives as FLT3 inhibitors for the treatment of acute myeloid leukemia."                                                                                                            </span></span>
-<span><span class="co">#&gt; [5] "&lt;i&gt;FLT3&lt;/i&gt; mutation-related immune checkpoint molecule absent in melanoma 2 (&lt;i&gt;AIM2&lt;/i&gt;) contributes to immune infiltration in pediatric and adult acute myeloid leukemia: evidence from bioinformatics analysis."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Targeting FMS-like tyrosine kinase 3 (FLT3) in acute myeloid leukemia: Novel molecular approaches and therapeutic challenges."                                            </span></span>
+<span><span class="co">#&gt; [2] "Case report: Identification of a novel &lt;i&gt;TOR1AIP2::ETV6&lt;/i&gt; transcript with &lt;i&gt;FLT3&lt;/i&gt;-ITD mutation in acute myeloid leukemia progressed from myelodysplastic syndrome."</span></span>
+<span><span class="co">#&gt; [3] "Strategies for the treatment of acute myeloid leukemia with FLT3 mutations: a patent review."                                                                             </span></span>
+<span><span class="co">#&gt; [4] "Discovery of 3-amide-pyrimidine-based derivatives as potential fms-like tyrosine receptor kinase 3 (FLT3) inhibitors for treating acute myelogenous leukemia."            </span></span>
+<span><span class="co">#&gt; [5] "Discovery of pyridine-based derivatives as FLT3 inhibitors for the treatment of acute myeloid leukemia."</span></span></code></pre></div>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.

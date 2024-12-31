@@ -55,7 +55,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/before_using_hdanalyzer.html">Data Preparation for HDAnalyzeR: What You Need Before Using the Package</a></li>
-    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Data Preprocessing &amp; Quality Control Check</a></li>
+    <li><a class="dropdown-item" href="../articles/data_preprocessing.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/data_imputation.html">Data Imputation</a></li>
     <li><a class="dropdown-item" href="../articles/differential_expression.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/classification.html">Machine Learning Models</a></li>
@@ -120,14 +120,19 @@ object.</p>
 </h2>
 <p>We will start by running a simple differential expression analysis
 using the <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> function. In this function we have
-to state the group that will be the case, as well as the control(s). We
-will also correct for both <code>Sex</code> and <code>Age</code>
-variables. After the analysis is done, we will use
-<code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to visualize the results.</p>
+to state the variable of interest, the group of this variable that will
+be the case, as well as the control(s). We will also correct for both
+<code>Sex</code> and <code>Age</code> variables. After the analysis is
+done, we will use <code><a href="../reference/hd_plot_volcano.html">hd_plot_volcano()</a></code> to visualize the
+results.</p>
 <p>In the first example, we will run a differential expression analysis
 for the <code>AML</code> case against the <code>CLL</code> control.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span>, control <span class="op">=</span> <span class="st">"CLL"</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
+<span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
+<span>                          case <span class="op">=</span> <span class="st">"AML"</span>, </span>
+<span>                          control <span class="op">=</span> <span class="st">"CLL"</span>, </span>
+<span>                          correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">de_results</span><span class="op">$</span><span class="va">de_res</span><span class="op">)</span></span>
@@ -184,9 +189,9 @@ in the plot.</p>
 <h2 id="running-differential-expression-analysis-with-t-test">Running Differential Expression Analysis with t-test<a class="anchor" aria-label="anchor" href="#running-differential-expression-analysis-with-t-test"></a>
 </h2>
 <p>Let’s move to another method. We will use the
-<code><a href="../reference/hd_de_ttest.html">hd_de_ttest()</a></code> that performs a t-test for each protein. This
-function works in a similar way with <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> but it
-cannot correct for other variables like <code>Sex</code> and
+<code><a href="../reference/hd_de_ttest.html">hd_de_ttest()</a></code> that performs a t-test for each variable.
+This function takes similar inputs with <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code> but
+it cannot correct for other variables like <code>Sex</code> and
 <code>Age</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_ttest.html">hd_de_ttest</a></span><span class="op">(</span><span class="va">hd_obj</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -198,13 +203,11 @@ cannot correct for other variables like <code>Sex</code> and
 <div class="section level2">
 <h2 id="the-case-of-sex-specific-diseases">The case of Sex-specific Diseases<a class="anchor" aria-label="anchor" href="#the-case-of-sex-specific-diseases"></a>
 </h2>
-<blockquote>
-<p>📓 If we have diseases that are sex specific as for example Breast
-Cancer, we should consider run the analysis only with samples of that
+<p>If we have diseases that are sex specific like Breast Cancer for
+example, we should consider run the analysis only with samples of that
 sex. We can easily integrate that into our pipeline using the
 <code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code> function. In that case, we would not be
-able to correct for sex.</p>
-</blockquote>
+able to correct for sex, as there will be only one sex “F” (female).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="va">hd_obj</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -221,7 +224,8 @@ able to correct for sex.</p>
 <h3 id="other-categorical-variables">Other Categorical Variables<a class="anchor" aria-label="anchor" href="#other-categorical-variables"></a>
 </h3>
 <p>We could also run differential expression against another categorical
-variable like <code>Sex</code>.</p>
+variable like <code>Sex</code> by changing the <code>variable</code>
+argument.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Sex"</span>, case <span class="op">=</span> <span class="st">"F"</span>, correct <span class="op">=</span> <span class="st">"Age"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"Sex Comparison"</span><span class="op">)</span></span>
@@ -233,10 +237,10 @@ variable like <code>Sex</code>.</p>
 <h3 id="continuous-variables">Continuous Variables<a class="anchor" aria-label="anchor" href="#continuous-variables"></a>
 </h3>
 <p>Moreover, we can also perform Differential Expression Analysis
-against a continuous variable such as <code>Age</code> once again using
-<code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code>! We can also correct for categorical and
-other continuous variables. In this case, no <code>case</code> or
-<code>control</code> groups are needed.</p>
+against a continuous variable such as <code>Age</code>. This can be done
+only with <code><a href="../reference/hd_de_limma.html">hd_de_limma()</a></code>! We can also correct for
+categorical and other continuous variables. In this case, no
+<code>case</code> or <code>control</code> groups are needed.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Age"</span>, case <span class="op">=</span> <span class="cn">NULL</span>, correct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sex"</span>, <span class="st">"BMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"DE against Age"</span><span class="op">)</span></span>
