@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will guide you through the differential expression analysis of your data. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
+This vignette will show you how you can easily construct machine learning pipelines using HDAnalyzeR. We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
 
 ## Loading the Data
 
@@ -30,11 +30,13 @@ hd_obj <- hd_initialize(dat = example_data,
                         value_name = "NPX")
 ```
 
-> 📓 In the whole vignette the `verbose` parameter of the model functions will be set to FALSE in order to keep this guide clean and concise. However, in a real case we recommend to leave it to default (TRUE) in order to know the model's progress.
+> 📓 In the whole vignette the `verbose` parameter of the model functions will be set to FALSE in order to keep this guide clean and concise. However, we recommend to leave it to default (TRUE) in order to know the model's progress and that everything is running smoothly.
 
 ## Splitting the Data
 
-First, we will create the data split object using the `hd_split_data()` function. This function will create a list of data frames with the training and testing sets. We can change the ratio of the training and testing sets, the seed for reproducibility, and the variable to classify. We can also add metadata columns as predictors in this stage. In this example, we will use the `Disease` column as the variable to classify and the `Sex` and `Age` columns as a metadata predictor.
+First, we will create the data split object using the `hd_split_data()` function. This function will create a list of the train and test sets. We can change the ratio of the train and test sets, the seed for reproducibility, and the metadata variable to classify. At this stage, we can also add metadata columns as predictors. 
+
+We will use the `Disease` column as the variable to classify and the `Sex` and `Age` columns as a metadata predictor.
 
 ```{r, message = FALSE, warning = FALSE}
 split_obj <- hd_split_data(hd_obj, 
@@ -48,10 +50,11 @@ split_obj <- hd_split_data(hd_obj,
 
 ### Regularized Regression
 
-Let's start with a regularized regression LASSO model via `hd_model_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
+Let's start with a regularized regression LASSO model via `hd_model_rreg()`. Exactly like in the previous vignette with the differential expression functions, we have to state the variable, case and control(s) groups. To do specifically LASSO we will set the `mixture` parameter to 1. We will also set the `verbose` parameter to `FALSE` to not print the progress of the model in shake of clarity for this vignette.
 
 ```{r, message = FALSE, warning = FALSE}
 model_res <- hd_model_rreg(split_obj,
+                           variable = "Disease",
                            case = "AML",
                            control = c("CLL", "MYEL", "GLIOM"),
                            grid_size = 5,
@@ -67,7 +70,7 @@ model_res$feat_imp_plot
 
 We can change several parameters in the `hd_model_rreg()` function. For example, we can change the number of cross-validation folds, the number of grid points for the hyperparameter optimization, or the feature correlation threshold. Also, exactly as with the DE functions, if the `control` parameter is not set, the function will use all the other classes as controls. For more information, please refer to `hd_model_rreg()` documentation.
 
-We will also set mixture to NULL to allow the model to optimize this parameter (elastic net regression instead of LASSO regression) and set a palette for our classes.
+We will also set mixture to NULL to allow the model to optimize this parameter as well (elastic net regression instead of LASSO) and set a palette for our classes.
 
 ```{r, message = FALSE, warning = FALSE}
 model_res <- hd_model_rreg(split_obj,
@@ -83,7 +86,7 @@ model_res$final_workflow
 
 ### Random Forest
 
-We can use a different variable to classify like `Sex` and even a different algorithm like random forest via `hd_model_rf()`. However, do not forget that we should create a new split object for this new model. In this case, because the classes are already balanced, we will not use the `balance_groups` parameter to FALSE to consider all the samples in the training dataset. Let's also remove everything except from number of features and AUC from the variable importance plot title.
+We can use a different variable to classify like `Sex` and even a different algorithm like random forest via `hd_model_rf()`. However, do not forget that we should create a new split object for this new model. In this case, because the classes are already balanced, we will set the `balance_groups` parameter to FALSE to consider all the samples in the training dataset. Let's also remove everything except from number of features and AUC from the variable importance plot title.
 
 ```{r, message = FALSE, warning = FALSE}
 split_obj <- hd_split_data(hd_obj, variable = "Sex", ratio = 0.8)
@@ -98,6 +101,8 @@ model_res <- hd_model_rf(split_obj,
                        plot_title = c("features", "auc"),
                        verbose = FALSE)
 ```
+
+### Logistic Regression
 
 If our data have a single predictor, we can use `hd_model_lr()` instead of `hd_model_rreg()` to perform a logistic regression. Random forest can be used as it was for multiple predictors.
 
@@ -118,7 +123,7 @@ model_res <- hd_model_lr(split_obj, case = "AML", palette = "cancers12", verbose
 
 At this point we should also check how our selected protein features look in boxplots. We will run a model as before, extract the features, select the top-9 of them based on their importance in the model and plot them with `hd_plot_feature_boxplot()`. We can either plot case vs control or case vs all other classes by changing the `type` argument.
 
-> 📓 In case you have metadata variables as features, you will have to remove them from the feature vector before using the `hd_plot_feature_boxplot()` function as it is made to visualize protein features.
+> ⚠️ In case you have metadata variables as features, you will have to remove them from the feature vector before using the `hd_plot_feature_boxplot()` function as it is made to visualize protein features.
 
 ```{r, message = FALSE, warning = FALSE}
 hd_obj <- hd_initialize(dat = example_data, 
@@ -138,7 +143,8 @@ hd_plot_feature_boxplot(hd_obj,
                         features = features, 
                         case = "AML", 
                         palette = "cancers12", 
-                        type = "case_vs_control")
+                        type = "case_vs_control",
+                        points = FALSE)
 
 hd_plot_feature_boxplot(hd_obj, 
                         features = features, 
@@ -169,7 +175,7 @@ model_res$feat_imp_plot
 
 Instead of a classification we can run a regression model. That means that we will try to predict a continuous variable instead of a categorical one. We can use either `hd_model_rreg()` or  `hd_model_rf()` functions with the `case` parameter set to NULL. Let's see an example with the `Age` variable. Do not forget that we have to create a new split object for this new model with `Age` as the variable of interest.
 
-> 📓 We should not forget to update the `plot_title` argument by changing the metrics from "accuracy", "sensitivity", "apwcificity", and "auc" to "rmse" and "rsq".
+> ⚠️ We should not forget to update the `plot_title` argument by changing the metrics from "accuracy", "sensitivity", "apwcificity", and "auc" to "rmse" and "rsq".
 
 ```{r, message = FALSE, warning = FALSE}
 split_obj <- hd_split_data(hd_obj, variable = "Age", ratio = 0.8)
@@ -189,7 +195,7 @@ model_res$feat_imp_plot
 
 ## Test the Model on new Data
 
-Furthermore, we can validate our trained model in new data. For this example we will not use another dataset, but we will split the data initially to create a train and a validation set and then split the validation set to a train and a test set. We will use this second split to initially train the model and then evaluate it with the validation data. In a real case scenario, you can do either this, or use a completely different dataset to check that our model generalizes properly. We will use the `hd_model_test()` function to do this. Let's see an example with the AML model.
+Furthermore, we can validate our trained model in new data. For this example we will not use another dataset, but we will split the data initially to create a train and a validation set and then split the train set to an inner train and a test set. We will use this second split to initially train the model and then evaluate it with the validation data. In a real case scenario, you can do either this, or use a completely different dataset to check that the model generalizes properly. We will use the `hd_model_test()` function to do this. Let's see an example with the AML model.
 
 ```{r, message = FALSE, warning = FALSE}
 # Split the data for training and validation sets
@@ -257,7 +263,7 @@ model_summary_res$features_barplot
 model_summary_res$upset_plot_features
 ```
 
-In case we have one case and multiple controls we can use the `hd_plot_feature_heatmap()` function to visualize the protein features in a heatmap. This function is usefull as we can easily see if the same features are important in multiple models. Let's see an example with the AML model and 3 different controls groups. We will also combine DE results of the same comparisons.
+In case we have one case and multiple controls we can use the `hd_plot_feature_heatmap()` function to visualize the protein features in a heatmap. This function is useful as we can easily see if the same features are important in multiple models. Let's see an example with the AML model and 3 different controls groups. We will combine DE results of the same comparisons.
 
 ```{r, message = FALSE, warning = FALSE}
 model_cll <- hd_model_rreg(split_obj, case = "AML", control = "CLL", cv_sets = 3, grid_size = 5, verbose = FALSE)
