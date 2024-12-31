@@ -2082,31 +2082,42 @@ hd_plot_model_summary <- function(model_results,
                                           "top-features" = "midnightblue"))
 
   metrics_data <- lapply(names(model_results), function(case) {
-    metrics <- tibble::tibble(
-      metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
-      value = c(model_results[[case]][["metrics"]][["accuracy"]],
-                model_results[[case]][["metrics"]][["sensitivity"]],
-                model_results[[case]][["metrics"]][["specificity"]],
-                model_results[[case]][["metrics"]][["auc"]])
-    ) |>
-      dplyr::mutate(Category = case)
+    if ("auc" %in% names(model_results[[case]][["metrics"]])) {
+      metrics <- tibble::tibble(
+        metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
+        value = c(model_results[[case]][["metrics"]][["accuracy"]],
+                  model_results[[case]][["metrics"]][["sensitivity"]],
+                  model_results[[case]][["metrics"]][["specificity"]],
+                  model_results[[case]][["metrics"]][["auc"]])
+      ) |>
+        dplyr::mutate(Category = case)
+    } else {
+      warning(paste("Classification metrics are not available for", case, "model."))
+      return(NA)
+    }
   })
 
-  metrics_data <- do.call(rbind, metrics_data)
+  metrics_data <- metrics_data[!is.na(metrics_data)]
+  if (length(metrics_data) != 0) {
+    metrics_data <- do.call(rbind, metrics_data)
 
-  metrics_barplot <- metrics_data |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
-                                 y = !!rlang::sym("value"),
-                                 fill = !!rlang::sym("metric"))) +
-    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
-    ggplot2::labs(x = "", y = "Value", color = "Metric") +
-    theme_hd(angled = 90) +
-    ggplot2::theme(legend.position = "top",
-                   legend.title = ggplot2::element_text(face = "bold")) +
-    ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
-                                          "Sensitivity" = "#8d99ae",
-                                          "Specificity" = "#edf2f4",
-                                          "AUC" = "#ef233c"))
+    metrics_barplot <- metrics_data |>
+      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                   y = !!rlang::sym("value"),
+                                   fill = !!rlang::sym("metric"))) +
+      ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
+      ggplot2::labs(x = "", y = "Value", color = "Metric") +
+      theme_hd(angled = 90) +
+      ggplot2::theme(legend.position = "top",
+                     legend.title = ggplot2::element_text(face = "bold")) +
+      ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
+                                            "Sensitivity" = "#8d99ae",
+                                            "Specificity" = "#edf2f4",
+                                            "AUC" = "#ef233c"))
+  } else {
+    metrics_barplot <- NULL
+    warning("Classification metrics are not available for any model and will not be plotted.")
+  }
 
   upset_features <- lapply(names(model_results), function(case) {
 
