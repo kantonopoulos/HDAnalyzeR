@@ -1,18 +1,29 @@
 utils::globalVariables(c(":="))
 
-#' Split data into training and test sets
+#' Split data
 #'
 #' `hd_split_data()` splits the data into training and test sets based on the ratio
-#' provided. It also stratifies the data based on the variable provided.
+#' provided. It also stratifies the data based on the variable of interest if any.
+#' At this stage the user can select metadata variable predictors to be included in
+#' the training and test sets.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
-#' @param metadata_cols The columns to be selected from the metadata as predictors. Default is NULL.
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
+#' @param metadata_cols The metadata variables to be selected from the metadata as predictors. Default is NULL.
 #' @param ratio The ratio of training data to test data. Default is 0.75.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A split object containing train and test data.
+#' @return A split object containing train and test data splits.
+#' @details
+#' It is always recommended to split the data into training and test sets to avoid
+#' overfitting. This function also initializes the model object to be used in the
+#' downstream machine learning pipeline. The user can create their own model object
+#' with the train and test data splits, but it must be a list with the train set as
+#' the first and the test set as the second element. The function utilizes the
+#' `initial_split()` function from the `rsample` package to split the data. For more
+#' information on the `rsample` package, please check their documentation.
+#'
 #' @export
 #'
 #' @examples
@@ -914,9 +925,9 @@ evaluate_multiclass_model <- function(dat,
 }
 
 
-#' Create title for variable importance plot
+#' Create title for feature importance plot
 #'
-#' `generate_title()` generates a subtitle for the variable importance plot.
+#' `generate_title()` generates a subtitle for the feature importance plot.
 #'
 #' @param features A tibble with features and their model importance.
 #' @param accuracy Accuracy of the model.
@@ -994,9 +1005,9 @@ generate_title <- function(features,
 }
 
 
-#' Extract model features and plot variable importance
+#' Extract model features and plot feature importance
 #'
-#' `variable_imp()` calculates the variable importance of the model and plots the top features.
+#' `variable_imp()` calculates the feature importance of the model and plots the top features.
 #' It also generates a title for the plot based on the model metrics and the mixture parameter.
 #'
 #' @param dat An `hd_model` object coming from `evaluate_model()`.
@@ -1007,7 +1018,7 @@ generate_title <- function(features,
 #' @param title Vector of title elements to include in the plot.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A model object containing the features and the variable importance plot.
+#' @return A model object containing the features and the feature importance plot.
 #' @keywords internal
 variable_imp <- function(dat,
                          variable = "Disease",
@@ -1110,40 +1121,41 @@ variable_imp <- function(dat,
 
 
   dat[["features"]] <- features
-  dat[["var_imp_plot"]] <- var_imp_plot
+  dat[["feat_imp_plot"]] <- var_imp_plot
   dat[["final"]] <- NULL
 
   return(dat)
 }
 
 
-#' Run regularized regression model pipeline
+#' Regularized regression model pipeline
 #'
 #' `hd_model_rreg()` runs the regularized regression model pipeline. It creates
 #' class-balanced case-control groups for the train set, tunes the model, evaluates
-#' the model, and plots the variable importance.
+#' the model, and plots the feature importance and model performance.
 #'
 #' @param dat An `hd_model` object or a list containing the train and test data.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
 #' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
+#' @param mixture The mixture parameter for the elastic net model (1 - LASSO, 0 - Ridge). If NULL it will be tuned. Default is NULL.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param plot_title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features", "mixture")`.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, their importance, and the mixture parameter.
 #' @details
 #' This model will not work if the number of predictors is less than 2.
 #' However, if this is the case, consider using `hd_model_lr()` instead if it is
 #' a classification problem. In case it is a regression problem, consider using
 #' `hd_plot_regression()` directly to plot your feature against the target variable.
+#'
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
@@ -1151,9 +1163,9 @@ variable_imp <- function(dat,
 #'
 #' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging. In case the model is run against a continuous variable,
-#' the palette will be ignored and we have to change the `plot_title` to `rmse` and `rsq`
+#' the palette will be ignored and we have to change the elements of `plot_title` to `rmse` and `rsq`
 #' to plot the RMSE and RSQ instead of `accuracy`, `sensitivity`, `specificity`, and `auc`
-#' (see the examples).
+#' (see examples bellow).
 #'
 #' @export
 #'
@@ -1169,7 +1181,8 @@ variable_imp <- function(dat,
 #'               variable = "Disease",
 #'               case = "AML",
 #'               grid_size = 5,
-#'               palette = "cancers12")
+#'               palette = "cancers12",
+#'               verbose = FALSE)
 #'
 #' # Run the multiclass regularized regression model pipeline
 #' hd_model_rreg(hd_split,
@@ -1192,7 +1205,8 @@ variable_imp <- function(dat,
 #'               plot_title = c("rmse",
 #'                              "rsq",
 #'                              "features",
-#'                              "mixture"))
+#'                              "mixture"),
+#'               verbose = FALSE)
 hd_model_rreg <- function(dat,
                           variable = "Disease",
                           case,
@@ -1297,22 +1311,22 @@ hd_model_rreg <- function(dat,
   }
 
   if (dat[["features"]] |> nrow() < 3) {
-    dat[["var_imp_plot"]] <- NULL
-    message("Variable importance plot is not generated as the number of features is less than 5.")
+    dat[["feat_imp_plot"]] <- NULL
+    message("Feature importance plot is not generated as the number of features is less than 5.")
   }
 
   return(dat)
 }
 
 
-#' Run random forest model pipeline
+#' Random forest model pipeline
 #'
 #' `hd_model_rf()` runs the random forest model pipeline. It creates
 #' class-balanced case-control groups for the train set, tunes the model, evaluates
-#' the model, and plots the variable importance.
+#' the model, and plots the feature importance and model performance.
 #'
 #' @param dat An `hd_model` object or a list containing the train and test data.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
 #' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
@@ -1320,12 +1334,12 @@ hd_model_rreg <- function(dat,
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is FALSE.
+#' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param plot_title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")`.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, their importance, and the mixture parameter.
 #' @details
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
@@ -1334,7 +1348,7 @@ hd_model_rreg <- function(dat,
 #'
 #' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging. In case the model is run against a continuous variable,
-#' the palette will be ignored and we have to change the `plot_title` to `rmse` and `rsq`
+#' the palette will be ignored and we have to change the elements of  `plot_title` to `rmse` and `rsq`
 #' to plot the RMSE and RSQ instead of `accuracy`, `sensitivity`, `specificity`, and `auc`
 #' (see the examples).
 #'
@@ -1352,7 +1366,8 @@ hd_model_rreg <- function(dat,
 #'             variable = "Disease",
 #'             case = "AML",
 #'             grid_size = 5,
-#'             palette = "cancers12")
+#'             palette = "cancers12",
+#'             verbose = FALSE)
 #'
 #' # Run the multiclass random forest model pipeline
 #' hd_model_rf(hd_split,
@@ -1374,7 +1389,8 @@ hd_model_rreg <- function(dat,
 #'             cv_sets = 2,
 #'             plot_title = c("rmse",
 #'                            "rsq",
-#'                            "features"))
+#'                            "features"),
+#'             verbose = FALSE)
 hd_model_rf <- function(dat,
                         variable = "Disease",
                         case,
@@ -1466,8 +1482,8 @@ hd_model_rf <- function(dat,
   }
 
   if (dat[["features"]] |> nrow() < 3) {
-    dat[["var_imp_plot"]] <- NULL
-    message("Variable importance plot is not generated as the number of features is less than 5.")
+    dat[["feat_imp_plot"]] <- NULL
+    message("Feature importance plot is not generated as the number of features is less than 5.")
   }
 
   dat[["mixture"]] <- NULL
@@ -1476,33 +1492,37 @@ hd_model_rf <- function(dat,
 }
 
 
-#' Run logistic regression model pipeline
+#' Logistic regression model pipeline
 #'
 #' `hd_model_lr()` runs the logistic regression model pipeline. It creates
-#' class-balanced case-control groups for the train set, tunes the model, evaluates
-#' the model, and plots the variable importance.
+#' class-balanced case-control groups for the train set, fits the model, evaluates
+#' the model, and plots the feature importance and model performance.
 #'
 #' @param dat An `hd_model` object or a list containing the train and test data.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
 #' @param balance_groups Whether to balance the groups. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
-#' @param plot_y_labels Whether to show y-axis labels in the variable importance plot. Default is TRUE.
+#' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
-#' @param plot_title Vector of title elements to include in the plot.
+#' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")`.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
-#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+#' @return A model object containing the train and test data, the metrics, the ROC curve, the selected features and their importance.
 #' @details
 #' This model is ideal when the number of features is small. Otherwise, use
 #' `hd_model_rreg()` as it is more robust to high-dimensional data.
 #' The numeric predictors will be normalized and the nominal predictors will
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
-#' will be used to impute. Logistic regression models are not supported for
-#' multiclass classification. `case` is required for binary classification. If
+#' will be used to impute. If less than 3 features are selected, the feature
+#' importance plot will not be generated.
+#'
+#' Logistic regression models are not supported for
+#' multiclass classification, so `case` argument is always required. If
 #' multi-class classification is needed, use `hd_model_rreg()` instead.
+#' This function utilizes the "glm" engine.
 #'
 #' @export
 #'
@@ -1526,21 +1546,21 @@ hd_model_rf <- function(dat,
 #'             case = "AML",
 #'             palette = "cancers12")
 hd_model_lr <- function(dat,
-                      variable = "Disease",
-                      case,
-                      control = NULL,
-                      balance_groups = TRUE,
-                      cor_threshold = 0.9,
-                      palette = NULL,
-                      plot_y_labels = TRUE,
-                      verbose = TRUE,
-                      plot_title = c("accuracy",
-                                     "sensitivity",
-                                     "specificity",
-                                     "auc",
-                                     "features",
-                                     "top-features"),
-                      seed = 123) {
+                        variable = "Disease",
+                        case,
+                        control = NULL,
+                        balance_groups = TRUE,
+                        cor_threshold = 0.9,
+                        palette = NULL,
+                        plot_y_labels = TRUE,
+                        verbose = TRUE,
+                        plot_title = c("accuracy",
+                                       "sensitivity",
+                                       "specificity",
+                                       "auc",
+                                       "features",
+                                       "top-features"),
+                        seed = 123) {
 
   dat <- check_data(dat = dat, variable = variable)
 
@@ -1586,8 +1606,8 @@ hd_model_lr <- function(dat,
                       seed = seed)
 
   if (dat[["features"]] |> nrow() < 3) {
-    dat[["var_imp_plot"]] <- NULL
-    message("Variable importance plot is not generated as the number of features is less than 5.")
+    dat[["feat_imp_plot"]] <- NULL
+    message("Feature importance plot is not generated as the number of features is less than 5.")
   }
 
   dat[["mixture"]] <- NULL
@@ -1640,15 +1660,15 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 
 #' Validate model on new data
 #'
-#' `hd_model_test()` validates the model on new data. It evaluates the model on
-#' the validation (new test) set, calculates the metrics and plots the probability
+#' `hd_model_test()` validates the model on new data. It takes an already tuned model,
+#' evaluates it on the validation (new test) set, calculates the metrics and plots the probability
 #' and ROC curve based on the new data.
 #'
-#' @param model_object An `hd_model` object coming from `hd_model_rreg()` and `hd_model_rf()` binary or multiclass classification models.
-#' @param train_set The training set as an HDAnalyzeR object or a dataset in wide format with sample_id as its first column and class column as its second column.
-#' @param test_set The validation/test set as an HDAnalyzeR object or a dataset in wide format with sample_id as its first column and class column as its second column.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
-#' @param metadata_cols The metadata columns to include in the analysis. Default is NULL.
+#' @param model_object An `hd_model` object coming from `hd_model_rreg()` and `hd_model_rf()` binary or multiclass classification.
+#' @param train_set The training set as an HDAnalyzeR object or a dataset in wide format with sample ID as its first column and class column as its second column.
+#' @param test_set The validation/test set as an HDAnalyzeR object or a dataset in wide format with sample ID as its first column and class column as its second column.
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
+#' @param metadata_cols The metadata variables to include in the analysis. Default is NULL.
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
 #' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
@@ -1659,9 +1679,9 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'
 #' @details
 #' In order to run this function, the train and test sets should be in exactly
-#' the same format and have the same columns in the same order. Some function arguments
-#' like the case/control, variable, and metadata_cols should be also the same.
-#' If the data contain missing values, KNN (k=5) imputation
+#' the same format meaning that they must have the same columns in the same order.
+#' Some function arguments like the case/control, variable, and metadata_cols should
+#' be also the same. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
 #' classification model. If `case` is NULL, the model will be a multiclass classification model.
 #'
@@ -1692,7 +1712,8 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'                               variable = "Disease",
 #'                               case = "AML",
 #'                               grid_size = 5,
-#'                               palette = "cancers12")
+#'                               palette = "cancers12",
+#'                               verbose = FALSE)
 #'
 #' # Run the model evaluation pipeline
 #' hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palette = "cancers12")
@@ -1707,7 +1728,8 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'                               case = "AML",
 #'                               grid_size = 2,
 #'                               cv_sets = 2,
-#'                               plot_title = NULL)
+#'                               plot_title = NULL,
+#'                               verbose = FALSE)
 #'
 #' # Run the model evaluation pipeline
 #' hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)
@@ -1955,19 +1977,19 @@ hd_model_test <- function(model_object,
 }
 
 
-#' Plot features summary visualizations
+#' Summarize model features
 #'
-#' `hd_plot_model_summary()` plots the number of proteins and the number of top
-#' proteins for each disease in a barplot. It also plots the upset plot of the
-#' top or all protein features, as well as a summary line plot of the model
-#' performance metrics.
+#' `hd_plot_model_summary()` plots the number of features and the number of top
+#' features (feature importance > user defined threshold) for each disease in a barplot.
+#' It also plots the upset plot of the top or all features, as well as a summary line plot
+#' of the model performance metrics.
 #'
 #' @param model_results A list of binary classification model results. It should be a list of objects created by `hd_model_rreg()`, `hd_model_rf()` or `hd_model_lr()` with the classes as names. See the examples for more details.
 #' @param importance The importance threshold to consider a feature as top. Default is 0.5.
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param upset_top_features Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).
 #'
-#' @return A list with the binary classification model summary plots and results
+#' @return A list with the binary classification model summary plots and results.
 #' @export
 #'
 #' @examples
@@ -2060,31 +2082,42 @@ hd_plot_model_summary <- function(model_results,
                                           "top-features" = "midnightblue"))
 
   metrics_data <- lapply(names(model_results), function(case) {
-    metrics <- tibble::tibble(
-      metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
-      value = c(model_results[[case]][["metrics"]][["accuracy"]],
-                model_results[[case]][["metrics"]][["sensitivity"]],
-                model_results[[case]][["metrics"]][["specificity"]],
-                model_results[[case]][["metrics"]][["auc"]])
-    ) |>
-      dplyr::mutate(Category = case)
+    if ("auc" %in% names(model_results[[case]][["metrics"]])) {
+      metrics <- tibble::tibble(
+        metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
+        value = c(model_results[[case]][["metrics"]][["accuracy"]],
+                  model_results[[case]][["metrics"]][["sensitivity"]],
+                  model_results[[case]][["metrics"]][["specificity"]],
+                  model_results[[case]][["metrics"]][["auc"]])
+      ) |>
+        dplyr::mutate(Category = case)
+    } else {
+      warning(paste("Classification metrics are not available for", case, "model."))
+      return(NA)
+    }
   })
 
-  metrics_data <- do.call(rbind, metrics_data)
+  metrics_data <- metrics_data[!is.na(metrics_data)]
+  if (length(metrics_data) != 0) {
+    metrics_data <- do.call(rbind, metrics_data)
 
-  metrics_barplot <- metrics_data |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
-                                 y = !!rlang::sym("value"),
-                                 fill = !!rlang::sym("metric"))) +
-    ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
-    ggplot2::labs(x = "", y = "Value", color = "Metric") +
-    theme_hd(angled = 90) +
-    ggplot2::theme(legend.position = "top",
-                   legend.title = ggplot2::element_text(face = "bold")) +
-    ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
-                                          "Sensitivity" = "#8d99ae",
-                                          "Specificity" = "#edf2f4",
-                                          "AUC" = "#ef233c"))
+    metrics_barplot <- metrics_data |>
+      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
+                                   y = !!rlang::sym("value"),
+                                   fill = !!rlang::sym("metric"))) +
+      ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
+      ggplot2::labs(x = "", y = "Value", color = "Metric") +
+      theme_hd(angled = 90) +
+      ggplot2::theme(legend.position = "top",
+                     legend.title = ggplot2::element_text(face = "bold")) +
+      ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
+                                            "Sensitivity" = "#8d99ae",
+                                            "Specificity" = "#edf2f4",
+                                            "AUC" = "#ef233c"))
+  } else {
+    metrics_barplot <- NULL
+    warning("Classification metrics are not available for any model and will not be plotted.")
+  }
 
   upset_features <- lapply(names(model_results), function(case) {
 

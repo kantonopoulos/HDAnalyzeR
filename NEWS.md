@@ -54,7 +54,7 @@
   - Added a `cor_method` argument to `qc_summary_data()` for customizable correlation methods.  
   - Merged `qc_summary_data()` and `qc_summary_metadata()` into a single function, `hd_qc_summary()`, which now visualizes all metadata columns.
 
-- **Simplified Normality Checks:**  
+- **Removed Normality Checks:**  
   Removed automatic normality checks for large datasets due to sensitivity issues. Instead, users are encouraged to use histograms or QQ plots for this purpose.
 
 ## Differential Expression Analysis

@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{hd_plot_model_summary}
 \alias{hd_plot_model_summary}
-\title{Plot features summary visualizations}
+\title{Summarize model features}
 \usage{
 hd_plot_model_summary(
   model_results,
@@ -21,13 +21,13 @@ hd_plot_model_summary(
 \item{upset_top_features}{Whether to plot the upset plot for the top features or all features. Default is FALSE (all features).}
 }
 \value{
-A list with the binary classification model summary plots and results
+A list with the binary classification model summary plots and results.
 }
 \description{
-\code{hd_plot_model_summary()} plots the number of proteins and the number of top
-proteins for each disease in a barplot. It also plots the upset plot of the
-top or all protein features, as well as a summary line plot of the model
-performance metrics.
+\code{hd_plot_model_summary()} plots the number of features and the number of top
+features (feature importance > user defined threshold) for each disease in a barplot.
+It also plots the upset plot of the top or all features, as well as a summary line plot
+of the model performance metrics.
 }
 \examples{
 # Initialize an HDAnalyzeR object with only a subset of the predictors

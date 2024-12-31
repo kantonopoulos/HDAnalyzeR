@@ -26,23 +26,20 @@ complete.obs", or "na.or.complete".}
 \item{method}{A character string. The correlation method to use.
 Default is "pearson". Other options are "kendall" or "spearman".}
 
-\item{threshold}{The reporting protein-protein correlation threshold. Default is 0.8.}
+\item{threshold}{The reporting correlation threshold. Default is 0.8.}
 
 \item{cluster_rows}{Whether to cluster the rows. Default is TRUE.}
 
 \item{cluster_cols}{Whether to cluster the columns. Default is TRUE.}
 }
 \value{
-A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap
+A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap.
 }
 \description{
 \code{hd_plot_cor_heatmap()} calculates the correlation matrix of the input dataset.
-It creates a heatmap of the correlation matrix. It also filters the feature
-pairs with correlation values above the threshold and returns them in a tibble.
-}
-\details{
-You can read more about the method for computing covariances in the presence of missing values
-and the coefficient that is calculated in the documentation of the \code{cor()} function in the \code{stats} package.
+It creates a heatmap of the correlation matrix. This matrix is created via \code{hd_correlate()}.
+It also filters the feature pairs with correlation values above the threshold and
+returns them in a tibble.
 }
 \examples{
 # Prepare data

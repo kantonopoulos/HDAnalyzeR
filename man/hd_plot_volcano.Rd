@@ -2,7 +2,7 @@
 % Please edit documentation in R/diff_expression.R
 \name{hd_plot_volcano}
 \alias{hd_plot_volcano}
-\title{Create volcano plots}
+\title{Visualize differential expression results}
 \usage{
 hd_plot_volcano(
   de_object,
@@ -17,7 +17,7 @@ hd_plot_volcano(
 )
 }
 \arguments{
-\item{de_object}{The differential expression object. Created by \code{hd_de_limma()}.}
+\item{de_object}{The differential expression object. Created by \code{hd_de_limma()} or \code{hd_de_ttest()}.}
 
 \item{pval_lim}{The p-value limit for significance. Default is 0.05.}
 
@@ -27,20 +27,20 @@ hd_plot_volcano(
 
 \item{top_down_prot}{The number of top down regulated proteins to label on the plot. Default is 5.}
 
-\item{palette}{The color palette for the plot. It should be one of the palettes from \code{hd_palettes()} or a custom palette. Default is "diff_exp".}
+\item{palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is "diff_exp".}
 
 \item{title}{The title of the plot or NULL for no title.}
 
-\item{report_nproteins}{If the number of significant proteins should be reported in the subtitle. Default is TRUE.}
+\item{report_nproteins}{If the number of significant proteins should be reported in the title. Default is TRUE.}
 
-\item{user_defined_proteins}{A vector with the protein names to label on the plot. Default is NULL.}
+\item{user_defined_proteins}{A vector with the protein names to label on the plot if customization is required. Default is NULL.}
 }
 \value{
-An object with the DE results and the volcano plot.
+A DE object with the volcano plot.
 }
 \description{
 \code{hd_plot_volcano()} creates volcano plots for the differential expression results.
-It colors and labels the top up and down regulated proteins.
+It colors and labels the top-n up and down regulated proteins.
 }
 \examples{
 # Initialize an HDAnalyzeR object

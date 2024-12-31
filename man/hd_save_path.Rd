@@ -9,7 +9,7 @@ hd_save_path(path_name, date = FALSE)
 \arguments{
 \item{path_name}{The name of the directory to create.}
 
-\item{date}{If TRUE, a directory with the current date as name will be created inside the directory with \code{dir_name}.}
+\item{date}{If TRUE, a directory with the current date as name will be created inside the directory with \code{path_name}.}
 }
 \value{
 The relative directory path as a string.

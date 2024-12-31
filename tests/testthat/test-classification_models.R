@@ -244,7 +244,7 @@ test_that("hd_model_rreg performs model evaluation and tuning correctly", {
   expect_true(!is.null(result$metrics$auc))
 
   # Check if the variable importance plot is created
-  expect_true(inherits(result$var_imp_plot, "gg") || inherits(result$var_imp_plot, "ggplot"))
+  expect_true(inherits(result$feat_imp_plot, "gg") || inherits(result$feat_imp_plot, "ggplot"))
 })
 
 # Test case: check that multiclass models run without error
@@ -260,7 +260,7 @@ test_that("hd_model_rreg works with multiclass classification", {
   # Check that the multiclass model evaluation was successful
   expect_true("metrics" %in% names(result))
   expect_true("roc_curve" %in% names(result))
-  expect_true("var_imp_plot" %in% names(result))
+  expect_true("feat_imp_plot" %in% names(result))
   expect_true("features" %in% names(result))
 })
 
@@ -283,7 +283,7 @@ test_that("hd_model_rf performs model evaluation and tuning correctly", {
   expect_true(!is.null(result$metrics$auc))
 
   # Check if the variable importance plot is created
-  expect_true(inherits(result$var_imp_plot, "gg") || inherits(result$var_imp_plot, "ggplot"))
+  expect_true(inherits(result$feat_imp_plot, "gg") || inherits(result$feat_imp_plot, "ggplot"))
 })
 
 # Test case: check that multiclass models run without error
@@ -299,7 +299,7 @@ test_that("hd_model_rf works with multiclass classification", {
   # Check that the multiclass model evaluation was successful
   expect_true("metrics" %in% names(result))
   expect_true("roc_curve" %in% names(result))
-  expect_true("var_imp_plot" %in% names(result))
+  expect_true("feat_imp_plot" %in% names(result))
   expect_true("features" %in% names(result))
 })
 
@@ -322,7 +322,7 @@ test_that("hd_model_lr performs model evaluation and tuning correctly", {
   expect_true(!is.null(result$metrics$auc))
 
   # Check if the variable importance plot is created
-  expect_true(inherits(result$var_imp_plot, "gg") || inherits(result$var_imp_plot, "ggplot"))
+  expect_true(inherits(result$feat_imp_plot, "gg") || inherits(result$feat_imp_plot, "ggplot"))
 })
 
 

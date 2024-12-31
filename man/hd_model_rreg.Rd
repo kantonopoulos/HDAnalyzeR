@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{hd_model_rreg}
 \alias{hd_model_rreg}
-\title{Run regularized regression model pipeline}
+\title{Regularized regression model pipeline}
 \usage{
 hd_model_rreg(
   dat,
@@ -25,7 +25,7 @@ hd_model_rreg(
 \arguments{
 \item{dat}{An \code{hd_model} object or a list containing the train and test data.}
 
-\item{variable}{The name of the column containing the case and control groups. Default is "Disease".}
+\item{variable}{The name of the metadata variable containing the case and control groups. Default is "Disease".}
 
 \item{case}{The case class.}
 
@@ -39,31 +39,32 @@ hd_model_rreg(
 
 \item{cv_sets}{Number of cross-validation sets. Default is 5.}
 
-\item{mixture}{The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.}
+\item{mixture}{The mixture parameter for the elastic net model (1 - LASSO, 0 - Ridge). If NULL it will be tuned. Default is NULL.}
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
 
-\item{plot_y_labels}{Whether to show y-axis labels in the variable importance plot. Default is FALSE.}
+\item{plot_y_labels}{Whether to show y-axis labels in the feature importance plot. Default is FALSE.}
 
 \item{verbose}{Whether to print progress messages. Default is TRUE.}
 
-\item{plot_title}{Vector of title elements to include in the plot.}
+\item{plot_title}{Vector of title elements to include in the plot. It should be a subset of \code{c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features", "mixture")}.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
 \value{
-A model object containing the train and test data, the metrics, the ROC curve, the selected features, the variable importance, and the mixture parameter.
+A model object containing the train and test data, the metrics, the ROC curve, the selected features, their importance, and the mixture parameter.
 }
 \description{
 \code{hd_model_rreg()} runs the regularized regression model pipeline. It creates
 class-balanced case-control groups for the train set, tunes the model, evaluates
-the model, and plots the variable importance.
+the model, and plots the feature importance and model performance.
 }
 \details{
 This model will not work if the number of predictors is less than 2.
 However, if this is the case, consider using \code{hd_model_lr()} instead if it is
 a classification problem. In case it is a regression problem, consider using
 \code{hd_plot_regression()} directly to plot your feature against the target variable.
+
 The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If \code{case} is provided, the model will be a binary
@@ -71,9 +72,9 @@ classification model. If \code{case} is NULL, the model will be a multiclass cla
 
 In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 are calculated via macro-averaging. In case the model is run against a continuous variable,
-the palette will be ignored and we have to change the \code{plot_title} to \code{rmse} and \code{rsq}
+the palette will be ignored and we have to change the elements of \code{plot_title} to \code{rmse} and \code{rsq}
 to plot the RMSE and RSQ instead of \code{accuracy}, \code{sensitivity}, \code{specificity}, and \code{auc}
-(see the examples).
+(see examples bellow).
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -87,7 +88,8 @@ hd_model_rreg(hd_split,
               variable = "Disease",
               case = "AML",
               grid_size = 5,
-              palette = "cancers12")
+              palette = "cancers12",
+              verbose = FALSE)
 
 # Run the multiclass regularized regression model pipeline
 hd_model_rreg(hd_split,
@@ -110,5 +112,6 @@ hd_model_rreg(hd_split,
               plot_title = c("rmse",
                              "rsq",
                              "features",
-                             "mixture"))
+                             "mixture"),
+              verbose = FALSE)
 }

@@ -23,6 +23,6 @@ A tibble containing the data without batch effects.
 \description{
 \code{remove_batch_effects()} removes batch effects from the data using the limma package.
 It converts the dataframe into matrix and transposes it to get it ready for limma.
-It removes the batch effects and then converts the data back to normal format.
+It removes the batch effects and then converts the data back to tibble.
 }
 \keyword{internal}

@@ -28,5 +28,6 @@ hd_object <- hd_initialize(example_data, example_metadata)
 # Run the PCA analysis and create the loadings plot
 pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_pca_loadings()
+
 pca_object$pca_loadings_plot
 }

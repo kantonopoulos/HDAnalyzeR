@@ -14,24 +14,27 @@ calculate_na_percentage <- function(dat) {
 }
 
 
-#' Summary of missing values
+#' Heatmap summary of missing values
 #'
-#' `hd_na_search()` provides a summary of missing values in a dataset. It allows the user to
-#' specify the metadata columns to include in the summary and the color palette to use for
-#' the heatmap annotations.
+#' `hd_na_search()` provides a visual summary of missing values in a dataset as an annotated heatmap.
+#' It allows the user to specify the metadata columns to include in the summary and the color palette
+#' to use for the heatmap annotations.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param annotation_vars The metadata columns to include in the summary.
-#' @param palette The color palettes to use for the heatmap annotations (check examples bellow).
+#' @param palette A list of color palettes for the heatmap annotations. The names of the list should match the column names in `annotation_vars`. Default is NULL.
 #' @param x_labels If TRUE, show x-axis labels. Default is FALSE.
 #' @param y_labels If TRUE, show y-axis labels. Default is FALSE.
 #'
-#' @return A list containing the summary of missing values and a heatmap.
+#' @return A list containing the summary of missing values and the heatmap visualization.
 #' @export
 #'
 #' @details When using continuous metadata variables, they are automatically binned
 #' into categories of 5 bins to make the heatmap more informative and easier to interpret.
+#' If the user wants to use a different number of bins, they can bin the data before
+#' using the `hd_bin_columns()` function and its `bins` argument.
+#'
 #' Also, when coloring annotations, the user can use custom palettes or the
 #' Human Protein Atlas (HPA) palettes. It is not required to provide a palette
 #' for all annotations, but when a palette is provided, it must be in correct
@@ -162,10 +165,10 @@ hd_na_search <- function(dat,
 #' specify the columns to consider for the removal of missing values. If no columns are
 #' provided, the function removes rows with missing values in any column.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param columns The columns to consider for the removal of missing values.
 #'
-#' @return The dataset without missing values.
+#' @return The dataset without the rows containing missing values.
 #' @export
 #'
 #' @examples
@@ -214,10 +217,9 @@ hd_omit_na <- function(dat, columns = NULL){
 #' Impute via Median
 #'
 #' `hd_impute_median()` imputes missing values in a dataset using the median of each column.
-#' It allows the user to exclude certain columns from imputation and can also display the
-#' percentage of missing values in each column before imputation.
+#' It can also display the percentage of missing values in each column before imputation.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
@@ -283,12 +285,11 @@ hd_impute_median <- function(dat, verbose = TRUE) {
 #' Impute via k-nearest neighbors
 #'
 #' `hd_impute_knn()` imputes missing values in a dataset using the k-nearest neighbors method.
-#' It allows the user to exclude certain columns from imputation and can also display the
-#' percentage of missing values in each column before imputation. The user can also specify
-#' the number of neighbors to consider for imputation.
+#' It can also display the percentage of missing values in each column before imputation.
+#' The user can also specify the number of neighbors to consider for imputation.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
-#' @param k The number of neighbors to consider for imputation.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
+#' @param k The number of neighbors to consider for imputation. Default is 5.
 #' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
@@ -352,10 +353,9 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' Impute via missForest
 #'
 #' `impute_missForest()` imputes missing values in a dataset using the `missForest` method.
-#' It allows the user to exclude certain columns from imputation and can also display the
-#' percentage of missing values in each column before imputation.
+#' It can also display the percentage of missing values in each column before imputation.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param maxiter The maximum number of iterations.
 #' @param ntree  The number of trees to grow.
 #' @param parallelize If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the `missForest` documentation.

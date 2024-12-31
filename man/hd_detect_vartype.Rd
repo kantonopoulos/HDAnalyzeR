@@ -20,6 +20,10 @@ If a variable is a factor or character, it is considered categorical.
 If a variable is numeric and has less than or equal to \code{unique_threshold} unique values,
 it is considered categorical. Otherwise, it is considered continuous.
 }
+\details{
+If you want to apply this function to each column of a dataframe, you can use the
+\code{sapply()} function. See examples. For more information check \code{sapply} documentation.
+}
 \examples{
 # Check categorical data
 category <- c("A", "B", "A", "C")
@@ -31,8 +35,8 @@ hd_detect_vartype(continuous)
 
 # Apply the function to each column of a dataframe
 example <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
-                           Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
-                           Mixed = c(1, "1", 2, 2, "3", 3))
+                      Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
+                      Mixed = c(1, "1", 2, 2, "3", 3))
 
 sapply(example, hd_detect_vartype)
 }

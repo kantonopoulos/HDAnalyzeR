@@ -7,12 +7,12 @@
 hd_omit_na(dat, columns = NULL)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{columns}{The columns to consider for the removal of missing values.}
 }
 \value{
-The dataset without missing values.
+The dataset without the rows containing missing values.
 }
 \description{
 \code{hd_omit_na()} removes rows with missing values from a dataset. It allows the user to

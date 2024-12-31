@@ -7,7 +7,11 @@
 #' @param use  A character string. The method to use for computing correlations. Default is "pairwise.complete.obs". Other options are "everything", "all.obs", "complete.obs", or "na.or.complete".
 #' @param method A character string. The correlation method to use. Default is "pearson". Other options are "kendall" or "spearman".
 #'
-#' @return A matrix of protein-protein correlations.
+#' @return A correlation matrix.
+#' @details
+#' You can read more about the method for computing covariances in the presence of missing values
+#' and the coefficient that is calculated in the documentation of the `cor()` function in the `stats` package.
+#'
 #' @export
 #'
 #' @examples
@@ -37,8 +41,9 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #' Plot correlation heatmap
 #'
 #' `hd_plot_cor_heatmap()` calculates the correlation matrix of the input dataset.
-#' It creates a heatmap of the correlation matrix. It also filters the feature
-#' pairs with correlation values above the threshold and returns them in a tibble.
+#' It creates a heatmap of the correlation matrix. This matrix is created via `hd_correlate()`.
+#' It also filters the feature pairs with correlation values above the threshold and
+#' returns them in a tibble.
 #'
 #' @param x A numeric vector, matrix or data frame.
 #' @param y A numeric vector, matrix or data frame with compatible dimensions with `x`. Default is NULL.
@@ -47,15 +52,11 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #' complete.obs", or "na.or.complete".
 #' @param method A character string. The correlation method to use.
 #' Default is "pearson". Other options are "kendall" or "spearman".
-#' @param threshold The reporting protein-protein correlation threshold. Default is 0.8.
+#' @param threshold The reporting correlation threshold. Default is 0.8.
 #' @param cluster_rows Whether to cluster the rows. Default is TRUE.
 #' @param cluster_cols Whether to cluster the columns. Default is TRUE.
 #'
-#' @return A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap
-#' @details
-#' You can read more about the method for computing covariances in the presence of missing values
-#' and the coefficient that is calculated in the documentation of the `cor()` function in the `stats` package.
-#'
+#' @return A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap.
 #' @export
 #'
 #' @examples

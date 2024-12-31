@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification_models.R
 \name{generate_title}
 \alias{generate_title}
-\title{Create title for variable importance plot}
+\title{Create title for feature importance plot}
 \usage{
 generate_title(
   features,
@@ -36,6 +36,6 @@ generate_title(
 The plot subtitle as character vector.
 }
 \description{
-\code{generate_title()} generates a subtitle for the variable importance plot.
+\code{generate_title()} generates a subtitle for the feature importance plot.
 }
 \keyword{internal}

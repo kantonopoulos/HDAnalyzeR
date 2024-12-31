@@ -13,7 +13,7 @@ hd_impute_missForest(
 )
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{maxiter}{The maximum number of iterations.}
 
@@ -28,8 +28,7 @@ The imputed dataset.
 }
 \description{
 \code{impute_missForest()} imputes missing values in a dataset using the \code{missForest} method.
-It allows the user to exclude certain columns from imputation and can also display the
-percentage of missing values in each column before imputation.
+It can also display the percentage of missing values in each column before imputation.
 }
 \details{
 This is the slowest and more complex imputation method. If KNN works fine, it is

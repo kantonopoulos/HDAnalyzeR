@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize.R
 \name{hd_plot_feature_heatmap}
 \alias{hd_plot_feature_heatmap}
-\title{Plot a summary heatmap of the combined differential expression and classification models results}
+\title{Summary the combined DE and model results}
 \usage{
 hd_plot_feature_heatmap(
   de_results,
@@ -27,11 +27,12 @@ hd_plot_feature_heatmap(
 The summary heatmap of the combined differential expression and classification models results.
 }
 \description{
-\code{hd_plot_feature_heatmap} plots a summary heatmap of the combined differential
-expression and classification models results. The heatmap shows the log2 fold change
+\code{hd_plot_feature_heatmap} plots a summary bubble-heatmap of the combined differential
+expression and classification model results. The heatmap shows the log2 fold change
 and adjusted p-value of the differential expression results, and the scaled importance
-and sign of the classification models results. The heatmap is ordered and the selected
-assays are based on the specified control group.
+and sign of the classification model results. The heatmap is ordered and the selected
+assays are based on the specified control group. * are added to the features that pass
+the p-value threshold.
 }
 \details{
 It is very important the de_results and model_results are in the same order
@@ -61,21 +62,24 @@ model_results_myel <- hd_model_rreg(hd_split,
                                     case = "AML",
                                     control = "MYEL",
                                     grid_size = 2,
-                                    cv_sets = 2)
+                                    cv_sets = 2,
+                                    verbose = FALSE)
 
 model_results_lungc <- hd_model_rreg(hd_split,
                                      variable = "Disease",
                                      case = "AML",
                                      control = "LUNGC",
                                      grid_size = 2,
-                                     cv_sets = 2)
+                                     cv_sets = 2,
+                                     verbose = FALSE)
 
 model_results_gliom <- hd_model_rreg(hd_split,
                                      variable = "Disease",
                                      case = "AML",
                                      control = "GLIOM",
                                      grid_size = 2,
-                                     cv_sets = 2)
+                                     cv_sets = 2,
+                                     verbose = FALSE)
 
 # The models are in the same order as the DE results
 res_model <- list("MYEL" = model_results_myel,

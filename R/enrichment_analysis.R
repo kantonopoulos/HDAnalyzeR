@@ -28,7 +28,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
   return(list("gene_list" = gene_list, "background" = background))
 }
 
-#' Run over-representation analysis
+#' Over-representation analysis
 #'
 #' `hd_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
 #'
@@ -41,7 +41,8 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' @return A list containing the results of the ORA.
 #'
 #' @details
-#' qvalueCutoff was set to be 4 times the pvalueCutoff.
+#' qvalueCutoff was set to be 4 times the pvalueCutoff. To perform the ORA, `clusterProfiler` package is used.
+#' For more information, please refer to the `clusterProfiler` documentation.
 #'
 #' @export
 #'
@@ -136,7 +137,7 @@ hd_ora <- function(gene_list,
 }
 
 
-#' Generate visualizations for the over-representation analysis
+#' Plot over-representation analysis
 #'
 #' `hd_plot_ora()` generates useful visualizations for the results of the
 #' over-representation analysis.
@@ -204,7 +205,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 }
 
 
-#' Perform gene set enrichment analysis
+#' Gene set enrichment analysis
 #'
 #' `hd_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 #'
@@ -218,6 +219,10 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' @param pval_lim_enrichment The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
 #'
 #' @return A list containing the results of the GSEA.
+#' @details
+#' To perform the GSEA, `clusterProfiler` package is used. For more information, please
+#' refer to the `clusterProfiler` documentation.
+#'
 #' @export
 #'
 #' @examples
@@ -333,7 +338,7 @@ hd_gsea <- function(de_results,
 }
 
 
-#' Plot the results of the gene set enrichment analysis
+#' Plot gene set enrichment analysis
 #'
 #' `hd_plot_gsea()` produces useful plots to visualize the results of the
 #' gene set enrichment analysis.

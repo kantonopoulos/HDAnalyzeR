@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## What is HDAnalyzeR?
 
-HDAnalyzeR is an R package developed to streamline and enhance proteomics analysis, particularly for biomarker selection from blood plasma samples. It is developed by the Human Disease Blood Atlas group. This vignette will guide you through the essential steps to use the package, from data loading and quality control to data cleaning, dimensionality reduction, and biomarker identification. Let's get started by loading the package!
+HDAnalyzeR is an R package developed to streamline and enhance proteomics analysis, particularly for biomarker discovery from blood plasma samples. It is developed by the Human Disease Blood Atlas group. This vignette will guide you through the essential steps to use the package from data loading to biomarker identification. Let's get started by loading the package!
 
 ```{r setup}
 library(HDAnalyzeR)
@@ -48,14 +48,16 @@ head(example_metadata)
 
 We will initialize the HDAnalyzeR object with the data and metadata. The `hd_initialize()` function will create an object that will be used throughout the analysis. We will specify the sample ID, variable name, and value name in order to correctly load and widen the data. In this case, the data is in long format, so we set `is_wide = FALSE`.
 
-```{r}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 hd_obj <- hd_initialize(dat = example_data, 
                         metadata = example_metadata, 
                         is_wide = FALSE, 
                         sample_id = "DAid",
                         var_name = "Assay",
                         value_name = "NPX")
+```
 
+```{r}
 # See the data transformed into a wide format!
 head(hd_obj$data)
 ```
@@ -68,9 +70,9 @@ head(hd_obj$data)
 
 `hd_qc_summary()` provides a comprehensive summary of the input data and metadata. 
 
-Regarding the data, it will check the column types, calculate the percentage of NAs in each column and row and plot their distributions, calculate protein-protein correlations, and create a heatmap of these correlations. Users can also specify the threshold for reporting protein-protein correlations.
+Regarding the data, it will check the column types, calculate the percentage of NAs in each column and row and plot their distributions, calculate variable-variable (in this case protein-protein) correlations, and create a heatmap of these correlations. Users can also specify the threshold for reporting variable-variable correlations.
 
-Regarding the metadata, it will check the column types and calculate the percentage of NAs in each column and row exactly as before.  It will also create summary visualizations for the metadata variables like "Sex", "Disease", and "Age".
+Regarding the metadata, it will check the column types and calculate the percentage of NAs in each column and row exactly as before.  It will also create summary visualizations for the metadata variables like "Sex" and "Age".
 
 Let's run the QC summary and take a look at some results!
 
@@ -168,9 +170,9 @@ de_summary$upset_plot_up
 de_summary$upset_plot_down
 ```
 
-### Lasso Machine Learning Classification Model
+### Machine Learning Classification Model
 
-In addition to differential expression analysis, we will use a Lasso machine learning classification model to identify significant features. This model will help us understand which proteins are most predictive of the conditions being studied. 
+In addition to differential expression analysis, we will use a regularized machine learning classification model (LASSO) to identify significant features. This model will help us understand which protein features are most predictive of the conditions being studied. 
 
 We will start by creating the data split with `hd_split_data()` so we don't have any data leakage between train and test data and then we will run the model with `hd_model_rreg()`. Once again, we will run the analysis 3 times but we will present only the results for AML.
 
@@ -188,7 +190,7 @@ lasso_res_aml <- hd_model_rreg(hd_split,
 lasso_res_aml$metrics
 lasso_res_aml$roc_curve
 lasso_res_aml$probability_plot
-lasso_res_aml$var_imp_plot
+lasso_res_aml$feat_imp_plot
 ```
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -229,7 +231,7 @@ features_summary$upset_plot_features
 
 ## One step further
 
-The final step involves performing an Over-Representation Analysis for the up-regulated proteins from differential expression, that are also identified as features by the ML model. In this example, we will use the Gene Ontology (GO) database and show the results only for AML. We will use `hd_ora()` and `hd_plot_ora()` to perform and visualize the analysis.
+The final step involves performing a pathway enrichment analysis to get more biological information about the features. In this example, we will run an Over-Representation Analysis for the up-regulated proteins from differential expression, that are also identified as features by the ML model. We will use the Gene Ontology (GO) database and show the results only for AML. We will use `hd_ora()` and `hd_plot_ora()` to perform the analysis and visualize its results.
 
 ```{r, message = FALSE, warning = FALSE}
 # Extract the proteins identified by both DE and Lasso

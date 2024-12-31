@@ -7,7 +7,7 @@
 hd_impute_median(dat, verbose = TRUE)
 }
 \arguments{
-\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.}
+\item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{verbose}{If TRUE, the percentage of missing values in each column is displayed.}
 }
@@ -16,8 +16,7 @@ The imputed dataset.
 }
 \description{
 \code{hd_impute_median()} imputes missing values in a dataset using the median of each column.
-It allows the user to exclude certain columns from imputation and can also display the
-percentage of missing values in each column before imputation.
+It can also display the percentage of missing values in each column before imputation.
 }
 \details{
 This is the fastest but usually least accurate imputation method.

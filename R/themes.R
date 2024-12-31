@@ -1,6 +1,6 @@
-#' HPA theme
+#' HDAnalyzeR theme
 #'
-#' `theme_hd()` creates a theme for ggplot2 plots that is used by the Human Protein Atlas (HPA) project.
+#' `theme_hd()` creates a theme for ggplot2 plots that is used by the Human Disease Blood Atlas resource of the Human Protein Atlas (HPA) project.
 #'
 #' @param angled The angle of the x-axis text. Default is 0.
 #' @param axis_x If FALSE, the x-axis is removed. Default is TRUE.

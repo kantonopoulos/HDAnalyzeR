@@ -9,18 +9,18 @@ hd_widen_data(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX")
 \arguments{
 \item{dat}{A tibble containing data in long format.}
 
-\item{exclude}{The name of the columns to exclude from the transformation.}
+\item{exclude}{The name of the columns to exclude from the transformation. Default is "DAid".}
 
-\item{names_from}{The name of the column containing the variable names.}
+\item{names_from}{The name of the column containing the variable names. Default is "Assay".}
 
-\item{values_from}{The name of the column containing the values.}
+\item{values_from}{The name of the column containing the values. Default is "NPX".}
 }
 \value{
 A tibble containing the data in wide format.
 }
 \description{
 \code{hd_widen_data()} transforms omics data from long to wide format with variables
-like different \code{Assays} as column names and expression values like \code{NPX} as values.
+like different "Assays" as column names and expression values like "NPX" as values.
 }
 \examples{
 # Olink data in long format

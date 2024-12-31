@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will guide you to the different imputation methods HDAnalyzeR offers. First of all, we will load the package, as well as dplyr, ggplot2 and patchwork for data manipulation and visualization. We will also load and widen the Olink example dataset.
+This vignette will guide you to the different imputation methods HDAnalyzeR offers. First of all, we will load the package, as well as dplyr, ggplot2 and patchwork for data manipulation and visualization.
 
 ```{r setup, results = 'hide', message = FALSE, warning = FALSE}
 library(HDAnalyzeR)
@@ -38,7 +38,7 @@ hd_obj <- hd_initialize(dat = example_data,
 
 ## Explore Missing Values
 
-We can simply check our data for NA values by using the `hd_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA
+We can simply check our data for NA values by using the `hd_qc_summary()` as we did in previous vignettes. This time we will use something specific to NA values, the `hd_na_search()` function. This function will return a summary heatmap showing the distribution of NA values across the data and metadata variables. This function is ideal to dive into the missing values and understand if there are any patterns in the missing data. This is important in order to decide how to handle them (e.g., impute or remove).
 
 ```{r}
 na_res <- hd_na_search(hd_obj,
@@ -51,13 +51,13 @@ na_res <- hd_na_search(hd_obj,
 na_res$na_heatmap
 ```
 
-This heatmap is useful to evaluate if there are NA specific patterns in the data. In this case, we can see that the NA values are spread across the different Assays, samples and metadata variables. In this case, we can try impute them!
+In this case, we can see that the NA values are generally spread across the different Assays, samples and metadata variables. There is a higher concentration of missing values in Myeloma that may require further investigation. In our case, we will try impute them!
 
 ## Imputation Methods
 
 ### Median Imputation
 
-We will start the imputation with the simplest and fastest method, which is the median imputation by using the `hd_impute_median()`. After the imputation, we will check the sample distribution of a random Assay that contains missing values to see if these values are imputed logically.
+We will start the imputation with the simplest and fastest method, which is the median imputation by using the `hd_impute_median()`. After the imputation, we will check the sample distribution of a random Assay that contains missing values to see if these values are imputed logically. In a real case, this check should be done to more than just one assay.
 
 ```{r, message = FALSE, warning = FALSE}
 imputed_hd_obj <- hd_impute_median(hd_obj, verbose = FALSE)
@@ -81,7 +81,7 @@ plot_after <- imputed_hd_obj$data |>
 plot_before + plot_after
 ```
 
-As observed in the plots, the distribution of the ACTA2 assay shifts slightly after imputation, with an exaggerated median value in the imputed data. This highlights a key drawback of median imputation: the more missing values there are, the greater the potential bias.
+As observed in the plots, the distribution of the ACTA2 assay shifts after imputation, with an exaggerated median value in the imputed data. This highlights a key drawback of median imputation: the more missing values there are, the greater the potential bias.
 
 ### KNN Imputation
 
@@ -137,13 +137,13 @@ plot_after <- imputed_hd_obj$data |>
 plot_before + plot_after
 ```
 
-The MissForest imputation method is the most accurate and also very robust, as it uses the random forest algorithm to impute missing values. This method is particularly useful for large datasets with complex relationships between variables. On the other hand, it is the most computationally expensive and it would help parallelize it. You can do that by creating and registering a cluster with a package like `doParallel` and then setting the `parallelize` argument to "forests" or "variables".
+The MissForest imputation method is usually the most accurate and also very robust, as it uses the complex random forest algorithm to impute missing values. This method is particularly useful for large datasets with complex relationships between variables. On the other hand, it is by far the most computationally expensive and it would help parallelize it. You can do that by creating and registering a cluster with a package like `doParallel` and then setting the `parallelize` argument to "forests" or "variables".
 
 > 📓 All methods assume that the data is missing at random, which is a common assumption in imputation methods. If the data are missing in a biased way (either technical or biological), the imputation methods may introduce bias into the data. In such cases, it is important to carefully consider the way the data were collected and what they represent.
 
 ## Removing Missing Values instead of Imputing
 
-If for any reason do not want to impute the data, you can use the `hd_omit_na()` function to remove the rows with missing values in specific variables. This function will remove all rows with missing values in any of the assays.
+If for any reason you do not want to impute the data, you can use the `hd_omit_na()` function to easily remove the rows with missing values in specific variables. In this example, we will remove all rows with missing values in any of the assays.
 
 ```{r, message = FALSE, warning = FALSE}
 imputed_hd_obj <- hd_omit_na(hd_obj)
@@ -171,6 +171,6 @@ res <- hd_omit_na(hd_obj, columns = "AARSD1")
 res$data
 ```
 
-In this vignette we showed that via HDAnalyzeR the user can impute their data with different methods, each of them with its own advantages and drawbacks. The user can choose the method that best fits their data and their analysis needs. When using KNN or MissForest imputation methods, the user should experiment with the parameters and look at the distributions of assays before and after to pick the most suitable.
+In this vignette we showed that via HDAnalyzeR you can impute your data with different methods, each of them with its own advantages and drawbacks. You can choose the method that best fits your data and your analysis needs. When using KNN or MissForest imputation methods, you should experiment with the parameters and look at the distributions of assays before and after to pick the most suitable.
 
 > 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.

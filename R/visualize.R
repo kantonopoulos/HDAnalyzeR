@@ -44,15 +44,15 @@ apply_palette <- function(plot, palette, type = "color") {
 }
 
 
-#' Plot feature boxplots
+#' Feature boxplots
 #'
 #' `hd_plot_feature_boxplot()` plots boxplots for the specified features in the dataset.
-#' It annotates the boxplot with color for the selected case
-#' It is also possible to add points to the boxplot.
+#' It annotates the boxplot with color for the selected case and it is also possible to
+#' add the individual data points on top.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param variable The name of the column containing the case and control groups. Default is "Disease".
+#' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param features The features to include in the boxplot. They should be columns of the data.
 #' @param case The case class.
 #' @param type The type of boxplot to plot. Default is "case_vs_all". Other option is "case_vs_control".
@@ -61,7 +61,7 @@ apply_palette <- function(plot, palette, type = "color") {
 #' @param yaxis_title The title of the y-axis. Default is "NPX".
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #'
-#' @return The boxplot panel of the selected features
+#' @return The boxplot panel of the selected features.
 #' @export
 #'
 #' @examples
@@ -81,7 +81,8 @@ apply_palette <- function(plot, palette, type = "color") {
 #'                         features = c("AARSD1", "ABL1"),
 #'                         case = "AML",
 #'                         type = "case_vs_control",
-#'                         palette = "cancers12")
+#'                         palette = "cancers12",
+#'                         points = FALSE)
 hd_plot_feature_boxplot <- function(dat,
                                     metadata = NULL,
                                     variable = "Disease",
@@ -201,17 +202,17 @@ hd_plot_feature_boxplot <- function(dat,
 }
 
 
-#' Visualize scatter plot with regression line
+#' Regression plot
 #'
 #' `hd_plot_regression` plots a scatter plot with a linear regression line.
 #' It is possible to add the standard error of the regression line, as well as the
 #' R-squared and p-value.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param metadata_cols The metadata columns to plot. Default is NULL.
-#' @param x The column name of the x-axis variable.
-#' @param y The column name of the y-axis variable.
+#' @param metadata_cols The metadata variables to plot. Default is NULL.
+#' @param x The column name of the x-axis variable. It should be a variable of the data or metadata.
+#' @param y The column name of the y-axis variable. It should be a variable of the data or metadata.
 #' @param se Whether to add the standard error of the regression line. Default is FALSE.
 #' @param line_color The color of the regression line.
 #' @param r_2 Whether to add the R-squared and p-value to the plot. Default is TRUE.
@@ -304,13 +305,14 @@ hd_plot_regression <- function(dat,
 }
 
 
-#' Plot a summary heatmap of the combined differential expression and classification models results
+#' Summary the combined DE and model results
 #'
-#' `hd_plot_feature_heatmap` plots a summary heatmap of the combined differential
-#' expression and classification models results. The heatmap shows the log2 fold change
+#' `hd_plot_feature_heatmap` plots a summary bubble-heatmap of the combined differential
+#' expression and classification model results. The heatmap shows the log2 fold change
 #' and adjusted p-value of the differential expression results, and the scaled importance
-#' and sign of the classification models results. The heatmap is ordered and the selected
-#' assays are based on the specified control group.
+#' and sign of the classification model results. The heatmap is ordered and the selected
+#' assays are based on the specified control group. * are added to the features that pass
+#' the p-value threshold.
 #'
 #' @param de_results A list of differential expression results.
 #' @param model_results A list of classification models results.
@@ -348,21 +350,24 @@ hd_plot_regression <- function(dat,
 #'                                     case = "AML",
 #'                                     control = "MYEL",
 #'                                     grid_size = 2,
-#'                                     cv_sets = 2)
+#'                                     cv_sets = 2,
+#'                                     verbose = FALSE)
 #'
 #' model_results_lungc <- hd_model_rreg(hd_split,
 #'                                      variable = "Disease",
 #'                                      case = "AML",
 #'                                      control = "LUNGC",
 #'                                      grid_size = 2,
-#'                                      cv_sets = 2)
+#'                                      cv_sets = 2,
+#'                                      verbose = FALSE)
 #'
 #' model_results_gliom <- hd_model_rreg(hd_split,
 #'                                      variable = "Disease",
 #'                                      case = "AML",
 #'                                      control = "GLIOM",
 #'                                      grid_size = 2,
-#'                                      cv_sets = 2)
+#'                                      cv_sets = 2,
+#'                                      verbose = FALSE)
 #'
 #' # The models are in the same order as the DE results
 #' res_model <- list("MYEL" = model_results_myel,
@@ -442,9 +447,9 @@ hd_plot_feature_heatmap <- function(de_results,
 }
 
 
-#' Plot feature network
+#' Feature network
 #'
-#' `hd_plot_feature_network` plots a network of the features. The bigger nodes represent the
+#' `hd_plot_feature_network` plots the network of the specified features. The bigger nodes represent the
 #' classes and the smaller nodes represent the features. The color of the nodes is based on the
 #' color variable which can be either the importance, the logFC or any value that can rank the features.
 #'
@@ -461,64 +466,6 @@ hd_plot_feature_heatmap <- function(de_results,
 #' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
-#'
-#' # Create a feature panel from classification models results
-#' # Split the data into training and test sets
-#' hd_split <- hd_split_data(hd_object, variable = "Disease")
-#'
-#' # Run the regularized regression model pipeline
-#' model_results_aml <- hd_model_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "AML",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
-#'
-#' model_results_cll <- hd_model_rreg(hd_split,
-#'                                    variable = "Disease",
-#'                                    case = "CLL",
-#'                                    grid_size = 2,
-#'                                    cv_sets = 2)
-#'
-#' model_results_myel <- hd_model_rreg(hd_split,
-#'                                   variable = "Disease",
-#'                                   case = "MYEL",
-#'                                   grid_size = 2,
-#'                                   cv_sets = 2)
-#'
-#' model_results_lungc <- hd_model_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "LUNGC",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
-#'
-#' model_results_gliom <- hd_model_rreg(hd_split,
-#'                                      variable = "Disease",
-#'                                      case = "GLIOM",
-#'                                      grid_size = 2,
-#'                                      cv_sets = 2)
-#'
-#' feature_panel <- model_results_aml[["features"]] |>
-#'   dplyr::filter(Scaled_Importance > 0.5) |>
-#'   dplyr::mutate(Class = "AML") |>
-#'   dplyr::bind_rows(model_results_cll[["features"]] |>
-#'                      dplyr::filter(Scaled_Importance > 0.5) |>
-#'                      dplyr::mutate(Class = "CLL"),
-#'                    model_results_myel[["features"]] |>
-#'                      dplyr::filter(Scaled_Importance > 0.5) |>
-#'                      dplyr::mutate(Class = "MYEL"),
-#'                    model_results_lungc[["features"]] |>
-#'                      dplyr::filter(Scaled_Importance > 0.5) |>
-#'                      dplyr::mutate(Class = "LUNGC"),
-#'                    model_results_gliom[["features"]] |>
-#'                      dplyr::filter(Scaled_Importance > 0.5) |>
-#'                      dplyr::mutate(Class = "GLIOM"))
-#'
-#' print(head(feature_panel, 5))  # Preview of the feature panel
-#'
-#' hd_plot_feature_network(feature_panel,
-#'                         plot_color = "Scaled_Importance",
-#'                         class_palette = "cancers12")
-#'
 #'
 #' # Create a feature panel from differential expression results
 #' de_results_aml <- hd_de_limma(hd_object, case = "AML")

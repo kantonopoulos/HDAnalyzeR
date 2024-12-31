@@ -1,14 +1,15 @@
 utils::globalVariables(c(":=", "sig.label"))
 #' Differential expression analysis with limma
 #'
-#' `hd_de_limma()` performs differential expression analysis using limma package.
-#' It can correct the results for metadata columns like Sex, Age, or BMI.
+#' `hd_de_limma()` performs differential expression analysis using the `limma` package.
+#' It can correct the results for metadata columns like Sex, Age, BMI, etc.
 #' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
-#' The function removes the NAs from the columns that are used to correct for.
+#' The function removes the rows with NAs in the variables that are used to correct for as
+#' well as the variable of interest.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param variable The name of the column containing the case and control groups or a continuous variable.
+#' @param variable The name of the metadata variable containing the case and control groups or a continuous variable.
 #' @param case The case group. In case of a continuous variable, it must be NULL.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. In case of a continuous variable, it must be NULL.
 #' @param correct The variables to correct the results with. Default is NULL.
@@ -16,6 +17,10 @@ utils::globalVariables(c(":=", "sig.label"))
 #'
 #' @return An object with the DE results.
 #' @details
+#' The variable of interest can be either categorical or continuous.
+#' This variable and all variables in the `correct` argument should be present in the metadata.
+#' Also, the variable of interest should not be present in the `correct` argument.
+#'
 #' In case of a continuous variable or if you are correcting based on a continuous variable,
 #' the variable should be numeric and contain at least 6 unique variables.
 #' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
@@ -177,12 +182,13 @@ hd_de_limma <- function(dat,
 #' Differential expression analysis with t-test
 #'
 #' `hd_de_ttest()` performs differential expression analysis using t-test.
-#' It separates the data in case-control groups, checks for data normality and
-#' perform a t-test or Wilcoxon test respectively. It also performs p value FDR adjustment.
+#' The output tibble includes the logFC, p-values, as well as the FDR adjusted p-values.
+#' The function removes the rows with NAs in the variables that are used to correct for as
+#' well as the variable of interest.
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param variable The name of the column containing the case and control groups.
+#' @param variable The name of the metadata variable containing the case and control groups.
 #' @param case The case group.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case.
 #' @param log_transform If the data should be log transformed. Default is FALSE.
@@ -190,8 +196,12 @@ hd_de_limma <- function(dat,
 #' @return An object with the DE results.
 #'
 #' @details
+#' The variable of interest should be categorical and present in the metadata.
 #' In case your data are not already log transformed, you can set `log_transform = TRUE` to log
 #' transform the data with base 2 before the analysis start.
+#'
+#' When using this function you cannot correct for other variables or run it against a continuous variable.
+#' If you need to correct for other variables or run the analysis against a continuous variable, use `hd_de_limma()`.
 #'
 #' @export
 #'
@@ -301,22 +311,22 @@ hd_de_ttest <- function(dat,
 }
 
 
-#' Create volcano plots
+#' Visualize differential expression results
 #'
 #' `hd_plot_volcano()` creates volcano plots for the differential expression results.
-#' It colors and labels the top up and down regulated proteins.
+#' It colors and labels the top-n up and down regulated proteins.
 #'
-#' @param de_object The differential expression object. Created by `hd_de_limma()`.
+#' @param de_object The differential expression object. Created by `hd_de_limma()` or `hd_de_ttest()`.
 #' @param pval_lim The p-value limit for significance. Default is 0.05.
 #' @param logfc_lim The logFC limit for significance. Default is 0.
 #' @param top_up_prot The number of top up regulated proteins to label on the plot. Default is 10.
 #' @param top_down_prot The number of top down regulated proteins to label on the plot. Default is 5.
-#' @param palette The color palette for the plot. It should be one of the palettes from `hd_palettes()` or a custom palette. Default is "diff_exp".
+#' @param palette The color palette for the plot. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
 #' @param title The title of the plot or NULL for no title.
-#' @param report_nproteins If the number of significant proteins should be reported in the subtitle. Default is TRUE.
-#' @param user_defined_proteins A vector with the protein names to label on the plot. Default is NULL.
+#' @param report_nproteins If the number of significant proteins should be reported in the title. Default is TRUE.
+#' @param user_defined_proteins A vector with the protein names to label on the plot if customization is required. Default is NULL.
 #'
-#' @return An object with the DE results and the volcano plot.
+#' @return A DE object with the volcano plot.
 #' @export
 #'
 #' @examples
@@ -470,32 +480,33 @@ extract_protein_list <- function(upset_data, proteins) {
 }
 
 
-#' Plot summary visualizations for the differential expression results
+#' Summarize differential expression results
 #'
-#' `hd_plot_de_summary()` creates summary visualizations for the differential expression results.
-#' It plots a barplot with the number of significant proteins for each disease.
-#' It also creates upset plots both for the significant up and down regulated proteins for each disease.
+#' `hd_plot_de_summary()` creates summary visualizations of the results from multiple differential
+#' expression analyses. It plots a barplot with the number of significant proteins and
+#' upset plots both for the significant up and down regulated proteins for each analysis.
 #'
-#' @param de_results A list of differential expression results. It should be a list of objects created by `hd_de_limma()` with the classes as names. See the examples for more details.
-#' @param variable The name of the column containing the case and control groups.
+#' @param de_results A list of differential expression results. It should be a list of objects created by `hd_de_limma()` or `hd_de_ttest()` with the classes as names. See the examples for more details.
+#' @param variable The name of the variable containing the case and control groups.
 #' @param class_palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param diff_exp_palette The color palette for the differential expression. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is "diff_exp".
 #' @param pval_lim The p-value limit for significance. Default is 0.05.
 #' @param logfc_lim The logFC limit for significance. Default is 0.
 #'
-#' @return A list with the DE summary plots and results
+#' @return A list with the DE summary plots and results.
 #' @export
 #'
 #' @examples
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
-#' # Run differential expression analysis for AML vs all others
-#' de_results_aml <- hd_de_limma(hd_object, case = "AML", control)
-#' de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
-#' de_results_cll <- hd_de_limma(hd_object, case = "CLL")
-#' de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
-#' de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
+#' # Run differential expression analysis for different cases vs all others
+#' controls <- c("AML", "CLL", "MYEL", "LUNGC", "GLIOM")  # All diseases of interest
+#' de_results_aml <- hd_de_limma(hd_object, case = "AML", control = setdiff(controls, "AML"))
+#' de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC", control = setdiff(controls, "LUNGC"))
+#' de_results_cll <- hd_de_limma(hd_object, case = "CLL", control = setdiff(controls, "CLL"))
+#' de_results_myel <- hd_de_limma(hd_object, case = "MYEL", control = setdiff(controls, "MYEL"))
+#' de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM", control = setdiff(controls, "GLIOM"))
 #'
 #' res <- list("AML" = de_results_aml,
 #'             "LUNGC" = de_results_lungc,

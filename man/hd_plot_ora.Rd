@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_plot_ora}
 \alias{hd_plot_ora}
-\title{Generate visualizations for the over-representation analysis}
+\title{Plot over-representation analysis}
 \usage{
 hd_plot_ora(enrichment, seed = 123)
 }

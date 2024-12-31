@@ -16,10 +16,14 @@ hd_correlate(x, y = NULL, use = "pairwise.complete.obs", method = "pearson")
 \item{method}{A character string. The correlation method to use. Default is "pearson". Other options are "kendall" or "spearman".}
 }
 \value{
-A matrix of protein-protein correlations.
+A correlation matrix.
 }
 \description{
 \code{hd_correlate()} calculates the correlation matrix of the input dataset.
+}
+\details{
+You can read more about the method for computing covariances in the presence of missing values
+and the coefficient that is calculated in the documentation of the \code{cor()} function in the \code{stats} package.
 }
 \examples{
 # Correlate features in a dataset (column wise)

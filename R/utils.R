@@ -1,6 +1,6 @@
 #' Initialize HDAnalyzeR object
 #'
-#' `hd_initialize()` initializes an HDAnalyzeR object with the data, metadata, and other parameters.
+#' `hd_initialize()` initializes an HDAnalyzeR object with the data, metadata, and other parameters. This object can be used to run various analyses in the package.
 #'
 #' @param dat A tibble containing the omics data.
 #' @param metadata A tibble containing the metadata. Default is NULL.
@@ -15,13 +15,15 @@
 #' object before starting any analysis. This initialization step ensures that
 #' your input data and metadata are correctly formatted and compatible with the
 #' package. Specifically, the function validates your data and automatically
-#' converts it to wide format if provided in long format (`is_wide`). While it is
-#' possible to use HDAnalyzeR functions on data outside of an HDAnalyzeR object, users
-#' must ensure that the data adheres to the required structure: the first column
-#' must contain sample IDs, followed by numeric columns (protein expression)in wide format.
+#' converts it to wide format if provided in long format (`is_wide`).
+#'
+#' While it is possible to use HDAnalyzeR functions on data outside of an HDAnalyzeR object,
+#' users must ensure that the data adheres to the required structure: the first column
+#' must contain sample IDs, followed by numeric columns (protein expression) in wide format.
 #' Additionally, the metadata must include the same set of sample IDs.
 #' Proper initialization or careful adherence to these requirements is crucial
-#' for accurate and efficient analysis.
+#' for accurate and efficient analysis. Defaults are provided according to the
+#' Human Disease Blood Atlas Olink data format.
 #'
 #' @export
 #'
@@ -73,7 +75,7 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
 #' If the directory already exists, a message is printed.
 #'
 #' @param path_name The name of the directory to create.
-#' @param date If TRUE, a directory with the current date as name will be created inside the directory with `dir_name`.
+#' @param date If TRUE, a directory with the current date as name will be created inside the directory with `path_name`.
 #'
 #' @return The relative directory path as a string.
 #' @export
@@ -125,12 +127,12 @@ hd_save_path <- function(path_name, date = FALSE) {
 }
 
 
-#' Save tibbles or R objects
+#' Save tibble or R object
 #'
 #' `hd_save_data()` saves either a tibble as CSV, TSV, RDS, or XLSX, or an R object
 #' (for example a list) as RDS in a specified directory. If the directory does not exist,
-#' it will be created. The recommended file type for files that are going to be used mainly
-#' in R is RDS.
+#' it will be created automatically before saving the file. The recommended file type
+#' for files that are going to be used in an R environment is RDS.
 #'
 #' @param dat The data to save.
 #' @param path_name The name of the file to be saved. Extension options are "csv", "tsv", "rds", or "xlsx".
@@ -221,12 +223,12 @@ hd_import_data <- function(path_name) {
 #' Convert omics data to wide format
 #'
 #' `hd_widen_data()` transforms omics data from long to wide format with variables
-#' like different `Assays` as column names and expression values like `NPX` as values.
+#' like different "Assays" as column names and expression values like "NPX" as values.
 #'
 #' @param dat A tibble containing data in long format.
-#' @param exclude The name of the columns to exclude from the transformation.
-#' @param names_from The name of the column containing the variable names.
-#' @param values_from The name of the column containing the values.
+#' @param exclude The name of the columns to exclude from the transformation. Default is "DAid".
+#' @param names_from The name of the column containing the variable names. Default is "Assay".
+#' @param values_from The name of the column containing the values. Default is "NPX".
 #'
 #' @return A tibble containing the data in wide format.
 #' @export
@@ -255,9 +257,9 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #' `hd_long_data()` transforms omics data from wide to long format.
 #'
 #' @param dat A tibble containing data in wide format.
-#' @param exclude The name of the columns to exclude from the transformation.
-#' @param names_to The name of the column to create for the variable names.
-#' @param values_to The name of the column to create for the values.
+#' @param exclude The name of the columns to exclude from the transformation. Default is "DAid".
+#' @param names_to The name of the column to create for the variable names. Default is "Assay".
+#' @param values_to The name of the column to create for the values. Default is "NPX".
 #'
 #' @return A tibble containing the data in long format.
 #' @export
@@ -269,6 +271,12 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #'
 #' # Transform Olink data in long format
 #' hd_long_data(example_data_wide)
+#'
+#' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
+#' example_data_wide <- hd_widen_data(example_data,
+#'                                    exclude = "Sample",
+#'                                    names_from = "OlinkID")
+#' hd_long_data(example_data_wide, exclude = "Sample", names_to = "OlinkID")
 hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
   suppressWarnings({
     long_data <- dat |>
@@ -289,6 +297,10 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #'
 #' @return The type of the variable as a string: "categorical", "continuous", or "unknown".
+#' @details
+#' If you want to apply this function to each column of a dataframe, you can use the
+#' `sapply()` function. See examples. For more information check `sapply` documentation.
+#'
 #' @export
 #'
 #' @examples
@@ -302,8 +314,8 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #'
 #' # Apply the function to each column of a dataframe
 #' example <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
-#'                            Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
-#'                            Mixed = c(1, "1", 2, 2, "3", 3))
+#'                       Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
+#'                       Mixed = c(1, "1", 2, 2, "3", 3))
 #'
 #' sapply(example, hd_detect_vartype)
 hd_detect_vartype <- function(var, unique_threshold = 5) {
@@ -318,22 +330,26 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
       return("continuous")
     }
   } else {
-    return("unknown")  # For unsupported or mixed types
+    return("unknown")  # For unsupported types
   }
 
 }
 
 
-#' Bin columns
+#' Bin variables
 #'
-#' `hd_bin_columns()` bins continuous columns and labels them with ranges.
+#' `hd_bin_columns()` bins continuous variables and labels them with ranges.
 #'
 #' @param dat The data to bin.
-#' @param column_types A vector containing the type of each column in the dataframe.
+#' @param column_types A vector containing the type of each variable (column) in the dataframe.
 #' @param bins The number of bins to create. Default is 5.
 #' @param round_digits The number of digits to round the bin ranges to. Default is 0.
 #'
-#' @return The data with binned continuous columns.
+#' @return The data with continuous variables binned.
+#' @details
+#' In case of a dataset with many variables, it is recommended to use the function
+#' `hd_detect_vartype()` to automatically detect the type of each variable. See examples.
+#'
 #' @export
 #'
 #' @examples
@@ -346,6 +362,15 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
 #'
 #' column_types <- c("continuous", "continuous", "categorical")
 #' hd_bin_columns(test_data, column_types, bins = 3)
+#'
+#' # Automatically detect variable types
+#' test_data <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
+#'                         Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9))
+#' column_types <- sapply(test_data, hd_detect_vartype)
+#'
+#' # The variable to be binned has one significant digit
+#' # So we will also round the bins to one digit
+#' hd_bin_columns(test_data, column_types, bins = 3, round_digits = 1)
 hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
   # Ensure inputs are valid
   if (!is.data.frame(dat)) stop("data must be a dataframe.")
@@ -416,7 +441,10 @@ check_numeric_columns <- function(dat) {
 
 #' Filter data and metadata by sex
 #'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample_id as its first column.
+#' `hd_filter_by_sex()` filters the data and metadata by the metadata Sex variable and a specified value.
+#' It can be used in cases of sex specific diseases before running differential expression or classification analysis.
+#'
+#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param variable The name of the variable in the metadata contain information for sex. Default is "Sex".
 #' @param sex The value of the sex variable to filter by.

@@ -9,11 +9,11 @@ hd_long_data(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX")
 \arguments{
 \item{dat}{A tibble containing data in wide format.}
 
-\item{exclude}{The name of the columns to exclude from the transformation.}
+\item{exclude}{The name of the columns to exclude from the transformation. Default is "DAid".}
 
-\item{names_to}{The name of the column to create for the variable names.}
+\item{names_to}{The name of the column to create for the variable names. Default is "Assay".}
 
-\item{values_to}{The name of the column to create for the values.}
+\item{values_to}{The name of the column to create for the values. Default is "NPX".}
 }
 \value{
 A tibble containing the data in long format.
@@ -28,4 +28,10 @@ example_data_wide
 
 # Transform Olink data in long format
 hd_long_data(example_data_wide)
+
+# Use Sample name instead of Sample ID and Olink IDs instead of Assay names
+example_data_wide <- hd_widen_data(example_data,
+                                   exclude = "Sample",
+                                   names_from = "OlinkID")
+hd_long_data(example_data_wide, exclude = "Sample", names_to = "OlinkID")
 }

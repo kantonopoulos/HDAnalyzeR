@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_plot_gsea}
 \alias{hd_plot_gsea}
-\title{Plot the results of the gene set enrichment analysis}
+\title{Plot gene set enrichment analysis}
 \usage{
 hd_plot_gsea(enrichment, seed = 123)
 }

@@ -2,19 +2,19 @@
 % Please edit documentation in R/palettes.R
 \name{scale_color_hd}
 \alias{scale_color_hd}
-\title{HPA color scales}
+\title{HDAnalyzeR color scales}
 \usage{
 scale_color_hd(palette)
 }
 \arguments{
-\item{palette}{The name of the palette to use. It should be one of the palettes from \code{get_hpa_palettes()}.}
+\item{palette}{The name of the palette to use. It should be one of the palettes from \code{hd_palettes()}.}
 }
 \value{
 A ggplot2 scale for color aesthetics.
 }
 \description{
-\code{scale_color_hd()} creates a ggplot2 scale for color aesthetics using the color
-palettes from the Human Protein Atlas (HPA) project.
+\code{scale_color_hd()} creates a ggplot2 scale for color aesthetics using the HDAnalyzeR
+palettes.
 }
 \examples{
 # Create an example dataframe

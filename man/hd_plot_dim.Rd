@@ -21,11 +21,11 @@ hd_plot_dim(
 
 \item{metadata}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
-\item{x}{The name of the column in \code{dim_res} that contains the x-axis values.}
+\item{x}{The name of the column in \code{dim_object} that contains the x-axis values.}
 
-\item{y}{The name of the column in \code{dim_res} that contains the y-axis values.}
+\item{y}{The name of the column in \code{dim_object} that contains the y-axis values.}
 
-\item{color}{The name of the column in \code{dim_res} that contains the variable to be used to plot the points color.}
+\item{color}{The name of metadata variable to be used to plot the points color.}
 
 \item{palette}{The color palette for the plot. If it is a character, it should be one of the palettes from \code{hd_palettes()}.}
 
@@ -46,7 +46,15 @@ The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
-# Run the PCA analysis
+# Run the PCA analysis and plot results
 pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_dim(hd_object, x = "PC1", y = "PC2", color = "Disease", palette = "cancers12")
+
+pca_object$pca_plot
+
+# Run the UMAP analysis and plot results
+umap_object <- hd_umap(hd_object, components = 2, by_sample = TRUE, seed = 123) |>
+ hd_plot_dim(hd_object, x = "UMAP1", y = "UMAP2", color = "Disease", palette = "cancers12")
+
+ umap_object$umap_plot
 }

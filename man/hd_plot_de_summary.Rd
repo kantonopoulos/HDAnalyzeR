@@ -2,7 +2,7 @@
 % Please edit documentation in R/diff_expression.R
 \name{hd_plot_de_summary}
 \alias{hd_plot_de_summary}
-\title{Plot summary visualizations for the differential expression results}
+\title{Summarize differential expression results}
 \usage{
 hd_plot_de_summary(
   de_results,
@@ -14,9 +14,9 @@ hd_plot_de_summary(
 )
 }
 \arguments{
-\item{de_results}{A list of differential expression results. It should be a list of objects created by \code{hd_de_limma()} with the classes as names. See the examples for more details.}
+\item{de_results}{A list of differential expression results. It should be a list of objects created by \code{hd_de_limma()} or \code{hd_de_ttest()} with the classes as names. See the examples for more details.}
 
-\item{variable}{The name of the column containing the case and control groups.}
+\item{variable}{The name of the variable containing the case and control groups.}
 
 \item{class_palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 
@@ -27,23 +27,24 @@ hd_plot_de_summary(
 \item{logfc_lim}{The logFC limit for significance. Default is 0.}
 }
 \value{
-A list with the DE summary plots and results
+A list with the DE summary plots and results.
 }
 \description{
-\code{hd_plot_de_summary()} creates summary visualizations for the differential expression results.
-It plots a barplot with the number of significant proteins for each disease.
-It also creates upset plots both for the significant up and down regulated proteins for each disease.
+\code{hd_plot_de_summary()} creates summary visualizations of the results from multiple differential
+expression analyses. It plots a barplot with the number of significant proteins and
+upset plots both for the significant up and down regulated proteins for each analysis.
 }
 \examples{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
-# Run differential expression analysis for AML vs all others
-de_results_aml <- hd_de_limma(hd_object, case = "AML", control)
-de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
-de_results_cll <- hd_de_limma(hd_object, case = "CLL")
-de_results_myel <- hd_de_limma(hd_object, case = "MYEL")
-de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM")
+# Run differential expression analysis for different cases vs all others
+controls <- c("AML", "CLL", "MYEL", "LUNGC", "GLIOM")  # All diseases of interest
+de_results_aml <- hd_de_limma(hd_object, case = "AML", control = setdiff(controls, "AML"))
+de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC", control = setdiff(controls, "LUNGC"))
+de_results_cll <- hd_de_limma(hd_object, case = "CLL", control = setdiff(controls, "CLL"))
+de_results_myel <- hd_de_limma(hd_object, case = "MYEL", control = setdiff(controls, "MYEL"))
+de_results_gliom <- hd_de_limma(hd_object, case = "GLIOM", control = setdiff(controls, "GLIOM"))
 
 res <- list("AML" = de_results_aml,
             "LUNGC" = de_results_lungc,
