@@ -36,14 +36,22 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
 #' @param background A character vector containing the background genes.
-#' @param pval_lim_enrichment The p-value threshold to consider a term as significant in the enrichment analysis.
+#' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis.
 #'
 #' @return A list containing the results of the ORA.
 #'
 #' @details
-#' qvalueCutoff was set to be 4 times the pvalueCutoff. To perform the ORA, `clusterProfiler` package is used.
+#' To perform the ORA, `clusterProfiler` package is used.
+#' The `qvalueCutoff` is set to 1 by default to prioritize filtering by adjusted
+#' p-values (p.adjust). This simplifies the workflow by ensuring a single, clear
+#' significance threshold based on the false discovery rate (FDR). While q-values
+#' are not used for filtering by default, they are still calculated and included
+#' in the results for users who wish to apply additional criteria.
 #' For more information, please refer to the `clusterProfiler` documentation.
 #'
+#' If you want to learn more about ORA, please refer to the following publications:
+#' - Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/
+#' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
 #' @examples
@@ -64,7 +72,7 @@ hd_ora <- function(gene_list,
                    database = c("GO", "Reactome", "KEGG"),
                    ontology = c("BP", "CC", "MF", "ALL"),
                    background = NULL,
-                   pval_lim_enrichment = 0.05) {
+                   pval_lim = 0.05) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
@@ -87,8 +95,8 @@ hd_ora <- function(gene_list,
     enrichment <- clusterProfiler::enrichKEGG(gene = gene_list,
                                               organism = "hsa",
                                               keyType = "ncbi-geneid",
-                                              pvalueCutoff = pval_lim_enrichment,
-                                              qvalueCutoff = pval_lim_enrichment*4,
+                                              pvalueCutoff = pval_lim,
+                                              qvalueCutoff = 1,
                                               universe = background)
 
   } else if (database == "GO") {
@@ -102,8 +110,8 @@ hd_ora <- function(gene_list,
     enrichment <- clusterProfiler::enrichGO(gene = gene_list,
                                             OrgDb = org.Hs.eg.db::org.Hs.eg.db,
                                             ont = ontology,
-                                            pvalueCutoff = pval_lim_enrichment,
-                                            qvalueCutoff = pval_lim_enrichment*4,
+                                            pvalueCutoff = pval_lim,
+                                            qvalueCutoff = 1,
                                             universe = background)
 
   } else if (database == "Reactome") {
@@ -116,14 +124,14 @@ hd_ora <- function(gene_list,
     # Perform Reactome enrichment analysis
     enrichment <- ReactomePA::enrichPathway(gene = gene_list,
                                             organism = "human",
-                                            pvalueCutoff = pval_lim_enrichment,
-                                            qvalueCutoff = pval_lim_enrichment*4,
+                                            pvalueCutoff = pval_lim,
+                                            qvalueCutoff = 1,
                                             universe = background)
 
 
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim_enrichment)) {
+  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
 
@@ -209,20 +217,20 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #'
 #' `hd_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 #'
-#' @param de_results A tibble containing the results of a differential expression analysis.
+#' @param de_results An `hd_de` object from `hd_de_limma()` or `hd_de_ttest()` or a tibble containing the results of a differential expression analysis.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
-#' @param expression The type of differentially expressed proteins to consider in the analysis. It can be "both", "up", or "down".
-#' @param ranked_by The metric to rank the proteins. It can be "logFC" or "adj.P.Val".
-#' @param pval_lim The p-value threshold to consider a term as significant in the differential expression analysis. Default is 0.05.
-#' @param logfc_lim The log fold change threshold to consider a term as significant in the differential expression analysis. Default is 0.
-#' @param pval_lim_enrichment The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
+#' @param ranked_by The variable to rank the proteins. It can be "logFC", "adj.P.Val" or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
+#' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
 #'
 #' @return A list containing the results of the GSEA.
 #' @details
 #' To perform the GSEA, `clusterProfiler` package is used. For more information, please
 #' refer to the `clusterProfiler` documentation.
 #'
+#' If you want to learn more about GSEA, please refer to the following publications:
+#' - Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/
+#' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
 #' @examples
@@ -236,47 +244,43 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' hd_gsea(de_results,
 #'         database = "GO",
 #'         ontology = "BP",
-#'         expression = "both",
 #'         ranked_by = "logFC",
-#'         pval_lim_enrichment = 0.9)
+#'         pval_lim = 0.9)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 hd_gsea <- function(de_results,
                     database = c("GO", "Reactome", "KEGG"),
                     ontology = c("BP", "CC", "MF", "ALL"),
-                    expression = c("both", "up", "down"),
-                    ranked_by = c("logFC", "adj.P.Val"),
-                    pval_lim = 0.05,
-                    logfc_lim = 0,
-                    pval_lim_enrichment = 0.05) {
+                    ranked_by = "logFC",
+                    pval_lim = 0.05) {
 
   database <- match.arg(database)
   ontology <- match.arg(ontology)
-  expression <- match.arg(expression)
-  ranked_by <- match.arg(ranked_by)
 
-  if (expression == "both") {
-    de_results <- de_results[["de_res"]] |>
-      dplyr::filter(!!rlang::sym("adj.P.Val") < pval_lim & abs(!!rlang::sym("logFC")) > logfc_lim)
-  } else if (expression == "up") {
-    de_results <- de_results[["de_res"]] |>
-      dplyr::filter(!!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") > logfc_lim)
-  } else if (expression == "down") {
-    de_results <- de_results[["de_res"]] |>
-      dplyr::filter(!!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim)
+  if (class(de_results) == "hd_de") {
+    de_results <- de_results$de_res
   }
-
-  de_results <- de_results |> dplyr::mutate(logFC = abs(!!rlang::sym("logFC")))
 
   # Prepare sorted_protein_list
   if (ranked_by == "logFC") {
     gene_list <- stats::setNames(de_results[["logFC"]],
                                  de_results[["Feature"]])
-  } else {
+  } else if (ranked_by == "adj.P.Val") {
     gene_list <- stats::setNames(de_results[["adj.P.Val"]],
                                  de_results[["Feature"]])
+  } else {
+    if (ranked_by %in% colnames(de_results)) {
+      message(paste("The ranking will be done based on the", ranked_by, "variable."))
+      gene_list <- stats::setNames(de_results[[ranked_by]],
+                                   de_results[["Feature"]])
+    } else {
+      stop("The ranking variable provided is not valid. Please provide a valid variable.")
+    }
   }
   sorted_gene_list <- sort(gene_list, decreasing = TRUE)
 
+  if (length(sorted_gene_list) == 0) {
+    stop("Gene list could not be sorted. Please check the input data.")
+  }
   # Ensure 'clusterProfiler' package is loaded
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
     stop("The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler').")
@@ -290,7 +294,7 @@ hd_gsea <- function(de_results,
     # Perform GSEA for KEGG
     enrichment <- clusterProfiler::gseKEGG(geneList = gene_list,
                                            organism = "hsa",
-                                           pvalueCutoff = pval_lim_enrichment,
+                                           pvalueCutoff = pval_lim,
                                            pAdjustMethod = "BH",
                                            minGSSize = 10,
                                            maxGSSize = 500)
@@ -306,7 +310,7 @@ hd_gsea <- function(de_results,
     enrichment <- clusterProfiler::gseGO(geneList = gene_list,
                                          OrgDb = org.Hs.eg.db::org.Hs.eg.db,
                                          ont = ontology,
-                                         pvalueCutoff = pval_lim_enrichment,
+                                         pvalueCutoff = pval_lim,
                                          pAdjustMethod = "BH",
                                          minGSSize = 10,
                                          maxGSSize = 500)
@@ -321,13 +325,13 @@ hd_gsea <- function(de_results,
     # Perform GSEA for Reactome
     enrichment <- ReactomePA::gsePathway(gene_list,
                                          organism = "human",
-                                         pvalueCutoff = pval_lim_enrichment,
+                                         pvalueCutoff = pval_lim,
                                          pAdjustMethod = "BH",
                                          verbose = FALSE)
 
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim_enrichment)) {
+  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
 
@@ -367,9 +371,8 @@ hd_gsea <- function(de_results,
 #' enrichment <- hd_gsea(de_results,
 #'                       database = "GO",
 #'                       ontology = "BP",
-#'                       expression = "both",
 #'                       ranked_by = "logFC",
-#'                       pval_lim_enrichment = 0.9)
+#'                       pval_lim = 0.9)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Plot the results

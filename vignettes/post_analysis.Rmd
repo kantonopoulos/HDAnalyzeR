@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
 
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. This is why we are using extremely large p-value cutoffs in this case that should not be used in real data.
+
 ## Loading the Data
 
 We will load HDAnalyzeR and dplyr, load the example data and metadata that come with the package and initialize the HDAnalyzeR object.
@@ -57,7 +59,7 @@ enrichment_plots$cnetplot
 Let's change the database and the p-value threshold.
 
 ```{r, message = FALSE, warning = FALSE}
-enrichment  <- hd_ora(proteins, database = "Reactome", pval_lim_enrichment = 0.2)
+enrichment  <- hd_ora(proteins, database = "Reactome", pval_lim = 0.2)
 
 enrichment_plots <- hd_plot_ora(enrichment)
 
@@ -68,12 +70,12 @@ enrichment_plots$cnetplot
 
 ## Gene Set Enrichment Analysis
 
-We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_gsea()` and `hd_plot_gsea` functions. In `hd_gsea()` we can select if we want to include only up, down or both up and down regulated proteins, as well as the adjusted P value and logFC limits to consider a protein as differentially expressed. The `hd_plot_gsea()` function will plot the results.
+We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_gsea()` and `hd_plot_gsea` functions. The `hd_plot_gsea()` function will plot the results.
 
-> ⚠️ In this case, the function requires strictly differential expression results.
+> ⚠️ In this case, the function requires strictly differential expression results, so a ranked list of proteins is derived based on the `ranked_by` argument.
 
 ```{r, message = FALSE, warning = FALSE}
-enrichment <- hd_gsea(de_res, database = "GO", ontology = "BP", pval_lim_enrichment = 0.5)
+enrichment <- hd_gsea(de_res, database = "GO", ontology = "BP", pval_lim = 0.55)
 
 enrichment_plots <- hd_plot_gsea(enrichment)
 
@@ -82,6 +84,8 @@ enrichment_plots$gseaplot
 enrichment_plots$cnetplot
 enrichment_plots$ridgeplot
 ```
+
+We can also change the ranking variable to adjusted p value instead of logFC by changing the `ranked_by` argument. We could also use other variables such as p-value or any other variable in the DE results. However, most of the time this is not recommended as the ranking should be based on the biological relevance of the variable.
 
 ## Searching PubMed for our Biomarkers
 
@@ -96,4 +100,4 @@ lit_res <- hd_literature_search(biomarkers, max_articles = 5)
 lit_res$`acute myeloid leukemia`$FLT3$title
 ```
 
-> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+> 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions. 
