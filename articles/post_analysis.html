@@ -105,6 +105,12 @@ search. The pathway enrichment analysis is performed using the Gene
 Ontology, KEGG and Reactome databases from <code>clusterProfiler</code>
 and <code>ReactomePA</code> packages respectively. The automated
 literature search is performed using the the PubMed database.</p>
+<blockquote>
+<p>📓 Remember that these data are a dummy-dataset with artificial data
+and the results in this guide should not be interpreted as real results.
+This is why we are using extremely large p-value cutoffs in this case
+that should not be used in real data.</p>
+</blockquote>
 <div class="section level2">
 <h2 id="loading-the-data">Loading the Data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
 </h2>
@@ -113,8 +119,6 @@ that come with the package and initialize the HDAnalyzeR object.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hda1472.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span></span>
 <span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_initialize.html">hd_initialize</a></span><span class="op">(</span>dat <span class="op">=</span> <span class="va">example_data</span>, </span>
 <span>                        metadata <span class="op">=</span> <span class="va">example_metadata</span>, </span>
@@ -154,7 +158,7 @@ the analysis and plot the results respectively.</p>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
 <p>Let’s change the database and the p-value threshold.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
@@ -171,17 +175,15 @@ the analysis and plot the results respectively.</p>
 <h2 id="gene-set-enrichment-analysis">Gene Set Enrichment Analysis<a class="anchor" aria-label="anchor" href="#gene-set-enrichment-analysis"></a>
 </h2>
 <p>We can also run a Gene Set Enrichment Analysis (GSEA) using the
-<code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> and <code>hd_plot_gsea</code> functions. In
-<code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> we can select if we want to include only up, down
-or both up and down regulated proteins, as well as the adjusted P value
-and logFC limits to consider a protein as differentially expressed. The
+<code><a href="../reference/hd_gsea.html">hd_gsea()</a></code> and <code>hd_plot_gsea</code> functions. The
 <code><a href="../reference/hd_plot_gsea.html">hd_plot_gsea()</a></code> function will plot the results.</p>
 <blockquote>
 <p>⚠️ In this case, the function requires strictly differential
-expression results.</p>
+expression results, so a ranked list of proteins is derived based on the
+<code>ranked_by</code> argument.</p>
 </blockquote>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span>, pval_lim_enrichment <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span>, pval_lim <span class="op">=</span> <span class="fl">0.55</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
@@ -196,6 +198,11 @@ expression results.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
+<p>We can also change the ranking variable to adjusted p value instead
+of logFC by changing the <code>ranked_by</code> argument. We could also
+use other variables such as p-value or any other variable in the DE
+results. However, most of the time this is not recommended as the
+ranking should be based on the biological relevance of the variable.</p>
 </div>
 <div class="section level2">
 <h2 id="searching-pubmed-for-our-biomarkers">Searching PubMed for our Biomarkers<a class="anchor" aria-label="anchor" href="#searching-pubmed-for-our-biomarkers"></a>
@@ -215,16 +222,16 @@ list, run the search and preview the results.</p>
 <span><span class="co">#&gt; Searching for articles on FCER2 and chronic lymphocytic leukemia</span></span>
 <span></span>
 <span><span class="va">lit_res</span><span class="op">$</span><span class="va">`acute myeloid leukemia`</span><span class="op">$</span><span class="va">FLT3</span><span class="op">$</span><span class="va">title</span></span>
-<span><span class="co">#&gt; [1] "Targeting FMS-like tyrosine kinase 3 (FLT3) in acute myeloid leukemia: Novel molecular approaches and therapeutic challenges."                                            </span></span>
-<span><span class="co">#&gt; [2] "Case report: Identification of a novel &lt;i&gt;TOR1AIP2::ETV6&lt;/i&gt; transcript with &lt;i&gt;FLT3&lt;/i&gt;-ITD mutation in acute myeloid leukemia progressed from myelodysplastic syndrome."</span></span>
-<span><span class="co">#&gt; [3] "Strategies for the treatment of acute myeloid leukemia with FLT3 mutations: a patent review."                                                                             </span></span>
-<span><span class="co">#&gt; [4] "Discovery of 3-amide-pyrimidine-based derivatives as potential fms-like tyrosine receptor kinase 3 (FLT3) inhibitors for treating acute myelogenous leukemia."            </span></span>
-<span><span class="co">#&gt; [5] "Discovery of pyridine-based derivatives as FLT3 inhibitors for the treatment of acute myeloid leukemia."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Recipient sex and donor leukemic cell characteristics determine leukemogenesis in patient-derived models."                                                                               </span></span>
+<span><span class="co">#&gt; [2] "A novel prognostic risk model for patients with refractory/relapsed acute myeloid leukemia receiving venetoclax plus hypomethylating agents."                                            </span></span>
+<span><span class="co">#&gt; [3] "Measurable residual disease and posttransplantation gilteritinib maintenance for patients with FLT3-ITD-mutated AML."                                                                    </span></span>
+<span><span class="co">#&gt; [4] "Acute Myeloid Leukemia with Normal Cytogenetics and &lt;i&gt;NPM1&lt;/i&gt;-Mutation: Impact of Mutation Topography on Outcomes."                                                                    </span></span>
+<span><span class="co">#&gt; [5] "Detection of &lt;i&gt;KMT2A&lt;/i&gt; Partial Tandem Duplication by Optical Genome Mapping in Myeloid Neoplasms: Associated Cytogenetics, Gene Mutations, Treatment Responses, and Patient Outcomes."</span></span></code></pre></div>
 <blockquote>
-<p>📓 Remember that these data are a dummy-dataset with artificial data
-and the results in this guide should not be interpreted as real results.
-The purpose of this vignette is to show you how to use the package and
-its functions.</p>
+<p>📓 Remember once again that these data are a dummy-dataset with
+artificial data and the results in this guide should not be interpreted
+as real results. The purpose of this vignette is to show you how to use
+the package and its functions.</p>
 </blockquote>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

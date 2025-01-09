@@ -73,7 +73,7 @@
 <span>  database <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"Reactome"</span>, <span class="st">"KEGG"</span><span class="op">)</span>,</span>
 <span>  ontology <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BP"</span>, <span class="st">"CC"</span>, <span class="st">"MF"</span>, <span class="st">"ALL"</span><span class="op">)</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pval_lim_enrichment <span class="op">=</span> <span class="fl">0.05</span></span>
+<span>  pval_lim <span class="op">=</span> <span class="fl">0.05</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -97,7 +97,7 @@
 <dd><p>A character vector containing the background genes.</p></dd>
 
 
-<dt id="arg-pval-lim-enrichment">pval_lim_enrichment<a class="anchor" aria-label="anchor" href="#arg-pval-lim-enrichment"></a></dt>
+<dt id="arg-pval-lim">pval_lim<a class="anchor" aria-label="anchor" href="#arg-pval-lim"></a></dt>
 <dd><p>The p-value threshold to consider a term as significant in the enrichment analysis.</p></dd>
 
 </dl></div>
@@ -107,9 +107,16 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>qvalueCutoff was set to be 4 times the pvalueCutoff. To perform the ORA, <code>clusterProfiler</code> package is used.
+    <p>To perform the ORA, <code>clusterProfiler</code> package is used.
+The <code>qvalueCutoff</code> is set to 1 by default to prioritize filtering by adjusted
+p-values (p.adjust). This simplifies the workflow by ensuring a single, clear
+significance threshold based on the false discovery rate (FDR). While q-values
+are not used for filtering by default, they are still calculated and included
+in the results for users who wish to apply additional criteria.
 For more information, please refer to the <code>clusterProfiler</code> documentation.</p>
-    </div>
+<p>If you want to learn more about ORA, please refer to the following publications:</p><ul><li><p>Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/</p></li>
+<li><p>https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -156,7 +163,7 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID        : chr  "100/566/9048/25/2683/199/30817" "566/285/9048" "566/9048/25/2683/199" "100/566/54518/9289/25/199" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ Count         : int  7 3 5 6 5 5 3 5 5 3 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...Citation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, doi:10.1038/s41596-024-01020-z </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>

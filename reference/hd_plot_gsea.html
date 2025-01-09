@@ -110,14 +110,12 @@ Viewport has zero dimension(s)" warning or error, try to increase the RStudio's 
 <span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_results</span>,</span></span>
 <span class="r-in"><span>                      database <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
 <span class="r-in"><span>                      ontology <span class="op">=</span> <span class="st">"BP"</span>,</span></span>
-<span class="r-in"><span>                      expression <span class="op">=</span> <span class="st">"both"</span>,</span></span>
 <span class="r-in"><span>                      ranked_by <span class="op">=</span> <span class="st">"logFC"</span>,</span></span>
-<span class="r-in"><span>                      pval_lim_enrichment <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                      pval_lim <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> preparing geneSet collections...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> GSEA analysis...</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All values in the stats vector are greater than zero and scoreType is "std", maybe you should switch to scoreType = "pos".</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> leading edge analysis...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> done...</span>
 <span class="r-in"><span><span class="co"># Remember that the data is artificial, this is why we use an absurdly high p-value cutoff</span></span></span>
@@ -125,16 +123,40 @@ Viewport has zero dimension(s)" warning or error, try to increase the RStudio's 
 <span class="r-in"><span><span class="co"># Plot the results</span></span></span>
 <span class="r-in"><span><span class="fu">hd_plot_gsea</span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $gene_list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       284       328       566       100      9289     54518       250      9048 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.6960339 1.5595837 1.5329435 1.4623826 1.2318594 1.1730140 1.0367356 0.8287936 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       351     23365       285       181        25       191     10551    115201 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8227446 0.8063775 0.7728365 0.7561717 0.7468307 0.7340411 0.7046557 0.6292262 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       306     51129      9296        59       203     59272     51742     55937 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.6196824 0.5226829 0.5198482 0.5046829 0.4815729 0.4660359 0.4581703 0.4408260 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       199       267      2683       311       176       280     10149       976 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.4324161 0.4288128 0.4217458 0.4048363 0.3834199 0.3761169 0.3758535 0.3654318 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     30817      1386       405     11093    170690 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3594460 0.3385817 0.3378419 0.3141056 0.2980142 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          328          566          100         9289        54518         9048 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.559583713  1.532943471  1.462382647  1.231859388  1.173013982  0.828793582 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          285          181           25          191        51129         9296 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.772836518  0.756171703  0.746830743  0.734041132  0.522682913  0.519848239 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           59        59272        51742        25814          199          267 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.504682910  0.466035852  0.458170283  0.451765263  0.432416150  0.428812794 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         2683         9938          976        30817         1386          405 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.421745793  0.397319743  0.365431820  0.359446007  0.338581655  0.337841863 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        23452        10159        51816          374          410          133 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.292444281  0.271377450  0.253959306  0.242008838  0.226357122  0.199535962 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       170689        51327          411        84335          214       375790 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.177164675  0.175706968  0.173203848  0.170442918  0.162775605  0.159570184 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         8751           95       129138          308        80755          558 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.123946384  0.122930955  0.113185504  0.108778505  0.106165339  0.093214100 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         9068          283          218          258          189        81693 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.092176270  0.086140961  0.081630236  0.059789250  0.045913185  0.043794218 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          290           54           81         8745           51         1109 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.026847324  0.019847155 -0.003178737 -0.009723351 -0.009971140 -0.016368666 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          231          177          383          117          392          350 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.018310077 -0.038228906 -0.039306455 -0.043239615 -0.054674439 -0.076035424 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        51382          539          333          419       155465         9131 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.097147761 -0.098498094 -0.104025127 -0.104158209 -0.104553945 -0.110089916 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          127         8312          101          259           30        27329 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.129895411 -0.135089674 -0.138922933 -0.160969394 -0.161931907 -0.183584355 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         8639          216       347902          279        11199           26 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.194111783 -0.195512297 -0.200816339 -0.215411972 -0.244774741 -0.245691583 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        10218       170690        51205        11093        10000          475 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.272748339 -0.298014216 -0.308354203 -0.314105581 -0.333881970 -0.337183300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        11095          307        93974        10149          280          176 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.339134804 -0.342512836 -0.356798140 -0.375853514 -0.376116879 -0.383419881 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          311        55937          203          306       115201        10551 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.404836340 -0.440825951 -0.481572885 -0.619682407 -0.629226223 -0.704655666 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        23365          351          250          284 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.806377522 -0.822744636 -1.036735621 -1.696033915 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $enrichment</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #</span>
@@ -143,25 +165,25 @@ Viewport has zero dimension(s)" warning or error, try to increase the RStudio's 
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...@organism 	 Homo sapiens </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...@setType 	 BP </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...@keytype 	 ENTREZID </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...@geneList 	 Named num [1:37] 1.7 1.56 1.53 1.46 1.23 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "names")= chr [1:37] "284" "328" "566" "100" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...@geneList 	 Named num [1:100] 1.56 1.53 1.46 1.23 1.17 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "names")= chr [1:100] "328" "566" "100" "9289" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...nPerm 	 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...pvalues adjusted by 'BH' with cutoff &lt;0.9 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...90 enriched terms found</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	90 obs. of  11 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID             : chr  "GO:0051716" "GO:0007186" "GO:0040012" "GO:0048584" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description    : chr  "cellular response to stimulus" "G protein-coupled receptor signaling pathway" "regulation of locomotion" "positive regulation of response to stimulus" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ setSize        : int  25 10 12 11 18 22 13 10 16 16 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ enrichmentScore: num  0.624 0.648 0.619 0.62 0.581 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ NES            : num  1.66 1.63 1.6 1.59 1.56 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue         : num  0.0305 0.0258 0.0271 0.0327 0.0325 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust       : num  0.396 0.396 0.396 0.396 0.396 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue         : num  0.381 0.381 0.381 0.381 0.381 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rank           : num  13 13 13 9 6 13 13 5 15 5 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ leading_edge   : chr  "tags=48%, list=35%, signal=96%" "tags=70%, list=35%, signal=62%" "tags=67%, list=35%, signal=64%" "tags=55%, list=24%, signal=59%" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ core_enrichment: chr  "284/328/566/100/9289/54518/9048/351/23365/285/181/25" "566/100/9289/351/23365/181/25" "284/566/100/9289/9048/351/285/25" "284/566/100/9289/9048/351" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...236 enriched terms found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	236 obs. of  11 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID             : chr  "GO:0015031" "GO:0071495" "GO:0065007" "GO:0050789" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description    : chr  "protein transport" "cellular response to endogenous stimulus" "biological regulation" "regulation of biological process" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ setSize        : int  10 13 76 71 11 20 11 16 16 42 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ enrichmentScore: num  -0.769 0.738 0.552 0.526 -0.706 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ NES            : num  -1.88 1.73 1.63 1.58 -1.8 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue         : num  0.00227 0.00331 0.00166 0.00395 0.00664 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust       : num  0.241 0.241 0.241 0.241 0.272 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue         : num  0.231 0.231 0.231 0.231 0.261 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rank           : num  7 24 28 28 15 15 7 7 7 19 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ leading_edge   : chr  "tags=30%, list=7%, signal=31%" "tags=62%, list=24%, signal=54%" "tags=36%, list=28%, signal=107%" "tags=37%, list=28%, signal=91%" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ core_enrichment: chr  "115201/351/284" "9289/285/181/25/59/51742/1386/405" "328/566/100/9289/54518/9048/285/181/25/51129/9296/59/59272/51742/25814/199/267/2683/9938/976/30817/1386/405/234"| __truncated__ "328/566/100/9289/54518/9048/285/181/25/51129/59/59272/51742/25814/199/267/2683/9938/976/30817/1386/405/23452/10159/51816/374" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...Citation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, doi:10.1038/s41596-024-01020-z </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $dotplot</span>
@@ -174,7 +196,7 @@ Viewport has zero dimension(s)" warning or error, try to increase the RStudio's 
 <span class="r-plt img"><img src="hd_plot_gsea-3.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ridgeplot</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Picking joint bandwidth of 0.163</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Picking joint bandwidth of 0.19</span>
 <span class="r-plt img"><img src="hd_plot_gsea-4.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
