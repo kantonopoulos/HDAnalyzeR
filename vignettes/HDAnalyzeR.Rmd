@@ -249,7 +249,7 @@ intersect_proteins <- intersect(de_proteins, lasso_proteins)
 enrichment <- hd_ora(intersect_proteins, 
                      database = "GO", 
                      ontology = "BP", 
-                     pval_lim_enrichment = 0.2)  # We will use a higher p-value threshold for this example
+                     pval_lim = 0.2)  # We will use a higher p-value threshold for this example
 enrichment_plots <- hd_plot_ora(enrichment)
 
 enrichment_plots$dotplot

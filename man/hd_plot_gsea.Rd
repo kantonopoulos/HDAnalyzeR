@@ -35,9 +35,8 @@ de_results <- hd_de_limma(hd_object, case = "AML")
 enrichment <- hd_gsea(de_results,
                       database = "GO",
                       ontology = "BP",
-                      expression = "both",
                       ranked_by = "logFC",
-                      pval_lim_enrichment = 0.9)
+                      pval_lim = 0.9)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Plot the results

@@ -8,29 +8,20 @@ hd_gsea(
   de_results,
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
-  expression = c("both", "up", "down"),
-  ranked_by = c("logFC", "adj.P.Val"),
-  pval_lim = 0.05,
-  logfc_lim = 0,
-  pval_lim_enrichment = 0.05
+  ranked_by = "logFC",
+  pval_lim = 0.05
 )
 }
 \arguments{
-\item{de_results}{A tibble containing the results of a differential expression analysis.}
+\item{de_results}{An \code{hd_de} object from \code{hd_de_limma()} or \code{hd_de_ttest()} or a tibble containing the results of a differential expression analysis.}
 
 \item{database}{The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".}
 
 \item{ontology}{The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.}
 
-\item{expression}{The type of differentially expressed proteins to consider in the analysis. It can be "both", "up", or "down".}
+\item{ranked_by}{The variable to rank the proteins. It can be "logFC", "adj.P.Val" or a custom sorting variable. It should be however a column in the DE results tibble (\code{de_results} argument).}
 
-\item{ranked_by}{The metric to rank the proteins. It can be "logFC" or "adj.P.Val".}
-
-\item{pval_lim}{The p-value threshold to consider a term as significant in the differential expression analysis. Default is 0.05.}
-
-\item{logfc_lim}{The log fold change threshold to consider a term as significant in the differential expression analysis. Default is 0.}
-
-\item{pval_lim_enrichment}{The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.}
+\item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.}
 }
 \value{
 A list containing the results of the GSEA.
@@ -41,6 +32,12 @@ A list containing the results of the GSEA.
 \details{
 To perform the GSEA, \code{clusterProfiler} package is used. For more information, please
 refer to the \code{clusterProfiler} documentation.
+
+If you want to learn more about GSEA, please refer to the following publications:
+\itemize{
+\item Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/
+\item https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
+}
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -53,8 +50,7 @@ de_results <- hd_de_limma(hd_object, case = "AML")
 hd_gsea(de_results,
         database = "GO",
         ontology = "BP",
-        expression = "both",
         ranked_by = "logFC",
-        pval_lim_enrichment = 0.9)
+        pval_lim = 0.9)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 }

@@ -9,7 +9,7 @@ hd_ora(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   background = NULL,
-  pval_lim_enrichment = 0.05
+  pval_lim = 0.05
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ hd_ora(
 
 \item{background}{A character vector containing the background genes.}
 
-\item{pval_lim_enrichment}{The p-value threshold to consider a term as significant in the enrichment analysis.}
+\item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis.}
 }
 \value{
 A list containing the results of the ORA.
@@ -30,8 +30,19 @@ A list containing the results of the ORA.
 \code{hd_ora()} performs over-representation analysis (ORA) using the clusterProfiler package.
 }
 \details{
-qvalueCutoff was set to be 4 times the pvalueCutoff. To perform the ORA, \code{clusterProfiler} package is used.
+To perform the ORA, \code{clusterProfiler} package is used.
+The \code{qvalueCutoff} is set to 1 by default to prioritize filtering by adjusted
+p-values (p.adjust). This simplifies the workflow by ensuring a single, clear
+significance threshold based on the false discovery rate (FDR). While q-values
+are not used for filtering by default, they are still calculated and included
+in the results for users who wish to apply additional criteria.
 For more information, please refer to the \code{clusterProfiler} documentation.
+
+If you want to learn more about ORA, please refer to the following publications:
+\itemize{
+\item Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/
+\item https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
+}
 }
 \examples{
 # Initialize an HDAnalyzeR object
