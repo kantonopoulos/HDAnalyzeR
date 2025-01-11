@@ -94,7 +94,7 @@
 
 
 <dt id="arg-ranked-by">ranked_by<a class="anchor" aria-label="anchor" href="#arg-ranked-by"></a></dt>
-<dd><p>The variable to rank the proteins. It can be "logFC", "adj.P.Val" or a custom sorting variable. It should be however a column in the DE results tibble (<code>de_results</code> argument).</p></dd>
+<dd><p>The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (<code>de_results</code> argument).</p></dd>
 
 
 <dt id="arg-pval-lim">pval_lim<a class="anchor" aria-label="anchor" href="#arg-pval-lim"></a></dt>
@@ -121,7 +121,7 @@ refer to the <code>clusterProfiler</code> documentation.</p>
 <span class="r-in"><span><span class="co"># Run differential expression analysis for AML vs all others</span></span></span>
 <span class="r-in"><span><span class="va">de_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_object</span>, case <span class="op">=</span> <span class="st">"AML"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run GSEA with Reactome database</span></span></span>
+<span class="r-in"><span><span class="co"># Run GSEA with GO database</span></span></span>
 <span class="r-in"><span><span class="fu">hd_gsea</span><span class="op">(</span><span class="va">de_results</span>,</span></span>
 <span class="r-in"><span>        database <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
 <span class="r-in"><span>        ontology <span class="op">=</span> <span class="st">"BP"</span>,</span></span>
@@ -202,6 +202,88 @@ refer to the <code>clusterProfiler</code> documentation.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "hd_enrichment"</span>
 <span class="r-in"><span><span class="co"># Remember that the data is artificial, this is why we use an absurdly high p-value cutoff</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Run GSEA with different ranking variable</span></span></span>
+<span class="r-in"><span><span class="fu">hd_gsea</span><span class="op">(</span><span class="va">de_results</span>,</span></span>
+<span class="r-in"><span>        database <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
+<span class="r-in"><span>        ontology <span class="op">=</span> <span class="st">"BP"</span>,</span></span>
+<span class="r-in"><span>        ranked_by <span class="op">=</span> <span class="st">"both"</span>,</span></span>
+<span class="r-in"><span>        pval_lim <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> preparing geneSet collections...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> GSEA analysis...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There are ties in the preranked stats (22% of the list).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> The order of those tied genes will be arbitrary, which may produce unexpected results.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All values in the stats vector are greater than zero and scoreType is "std", maybe you should switch to scoreType = "pos".</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> leading edge analysis...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> done...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $gene_list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           81           51         8745          231         1109           54 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9.762289e-01 9.553779e-01 9.539886e-01 9.439470e-01 9.363257e-01 9.122193e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          189          290          383          177        81693         9131 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8.749648e-01 8.749648e-01 8.552561e-01 8.552561e-01 8.440693e-01 8.232858e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          117          392          218          258          333          350 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8.037043e-01 7.787213e-01 6.919034e-01 6.919034e-01 6.508476e-01 6.508476e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         8312        80755          127          283           95         9068 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6.496255e-01 6.492551e-01 6.492551e-01 6.140926e-01 6.080472e-01 6.078419e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        51327           30          539       155465        51382       129138 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.843261e-01 5.835408e-01 5.835408e-01 5.835408e-01 5.809570e-01 5.809570e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          558          419          308        84335          411          101 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5.809570e-01 5.435734e-01 5.403000e-01 5.321584e-01 5.231048e-01 4.741485e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         8751       375790        93974       170689        11199          216 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4.509795e-01 3.759502e-01 3.734635e-01 3.567013e-01 2.847430e-01 2.816466e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          214          259       347902        27329         8639          279 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.795845e-01 2.525653e-01 2.302575e-01 2.275316e-01 2.275316e-01 2.275316e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          133          374          307        51816           26          410 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.113606e-01 1.938142e-01 1.671439e-01 1.593498e-01 1.517575e-01 1.513815e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          475        23452        51205        10159        11095        10218 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.513815e-01 1.152428e-01 7.837423e-02 6.809229e-02 6.666420e-02 6.666420e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        10000         9938        25814       170690         1386          311 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6.236680e-02 5.312927e-02 5.312927e-02 3.900195e-02 3.900195e-02 3.900195e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        30817        11093          199          405          203          976 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.777020e-02 2.050877e-02 2.050877e-02 2.050877e-02 2.011191e-02 1.879857e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          280        59272        10551          306          267        10149 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.879857e-02 1.845092e-02 1.459705e-02 1.058872e-02 1.040728e-02 9.562547e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        23365          176         9296         2683        51742           59 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6.027175e-03 5.315769e-03 4.772619e-03 4.051888e-03 4.051888e-03 3.692718e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           25          191        55937          250        51129       115201 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.487500e-03 3.164572e-03 3.164572e-03 6.657176e-04 6.034845e-04 4.720349e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          351          181         9048          285         9289          284 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.348131e-05 1.348131e-05 8.685788e-08 3.857309e-08 2.920315e-08 2.480060e-10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        54518          328          566          100 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.687720e-11 4.668228e-13 6.621823e-17 3.293393e-19 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $enrichment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Gene Set Enrichment Analysis</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...@organism 	 Homo sapiens </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...@setType 	 BP </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...@keytype 	 ENTREZID </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...@geneList 	 Named num [1:100] 0.976 0.955 0.954 0.944 0.936 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "names")= chr [1:100] "81" "51" "8745" "231" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...nPerm 	 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...pvalues adjusted by 'BH' with cutoff &lt;0.9 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...180 enriched terms found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	180 obs. of  11 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID             : chr  "GO:0003008" "GO:0080134" "GO:0090304" "GO:0044093" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description    : chr  "system process" "regulation of response to stress" "nucleic acid metabolic process" "positive regulation of molecular function" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ setSize        : int  15 13 16 10 12 40 55 25 13 15 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ enrichmentScore: num  0.726 0.733 0.715 0.747 0.729 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ NES            : num  1.31 1.3 1.3 1.29 1.28 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue         : num  0.0209 0.036 0.028 0.0533 0.0511 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust       : num  0.857 0.857 0.857 0.857 0.857 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue         : num  0.857 0.857 0.857 0.857 0.857 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rank           : int  19 18 22 19 10 25 39 39 18 22 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ leading_edge   : chr  "tags=27%, list=19%, signal=25%" "tags=38%, list=18%, signal=36%" "tags=44%, list=22%, signal=41%" "tags=50%, list=19%, signal=45%" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ core_enrichment: chr  "231/177/81693/8312" "54/383/177/117/350" "81/177/9131/333/8312/80755/283" "81/177/9131/350/8312" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...Citation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "hd_enrichment"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

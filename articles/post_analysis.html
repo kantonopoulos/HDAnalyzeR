@@ -105,6 +105,11 @@ search. The pathway enrichment analysis is performed using the Gene
 Ontology, KEGG and Reactome databases from <code>clusterProfiler</code>
 and <code>ReactomePA</code> packages respectively. The automated
 literature search is performed using the the PubMed database.</p>
+<p>If you want to learn more about ORA and GSEA, please refer to the
+following publications: - Chicco D, Agapito G. Nine quick tips for
+pathway enrichment analysis. PLoS Comput Biol. 2022 Aug
+11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505;
+PMCID: PMC9371296. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/" class="external-link uri">https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/</a> - <a href="https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm" class="external-link uri">https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm</a></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
@@ -142,7 +147,9 @@ the Gene Ontology database and the BP ontology. We will use the
 <code><a href="../reference/hd_ora.html">hd_ora()</a></code> and <code><a href="../reference/hd_plot_ora.html">hd_plot_ora()</a></code> functions to run
 the analysis and plot the results respectively.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proteins</span> <span class="op">&lt;-</span> <span class="va">de_res</span><span class="op">$</span><span class="va">de_res</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">proteins</span> <span class="op">&lt;-</span> <span class="va">de_res</span><span class="op">$</span><span class="va">de_res</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span>
 <span></span>
@@ -198,11 +205,22 @@ expression results, so a ranked list of proteins is derived based on the
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
 <p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
-<p>We can also change the ranking variable to adjusted p value instead
-of logFC by changing the <code>ranked_by</code> argument. We could also
-use other variables such as p-value or any other variable in the DE
-results. However, most of the time this is not recommended as the
-ranking should be based on the biological relevance of the variable.</p>
+<p>We can also change the ranking variable to the product of logFC and
+-log(adjusted p value) instead of the default logFC by changing the
+<code>ranked_by</code> argument to “both”. We could also use other
+variables such as p-value or any other variable in the DE results.
+However, you should use as ranking a variable that has some form of
+biological relevance of the variable.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_gsea.html">hd_gsea</a></span><span class="op">(</span><span class="va">de_res</span>, </span>
+<span>                      database <span class="op">=</span> <span class="st">"GO"</span>, </span>
+<span>                      ontology <span class="op">=</span> <span class="st">"BP"</span>, </span>
+<span>                      pval_lim <span class="op">=</span> <span class="fl">0.9</span>, </span>
+<span>                      ranked_by <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
+<span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="searching-pubmed-for-our-biomarkers">Searching PubMed for our Biomarkers<a class="anchor" aria-label="anchor" href="#searching-pubmed-for-our-biomarkers"></a>
@@ -211,7 +229,7 @@ ranking should be based on the biological relevance of the variable.</p>
 <code><a href="../reference/hd_literature_search.html">hd_literature_search()</a></code>. The function requires a list with
 disease names as names and genes/proteins as values. We will create the
 list, run the search and preview the results.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biomarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"acute myeloid leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FLT3"</span>, <span class="st">"EPO"</span><span class="op">)</span>,</span>
 <span>                   <span class="st">"chronic lymphocytic leukemia"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PARP1"</span>, <span class="st">"FCER2"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
