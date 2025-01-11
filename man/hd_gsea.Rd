@@ -19,7 +19,7 @@ hd_gsea(
 
 \item{ontology}{The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.}
 
-\item{ranked_by}{The variable to rank the proteins. It can be "logFC", "adj.P.Val" or a custom sorting variable. It should be however a column in the DE results tibble (\code{de_results} argument).}
+\item{ranked_by}{The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (\code{de_results} argument).}
 
 \item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.}
 }
@@ -46,11 +46,18 @@ hd_object <- hd_initialize(example_data, example_metadata)
 # Run differential expression analysis for AML vs all others
 de_results <- hd_de_limma(hd_object, case = "AML")
 
-# Run GSEA with Reactome database
+# Run GSEA with GO database
 hd_gsea(de_results,
         database = "GO",
         ontology = "BP",
         ranked_by = "logFC",
         pval_lim = 0.9)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
+
+# Run GSEA with different ranking variable
+hd_gsea(de_results,
+        database = "GO",
+        ontology = "BP",
+        ranked_by = "both",
+        pval_lim = 0.9)
 }

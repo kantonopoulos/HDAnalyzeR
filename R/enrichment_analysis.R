@@ -220,7 +220,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' @param de_results An `hd_de` object from `hd_de_limma()` or `hd_de_ttest()` or a tibble containing the results of a differential expression analysis.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
-#' @param ranked_by The variable to rank the proteins. It can be "logFC", "adj.P.Val" or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
+#' @param ranked_by The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
 #'
 #' @return A list containing the results of the GSEA.
@@ -240,13 +240,20 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' # Run differential expression analysis for AML vs all others
 #' de_results <- hd_de_limma(hd_object, case = "AML")
 #'
-#' # Run GSEA with Reactome database
+#' # Run GSEA with GO database
 #' hd_gsea(de_results,
 #'         database = "GO",
 #'         ontology = "BP",
 #'         ranked_by = "logFC",
 #'         pval_lim = 0.9)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
+#'
+#' # Run GSEA with different ranking variable
+#' hd_gsea(de_results,
+#'         database = "GO",
+#'         ontology = "BP",
+#'         ranked_by = "both",
+#'         pval_lim = 0.9)
 hd_gsea <- function(de_results,
                     database = c("GO", "Reactome", "KEGG"),
                     ontology = c("BP", "CC", "MF", "ALL"),
@@ -264,7 +271,9 @@ hd_gsea <- function(de_results,
   if (ranked_by == "logFC") {
     gene_list <- stats::setNames(de_results[["logFC"]],
                                  de_results[["Feature"]])
-  } else if (ranked_by == "adj.P.Val") {
+  } else if (ranked_by == "both") {
+    de_results <- de_results |>
+      dplyr::mutate(both = logFC * -log(adj.P.Val))
     gene_list <- stats::setNames(de_results[["adj.P.Val"]],
                                  de_results[["Feature"]])
   } else {
