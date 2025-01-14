@@ -1,376 +1,317 @@
+# Load required libraries
 library(shiny)
+library(DT)
 library(bslib)
-library(dplyr)
-library(HDAnalyzeR)  # Assuming your package is called HDAnalyzeR
+library(HDAnalyzeR)
 
-
-# This app is only for basic usage and does not include all the features of HDAnalyzeR
-ui <- fluidPage(
-
-  titlePanel("Data Preprocessing App"),
-
-  # Main panel with tabs for different sections
-  mainPanel(
-    tabsetPanel(
-      id = "main_tabs",
-
-      # Tab for importing data
-      tabPanel("1. Data", value = "tab_import",
-               h3("Import Data and Metadata"),
-               p("This app operates exactly like the HDAnalyzeR package, but with a shiny interface."),
-               p("The data should contain DAid, Assay and NPX columns."),
-               fileInput("datafile", "Upload Data File (csv, tsv, txt, rda, rds, xlsx)",
-                         accept = c(".csv", ".tsv", ".txt", ".rda", ".rds", ".xlsx")),
-
-               br(),
-
-               p("The metadata should contain DAid and any metadata columns you need."),
-               fileInput("metadatafile", "Upload Metadata File (csv, tsv, txt, rda, rds, xlsx)",
-                         accept = c(".csv", ".tsv", ".txt", ".rda", ".rds", ".xlsx"))
-      ),
-
-      # Tab for preprocessing data and metadata
-      tabPanel("2. Preprocessing", value = "tab_preprocess",
-               h3("Preprocess Data"),
-               selectInput("keep_cols_data", "Columns to Keep in Data", choices = NULL, multiple = TRUE),
-               textInput("filter_plates", "Filter Plates (comma-separated)"),
-               textInput("filter_assays", "Filter Assays (comma-separated)"),
-               checkboxInput("filter_assay_warning", "Filter Assay Warnings", value = FALSE),
-               tableOutput("processed_data_preview"),
-               tableOutput("data_head"),
-               textOutput("data_dimensions"),
-               uiOutput("data_column_selector"),
-               uiOutput("data_unique_value_dropdown"),
-
-               br(),
-
-               h3("Preprocess Metadata"),
-               selectInput("keep_cols_metadata", "Columns to Keep in Metadata", choices = NULL, multiple = TRUE),
-               textInput("cohort", "Cohort to Filter (comma-separated)"),
-               tableOutput("processed_metadata_preview"),
-               textOutput("metadata_dimensions"),
-               uiOutput("metadata_column_selector"),
-               uiOutput("metadata_unique_value_dropdown")
-      ),
-
-      # Tab for PCA and UMAP analysis
-      tabPanel("3. PCA and UMAP", value = "tab_analysis",
-               h3("PCA Analysis"),
-               p("Missing data are imputed with KNN imputation and 5 neighbours."),
-               numericInput("pcs", "Number of PCs to Show", value = 5, min = 1),
-               textInput("pca_color", "Color by (Column Name)", value = "Disease"),
-               checkboxInput("pca_assay", "Plot Assays instead of samples", value = FALSE),
-               textInput("pca_palette", "Palette (e.g., cancers12 or custom named vector)", value = NULL),
-               actionButton("pca_run", "Run PCA"),
-               div(
-                 style = "display: flex; overflow-x: auto; gap: 20px;",  # Flex layout with horizontal scroll and gap between plots
-
-                 # Each plot is wrapped in a div with a fixed width and height
-                 div(
-                   style = "flex: 0 0 33%;",  # Each plot takes up 33% of the viewport width
-                   plotOutput("pca_plot1", width = "600px", height = "450px")
-                 ),
-                 div(
-                   style = "flex: 0 0 33%;",  # Each plot takes up 33% of the viewport width
-                   plotOutput("pca_plot2", width = "600px", height = "450px")
-                 ),
-                 div(
-                   style = "flex: 0 0 33%;",  # Each plot takes up 33% of the viewport width
-                   plotOutput("pca_plot3", width = "600px", height = "450px")
-                 )
-               ),
-
-               br(),
-
-               h3("UMAP Analysis"),
-               p("Missing data are imputed with KNN imputation and 5 neighbours."),
-               textInput("umap_color", "Color by (Column Name)", value = "Disease"),
-               checkboxInput("umap_assay", "Plot Assays instead of samples", value = FALSE),
-               textInput("umap_palette", "Palette (e.g., cancers12 or custom named vector)", value = NULL),
-               actionButton("umap_run", "Run UMAP"),
-               plotOutput("umap_plot", width = "600px", height = "450px")
-      ),
-
-      # Tab for Differential Expression Analysis
-      tabPanel("4. Differential Expression", value = "tab_analysis2",
-               h3("Differential Expression Analysis"),
-               textInput("de_variable", "Variable for DE Analysis", value = "Disease"),
-               textInput("de_case", "Case group for DE Analysis (e.g., 'AML')", value = "AML"),
-               textInput("de_controls", "Control group for DE Analysis (comma-separated, e.g. CLL, MYEL)", value = "CLL, MYEL"),
-               textInput("de_correct", "Covariates to Correct For (e.g., 'Sex, Age')", value = "Sex, Age"),
-               textInput("de_correct_type", "Type of Covariates (comma-separated, e.g. factor, numeric)", value = "factor, numeric"),
-               textInput("de_only_female", "Groups Only Female (comma-separated, e.g. Group1, Group2)", value = NULL),
-               textInput("de_only_male", "Groups Only Male (comma-separated, e.g. 'Group1, Group2')", value = NULL),
-               numericInput("de_pval_lim", "P-value Limit", value = 0.05, min = 0, max = 1, step = 0.05),
-               numericInput("de_logfc_lim", "Log Fold Change Limit", value = 0, step = 0.1),
-               numericInput("de_top_up_prot", "Top Upregulated Proteins", value = 40, step = 1),
-               numericInput("de_top_down_prot", "Top Downregulated Proteins", value = 10, step = 1),
-               textInput("de_user_defined_proteins", "User-defined Proteins (comma-separated, e.g. FLT3, EPO)", value = NULL),
-               textInput("de_palette", "Palette for DE Analysis (e.g., diff_exp or custom named vector)", value = "diff_exp"),
-               actionButton("de_run", "Run Differential Expression Analysis"),
-               plotOutput("de_volcano_plot", width = "600px", height = "450px")
-        )
-    ),
-    width = 12
-  ),
-
-  theme = bs_theme(preset = "darkly",
-                   primary = "#883268",
-                   secondary = "#F2F2F2")
+# Define custom themes
+light_theme <- bs_theme(
+  primary = "#883268",
 )
 
+# Define UI
+ui <- navbarPage(
+  title = "HDAnalyzeR",
+  theme = light_theme,
+  id = "main_navbar", # Identifier for navigation
+
+  # Page 1: Welcome & Data Upload
+  tabPanel(
+    "Welcome & Data Upload",
+    fluidPage(
+      sidebarLayout(
+        sidebarPanel(
+          h3("Welcome!"),
+          p("This app simplifies proteomics data analysis and biomarker discovery."),
+          hr(),
+          h4("Data"),
+          fileInput("data_file",
+                    "Upload Data File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
+                    accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
+          uiOutput("sample_id_ui"),
+          uiOutput("variable_value_ui"),
+          hr(),
+          h4("Metadata"),
+          fileInput("metadata_file",
+                    "Upload Metadata File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
+                    accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
+          textOutput("validation_msg"),
+
+          # Filtering Section
+          hr(),
+          h4("Filtering"),
+          textInput("columns_to_keep",
+                    "Enter Column Names to Keep (comma-separated):",
+                    value = ""),
+          textInput("rows_to_keep",
+                    "Enter Row Numbers to Keep (comma-separated):",
+                    value = ""),
+
+          # Button Grid with Consistent Alignment
+          fluidRow(
+            column(6, actionButton("rows_keep", "Keep Rows", class = "btn-block btn-primary")),
+            column(6, actionButton("rows_remove", "Remove Rows", class = "btn-block"))
+          ),
+          fluidRow(
+            column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block btn-primary")),
+            column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block"))
+          ),
+          actionButton("reset_data", "Reset", style = "margin-top: 10px;"),
+          tags$style(".btn-block { width: 100%; margin-top: 10px; }")
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              "Data Preview",
+              fluidRow(
+                column(
+                  width = 12,
+                  div(
+                    style = "overflow-x: auto; white-space: nowrap;",
+                    DTOutput("data_preview") # Render the Data Preview table
+                  )
+                )
+              )
+            ),
+            tabPanel(
+              "Metadata Preview",
+              fluidRow(
+                column(
+                  width = 12,
+                  div(
+                    style = "overflow-x: auto; white-space: nowrap;",
+                    DTOutput("metadata_preview") # Render the Metadata Preview table
+                  )
+                )
+              )
+            ),
+            tabPanel(
+              "Processed Data",
+              fluidRow(
+                column(
+                  width = 12,
+                  div(
+                    style = "overflow-x: auto; white-space: nowrap;",
+                    DTOutput("processed_data_preview") # Render the Processed Data table
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  ),
+
+  # Page 2: Dimensionality Reduction
+  tabPanel(
+    "Dimensionality Reduction",
+    fluidPage(
+      h3("Dimensionality Reduction"),
+      p("This page is under construction."),
+      p("In the future, you will be able to perform PCA and other dimensionality reduction techniques here.")
+    )
+  )
+)
+
+# Define server
 server <- function(input, output, session) {
 
-  convert_palette <- function(palette_input) {
-    if (is.null(palette_input) || palette_input == "") {
-      return(NULL)
-    }
 
-    if (startsWith(palette_input, "c(") && endsWith(palette_input, ")")) {
-      palette_input <- substring(palette_input, 3, nchar(palette_input) - 1)  # Remove 'c(' and ')'
-
-      # Convert to named vector
-      tryCatch({
-        palette <- eval(parse(text = paste0("c(", palette_input, ")")))
-        return(palette)
-      }, error = function(e) {
-        warning("Error parsing palette: ", e$message)
-        return(NULL)
-      })
-      } else {
-      # Predefined palette names
-      palette <- palette_input
-    }
-    return(palette)
-  }
-
-  # Reactive to load the data file using HDAnalyzeR::import_df
+  # Reactive values for data and metadata
   data <- reactive({
-    req(input$datafile)
-    HDAnalyzeR::import_df(input$datafile$datapath)
+    req(input$data_file)
+    file <- input$data_file$datapath
+    hd_import_data(file)
   })
 
-  # Reactive to load the metadata file using HDAnalyzeR::import_df
   metadata <- reactive({
-    req(input$metadatafile)
-    HDAnalyzeR::import_df(input$metadatafile$datapath)
+    req(input$metadata_file)
+    file <- input$metadata_file$datapath
+    hd_import_data(file)
   })
 
-  # Dynamically update column selections for data
-  observe({
+  output$sample_id_ui <- renderUI({
     req(data())
-    updateSelectInput(session, "keep_cols_data", choices = colnames(data()), selected = colnames(data()))
+    selectInput("sample_id",
+                "Select Sample ID Column:",
+                choices = names(data()))
   })
 
-  # Dynamically update column selections for metadata
-  observe({
-    req(metadata())
-    updateSelectInput(session, "keep_cols_metadata", choices = colnames(metadata()), selected = colnames(metadata()))
-  })
-
-  # Process the data using HDAnalyzeR::clean_data
-  processed_data <- reactive({
+  # Observe Sample ID selection and check for duplicates
+  observeEvent(input$sample_id, {
     req(data())
+    sample_id_col <- input$sample_id
+    duplicates_exist <- any(duplicated(data()[[sample_id_col]]))
 
-    filter_plates <- if (!is.null(input$filter_plates) && input$filter_plates != "") {
-      strsplit(input$filter_plates, ", ")[[1]]
-    } else NULL
+    if (duplicates_exist) {
+      showNotification("Sample ID column has duplicates. Please provide Variable and Value columns to widen the data.", type = "warning")
 
-    filter_assays <- if (!is.null(input$filter_assays) && input$filter_assays != "") {
-      strsplit(input$filter_assays, ", ")[[1]]
-    } else NULL
-
-    HDAnalyzeR::clean_data(
-      df_in = data(),
-      keep_cols = input$keep_cols_data,
-      filter_plates = filter_plates,
-      filter_assays = filter_assays,
-      filter_assay_warning = input$filter_assay_warning
-    )
+      output$variable_value_ui <- renderUI({
+        tagList(
+          selectInput("var_column",
+                      "Select Variable Column (e.g., Protein Names):",
+                      choices = names(data())),
+          selectInput("value_column",
+                      "Select Value Column (e.g., Protein Expression Levels):",
+                      choices = names(data())),
+          actionButton("widen_data", "Widen Data")
+        )
+      })
+    } else {
+      showNotification("Sample ID column has no duplicates. Data is already in wide format.", type = "message")
+      output$variable_value_ui <- renderUI(NULL)
+    }
   })
 
-  # Process the metadata using HDAnalyzeR::clean_metadata
-  processed_metadata <- reactive({
+  observeEvent(input$sample_id, {
     req(metadata())
+    sample_id_col <- input$sample_id
 
-    cohort <- if (!is.null(input$cohort) && input$cohort != "") {
-      strsplit(input$cohort, ", ")[[1]]
-    } else NULL
-
-    HDAnalyzeR::clean_metadata(
-      df_in = metadata(),
-      keep_cols = input$keep_cols_metadata,
-      cohort = cohort
-    )
-  })
-
-  # Show the first 3 rows of the processed data
-  output$processed_data_preview <- renderTable({
-    head(processed_data(), 10)
-  })
-
-  # Show the number of rows and columns of the processed data
-  output$data_dimensions <- renderText({
-    df <- processed_data()
-    paste("Rows:", nrow(df), "Columns:", ncol(df))
-  })
-
-  # Dynamically create a dropdown for column names
-  output$data_column_selector <- renderUI({
-    selectInput("selected_column", "Choose a Column:", choices = names(processed_data()))
-  })
-
-  output$data_unique_value_dropdown <- renderUI({
-    req(input$selected_column)  # Make sure a column is selected
-
-    unique_values <- unique(processed_data()[[input$selected_column]])
-
-    selectInput("selected_value", "Unique Values:", choices = unique_values, multiple = FALSE)
-  })
-
-  # Show the first 3 rows of the processed metadata
-  output$processed_metadata_preview <- renderTable({
-    head(processed_metadata(), 10)
-  })
-
-  # Show the number of rows and columns of the processed metadata
-  output$metadata_dimensions <- renderText({
-    df <- processed_metadata()
-    paste("Rows:", nrow(df), "Columns:", ncol(df))
-  })
-
-  # Dynamically create a dropdown for column names
-  output$metadata_column_selector <- renderUI({
-    selectInput("selected_column", "Choose a Column:", choices = names(processed_metadata()))
-  })
-
-  output$metadata_unique_value_dropdown <- renderUI({
-    req(input$selected_column)  # Make sure a column is selected
-
-    unique_values <- unique(processed_metadata()[[input$selected_column]])
-
-    selectInput("selected_value", "Unique Values:", choices = unique_values, multiple = FALSE)
-  })
-
-  # Reactive to trigger PCA analysis
-  observeEvent(input$pca_run, {
-    req(processed_data())
-
-    # Set metadata to NULL if assay is TRUE
-    metadata <- if (input$pca_assay) NULL else processed_metadata()
-    palette <- convert_palette(input$pca_palette)
-
-    pca_results <- HDAnalyzeR::do_pca(
-      olink_data = processed_data(),
-      metadata = metadata,
-      pcs = input$pcs,
-      color = input$pca_color,
-      palette = palette,
-      wide = FALSE,       # Fixed argument
-      assay = input$pca_assay,
-      impute = TRUE,     # Fixed argument
-      plots = TRUE,      # Fixed argument
-      x = "PC1",         # Default
-      y = "PC2",         # Default
-      npcs = 4,          # Default
-      nproteins = 8,     # Default
-      loadings = FALSE,  # Default
-      save = FALSE       # Default
-    )
-
-    output$pca_plots <- renderUI({
-      fluidRow(
-        column(4, plotOutput("pca_plot1", width = "600px", height = "450px")),
-        column(4, plotOutput("pca_plot2", width = "600px", height = "450px")),
-        column(4, plotOutput("pca_plot3", width = "600px", height = "450px"))
+    # Check if the selected Sample ID exists in metadata
+    if (!sample_id_col %in% names(metadata())) {
+      showNotification(
+        "The selected Sample ID column is not present in the metadata file. Please select a different column.",
+        type = "error"
       )
-    })
-
-    output$pca_plot1 <- renderPlot({
-      pca_results$pca_plot
-    })
-
-    output$pca_plot2 <- renderPlot({
-      pca_results$loadings_plot
-    })
-
-    output$pca_plot3 <- renderPlot({
-      pca_results$variance_plot
-    })
+    }
   })
 
-  # Reactive to trigger UMAP analysis
-  observeEvent(input$umap_run, {
-    req(processed_data())
+  # Handle data widening
+  processed_data <- reactiveVal(NULL)
+  original_data <- reactiveVal(NULL)
+  observeEvent(input$widen_data, {
+    req(data(), input$sample_id, input$var_column, input$value_column)
 
-    # Set metadata to NULL if assay is TRUE
-    metadata <- if (input$umap_assay) NULL else processed_metadata()
-    palette <- convert_palette(input$umap_palette)
+    # Attempt to widen data with error handling
+    tryCatch(
+      {
+        wide_data <- hd_initialize(
+          dat = data(),
+          metadata = NULL,
+          is_wide = FALSE,
+          sample_id = input$sample_id,
+          var_name = input$var_column,
+          value_name = input$value_column
+        )[["data"]]
 
-    umap_results <- HDAnalyzeR::do_umap(
-      olink_data = processed_data(),
-      metadata = metadata,
-      color = input$umap_color,
-      palette = palette,
-      wide = FALSE,       # Fixed argument
-      assay = input$umap_assay,
-      impute = TRUE,     # Fixed argument
-      plots = TRUE,      # Fixed argument
-      save = FALSE       # Fixed argument
+        # If successful, store the widened data
+        processed_data(wide_data)
+        original_data(wide_data)
+        showNotification("Data successfully widened and ready for analysis!", type = "message")
+      },
+      error = function(e) {
+        # Handle errors gracefully
+        showNotification(
+          paste("Error in data widening, please use different columns."),
+          type = "error"
+        )
+
+        # Do not update processed_data on error
+        processed_data()
+      }
     )
-
-    output$umap_plot <- renderPlot({
-      umap_results$umap_plot
-    })
   })
 
-  # Differential Expression Analysis
-  observeEvent(input$de_run, {
+  observe({
+    req(data(), input$sample_id)
+
+    # Check if data is already in wide format
+    duplicates_exist <- any(duplicated(data()[[input$sample_id]]))
+    if (!duplicates_exist) {
+      processed_data(data())
+      original_data(data())
+    }
+  })
+
+  # Display processed (widened) data if available
+  output$processed_data_preview <- renderDT({
+    req(processed_data())
+    datatable(processed_data(), options = list(pageLength = 5))
+  })
+
+  # Preview uploaded data
+  output$data_preview <- renderDT({
+    req(data())
+    datatable(data(), options = list(pageLength = 5))
+  })
+
+  # Preview uploaded metadata
+  output$metadata_preview <- renderDT({
+    req(metadata())
+    datatable(metadata(), options = list(pageLength = 5))
+  })
+
+  # Validation message
+  output$validation_msg <- renderText({
+    if (is.null(input$data_file) || is.null(input$metadata_file)) {
+      return("Please upload both data and metadata files to proceed.")
+    }
+    "Files uploaded successfully!"
+  })
+
+  # Perform Row Filtering
+  observeEvent(c(input$rows_keep, input$rows_remove), {
     req(processed_data())
 
-    # Parse inputs
-    variable <- input$de_variable
-    case <- input$de_case
-    controls <- strsplit(input$de_controls, ",\\s*")[[1]]  # Split comma-separated list into vector
-    correct <- if (input$de_correct == "") NULL else strsplit(input$de_correct, ",\\s*")[[1]]
-    correct_type <- if (input$de_correct_type == "") NULL else strsplit(input$de_correct_type, ",\\s*")[[1]]
-    only_female <- strsplit(input$de_only_female, ",\\s*")[[1]]
-    only_male <- strsplit(input$de_only_male, ",\\s*")[[1]]
-    pval_lim <- input$de_pval_lim
-    logfc_lim <- input$de_logfc_lim
-    top_up_prot <- input$de_top_up_prot
-    top_down_prot <- input$de_top_down_prot
-    palette <- convert_palette(input$de_palette)
-    user_defined_proteins <- if (input$de_user_defined_proteins == "") NULL else strsplit(input$de_user_defined_proteins, ",\\s*")[[1]]
+    data <- processed_data()
+    row_indices <- as.numeric(unlist(strsplit(input$rows_to_keep, ",")))
+    if (any(is.na(row_indices)) && input$rows_to_keep != "") {
+      showNotification("Please enter valid row numbers.", type = "error")
+      return()
+    }
 
-    de_results <- HDAnalyzeR::do_limma(
-      olink_data = processed_data(),
-      metadata = processed_metadata(),
-      variable = variable,
-      case = case,
-      control = controls,
-      correct = correct,
-      correct_type = correct_type,
-      wide = FALSE,
-      only_female = only_female,
-      only_male = only_male,
-      volcano = TRUE,
-      pval_lim = pval_lim,
-      logfc_lim = logfc_lim,
-      top_up_prot = top_up_prot,
-      top_down_prot = top_down_prot,
-      palette = palette,
-      report_nproteins = TRUE,
-      user_defined_proteins = user_defined_proteins,
-      subtitle = NULL,
-      save = FALSE
-    )
+    if (input$rows_keep > input$rows_remove) {
+      # Keep selected rows
+      filtered <- data[row_indices, , drop = FALSE]
+    } else {
+      # Remove selected rows
+      filtered <- data[-row_indices, , drop = FALSE]
+    }
 
-    output$de_volcano_plot <- renderPlot({
-      de_results$volcano_plot  # Adjust based on your actual `do_limma` function
-    })
+    # Update processed_data with the filtered data
+    processed_data(filtered)
+    showNotification("Row filtering applied successfully! Processed data updated.", type = "message")
+  })
+
+  # Perform Column Filtering
+  observeEvent(c(input$cols_keep, input$cols_remove), {
+    req(processed_data())
+
+    data <- processed_data()
+    selected_columns <- unlist(strsplit(input$columns_to_keep, ","))
+    selected_columns <- trimws(selected_columns) # Remove extra whitespace
+    if (any(!selected_columns %in% names(data))) {
+      showNotification("Some column names are invalid. Please check your input.", type = "error")
+      return()
+    }
+
+    if (input$cols_keep > input$cols_remove) {
+      # Keep selected columns
+      filtered <- data[, selected_columns, drop = FALSE]
+    } else {
+      # Remove selected columns
+      filtered <- data[, !(names(data) %in% selected_columns), drop = FALSE]
+    }
+
+    # Update processed_data with the filtered data
+    processed_data(filtered)
+    showNotification("Column filtering applied successfully! Processed data updated.", type = "message")
+  })
+
+  # Reset button logic
+  observeEvent(input$reset_data, {
+    req(original_data())
+    processed_data(original_data()) # Restore the original wide data
+    showNotification("Data has been reset to the original wide format.", type = "message")
+  })
+
+  # Display Processed Data
+  output$processed_data_preview <- renderDT({
+    req(processed_data())
+    datatable(processed_data(), options = list(pageLength = 5))
   })
 }
 
-# Run the application
+# Run the app
 shinyApp(ui = ui, server = server)
