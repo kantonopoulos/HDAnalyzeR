@@ -114,7 +114,6 @@ ui <- navbarPage(
                    textInput("color_variable", "Color Variable", value = "")
             ),
           ),
-          uiOutput("color_palette_ui"),
           checkboxInput("equal_axis", "Equal Axes", value = TRUE),
           fluidRow(
             column(6,
@@ -339,34 +338,6 @@ server <- function(input, output, session) {
   output$processed_data_preview <- renderDT({
     req(processed_data())
     datatable(processed_data(), options = list(pageLength = 5))
-  })
-
-  # Plotting logic
-  observe({
-    color_var <- input$color_var
-    req(color_var)
-
-    var_type <- hd_detect_vartype(plot_data[[color_var]], unique_threshold = 5)
-
-    if (var_type == "categorical") {
-      # Show categorical color inputs (no default palette, empty)
-      output$color_palette_ui <- renderUI({
-        fluidRow(
-          column(6, textInput("categories", "Enter Categories (comma-separated)", value = "")),
-          column(6, textInput("category_colors", "Enter Colors for Categories (comma-separated)", value = ""))
-        )
-      })
-
-    } else {
-      # Show continuous color inputs (no default palette, empty)
-      output$color_palette_ui <- renderUI({
-        fluidRow(
-          column(4, colourInput("low_color", "Low Color", value = NULL)),
-          column(4, colourInput("mid_color", "Mid Color", value = NULL)),
-          column(4, colourInput("high_color", "High Color", value = NULL))
-        )
-      })
-    }
   })
 
   observeEvent(input$plot_button, {
