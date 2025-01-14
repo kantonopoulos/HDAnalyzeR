@@ -3,6 +3,8 @@ library(shiny)
 library(DT)
 library(bslib)
 library(HDAnalyzeR)
+library(dplyr)
+library(plotly)
 
 # Define custom themes
 light_theme <- bs_theme(
@@ -49,12 +51,12 @@ ui <- navbarPage(
 
           # Button Grid with Consistent Alignment
           fluidRow(
-            column(6, actionButton("rows_keep", "Keep Rows", class = "btn-block btn-primary")),
-            column(6, actionButton("rows_remove", "Remove Rows", class = "btn-block"))
+            column(6, actionButton("rows_keep", "Keep Rows", class = "btn-block")),
+            column(6, actionButton("rows_remove", "Remove Rows", class = "btn-block btn-primary"))
           ),
           fluidRow(
-            column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block btn-primary")),
-            column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block"))
+            column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block")),
+            column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block btn-primary"))
           ),
           actionButton("reset_data", "Reset", style = "margin-top: 10px;"),
           tags$style(".btn-block { width: 100%; margin-top: 10px; }")
@@ -97,7 +99,29 @@ ui <- navbarPage(
                 )
               )
             )
-          )
+          ),
+          # Plot Section - Place below the data preview section
+          hr(),
+          h4("Exploratory Data Analysis"),
+          fluidRow(
+            column(4,
+                   textInput("x_variable", "X Variable", value = "")
+            ),
+            column(4,
+                   textInput("y_variable", "Y Variable", value = "")
+            ),
+            column(4,
+                   textInput("color_variable", "Color Variable", value = "")
+            ),
+          ),
+          uiOutput("color_palette_ui"),
+          checkboxInput("equal_axis", "Equal Axes", value = TRUE),
+          fluidRow(
+            column(6,
+                   actionButton("plot_button", "Plot", class = "btn-primary btn-block", style = "height: 50px;") # Align plot button below
+            )
+          ),
+          plotlyOutput("scatter_plot")  # Plot display here
         )
       )
     )
@@ -116,7 +140,6 @@ ui <- navbarPage(
 
 # Define server
 server <- function(input, output, session) {
-
 
   # Reactive values for data and metadata
   data <- reactive({
@@ -299,6 +322,12 @@ server <- function(input, output, session) {
     showNotification("Column filtering applied successfully! Processed data updated.", type = "message")
   })
 
+  merged_data <- reactive({
+    req(processed_data(), metadata())  # Make sure both processed data and metadata are available
+    # Merging processed data and metadata
+    left_join(processed_data(), metadata(), by = input$sample_id)
+  })
+
   # Reset button logic
   observeEvent(input$reset_data, {
     req(original_data())
@@ -310,6 +339,161 @@ server <- function(input, output, session) {
   output$processed_data_preview <- renderDT({
     req(processed_data())
     datatable(processed_data(), options = list(pageLength = 5))
+  })
+
+  # Plotting logic
+  observe({
+    color_var <- input$color_var
+    req(color_var)
+
+    var_type <- hd_detect_vartype(plot_data[[color_var]], unique_threshold = 5)
+
+    if (var_type == "categorical") {
+      # Show categorical color inputs (no default palette, empty)
+      output$color_palette_ui <- renderUI({
+        fluidRow(
+          column(6, textInput("categories", "Enter Categories (comma-separated)", value = "")),
+          column(6, textInput("category_colors", "Enter Colors for Categories (comma-separated)", value = ""))
+        )
+      })
+
+    } else {
+      # Show continuous color inputs (no default palette, empty)
+      output$color_palette_ui <- renderUI({
+        fluidRow(
+          column(4, colourInput("low_color", "Low Color", value = NULL)),
+          column(4, colourInput("mid_color", "Mid Color", value = NULL)),
+          column(4, colourInput("high_color", "High Color", value = NULL))
+        )
+      })
+    }
+  })
+
+  observeEvent(input$plot_button, {
+    req(processed_data())  # Ensure processed data is available
+
+    # Create a merged data set (processed data + metadata)
+    merged <- merged_data()
+
+    # Get the x and y variable input from the user
+    x_var <- input$x_variable
+    y_var <- input$y_variable
+    sample_id <- input$sample_id
+
+    # Check if x and y variables exist in the merged data
+    if (x_var %in% colnames(merged) && y_var %in% colnames(merged)) {
+      if (input$color_variable != "" && input$color_variable %in% colnames(merged)) {
+        color_var <- input$color_variable
+        plot_data <- merged %>% select(all_of(c(sample_id, x_var, y_var, color_var)))
+        x_type <- hd_detect_vartype(plot_data[[x_var]], unique_threshold = 5)
+        y_type <- hd_detect_vartype(plot_data[[y_var]], unique_threshold = 5)
+        c_type <- hd_detect_vartype(plot_data[[color_var]], unique_threshold = 5)
+
+        if (x_type == "continuous" && y_type == "continuous") {
+          plot <- plot_ly(
+            data = plot_data,
+            x = ~get(x_var),
+            y = ~get(y_var),
+            color = ~get(color_var),
+            type = "scatter",
+            mode = "markers",
+            text = ~get(sample_id),
+            hoverinfo = "text"
+          )
+
+          if (input$equal_axis) {
+            plot <- plot %>%
+              layout(
+                xaxis = list(title = paste("<b>", x_var, "</b>"), scaleanchor = "y"),
+                yaxis = list(title = paste("<b>", y_var, "</b>"), scaleanchor = "x"))
+          } else {
+            plot <- plot %>%
+              layout(xaxis = list(title = paste("<b>", x_var, "</b>")),
+                     yaxis = list(title = paste("<b>", y_var, "</b>")))
+          }
+          plot <- plot %>%
+            layout(legend = list(title = list(text = paste("<b>", color_var, "</b>")))) %>%
+            colorbar(title = paste("<b>", color_var, "</b>"))
+        } else if ((x_type == "continuous" && y_type == "categorical") || (x_type == "categorical" && y_type == "continuous")) {
+          if (c_type != "categorical") {
+            showNotification("Color variable must be categorical for categorical x or y variable.", type = "error")
+            if (c_type == "categorical") {
+              color_var <- x_var
+            } else {
+              color_var <- y_var
+            }
+          }
+          plot <- plot_ly(
+            data = plot_data,
+            x = ~get(x_var),
+            y = ~get(y_var),
+            color = ~get(color_var),
+            type = "box"
+          )
+          if (x_var == color_var || y_var == color_var) {
+            plot <- plot %>%
+              layout(xaxis = list(title = paste("<b>", x_var, "</b>")),
+                     yaxis = list(title = paste("<b>", y_var, "</b>")),
+                     legend = list(title = list(text = paste("<b>", color_var, "</b>"))))
+          } else {
+            plot <- plot %>%
+              layout(xaxis = list(title = paste("<b>", x_var, "</b>")),
+                     yaxis = list(title = paste("<b>", y_var, "</b>")),
+                     legend = list(title = list(text = paste("<b>", color_var, "</b>"))),
+                     boxmode = "group")
+          }
+        }
+      } else {
+        plot_data <- merged %>% select(all_of(c(sample_id, x_var, y_var)))
+        x_type <- hd_detect_vartype(plot_data[[x_var]], unique_threshold = 5)
+        y_type <- hd_detect_vartype(plot_data[[y_var]], unique_threshold = 5)
+
+        if (x_type == "continuous" && y_type == "continuous") {
+          plot <- plot_ly(
+            data = plot_data,
+            x = ~get(x_var),
+            y = ~get(y_var),
+            type = "scatter",
+            mode = "markers",
+            text = ~get(sample_id),
+            hoverinfo = "text"
+          )
+
+          if (input$equal_axis) {
+            plot <- plot %>%
+              layout(
+                xaxis = list(title = paste("<b>", x_var, "</b>"), scaleanchor = "y"),
+                yaxis = list(title = paste("<b>", y_var, "</b>"), scaleanchor = "x"))
+          } else {
+            plot <- plot %>%
+              layout(xaxis = list(title = paste("<b>", x_var, "</b>")),
+                     yaxis = list(title = paste("<b>", y_var, "</b>")))
+          }
+        } else if ((x_type == "continuous" && y_type == "categorical") || (x_type == "categorical" && y_type == "continuous")) {
+          plot <- plot_ly(
+            data = plot_data,
+            x = ~get(x_var),
+            y = ~get(y_var),
+            type = "box"
+          ) %>% layout(xaxis = list(title = paste("<b>", x_var, "</b>")),
+                       yaxis = list(title = paste("<b>", y_var, "</b>")))
+        }
+      }
+
+      output$scatter_plot <- renderPlotly({
+        plot
+      })
+    } else {
+      showNotification("Selected variables not found in the data.", type = "error")
+    }
+  })
+
+  # Sample ID detection when clicked on scatter plot points
+  observeEvent(event_data("plotly_click"), {
+    click_data <- event_data("plotly_click")
+    if (!is.null(click_data)) {
+      showNotification(paste("Sample ID clicked: ", click_data$text), type = "message")
+    }
   })
 }
 
