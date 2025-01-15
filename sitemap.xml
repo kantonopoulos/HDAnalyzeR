@@ -21,6 +21,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/check_col_types.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/check_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/check_numeric_columns.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/cluster_help.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_model.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_multiclass_model.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/evaluate_regression_model.html</loc></url>
@@ -30,10 +31,12 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/fix_components_names.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/gene_to_entrezid.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/generate_title.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/get_optimal_k.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_auto_pca.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_auto_umap.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_bin_columns.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_cluster.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_cluster_samples.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_correlate.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_de_limma.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_de_ttest.html</loc></url>
@@ -71,12 +74,14 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_plot_pca_variance.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_plot_regression.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_plot_volcano.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_plot_wgcna.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_qc_summary.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_save_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_save_path.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_show_palettes.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_split_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_umap.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_wgcna.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_widen_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/index.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/plot_loadings.html</loc></url>

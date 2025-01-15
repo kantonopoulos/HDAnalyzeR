@@ -132,42 +132,32 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Feature</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Perform ORA with `GO` database and `BP` ontology</span></span></span>
-<span class="r-in"><span><span class="fu">hd_ora</span><span class="op">(</span><span class="va">sig_up_proteins_aml</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu">hd_ora</span><span class="op">(</span><span class="va">sig_up_proteins_aml</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $gene_list</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "100"   "566"   "328"   "54518" "9289"  "285"   "9048"  "181"   "51129"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "191"   "25"    "59"    "2683"  "51742" "9296"  "267"   "59272" "976"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "199"   "405"   "30817" "1386" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $enrichment</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # over-representation test</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...@organism 	 Homo sapiens </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...@ontology 	 BP </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...@keytype 	 ENTREZID </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...@gene 	 chr [1:22] "100" "566" "328" "54518" "9289" "285" "9048" "181" "51129" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...pvalues adjusted by 'BH' with cutoff &lt;0.05 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...83 enriched terms found</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	83 obs. of  12 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID            : chr  "GO:0050900" "GO:0050926" "GO:0071674" "GO:0045785" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description   : chr  "leukocyte migration" "regulation of positive chemotaxis" "mononuclear cell migration" "positive regulation of cell adhesion" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ GeneRatio     : chr  "7/22" "3/22" "5/22" "6/22" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ BgRatio       : chr  "404/18986" "27/18986" "231/18986" "499/18986" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ RichFactor    : num  0.0173 0.1111 0.0216 0.012 0.0158 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ FoldEnrichment: num  15 95.9 18.7 10.4 13.6 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ zScore        : num  9.66 16.81 9.21 7.23 7.71 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue        : num  2.43e-07 3.88e-06 5.68e-06 1.67e-05 2.62e-05 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust      : num  0.000285 0.002226 0.002226 0.004903 0.006166 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue        : num  0.000173 0.001349 0.001349 0.002971 0.003737 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID        : chr  "100/566/9048/25/2683/199/30817" "566/285/9048" "566/9048/25/2683/199" "100/566/54518/9289/25/199" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Count         : int  7 3 5 6 5 5 3 5 5 3 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...Citation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "hd_enrichment"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Access the results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                          Description GeneRatio   BgRatio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 GO:0050900                  leukocyte migration      7/22 404/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 GO:0050926    regulation of positive chemotaxis      3/22  27/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 GO:0071674           mononuclear cell migration      5/22 231/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 GO:0045785 positive regulation of cell adhesion      6/22 499/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 GO:0001666                  response to hypoxia      5/22 317/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 GO:0036293  response to decreased oxygen levels      5/22 331/18986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            RichFactor FoldEnrichment    zScore       pvalue     p.adjust</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.01732673       14.95297  9.655234 2.427348e-07 0.0002854562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.11111111       95.88889 16.805104 3.879176e-06 0.0022259912</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 0.02164502       18.67965  9.208160 5.678549e-06 0.0022259912</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 0.01202405       10.37675  7.229716 1.667718e-05 0.0049030906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.01577287       13.61199  7.712662 2.621632e-05 0.0061660792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 0.01510574       13.03625  7.524183 3.224239e-05 0.0063195083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  qvalue                         geneID Count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.0001729805 100/566/9048/25/2683/199/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.0013489045                   566/285/9048     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 0.0013489045           566/9048/25/2683/199     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 0.0029711711      100/566/54518/9289/25/199     6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.0037365159         100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 0.0038294908         100/285/51129/405/1386     5</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
