@@ -2,13 +2,14 @@
 % Please edit documentation in R/cluster.R
 \name{hd_cluster_samples}
 \alias{hd_cluster_samples}
-\title{Cluster samples by identifying optimal number of clusters}
+\title{Cluster samples in k clusters}
 \usage{
 hd_cluster_samples(
   dat,
   distance_method = "euclidean",
   clustering_method = "ward.D2",
   normalize = TRUE,
+  k = NULL,
   k_max = 15,
   gap_b = 100,
   seed = 123,
@@ -24,21 +25,24 @@ hd_cluster_samples(
 
 \item{normalize}{A logical value indicating whether to normalize the data. Z-score normalization is applied using the \code{hd_normalize()} function. Default is TRUE.}
 
-\item{k_max}{The maximum number of clusters to test. Default is 15.}
+\item{k}{The number of clusters to return. If NULL, the function determines the optimal number of clusters using the gap statistic.}
 
-\item{gap_b}{The number of times to repeat the clustering in the gap analysis. Default is 100.}
+\item{k_max}{The maximum number of clusters to test. Default is 15. Valid only if k is NULL.}
 
-\item{seed}{The seed to use for reproducibility. Default is 123.}
+\item{gap_b}{The number of times to repeat the clustering in the gap analysis. Default is 100. Valid only if k is NULL.}
 
-\item{verbose}{A logical value indicating whether to print the progress of the gap analysis. Default is FALSE.}
+\item{seed}{The seed to use for reproducibility. Default is 123. Valid only if k is NULL.}
+
+\item{verbose}{A logical value indicating whether to print the progress of the gap analysis. Default is FALSE. Valid only if k is NULL.}
 }
 \value{
 A list with the cluster assignment.
 }
 \description{
 \code{hd_cluster_samples()} takes a dataset and returns the clustering of the samples.
-The optimal number of clusters is determined using the gap statistic. If data contain
-missing values, the function imputes them using the k-nearest neighbors algorithm (k = 5).
+The user can define the number of clusters or let the function determine the optimal
+number of clusters using the gap statistic. If the data contain missing values, the
+function imputes them using the k-nearest neighbors algorithm (k = 5).
 }
 \examples{
 # Create the HDAnalyzeR object providing the data and metadata
@@ -46,6 +50,12 @@ hd_object <- hd_initialize(example_data, example_metadata)
 
 # Clustered data
 clustering <- hd_cluster_samples(hd_object, gap_b = 10)
+
+# Access the results
+head(clustering[["cluster_res"]])
+
+# Clustered data with defined number of clusters
+clustering <- hd_cluster_samples(hd_object, k = 7, gap_b = 10)
 
 # Access the results
 head(clustering[["cluster_res"]])
