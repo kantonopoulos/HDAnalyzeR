@@ -61,6 +61,7 @@ Suggests:
     clusterProfiler,
     easyPubMed,
     enrichplot,
+    fpc,
     glmnet,
     knitr,
     org.Hs.eg.db,

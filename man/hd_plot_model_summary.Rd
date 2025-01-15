@@ -41,31 +41,36 @@ model_results_aml <- hd_model_rreg(hd_split,
                                    variable = "Disease",
                                    case = "AML",
                                    grid_size = 2,
-                                   cv_sets = 2)
+                                   cv_sets = 2,
+                                   verbose = FALSE)
 
 model_results_cll <- hd_model_rreg(hd_split,
                                    variable = "Disease",
                                    case = "CLL",
                                    grid_size = 2,
-                                   cv_sets = 2)
+                                   cv_sets = 2,
+                                   verbose = FALSE)
 
 model_results_myel <- hd_model_rreg(hd_split,
                                   variable = "Disease",
                                   case = "MYEL",
                                   grid_size = 2,
-                                  cv_sets = 2)
+                                  cv_sets = 2,
+                                  verbose = FALSE)
 
 model_results_lungc <- hd_model_rreg(hd_split,
                                      variable = "Disease",
                                      case = "LUNGC",
                                      grid_size = 2,
-                                     cv_sets = 2)
+                                     cv_sets = 2,
+                                     verbose = FALSE)
 
 model_results_gliom <- hd_model_rreg(hd_split,
                                      variable = "Disease",
                                      case = "GLIOM",
                                      grid_size = 2,
-                                     cv_sets = 2)
+                                     cv_sets = 2,
+                                     verbose = FALSE)
 
 res <- list("AML" = model_results_aml,
             "LUNGC" = model_results_lungc,

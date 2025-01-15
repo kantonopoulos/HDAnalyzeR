@@ -17,8 +17,9 @@ knitr::opts_chunk$set(
 This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
 
 If you want to learn more about ORA and GSEA, please refer to the following publications:
--  Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/
--  https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
+
+-   Chicco D, Agapito G. Nine quick tips for pathway enrichment analysis. PLoS Comput Biol. 2022 Aug 11;18(8):e1010348. doi: 10.1371/journal.pcbi.1010348. PMID: 35951505; PMCID: PMC9371296. <https://pmc.ncbi.nlm.nih.gov/articles/PMC9371296/>
+-   <https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm>
 
 > 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. This is why we are using extremely large p-value cutoffs in this case that should not be used in real data.
 
@@ -117,4 +118,4 @@ lit_res <- hd_literature_search(biomarkers, max_articles = 5)
 lit_res$`acute myeloid leukemia`$FLT3$title
 ```
 
-> 📓 Remember once again that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions. 
+> 📓 Remember once again that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.

@@ -51,6 +51,7 @@ reference:
   - hd_plot_cor_heatmap
   - hd_cluster
   - hd_cluster_samples
+  - hd_assess_clusters
 - subtitle: Dimensionality Reduction
   desc: |
     Functions that perform dimensionality reduction.
@@ -63,9 +64,9 @@ reference:
   - hd_auto_pca
   - hd_auto_umap
 - title: Main Proteomics Analysis
-- subtitle: Protein Co-expression Network Analysis
+- subtitle: Protein Co-expression Network Analysis (WGCNA)
   desc: |
-    Functions that perform WGCNA.
+    Functions that perform weighted gene co-expression network analysis.
   contents:
   - hd_wgcna
   - hd_plot_wgcna
@@ -78,7 +79,7 @@ reference:
   - hd_plot_volcano
 - subtitle: Classification Models
   desc: |
-    Functions that run Machine Learning classification model pipelines.
+    Functions that run machine learning classification model pipelines.
   contents:
   - hd_split_data
   - hd_model_lr
