@@ -3,7 +3,7 @@
 #' `hd_wgcna` performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
 #' The user can specify the power parameter for the analysis or the function will select an optimal
 #' power value based on the data. The function returns a list containing the WGCNA object, the power
-#' and the power plots (in case optimization is performed). If data contain missing values, the function
+#' and the power plots (in case optimization is performed). If the data contain missing values, the function
 #' imputes them using the k-nearest neighbors algorithm (k = 5).
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.

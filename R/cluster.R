@@ -174,20 +174,22 @@ hd_cluster <- function(dat,
 }
 
 
-#' Cluster samples by identifying optimal number of clusters
+#' Cluster samples in k clusters
 #'
 #' `hd_cluster_samples()` takes a dataset and returns the clustering of the samples.
-#' The optimal number of clusters is determined using the gap statistic. If data contain
-#' missing values, the function imputes them using the k-nearest neighbors algorithm (k = 5).
+#' The user can define the number of clusters or let the function determine the optimal
+#' number of clusters using the gap statistic. If the data contain missing values, the
+#' function imputes them using the k-nearest neighbors algorithm (k = 5).
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param distance_method The distance method to use. Default is "euclidean".
 #' @param clustering_method The clustering method to use. Default is "ward.D2".
 #' @param normalize A logical value indicating whether to normalize the data. Z-score normalization is applied using the `hd_normalize()` function. Default is TRUE.
-#' @param k_max The maximum number of clusters to test. Default is 15.
-#' @param gap_b The number of times to repeat the clustering in the gap analysis. Default is 100.
-#' @param seed The seed to use for reproducibility. Default is 123.
-#' @param verbose A logical value indicating whether to print the progress of the gap analysis. Default is FALSE.
+#' @param k The number of clusters to return. If NULL, the function determines the optimal number of clusters using the gap statistic.
+#' @param k_max The maximum number of clusters to test. Default is 15. Valid only if k is NULL.
+#' @param gap_b The number of times to repeat the clustering in the gap analysis. Default is 100. Valid only if k is NULL.
+#' @param seed The seed to use for reproducibility. Default is 123. Valid only if k is NULL.
+#' @param verbose A logical value indicating whether to print the progress of the gap analysis. Default is FALSE. Valid only if k is NULL.
 #'
 #' @returns A list with the cluster assignment.
 #' @export
@@ -201,10 +203,17 @@ hd_cluster <- function(dat,
 #'
 #' # Access the results
 #' head(clustering[["cluster_res"]])
+#'
+#' # Clustered data with defined number of clusters
+#' clustering <- hd_cluster_samples(hd_object, k = 7, gap_b = 10)
+#'
+#' # Access the results
+#' head(clustering[["cluster_res"]])
 hd_cluster_samples <- function(dat,
                                distance_method = "euclidean",
                                clustering_method = "ward.D2",
                                normalize = TRUE,
+                               k = NULL,
                                k_max = 15,
                                gap_b = 100,
                                seed = 123,
@@ -237,14 +246,19 @@ hd_cluster_samples <- function(dat,
 
   set.seed(seed)
 
-  k <- get_optimal_k(clust_in,
-                     k_max = k_max,
-                     b = gap_b,
-                     verbose = verbose,
-                     distance = distance_method,
-                     method = clustering_method)[["optimal_k"]]
+  if (!is.null(k)) {
+    message(paste("Using user-defined number of clusters: ", k))
+  } else {
+    message("Determining optimal number of clusters using gap statistic.")
+    k <- get_optimal_k(clust_in,
+                       k_max = k_max,
+                       b = gap_b,
+                       verbose = verbose,
+                       distance = distance_method,
+                       method = clustering_method)[["optimal_k"]]
 
-  message(paste("Optimal number of clusters: ", k))
+    message(paste("Optimal number of clusters: ", k))
+  }
 
   clust <- cluster_help(clust_in, k = k, distance = distance_method, method = clustering_method)[["cluster"]]
 
