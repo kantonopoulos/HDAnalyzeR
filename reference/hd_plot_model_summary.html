@@ -125,171 +125,41 @@ of the model performance metrics.</p>
 <span class="r-in"><span>                                   variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"AML"</span>,</span></span>
 <span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                   verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">model_results_cll</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
 <span class="r-in"><span>                                   variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>                                   case <span class="op">=</span> <span class="st">"CLL"</span>,</span></span>
 <span class="r-in"><span>                                   grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                                   cv_sets <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                   verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">model_results_myel</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
 <span class="r-in"><span>                                  variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>                                  case <span class="op">=</span> <span class="st">"MYEL"</span>,</span></span>
 <span class="r-in"><span>                                  grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                  cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                                  cv_sets <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                  verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">model_results_lungc</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
 <span class="r-in"><span>                                     variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"LUNGC"</span>,</span></span>
 <span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                     verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">model_results_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>,</span></span>
 <span class="r-in"><span>                                     variable <span class="op">=</span> <span class="st">"Disease"</span>,</span></span>
 <span class="r-in"><span>                                     case <span class="op">=</span> <span class="st">"GLIOM"</span>,</span></span>
 <span class="r-in"><span>                                     grid_size <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                                     cv_sets <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                                     verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tuning regularized regression model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold1: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 1/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✓</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (extracts)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">i</span> <span style="color: #000000;">Fold2: preprocessor 1/1, model 2/2 (predictions)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating the model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating visualizations...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"AML"</span> <span class="op">=</span> <span class="va">model_results_aml</span>,</span></span>
 <span class="r-in"><span>            <span class="st">"LUNGC"</span> <span class="op">=</span> <span class="va">model_results_lungc</span>,</span></span>
