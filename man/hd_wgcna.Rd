@@ -18,10 +18,11 @@ A list containing the results of the WGCNA.
 \code{hd_wgcna} performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
 The user can specify the power parameter for the analysis or the function will select an optimal
 power value based on the data. The function returns a list containing the WGCNA object, the power
-and the power plots (in case optimization is performed).
+and the power plots (in case optimization is performed). If data contain missing values, the function
+imputes them using the k-nearest neighbors algorithm (k = 5).
 }
 \details{
-#' If you want to learn more about WGCNA, please refer to the following tutorial:
+If you want to learn more about WGCNA, please refer to the following tutorial:
 \itemize{
 \item https://edo98811.github.io/WGCNA_official_documentation/
 }

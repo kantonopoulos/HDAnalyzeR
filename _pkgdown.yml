@@ -50,6 +50,7 @@ reference:
   - hd_correlate
   - hd_plot_cor_heatmap
   - hd_cluster
+  - hd_cluster_samples
 - subtitle: Dimensionality Reduction
   desc: |
     Functions that perform dimensionality reduction.

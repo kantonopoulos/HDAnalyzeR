@@ -21,6 +21,7 @@ biocViews:
 Imports: 
     arrow,
     broom,
+    cluster,
     dials,
     dplyr,
     embed,

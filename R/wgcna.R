@@ -3,7 +3,8 @@
 #' `hd_wgcna` performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
 #' The user can specify the power parameter for the analysis or the function will select an optimal
 #' power value based on the data. The function returns a list containing the WGCNA object, the power
-#' and the power plots (in case optimization is performed).
+#' and the power plots (in case optimization is performed). If data contain missing values, the function
+#' imputes them using the k-nearest neighbors algorithm (k = 5).
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param power The power parameter for the WGCNA analysis as an integer between 1 and 30. If NULL, the function will select an optimal power value. Default is NULL.
@@ -11,7 +12,7 @@
 #' @returns A list containing the results of the WGCNA.
 #'
 #' @details
-#' #' If you want to learn more about WGCNA, please refer to the following tutorial:
+#' If you want to learn more about WGCNA, please refer to the following tutorial:
 #' - https://edo98811.github.io/WGCNA_official_documentation/
 #'
 #' @export
@@ -40,6 +41,8 @@ hd_wgcna <- function(dat, power = NULL) {
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   # Check power input
   if (!is.null(power) && !is.numeric(power)) {
@@ -76,7 +79,9 @@ hd_wgcna <- function(dat, power = NULL) {
                                          verbose = 0,
                                          saveTOMs = FALSE)
 
-    wgcna <- list("wgcna" = wgcna_obj, "power" = power_check[["powerEstimate"]], "power_plots" = power_plts)
+    wgcna <- list("wgcna" = wgcna_obj,
+                  "power" = power_check[["powerEstimate"]],
+                  "power_plots" = power_plts)
     class(wgcna) <- "hd_wgcna"
 
     return(wgcna)
@@ -143,6 +148,8 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
+  check_numeric <- check_numeric_columns(wide_data)
 
   # Imputation of missing values
   dat_impute <- hd_impute_knn(wide_data, k = 5, verbose = FALSE) |>
