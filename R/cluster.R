@@ -249,11 +249,121 @@ hd_cluster_samples <- function(dat,
   clust <- cluster_help(clust_in, k = k, distance = distance_method, method = clustering_method)[["cluster"]]
 
   clust_df <- tibble::tibble(sample_id = rownames(clust_in),
-                             "cluster" = clust[!!rlang::sym("sample_id")])
+                             "Cluster" = clust[!!rlang::sym("sample_id")])
 
-  cluster_object <- list("cluster_res" = clust_df)
+  cluster_object <- list("cluster_dat" = clust_in,
+                         "cluster_res" = clust_df,
+                         "k" = k,
+                         "distance_method" = distance_method,
+                         "clustering_method" = clustering_method)
 
   class(cluster_object) <- "hd_cluster"
+
+  return(cluster_object)
+}
+
+
+#' Assess clusters
+#'
+#' `hd_assess_clusters()` assesses the stability of the clusters by bootstrapping the data.
+#' It calculates the mean Jaccard index for each cluster and removes clusters with a mean
+#' Jaccard index below 0.5 or a sample size below 10. The remaining clusters are renamed
+#' in order of size.
+#'
+#' @param cluster_object The clustering results obtained from `hd_cluster_samples()`.
+#' @param nrep The number of bootstrap replicates. Default is 100.
+#' @param ji_lim The minimum limit for the mean Jaccard index. Default is 0.5.
+#' @param nsample_lim The minimum limit for the sample size. Default is 10.
+#' @param verbose A logical value indicating whether to print the progress of the bootstrapping. Default is FALSE.
+#'
+#' @returns A list with the updated cluster assignment and the stability assessment.
+#' @export
+#'
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_object <- hd_initialize(example_data, example_metadata)
+#'
+#' # Clustered data
+#' clustering <- hd_cluster_samples(hd_object, gap_b = 10)
+#'
+#' # Assess clusters
+#' clustering <- hd_assess_clusters(clustering, nrep = 20)
+#'
+#' # Access the results
+#' clustering$cluster_assessment
+hd_assess_clusters <- function(cluster_object,
+                               nrep = 100,
+                               ji_lim = 0.5,
+                               nsample_lim = 10,
+                               verbose = FALSE) {
+
+  if (!requireNamespace("fpc", quietly = TRUE)) {
+    stop("The 'fpc' package is required but not installed. Please install it using install.packages('fpc').")
+  }
+
+  if (inherits(cluster_object, "hd_cluster")) {
+    clust_df <- cluster_object[["cluster_res"]]
+    clust_dat <- cluster_object[["cluster_dat"]]
+    k <- cluster_object[["k"]]
+    distance_method <- cluster_object[["distance_method"]]
+    clustering_method <- cluster_object[["clustering_method"]]
+  } else {
+    stop("The input object is not a valid HDAnalyzeR cluster object. Only objects created with hd_cluster_samples() are accepted.")
+  }
+
+  stab <- clust_dat |>
+    stats::dist(method = distance_method) |>
+    fpc::clusterboot(B = nrep,
+                     distances = T,
+                     clustermethod = fpc::hclustCBI,
+                     k = k,
+                     method = clustering_method,
+                     count = verbose)
+
+  stab_df <- clust_df |>
+    dplyr::count(!!rlang::sym("Cluster")) |>  # Count samples per cluster
+    dplyr::arrange(!!rlang::sym("Cluster")) |>
+    dplyr::mutate(Mean_ji = stab[["bootmean"]])  # Add mean jaccard index
+
+  # Merge clusters with a mean jaccard index stability below 0.5 or
+  # a sample size below 10 to reduce the number of noise clusters
+  noise_clust <- stab_df |>
+    dplyr::filter(!!rlang::sym("Mean_ji") < ji_lim | !!rlang::sym("n") < nsample_lim) |>
+    dplyr::pull(!!rlang::sym("Cluster"))
+
+  # Rename other clusters in order of size
+  new_clust <- stab_df |>
+    dplyr::mutate(
+      Cluster = dplyr::case_when(
+        !!rlang::sym("Cluster") %in% noise_clust ~ 0, T ~ !!rlang::sym("Cluster")
+      )) |>
+    dplyr::filter(!!rlang::sym("Cluster") != 0) |>
+    dplyr::arrange(dplyr::desc(!!rlang::sym("n")))
+
+  new_clust <- new_clust |>
+    dplyr::mutate(Cluster = 1:nrow(new_clust))
+
+  # Keep key of old vs new names to know stability of clusters
+  stab_df <- stab_df |>
+    dplyr::rename(cluster_og = !!rlang::sym("Cluster")) |>
+    dplyr::left_join(new_clust, by = c("n", "Mean_ji")) |>
+    dplyr::mutate(Cluster = dplyr::case_when(
+      is.na(!!rlang::sym("Cluster")) ~ 0, T ~ !!rlang::sym("Cluster")
+    )) |>
+    dplyr::arrange(!!rlang::sym("n")) |>
+    dplyr::relocate(!!rlang::sym("Cluster"), !!rlang::sym("cluster_og"))
+
+  # Update cluster names
+  clust_df <- clust_df |>
+    dplyr::rename(cluster_og = !!rlang::sym("Cluster")) |>
+    dplyr::left_join(stab_df |>
+                       dplyr::select(dplyr::all_of(c("cluster_og", "Cluster"))),
+                     by = "cluster_og") |>
+    dplyr::select(-dplyr::all_of(c("cluster_og")))
+
+  message("Cluster results updated with stability assessment. Low-quality clusters removed.")
+  cluster_object[["cluster_res"]] <- clust_df
+  cluster_object[["cluster_assessment"]] <- stab_df
 
   return(cluster_object)
 }
