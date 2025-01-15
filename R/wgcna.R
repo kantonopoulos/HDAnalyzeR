@@ -9,6 +9,11 @@
 #' @param power The power parameter for the WGCNA analysis as an integer between 1 and 30. If NULL, the function will select an optimal power value. Default is NULL.
 #'
 #' @returns A list containing the results of the WGCNA.
+#'
+#' @details
+#' #' If you want to learn more about WGCNA, please refer to the following tutorial:
+#' - https://edo98811.github.io/WGCNA_official_documentation/
+#'
 #' @export
 #'
 #' @examples
@@ -57,21 +62,21 @@ hd_wgcna <- function(dat, power = NULL) {
       dplyr::rename_with(tolower) |>
       dplyr::select(1, 2, 5:7) |>
       tidyr::pivot_longer(cols = -power) |>
-      ggplot2::ggplot(ggplot2::aes(x = power, y = value)) +
+      ggplot2::ggplot(ggplot2::aes(x = power, y = !!rlang::sym("value"))) +
       ggplot2::geom_point() +
       ggplot2::geom_line(ggplot2::aes(group = name)) +
-      ggplot2::geom_vline(xintercept = power_check$powerEstimate, colour = "red", linetype = "dotted") +
+      ggplot2::geom_vline(xintercept = power_check[["powerEstimate"]], colour = "red", linetype = "dotted") +
       ggplot2::facet_wrap(~ name, scales = "free_y") +
       theme_hd() +
       ggplot2::theme(axis.text.x = ggplot2::element_text(hjust = 0.5))
 
     wgcna_obj <- WGCNA::blockwiseModules(datExpr = matrix_dat,
                                          corType = "bicor",
-                                         power = power_check$powerEstimate,
+                                         power = power_check[["powerEstimate"]],
                                          verbose = 0,
                                          saveTOMs = FALSE)
 
-    wgcna <- list("wgcna" = wgcna_obj, "power" = power_check$powerEstimate, "power_plots" = power_plts)
+    wgcna <- list("wgcna" = wgcna_obj, "power" = power_check[["powerEstimate"]], "power_plots" = power_plts)
     class(wgcna) <- "hd_wgcna"
 
     return(wgcna)
@@ -124,6 +129,7 @@ hd_wgcna <- function(dat, power = NULL) {
 #' wgcna_res$pps
 #' wgcna_res$me_pps_heatmap
 #' wgcna_res$var_pps_heatmap
+#' wgcna_res$me_cor_heatmap
 hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
   if (inherits(dat, "HDAnalyzeR")) {
@@ -153,26 +159,26 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
   diag(plot_tom) <- NA
 
   # Use modules and their colours to annotate columns
-  annot_df <- data.frame(module = wgcna$wgcna$colors, Assay = names(wgcna$wgcna$colors))
-  annot_col <- list(module = unique(wgcna$wgcna$colors) |> setNames(unique(wgcna$wgcna$colors)))
+  annot_df <- data.frame(module = wgcna[["wgcna"]][["colors"]], Assay = names(wgcna[["wgcna"]][["colors"]]))
+  annot_col <- list(module = unique(wgcna[["wgcna"]][["colors"]]) |>
+                      stats::setNames(unique(wgcna[["wgcna"]][["colors"]])))
 
   # Prepare dataset and plot heatmap
   plot_tom <- as.data.frame(as.table(plot_tom)) |>
     dplyr::left_join(annot_df, by = c("Var2" = "Assay")) |>
-    dplyr::rename(Module = module)
+    dplyr::rename(Module = !!rlang::sym("module"))
 
   tom_hm <- ggplotify::as.ggplot(
     tidyheatmaps::tidyheatmap(plot_tom,
-                              rows = Var1,
-                              columns = Var2,
-                              values = Freq,
-                              colors = rev(hcl.colors(100)),
-                              annotation_col = Module,
+                              rows = !!rlang::sym("Var1"),
+                              columns = !!rlang::sym("Var2"),
+                              values = !!rlang::sym("Freq"),
+                              annotation_col = !!rlang::sym("Module"),
                               annotation_colors = annot_col,
                               show_rownames = FALSE,
                               show_colnames = FALSE,
-                              cluster_rows = wgcna$wgcna$dendrograms[[1]],
-                              cluster_cols = wgcna$wgcna$dendrograms[[1]],
+                              cluster_rows = wgcna[["wgcna"]][["dendrograms"]][[1]],
+                              cluster_cols = wgcna[["wgcna"]][["dendrograms"]][[1]],
                               color_legend_min = -1,
                               color_legend_max = 1,
                               treeheight_row = 0,
@@ -180,19 +186,17 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
 
   # Module eigengene (MEs) adjacency (defined as (1 + cor) / 2)
-  me_adj_dat <- wgcna$wgcna$MEs |>
-    cor()
+  me_adj_dat <- wgcna[["wgcna"]][["MEs"]] |> stats::cor()
 
   # Prepare dataset and plot heatmap
   me_adj_dat <- as.data.frame(as.table(me_adj_dat)) |>
-    dplyr::mutate(Freq = (Freq + 1)/2)
+    dplyr::mutate(Freq = (!!rlang::sym("Freq") + 1)/2)
 
   me_adj <- ggplotify::as.ggplot(
     tidyheatmaps::tidyheatmap(me_adj_dat,
-                              rows = Var1,
-                              columns = Var2,
-                              values = Freq,
-                              colors = hcl.colors(10),
+                              rows = !!rlang::sym("Var1"),
+                              columns = !!rlang::sym("Var2"),
+                              values = !!rlang::sym("Freq"),
                               legend_breaks = seq(0, 1, length.out = 11),
                               border_color = "white",
                               color_legend_min = 0,
@@ -204,13 +208,13 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
 
   # Predictive power score between MEs and metadata
-  me_names <- colnames(wgcna$wgcna$MEs)
+  me_names <- colnames(wgcna[["wgcna"]][["MEs"]])
   vartype <- sapply(metadata |>
                       dplyr::select(dplyr::all_of(c(clinical_vars))),
                     hd_detect_vartype)
 
   # Input df to ppsr::score function
-  pps_in <- wgcna$wgcna$MEs |>
+  pps_in <- wgcna[["wgcna"]][["MEs"]] |>
     tibble::rownames_to_column(sample_id) |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, clinical_vars))),
@@ -221,9 +225,7 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
       # Convert categorical variables to factors
       pps_in[[var]] <- as.factor(pps_in[[var]])
     } else if (vartype[[var]] == "continuous") {
-      # Convert continuous variables to ordered factors
-      #next
-      pps_in[[var]] <- factor(pps_in[[var]], ordered = TRUE)
+      pps_in[[var]] <- as.numeric(pps_in[[var]])
     }
   }
 
@@ -243,26 +245,66 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
   # Make heatmaps
   me_pps_heatmap <- me_pps |>
-    dplyr::select(x, y, pps) |>
-    ggplot2::ggplot(ggplot2::aes(x = x, y = y, fill = pps)) +
+    dplyr::select(dplyr::all_of(c("x", "y", "pps"))) |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("x"),
+                                 y = !!rlang::sym("y"),
+                                 fill = !!rlang::sym("pps"))) +
     ggplot2::geom_tile() +
     ggplot2::labs(x = "Predictor", y = "Outcome", fill = "PPS") +
     ggplot2::scale_fill_viridis_c(limits = c(0, 1)) +
     ggplot2::theme_minimal()
 
   var_pps_heatmap <- var_pps |>
-    dplyr::select(x, y, pps) |>
-    ggplot2::ggplot(ggplot2::aes(x = x, y = y, fill = pps)) +
+    dplyr::select(dplyr::all_of(c("x", "y", "pps"))) |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("x"),
+                                 y = !!rlang::sym("y"),
+                                 fill = !!rlang::sym("pps"))) +
     ggplot2::geom_tile() +
     ggplot2::labs(x = "Predictor", y = "Outcome", fill = "PPS") +
     ggplot2::scale_fill_viridis_c(limits = c(0, 1)) +
     ggplot2::theme_minimal()
+
+  # Run correlation between Module Eigengens and clinical metadata variables
+  # Separate categorical and continuous variables
+  categorical_vars <- names(vartype[vartype == "categorical"])
+  continuous_vars <- names(vartype[vartype == "continuous"])
+
+  # One-hot encoding for categorical variables
+  if (length(categorical_vars) > 0) {
+    one_hot_encoded <- stats::model.matrix(~ . - 1, data = metadata[, categorical_vars, drop = FALSE])
+    one_hot_encoded <- as.data.frame(one_hot_encoded)
+  } else {
+    one_hot_encoded <- NULL
+  }
+
+  # Combine continuous variables and one-hot encoded categorical variables
+  processed_data <- cbind(metadata[, continuous_vars, drop = FALSE], one_hot_encoded)
+  pps_in <- cbind(wgcna$wgcna$MEs, processed_data)
+
+  me_metadata_cor <- lapply(me_names, \(x) {
+    lapply(names(processed_data), \(y) {
+      cor <- stats::cor.test(pps_in[[x]], pps_in[[y]], method = "pearson")
+      tibble::tibble(ME = x, Variable = y, Correlation = cor[["estimate"]])
+    }) |> dplyr::bind_rows()
+  }) |> dplyr::bind_rows()
+
+  # Plot heatmap
+  me_metadata_hm <- me_metadata_cor |>
+    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Variable"),
+                                 y = !!rlang::sym("ME"),
+                                 fill = !!rlang::sym("Correlation"))) +
+    ggplot2::geom_tile() +
+    ggplot2::labs(x = "Variable", y = "ME", fill = "Correlation") +
+    ggplot2::scale_fill_viridis_c(limits = c(-1, 1)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5))
 
   wgcna[["tom_heatmap"]] <- tom_hm
   wgcna[["me_adjacency"]] <- me_adj
   wgcna[["pps"]] <- dplyr::bind_rows(me_pps, var_pps)
   wgcna[["me_pps_heatmap"]] <- me_pps_heatmap
   wgcna[["var_pps_heatmap"]] <- var_pps_heatmap
+  wgcna[["me_cor_heatmap"]] <- me_metadata_hm
 
   return(wgcna)
 }

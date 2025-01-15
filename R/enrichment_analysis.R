@@ -274,7 +274,7 @@ hd_gsea <- function(de_results,
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
-  if (class(de_results) == "hd_de") {
+  if (inherits(de_results, "hd_de")) {
     de_results <- de_results$de_res
   }
 
@@ -284,7 +284,7 @@ hd_gsea <- function(de_results,
                                  de_results[["Feature"]])
   } else if (ranked_by == "both") {
     de_results <- de_results |>
-      dplyr::mutate(both = logFC * -log(adj.P.Val))
+      dplyr::mutate(both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val")))
     gene_list <- stats::setNames(de_results[["adj.P.Val"]],
                                  de_results[["Feature"]])
   } else {

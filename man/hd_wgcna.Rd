@@ -20,6 +20,12 @@ The user can specify the power parameter for the analysis or the function will s
 power value based on the data. The function returns a list containing the WGCNA object, the power
 and the power plots (in case optimization is performed).
 }
+\details{
+#' If you want to learn more about WGCNA, please refer to the following tutorial:
+\itemize{
+\item https://edo98811.github.io/WGCNA_official_documentation/
+}
+}
 \examples{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)

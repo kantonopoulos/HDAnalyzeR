@@ -42,4 +42,5 @@ wgcna_res$me_adjacency
 wgcna_res$pps
 wgcna_res$me_pps_heatmap
 wgcna_res$var_pps_heatmap
+wgcna_res$me_cor_heatmap
 }
