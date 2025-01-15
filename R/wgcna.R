@@ -31,6 +31,10 @@
 #' wgcna_res$power_plots
 hd_wgcna <- function(dat, power = NULL) {
 
+  if (!requireNamespace("WGCNA", quietly = TRUE)) {
+    stop("The 'WGCNA' package is required but not installed. Please install it using BiocManager::install('WGCNA').")
+  }
+
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
@@ -136,6 +140,10 @@ hd_wgcna <- function(dat, power = NULL) {
 #' wgcna_res$var_pps_heatmap
 #' wgcna_res$me_cor_heatmap
 hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
+
+  if (!requireNamespace("ppsr", quietly = TRUE)) {
+    stop("The 'ppsr' package is required but not installed. Please install it using install.packages('ppsr').")
+  }
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {

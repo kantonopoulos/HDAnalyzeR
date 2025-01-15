@@ -209,8 +209,10 @@ hd_cluster_samples <- function(dat,
                                gap_b = 100,
                                seed = 123,
                                verbose = FALSE) {
-  # gap_b, number of times to repeat the clustering in the gap analysis
-  # nrep, number of repetitions in the stability assessment
+
+  if (!requireNamespace("cluster", quietly = TRUE)) {
+    stop("The 'cluster' package is required but not installed. Please install it using install.packages('cluster').")
+  }
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {

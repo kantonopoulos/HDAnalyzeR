@@ -21,7 +21,6 @@ biocViews:
 Imports: 
     arrow,
     broom,
-    cluster,
     dials,
     dplyr,
     embed,
@@ -36,7 +35,6 @@ Imports:
     missForest,
     multiROC,
     parsnip,
-    ppsr,
     purrr,
     readr,
     readxl,
@@ -56,21 +54,23 @@ Imports:
     UpSetR,
     utils,
     vip,
-    WGCNA,
     workflows,
     yardstick
 Suggests: 
+    cluster,
     clusterProfiler,
     easyPubMed,
     enrichplot,
     glmnet,
     knitr,
     org.Hs.eg.db,
+    ppsr,
     ranger,
     ReactomePA,
     rmarkdown,
     testthat (>= 3.0.0),
     umap,
+    WGCNA,
     writexl
 Config/testthat/edition: 3
 Depends: 
