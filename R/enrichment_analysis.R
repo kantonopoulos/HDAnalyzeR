@@ -67,7 +67,10 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'   dplyr::pull(Feature)
 #'
 #' # Perform ORA with `GO` database and `BP` ontology
-#' hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#'
+#' # Access the results
+#' head(enrichment$enrichment@result)
 hd_ora <- function(gene_list,
                    database = c("GO", "Reactome", "KEGG"),
                    ontology = c("BP", "CC", "MF", "ALL"),
@@ -145,7 +148,7 @@ hd_ora <- function(gene_list,
 }
 
 
-#' Plot over-representation analysis
+#' Plot over-representation analysis results
 #'
 #' `hd_plot_ora()` generates useful visualizations for the results of the
 #' over-representation analysis.
@@ -179,7 +182,12 @@ hd_ora <- function(gene_list,
 #' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 #'
 #' # Plot the results
-#' hd_plot_ora(enrichment)
+#' enrichment <- hd_plot_ora(enrichment)
+#'
+#' # Access the plots
+#' enrichment$dotplot
+#' enrichment$treeplot
+#' enrichment$cnetplot
 hd_plot_ora <- function(enrichment, seed = 123) {
 
   set.seed(seed)
@@ -249,11 +257,14 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Run GSEA with different ranking variable
-#' hd_gsea(de_results,
-#'         database = "GO",
-#'         ontology = "BP",
-#'         ranked_by = "both",
-#'         pval_lim = 0.9)
+#' enrichment <- hd_gsea(de_results,
+#'                       database = "GO",
+#'                       ontology = "BP",
+#'                       ranked_by = "both",
+#'                       pval_lim = 0.9)
+#'
+#' # Access the results
+#' head(enrichment$enrichment@result)
 hd_gsea <- function(de_results,
                     database = c("GO", "Reactome", "KEGG"),
                     ontology = c("BP", "CC", "MF", "ALL"),
@@ -263,7 +274,7 @@ hd_gsea <- function(de_results,
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
-  if (class(de_results) == "hd_de") {
+  if (inherits(de_results, "hd_de")) {
     de_results <- de_results$de_res
   }
 
@@ -273,7 +284,7 @@ hd_gsea <- function(de_results,
                                  de_results[["Feature"]])
   } else if (ranked_by == "both") {
     de_results <- de_results |>
-      dplyr::mutate(both = logFC * -log(adj.P.Val))
+      dplyr::mutate(both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val")))
     gene_list <- stats::setNames(de_results[["adj.P.Val"]],
                                  de_results[["Feature"]])
   } else {
@@ -351,7 +362,7 @@ hd_gsea <- function(de_results,
 }
 
 
-#' Plot gene set enrichment analysis
+#' Plot gene set enrichment analysis results
 #'
 #' `hd_plot_gsea()` produces useful plots to visualize the results of the
 #' gene set enrichment analysis.
@@ -385,7 +396,13 @@ hd_gsea <- function(de_results,
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Plot the results
-#' hd_plot_gsea(enrichment)
+#' enrichment <- hd_plot_gsea(enrichment)
+#'
+#' # Access the plots
+#' enrichment$dotplot
+#' enrichment$gseaplot
+#' enrichment$cnetplot
+#' enrichment$ridgeplot
 hd_plot_gsea <- function(enrichment, seed = 123) {
 
   set.seed(seed)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_plot_ora}
 \alias{hd_plot_ora}
-\title{Plot over-representation analysis}
+\title{Plot over-representation analysis results}
 \usage{
 hd_plot_ora(enrichment, seed = 123)
 }
@@ -40,5 +40,10 @@ sig_up_proteins_aml <- de_results$de_res |>
 enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 
 # Plot the results
-hd_plot_ora(enrichment)
+enrichment <- hd_plot_ora(enrichment)
+
+# Access the plots
+enrichment$dotplot
+enrichment$treeplot
+enrichment$cnetplot
 }

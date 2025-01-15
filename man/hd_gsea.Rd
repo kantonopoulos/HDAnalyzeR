@@ -55,9 +55,12 @@ hd_gsea(de_results,
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Run GSEA with different ranking variable
-hd_gsea(de_results,
-        database = "GO",
-        ontology = "BP",
-        ranked_by = "both",
-        pval_lim = 0.9)
+enrichment <- hd_gsea(de_results,
+                      database = "GO",
+                      ontology = "BP",
+                      ranked_by = "both",
+                      pval_lim = 0.9)
+
+# Access the results
+head(enrichment$enrichment@result)
 }

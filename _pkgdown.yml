@@ -50,6 +50,7 @@ reference:
   - hd_correlate
   - hd_plot_cor_heatmap
   - hd_cluster
+  - hd_cluster_samples
 - subtitle: Dimensionality Reduction
   desc: |
     Functions that perform dimensionality reduction.
@@ -62,6 +63,12 @@ reference:
   - hd_auto_pca
   - hd_auto_umap
 - title: Main Proteomics Analysis
+- subtitle: Protein Co-expression Network Analysis
+  desc: |
+    Functions that perform WGCNA.
+  contents:
+  - hd_wgcna
+  - hd_plot_wgcna
 - subtitle: Differential Expression Analysis
   desc: |
     Functions that perform differential expression analysis.
