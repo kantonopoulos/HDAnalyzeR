@@ -57,5 +57,8 @@ sig_up_proteins_aml <- de_results$de_res |>
   dplyr::pull(Feature)
 
 # Perform ORA with `GO` database and `BP` ontology
-hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+
+# Access the results
+head(enrichment$enrichment@result)
 }

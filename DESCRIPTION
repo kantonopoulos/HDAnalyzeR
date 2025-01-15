@@ -35,6 +35,7 @@ Imports:
     missForest,
     multiROC,
     parsnip,
+    ppsr,
     purrr,
     readr,
     readxl,
@@ -54,6 +55,7 @@ Imports:
     UpSetR,
     utils,
     vip,
+    WGCNA,
     workflows,
     yardstick
 Suggests: 

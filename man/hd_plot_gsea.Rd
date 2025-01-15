@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment_analysis.R
 \name{hd_plot_gsea}
 \alias{hd_plot_gsea}
-\title{Plot gene set enrichment analysis}
+\title{Plot gene set enrichment analysis results}
 \usage{
 hd_plot_gsea(enrichment, seed = 123)
 }
@@ -40,5 +40,11 @@ enrichment <- hd_gsea(de_results,
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Plot the results
-hd_plot_gsea(enrichment)
+enrichment <- hd_plot_gsea(enrichment)
+
+# Access the plots
+enrichment$dotplot
+enrichment$gseaplot
+enrichment$cnetplot
+enrichment$ridgeplot
 }
