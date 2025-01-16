@@ -9,6 +9,7 @@ hd_assess_clusters(
   nrep = 100,
   ji_lim = 0.5,
   nsample_lim = 10,
+  seed = 123,
   verbose = FALSE
 )
 }
@@ -20,6 +21,8 @@ hd_assess_clusters(
 \item{ji_lim}{The minimum limit for the mean Jaccard index. Default is 0.5.}
 
 \item{nsample_lim}{The minimum limit for the sample size. Default is 10.}
+
+\item{seed}{The seed to use for reproducibility. Default is 123.}
 
 \item{verbose}{A logical value indicating whether to print the progress of the bootstrapping. Default is FALSE.}
 }

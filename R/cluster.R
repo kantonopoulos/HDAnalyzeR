@@ -1,3 +1,4 @@
+utils::globalVariables(c(":="))
 #' Cluster data helper function
 #'
 #' `cluster_help()` is a helper function that acts as a wrapper for the `hclust()` function.
@@ -205,7 +206,7 @@ hd_cluster <- function(dat,
 #' head(clustering[["cluster_res"]])
 #'
 #' # Clustered data with defined number of clusters
-#' clustering <- hd_cluster_samples(hd_object, k = 7, gap_b = 10)
+#' clustering <- hd_cluster_samples(hd_object, k = 7)
 #'
 #' # Access the results
 #' head(clustering[["cluster_res"]])
@@ -263,7 +264,8 @@ hd_cluster_samples <- function(dat,
   clust <- cluster_help(clust_in, k = k, distance = distance_method, method = clustering_method)[["cluster"]]
 
   clust_df <- tibble::tibble(sample_id = rownames(clust_in),
-                             "Cluster" = clust[!!rlang::sym("sample_id")])
+                             "Cluster" = clust[!!rlang::sym("sample_id")]) |>
+    dplyr::rename(!!rlang::sym(sample_id) := sample_id)
 
   cluster_object <- list("cluster_dat" = clust_in,
                          "cluster_res" = clust_df,
@@ -288,6 +290,7 @@ hd_cluster_samples <- function(dat,
 #' @param nrep The number of bootstrap replicates. Default is 100.
 #' @param ji_lim The minimum limit for the mean Jaccard index. Default is 0.5.
 #' @param nsample_lim The minimum limit for the sample size. Default is 10.
+#' @param seed The seed to use for reproducibility. Default is 123.
 #' @param verbose A logical value indicating whether to print the progress of the bootstrapping. Default is FALSE.
 #'
 #' @returns A list with the updated cluster assignment and the stability assessment.
@@ -309,6 +312,7 @@ hd_assess_clusters <- function(cluster_object,
                                nrep = 100,
                                ji_lim = 0.5,
                                nsample_lim = 10,
+                               seed = 123,
                                verbose = FALSE) {
 
   if (!requireNamespace("fpc", quietly = TRUE)) {
@@ -325,6 +329,7 @@ hd_assess_clusters <- function(cluster_object,
     stop("The input object is not a valid HDAnalyzeR cluster object. Only objects created with hd_cluster_samples() are accepted.")
   }
 
+  set.seed(seed)
   stab <- clust_dat |>
     stats::dist(method = distance_method) |>
     fpc::clusterboot(B = nrep,

@@ -55,7 +55,7 @@ clustering <- hd_cluster_samples(hd_object, gap_b = 10)
 head(clustering[["cluster_res"]])
 
 # Clustered data with defined number of clusters
-clustering <- hd_cluster_samples(hd_object, k = 7, gap_b = 10)
+clustering <- hd_cluster_samples(hd_object, k = 7)
 
 # Access the results
 head(clustering[["cluster_res"]])

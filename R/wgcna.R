@@ -266,7 +266,9 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
                                  fill = !!rlang::sym("pps"))) +
     ggplot2::geom_tile() +
     ggplot2::labs(x = "Predictor", y = "Outcome", fill = "PPS") +
-    ggplot2::scale_fill_viridis_c(limits = c(0, 1)) +
+    ggplot2::scale_fill_gradient(low = "#FFFFFF",
+                                 high = "#9E0142",
+                                 limits = c(0, 1)) +
     ggplot2::theme_minimal()
 
   var_pps_heatmap <- var_pps |>
@@ -276,7 +278,9 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
                                  fill = !!rlang::sym("pps"))) +
     ggplot2::geom_tile() +
     ggplot2::labs(x = "Predictor", y = "Outcome", fill = "PPS") +
-    ggplot2::scale_fill_viridis_c(limits = c(0, 1)) +
+    ggplot2::scale_fill_gradient(low = "#FFFFFF",
+                                 high = "#9E0142",
+                                 limits = c(0, 1)) +
     ggplot2::theme_minimal()
 
   # Run correlation between Module Eigengens and clinical metadata variables
@@ -310,7 +314,11 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
                                  fill = !!rlang::sym("Correlation"))) +
     ggplot2::geom_tile() +
     ggplot2::labs(x = "Variable", y = "ME", fill = "Correlation") +
-    ggplot2::scale_fill_viridis_c(limits = c(-1, 1)) +
+    ggplot2::scale_fill_gradient2(low = "#5E4FA2",
+                                  mid = "#FFFFBF",
+                                  high = "#9E0142",
+                                  midpoint = 0,
+                                  limits = c(-1, 1)) +
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5))
 
