@@ -17,7 +17,7 @@ ui <- navbarPage(
   theme = light_theme,
   id = "main_navbar", # Identifier for navigation
 
-  # Page 1: Welcome & Data Upload
+  ## Page 1: Welcome & Data Upload ---------------------------------------------
   tabPanel(
     "Welcome & Data Upload",
     fluidPage(
@@ -132,27 +132,30 @@ ui <- navbarPage(
                    actionButton("plot_button", "Plot", class = "btn-block", style = "height: 50px;")
             )
           ),
-          plotlyOutput("scatter_plot")
+          plotlyOutput("scatter_plot", height = 500)
         )
       )
     )
   ),
 
-  # Page 2: Dimensionality Reduction
+  ## Page 2: Dimensionality Reduction ------------------------------------------
   tabPanel(
     "Dimensionality Reduction",
     fluidPage(
       sidebarLayout(
         sidebarPanel(
+          h4("Analysis Settings"),
           selectInput("method", "Choose Method:", choices = c("PCA", "UMAP")),
           numericInput("components", "Number of Components:", value = 10, min = 2, step = 1),
           checkboxInput("by_sample", "By Sample", value = TRUE),
+          actionButton("run", "Run Analysis", class = "btn-primary btn-block"),
+          hr(),
+          h4("Plot Settings"),
           selectInput("plot_x", "X-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC1"),
           selectInput("plot_y", "Y-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC2"),
           checkboxInput("equal_axis_dim", "Equal Axes", value = TRUE),
           uiOutput("plot_color_ui"),  # Color by options
           uiOutput("dynamic_pca_palette_ui"),  # Palette options (if any)
-          actionButton("run", "Run Analysis", class = "btn-primary btn-block"),
           actionButton("plot_update", "Plot", class = "btn-block")
         ),
         mainPanel(
@@ -167,8 +170,47 @@ ui <- navbarPage(
                          )
                        )
                      ),
-                     plotlyOutput("dim_plot"),
+                     plotlyOutput("dim_plot", height = 500),
                      uiOutput("additional_plots_ui")
+            )
+          )
+        )
+      )
+    )
+  ),
+
+  ## Page 3: Differential Expression -------------------------------------------
+  tabPanel(
+    "Differential Expression",
+    fluidPage(
+      sidebarLayout(
+        sidebarPanel(
+          h4("Analysis Settings"),
+          uiOutput("de_variable_ui"),
+          uiOutput("de_case_ui"),
+          checkboxInput("de_log_transform", "Data Log Transform", value = FALSE),
+          hr(),
+          h4("Plot Settings"),
+          numericInput("logfc_lim", "Log Fold Change limit:", value = 1, min = 0, step = 0.5),
+          numericInput("pval_lim", "P-Value limit:", value = 0.05, min = 0, step = 0.001),
+          textInput("non_c", "Non-signifficant Color:", value = "#DCDCDC"),
+          textInput("down_c", "Down-regulated Color:", value = "#317EC2"),
+          textInput("up_c", "Up-regulated Color:", value = "#C03830"),
+          actionButton("de_run", "Run Analysis", class = "btn-primary btn-block")
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel("Results",
+                     fluidRow(
+                       column(
+                         width = 12,
+                         div(
+                           style = "overflow-x: auto; white-space: nowrap;",
+                           DTOutput("de_table")
+                         )
+                       )
+                     ),
+                     plotlyOutput("de_plot", height = 500)
             )
           )
         )
@@ -315,7 +357,7 @@ server <- function(input, output, session) {
   })
 
 
-  # Preprocessing Data ---------------------------------------------------------
+  # Preprocessing Data Section -------------------------------------------------
   # Perform Row Filtering
   observeEvent(c(input$rows_keep, input$rows_remove), {
     req(processed_data())
@@ -792,20 +834,16 @@ server <- function(input, output, session) {
     if (c_type == "continuous") {
       output$dynamic_pca_palette_ui <- renderUI({
         tagList(
-          fluidRow(
-            column(4, textInput("low_color_pca", "Low Color", value = "#5e4fa2")),
-            column(4, textInput("middle_color_pca", "Middle Color", value = "#ffffbf")),
-            column(4, textInput("high_color_pca", "High Color", value = "#9e0142"))
-          )
+          textInput("low_color_pca", "Low Color", value = "#5e4fa2"),
+          textInput("middle_color_pca", "Middle Color", value = "#ffffbf"),
+          textInput("high_color_pca", "High Color", value = "#9e0142")
         )
       })
     } else if (c_type == "categorical") {
       output$dynamic_pca_palette_ui <- renderUI({
         tagList(
-          fluidRow(
-            column(6, textInput("categories_pca", "Categories", value = "")),
-            column(6, textInput("category_colors_pca", "Colors", value = ""))
-          ),
+          textInput("categories_pca", "Categories", value = ""),
+          textInput("category_colors_pca", "Colors", value = "")
         )
       })
     }
@@ -999,6 +1037,172 @@ server <- function(input, output, session) {
 
     previous_method(current_method)
 
+  })
+
+
+  # Differential Expression Section --------------------------------------------
+  de_result <- reactiveVal(NULL)
+
+  # Dynamically render plot_color input
+  observe({
+    output$de_variable_ui <- renderUI({
+      if (is.null(metadata())) {
+        selectInput("de_variable", "Variable Containing Groups:", choices = c(""), selected = NULL, disabled = TRUE)
+      } else {
+        selectInput("de_variable", "Variable Containing Groups:", choices = c("", colnames(metadata())), selected = NULL)
+      }
+    })
+  })
+
+  observe({
+    req(input$de_variable, metadata())
+    v_type <- hd_detect_vartype(metadata()[[input$de_variable]], unique_threshold = 5)
+    if (v_type == "categorical") {
+      output$de_case_ui <- renderUI({
+        tagList(
+          textInput("de_case", "Case Group:", value = ""),
+          textInput("de_control", "Control Group(s) (comma-separated):", value = ""),
+          p("If no control group is selected, all other groups will be considered as controls."),
+          textInput("de_correct", "Metadata Variables to Correct for (comma-separated):", value = "")
+        )
+      })
+    } else {
+      output$de_case_ui <- renderUI({
+        tagList(
+          textInput("de_correct", "Metadata Variables to Correct for (comma-separated):", value = "")
+        )
+      })
+    }
+  })
+
+  observeEvent(input$de_run, {
+    req(processed_data(), metadata(), input$de_variable)
+
+    if (input$de_control == "" || is.null(input$de_control)) {
+      de_control <- NULL
+    } else {
+      de_control <- trimws(unlist(strsplit(input$de_control, ",")))
+    }
+    if (input$de_correct == "") {
+      de_correct <- NULL
+    } else {
+      de_correct <- trimws(unlist(strsplit(input$de_correct, ",")))
+    }
+
+    if (input$de_variable %in% colnames(metadata())) {
+      if ((input$de_case %in% metadata()[[input$de_variable]] && input$de_case != "") || is.null(input$de_case)) {
+        if (all(de_control %in% metadata()[[input$de_variable]]) || is.null(de_control)) {
+          if (all(de_correct %in% colnames(metadata())) || is.null(de_correct)) {
+            res <- hd_de_limma(
+              dat = processed_data(),
+              metadata = metadata(),
+              variable = input$de_variable,
+              case = input$de_case,
+              control = de_control,
+              correct = de_correct,
+              log_transform = input$de_log_transform
+            )
+            de_result(res$de_res)
+          } else {
+            showNotification("Selected correction variable(s) not found in the metadata.", type = "error")
+          }
+        } else {
+          showNotification("Selected control group(s) not found in the metadata.", type = "error")
+        }
+      } else {
+        showNotification("Selected case group not found in the metadata. Please select a valid case group.", type = "error")
+      }
+    } else {
+      showNotification("Selected variable not found in the metadata.", type = "error")
+    }
+  })
+
+  # Render results table
+  output$de_table <- renderDT({
+    req(de_result())
+    datatable(de_result(), options = list(pageLength = 5))
+  })
+
+  # Process the user input to generate the palette
+  palette_data_de <- reactiveVal(NULL)
+  observe({
+    req(input$non_c, input$down_c, input$up_c)
+    # Collect categorical palette input
+    categories <- c("non-significant", "down-regulated", "up-regulated")
+    colors <- c(input$non_c, input$down_c, input$up_c)
+
+    if (length(categories) == length(colors) && length(categories) > 0) {
+      palette <- setNames(colors, categories)
+      palette_data_de(palette)  # Update the palette
+    } else {
+      palette_data_de(NULL)  # Reset palette if mismatched inputs
+      showNotification("Number of categories and colors must match!", type = "error")
+    }
+  })
+
+  # Render plot
+  observeEvent(input$de_run, {
+    req(de_result())
+    plot_data <- de_result() |>
+      mutate(significance = case_when(
+        adj.P.Val < input$pval_lim & logFC > input$logfc_lim ~ "up-regulated",
+        adj.P.Val < input$pval_lim & logFC < -input$logfc_lim ~ "down-regulated",
+        TRUE ~ "non-significant"
+      )) |>
+      mutate(pval_y = -log10(adj.P.Val))
+
+    if (is.null(palette_data_de)) {
+      palette_de <- setNames(
+        c("#DCDCDC", "#317EC2", "#C03830"),
+        c("non-significant", "down-regulated", "up-regulated")
+      )
+    } else {
+      palette_de <- palette_data_de()
+    }
+
+    plot <- plot_ly(
+      data = plot_data,
+      x = ~logFC,
+      y = ~pval_y,
+      color = ~significance,
+      type = "scatter",
+      mode = "markers",
+      text = ~Feature,
+      colors = palette_de,
+      hoverinfo = "text"
+    ) %>%
+      layout(shapes = list(
+        list(
+          type = "line",
+          x0 = input$logfc_lim, x1 = input$logfc_lim,
+          yref = "paper",
+          y0 = 0, y1 = 1,
+          line = list(color = "black", dash = "dash", width = 2)
+        ),
+        list(
+          type = "line",
+          x0 = -input$logfc_lim, x1 = -input$logfc_lim,
+          yref = "paper",
+          y0 = 0, y1 = 1,
+          line = list(color = "black", dash = "dash", width = 2)
+        ),
+        # Horizontal dashed line
+        list(
+          type = "line",
+          xref = "paper",
+          x0 = 0, x1 = 1,
+          y0 = -log10(input$pval_lim), y1 = -log10(input$pval_lim),
+          line = list(color = "black", dash = "dash", width = 2)
+        )
+      ),
+      xaxis = list(title = paste("<b>", "log2 Fold Change", "</b>")),
+      yaxis = list(title = paste("<b>", "-log10(Adjusted P-value)", "</b>")),
+      showlegend = FALSE
+    )
+
+    output$de_plot <- renderPlotly({
+      plot
+    })
   })
 }
 
