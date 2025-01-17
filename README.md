@@ -49,7 +49,7 @@ library(HDAnalyzeR)
 hd_object <- hd_initialize(example_data, example_metadata)
 
 # Run differential expression analysis
-de_results <- hd_run_de_limma(hd_object, case = "AML")
+de_results <- hd_de_limma(hd_object, case = "AML")
 
 # Plot volcano plot
 de_results <- hd_plot_volcano(de_results)
