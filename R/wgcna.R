@@ -1,6 +1,6 @@
 #' Weighted gene co-expression network analysis
 #'
-#' `hd_wgcna` performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
+#' `hd_wgcna()` performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
 #' The user can specify the power parameter for the analysis or the function will select an optimal
 #' power value based on the data. The function returns a list containing the WGCNA object, the power
 #' and the power plots (in case optimization is performed). If the data contain missing values, the function
@@ -107,7 +107,7 @@ hd_wgcna <- function(dat, power = NULL) {
 
 #' Plot WGCNA results
 #'
-#' `hd_plot_wgcna` generates useful visualizations for the results of the WGCNA analysis.
+#' `hd_plot_wgcna()` generates useful visualizations for the results of the WGCNA analysis.
 #' The function generates a heatmap of proteins and their adjacency, a heatmap of module
 #' eigengene (MEs) adjacency, and heatmaps of predictive power score (PPS) between MEs and
 #' metadata.
