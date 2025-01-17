@@ -19,7 +19,7 @@ hd_plot_wgcna(dat, metadata = NULL, wgcna, clinical_vars = NULL)
 The input object enriched with the plots.
 }
 \description{
-\code{hd_plot_wgcna} generates useful visualizations for the results of the WGCNA analysis.
+\code{hd_plot_wgcna()} generates useful visualizations for the results of the WGCNA analysis.
 The function generates a heatmap of proteins and their adjacency, a heatmap of module
 eigengene (MEs) adjacency, and heatmaps of predictive power score (PPS) between MEs and
 metadata.

@@ -15,7 +15,7 @@ hd_wgcna(dat, power = NULL)
 A list containing the results of the WGCNA.
 }
 \description{
-\code{hd_wgcna} performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
+\code{hd_wgcna()} performs a weighted gene co-expression network analysis (WGCNA) on the provided data.
 The user can specify the power parameter for the analysis or the function will select an optimal
 power value based on the data. The function returns a list containing the WGCNA object, the power
 and the power plots (in case optimization is performed). If the data contain missing values, the function

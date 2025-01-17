@@ -86,6 +86,17 @@
 - **Streamlined Outputs:**  
   Removed unnecessary returns from `hd_plot_gsea()`.
 
+## Clustering
+- **New Features:**  
+  - Added `hd_cluster_samples()`: Clusters samples based on selected features in k clusters. The number k is either user-defined or determined using the gap statistic.
+  - Added `hd_assess_clusters()`: Assesses the quality of clustering using the cluster's Jaccard index and sample size.
+  
+## New Analysis Module: WGCNA
+Added the Weighted Gene Co-expression Network Analysis (WGCNA) module for network analysis.
+- **Module Functions:**  
+  - `hd_wgcna()`: Performs WGCNA analysis on the data.
+  - `hd_plot_wgcna()`: Visualizes the WGCNA results.
+  
 ---
 
 # HDAnalyzeR 1.0.0 (2024-08-19)
