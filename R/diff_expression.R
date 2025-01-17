@@ -399,7 +399,7 @@ hd_plot_volcano <- function(de_object,
     ggplot2::geom_hline(yintercept = -log10(pval_lim), linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = logfc_lim, linetype = 'dashed') +
     ggplot2::geom_vline(xintercept = -logfc_lim, linetype = 'dashed') +
-    ggplot2::labs(x = "log2 Fold Change",
+    ggplot2::labs(x = "log2(Fold Change)",
                   y = "-log10(Adjusted P-value)",
                   color = "Significance")
 
