@@ -32,7 +32,7 @@ hd_model_lr(
 
 \item{cor_threshold}{Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.}
 
-\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
+\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 
 \item{plot_y_labels}{Whether to show y-axis labels in the feature importance plot. Default is TRUE.}
 
@@ -61,7 +61,8 @@ importance plot will not be generated.
 Logistic regression models are not supported for
 multiclass classification, so \code{case} argument is always required. If
 multi-class classification is needed, use \code{hd_model_rreg()} instead.
-This function utilizes the "glm" engine.
+This function utilizes the "glm" engine. Also, as it is a classification model
+no continuous variable is allowed.
 }
 \examples{
 # Initialize an HDAnalyzeR object with only a subset of the predictors

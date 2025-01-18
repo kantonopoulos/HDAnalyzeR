@@ -11,7 +11,7 @@ hd_plot_regression(
   x,
   y,
   se = FALSE,
-  line_color = "black",
+  line_color = "#883268",
   r_2 = TRUE
 )
 }
@@ -48,14 +48,12 @@ hd_object <- hd_initialize(example_data, example_metadata)
 hd_plot_regression(hd_object,
                    x = "AARSD1",
                    y = "ABL1",
-                   se = TRUE,
-                   line_color = "red3")
+                   se = TRUE)
 
 # Scatter plot for AARSD1 and Age (metadata variable)
 hd_plot_regression(hd_object,
                    metadata_cols = "Age",
                    x = "AARSD1",
                    y = "Age",
-                   line_color = "red3",
                    r_2 = FALSE)
 }

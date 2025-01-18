@@ -627,10 +627,10 @@ evaluate_model <- function(dat,
     pal1 <- pal
     disease_color <- palette[[case]]
   } else {
-    disease_color <- "black"
-    pal <- rep("black", length(unique(train_set[[variable]])))
-    pal1 <- c("black")
-    pal1 <- stats::setNames(c("black"), case)
+    disease_color <- "#883268"
+    pal <- rep("#883268", length(unique(train_set[[variable]])))
+    pal1 <- c("#883268")
+    pal1 <- stats::setNames(c("#883268"), case)
     names(pal) <- unique(train_set[[variable]])
   }
 
@@ -1072,7 +1072,7 @@ variable_imp <- function(dat,
     } else if (!is.null(palette)) {
       pal <- palette
     } else {
-      pal <- c("#C03830")
+      pal <- c("#883268")
     }
 
   } else if (model_type == "multi_class") {
@@ -1085,7 +1085,7 @@ variable_imp <- function(dat,
                                  mixture = mixture,
                                  title = title)
 
-    pal <- c("#C03830")
+    pal <- c("#883268")
     case <- "case"
   } else {
     title_text <- generate_title(features = features,
@@ -1094,7 +1094,7 @@ variable_imp <- function(dat,
                                  mixture = mixture,
                                  title = title)
 
-    pal <- c("#C03830")
+    pal <- c("#883268")
     case <- "case"
   }
 
@@ -1143,7 +1143,7 @@ variable_imp <- function(dat,
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
 #' @param mixture The mixture parameter for the elastic net model (1 - LASSO, 0 - Ridge). If NULL it will be tuned. Default is NULL.
-#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In case of a continuous variable it is not required. Default is NULL.
 #' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features", "mixture")`.
@@ -1333,7 +1333,7 @@ hd_model_rreg <- function(dat,
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
-#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In case of a continuous variable it is not required. Default is NULL.
 #' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is FALSE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")`.
@@ -1504,7 +1504,7 @@ hd_model_rf <- function(dat,
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
 #' @param balance_groups Whether to balance the groups. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
-#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. In multi-class is it no needed. Default is NULL.
+#' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param plot_y_labels Whether to show y-axis labels in the feature importance plot. Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is TRUE.
 #' @param plot_title Vector of title elements to include in the plot. It should be a subset of `c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features")`.
@@ -1522,7 +1522,8 @@ hd_model_rf <- function(dat,
 #' Logistic regression models are not supported for
 #' multiclass classification, so `case` argument is always required. If
 #' multi-class classification is needed, use `hd_model_rreg()` instead.
-#' This function utilizes the "glm" engine.
+#' This function utilizes the "glm" engine. Also, as it is a classification model
+#' no continuous variable is allowed.
 #'
 #' @export
 #'
@@ -1837,10 +1838,10 @@ hd_model_test <- function(model_object,
         pal1 <- pal
         disease_color <- palette[[case]]
       } else {
-        disease_color <- "black"
-        pal <- rep("black", length(unique(train_set[[variable]])))
-        pal1 <- c("black")
-        pal1 <- stats::setNames(c("black"), case)
+        disease_color <- "#883268"
+        pal <- rep("#883268", length(unique(train_set[[variable]])))
+        pal1 <- c("#883268")
+        pal1 <- stats::setNames(c("#883268"), case)
         names(pal) <- unique(train_set[[variable]])
       }
 

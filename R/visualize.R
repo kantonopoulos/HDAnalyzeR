@@ -136,7 +136,7 @@ hd_plot_feature_boxplot <- function(dat,
   } else if (!is.null(palette)) {
     pal <- palette
   } else {
-    pal <- "black"
+    pal <- "#883268"
   }
 
   long_data <- join_data |>
@@ -178,6 +178,7 @@ hd_plot_feature_boxplot <- function(dat,
         ggplot2::geom_point(data = dplyr::filter(long_data, !!Variable == case),
                             ggplot2::aes(fill = !!Variable),
                             position = ggplot2::position_jitter(width = 0.1),
+                            color = pal,
                             alpha = 0.5,
                             show.legend = FALSE)
     }
@@ -228,15 +229,13 @@ hd_plot_feature_boxplot <- function(dat,
 #' hd_plot_regression(hd_object,
 #'                    x = "AARSD1",
 #'                    y = "ABL1",
-#'                    se = TRUE,
-#'                    line_color = "red3")
+#'                    se = TRUE)
 #'
 #' # Scatter plot for AARSD1 and Age (metadata variable)
 #' hd_plot_regression(hd_object,
 #'                    metadata_cols = "Age",
 #'                    x = "AARSD1",
 #'                    y = "Age",
-#'                    line_color = "red3",
 #'                    r_2 = FALSE)
 hd_plot_regression <- function(dat,
                                metadata = NULL,
@@ -244,7 +243,7 @@ hd_plot_regression <- function(dat,
                                x,
                                y,
                                se = FALSE,
-                               line_color = "black",
+                               line_color = "#883268",
                                r_2 = TRUE) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {

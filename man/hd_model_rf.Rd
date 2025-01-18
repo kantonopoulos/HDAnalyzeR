@@ -38,7 +38,7 @@ hd_model_rf(
 
 \item{cv_sets}{Number of cross-validation sets. Default is 5.}
 
-\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In multi-class is it no needed. Default is NULL.}
+\item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. In case of a continuous variable it is not required. Default is NULL.}
 
 \item{plot_y_labels}{Whether to show y-axis labels in the feature importance plot. Default is FALSE.}
 

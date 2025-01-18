@@ -83,9 +83,10 @@ hd_pca <- function(dat,
   }
 
   if (components > ncol(wide_data)-1) {
-    stop(paste("The number of PCs to be calculated is higher than the number of features in the data.",
-               ncol(wide_data)-1,
-               "PCs will be used."))
+    warning(paste("The number of PCs to be calculated is higher than the number of features in the data.",
+                  ncol(wide_data)-1,
+                  "PCs will be used."))
+    components <- ncol(wide_data)-1
   }
 
   set.seed(seed)
@@ -531,10 +532,11 @@ hd_umap <- function(dat,
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
   }
 
-  if (components > ncol(wide_data)-1) {
+  if (components > ncol(wide_data)-2) {
     message(paste("The number of UMAPs to be calculated is higher than the number of features in the data.",
-                  ncol(wide_data)-1,
+                  ncol(wide_data)-2,
                   "UMAPs will be used."))
+    components <- ncol(wide_data)-2
   }
 
   set.seed(seed)

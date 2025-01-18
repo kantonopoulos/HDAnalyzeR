@@ -128,7 +128,7 @@ test_that("hd_pca warns when components exceed available features", {
   hd_obj <- hd_initialize(test_data, test_metadata, is_wide = TRUE)
 
   # Run PCA with excessive components
-  expect_error(
+  expect_warning(
     hd_pca(hd_obj, components = 5),
     "The number of PCs to be calculated is higher than the number of features in the data."
   )
@@ -503,7 +503,7 @@ test_that("hd_umap performs UMAP correctly with by_sample = FALSE", {
   expect_equal(nrow(umap_res$umap_res), 3)
 })
 
-test_that("hd_pca produces consistent results for fixed seed", {
+test_that("hd_umap produces consistent results for fixed seed", {
   test_data <- tibble::tibble(
     DAid = paste0("S", 1:10),
     Protein1 = rnorm(10),
