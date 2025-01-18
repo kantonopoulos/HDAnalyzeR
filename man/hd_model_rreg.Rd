@@ -31,7 +31,7 @@ hd_model_rreg(
 
 \item{control}{The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.}
 
-\item{balance_groups}{Whether to balance the groups in the train set. Default is TRUE.}
+\item{balance_groups}{Whether to balance the groups in the train set. It is only valid in binary classification settings. Default is TRUE.}
 
 \item{cor_threshold}{Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.}
 

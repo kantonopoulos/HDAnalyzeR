@@ -32,7 +32,7 @@ hd_model_test(
 
 \item{control}{The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.}
 
-\item{balance_groups}{Whether to balance the groups in the train set. Default is TRUE.}
+\item{balance_groups}{Whether to balance the groups in the train set. It is only valid in binary classification settings. Default is TRUE.}
 
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 

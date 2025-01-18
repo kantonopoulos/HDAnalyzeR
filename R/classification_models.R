@@ -1138,7 +1138,7 @@ variable_imp <- function(dat,
 #' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
-#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
+#' @param balance_groups Whether to balance the groups in the train set. It is only valid in binary classification settings. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
@@ -1329,7 +1329,7 @@ hd_model_rreg <- function(dat,
 #' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
-#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
+#' @param balance_groups Whether to balance the groups in the train set. It is only valid in binary classification settings. Default is TRUE.
 #' @param cor_threshold Threshold of absolute correlation values. This will be used to remove the minimum number of features so that all their resulting absolute correlations are less than this value.
 #' @param grid_size Size of the hyperparameter optimization grid. Default is 30.
 #' @param cv_sets Number of cross-validation sets. Default is 5.
@@ -1672,7 +1672,7 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #' @param metadata_cols The metadata variables to include in the analysis. Default is NULL.
 #' @param case The case class.
 #' @param control The control groups. If NULL, it will be set to all other unique values of the variable that are not the case. Default is NULL.
-#' @param balance_groups Whether to balance the groups in the train set. Default is TRUE.
+#' @param balance_groups Whether to balance the groups in the train set. It is only valid in binary classification settings. Default is TRUE.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
