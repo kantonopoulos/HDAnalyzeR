@@ -5,6 +5,7 @@ library(bslib)
 library(HDAnalyzeR)
 library(dplyr)
 library(plotly)
+library(ggplot2)
 
 # Define custom themes
 light_theme <- bs_theme(
@@ -172,6 +173,7 @@ ui <- navbarPage(
                          )
                        )
                      ),
+                     hr(),
                      plotlyOutput("dim_plot", height = 500),
                      uiOutput("additional_plots_ui")
             )
@@ -213,6 +215,7 @@ ui <- navbarPage(
                          )
                        )
                      ),
+                     hr(),
                      plotlyOutput("de_plot", height = 500)
             )
           )
@@ -234,15 +237,14 @@ ui <- navbarPage(
           uiOutput("multiclass_ui"),
           numericInput("ratio", "Train/Test Ratio:", value = 0.8, min = 0.1, max = 0.9, step = 0.1),
           numericInput("cv_sets", "Cross-validation sets:", value = 5, min = 2, max = 10, step = 1),
-          checkboxInput("balance_groups", "Balance Groups", value = TRUE),
+          uiOutput("ml_balance_ui"),
           uiOutput("ml_palette_ui"),
           actionButton("ml_run", "Run Analysis", class = "btn-primary btn-block")
         ),
         mainPanel(
           tabsetPanel(
             tabPanel("Results",
-                     tableOutput("ml_metrics"),
-                     uiOutput("ml_results_ui"),
+                     dataTableOutput("ml_metrics"),
                      uiOutput("ml_plots_ui")
             )
           )
@@ -470,7 +472,7 @@ server <- function(input, output, session) {
     showNotification("Rows with NAs have been removed from the dataset.", type = "message")
   })
 
-  # Plot Section --------------------------------------------------------------
+  ## Plot Section --------------------------------------------------------------
   # Placeholder for dynamic palette configuration
   palette_data <- reactiveVal(NULL)
 
@@ -769,8 +771,10 @@ server <- function(input, output, session) {
       output$plot_color_ui <- renderUI({
         if (is.null(metadata())) {
           selectInput("plot_color", "Color By:", choices = c(""), selected = NULL, disabled = TRUE)
-        } else {
+        } else if ((input$by_sample == TRUE)) {
           selectInput("plot_color", "Color By:", choices = c("", colnames(metadata())), selected = NULL)
+        } else {
+          return(NULL)
         }
       })
     }
@@ -830,28 +834,45 @@ server <- function(input, output, session) {
     # Dynamically update the UI to show the additional plots (variance and loadings)
     output$additional_plots_ui <- renderUI({
       tagList(
-        plotOutput("pca_variance_plot"),
-        plotOutput("pca_loadings_plot")
+        hr(),
+        h4("Explained Variance"),
+        plotlyOutput("pca_variance_plot", height = 500),
+        hr(),
+        h4("PCA Loadings"),
+        plotlyOutput("pca_loadings_plot", height = 750)
       )
     })
   })
 
-  # Render PCA variance plot (only when "Plot" button is clicked)
-  output$pca_variance_plot <- renderPlot({
+  # Render PCA variance plot
+  output$pca_variance_plot <- renderPlotly({
     req(plot_variance())
-    plot(plot_variance())
+    plotly_variance <- ggplotly(plot_variance()) %>%
+      layout(legend = list(orientation = 'h', x = 0.25, y = 100))
+
+    for (i in 2:3) {
+      plotly_variance$x$data[[i]]$textposition <- "top"
+    }
+
+    plotly_variance$x$data[[1]]$name <- "Individual Variance Explained"
+    plotly_variance$x$data[[2]]$name <- "Cumulative Variance Explained"
+
+    plotly_variance
   })
 
-  # Render PCA loadings plot (only when "Plot" button is clicked)
-  output$pca_loadings_plot <- renderPlot({
+  # Render PCA loadings plot
+  output$pca_loadings_plot <- renderPlotly({
     req(plot_loadings())
-    plot(plot_loadings())
+    ggplotly(plot_loadings() +
+               facet_wrap(~component, scales="free_y", ncol = 2)
+    ) %>%
+      layout(legend = list(title=list(text='<b> Sign </b>')))
   })
 
   # Placeholder for dynamic palette configuration
   palette_data_dim <- reactiveVal(NULL)
 
-  observeEvent(input$plot_color, {
+  observeEvent(c(input$plot_color, input$by_sample), {
     req(input$plot_color, metadata())
 
     # if color variable not in merged data
@@ -864,7 +885,7 @@ server <- function(input, output, session) {
     c_type <- hd_detect_vartype(metadata[[input$plot_color]], unique_threshold = 5)
 
     # Dynamically render UI elements based on variable type
-    if (c_type == "continuous") {
+    if (c_type == "continuous" && input$by_sample == TRUE) {
       output$dynamic_pca_palette_ui <- renderUI({
         tagList(
           textInput("low_color_pca", "Low Color", value = "#5e4fa2"),
@@ -872,13 +893,15 @@ server <- function(input, output, session) {
           textInput("high_color_pca", "High Color", value = "#9e0142")
         )
       })
-    } else if (c_type == "categorical") {
+    } else if (c_type == "categorical" && input$by_sample == TRUE) {
       output$dynamic_pca_palette_ui <- renderUI({
         tagList(
           textInput("categories_pca", "Categories", value = ""),
           textInput("category_colors_pca", "Colors", value = "")
         )
       })
+    } else {
+      output$dynamic_pca_palette_ui <- NULL
     }
   })
 
@@ -939,7 +962,12 @@ server <- function(input, output, session) {
     }
 
     if (input$by_sample == TRUE && !sample_id %in% colnames(plot_data)) {
-      showNotification("Features column not found in the data. Rerun the analysis with `By sample` checked.", type = "error")
+      showNotification("Sample ID column not found in the data. Don't forget to rerun the analysis with `By sample` checked if you want to run the analysis by sample.", type = "error")
+      return(NULL)
+    }
+
+    if (input$by_sample == FALSE && !c("Features") %in% colnames(plot_data)) {
+      showNotification("Features column not found in the data. Don't forget to rerun the analysis with `By sample` un-checked if you want to run the analysis by feature.", type = "error")
       return(NULL)
     }
 
@@ -948,7 +976,7 @@ server <- function(input, output, session) {
     } else {
       text_var <- sample_id
     }
-    if (!is.null(plot_settings$color_var)) {
+    if (!is.null(plot_settings$color_var) && input$by_sample == TRUE) {
       color_var <- plot_settings$color_var
 
       plot_data <- plot_data |>
@@ -1233,7 +1261,7 @@ server <- function(input, output, session) {
           line = list(color = "black", dash = "dash", width = 2)
         )
       ),
-      xaxis = list(title = paste("<b>", "log2 Fold Change", "</b>")),
+      xaxis = list(title = paste("<b>", "log2(Fold Change)", "</b>")),
       yaxis = list(title = paste("<b>", "-log10(Adjusted P-value)", "</b>")),
       showlegend = FALSE
     )
@@ -1248,6 +1276,7 @@ server <- function(input, output, session) {
   ml_result <- reactiveVal(NULL)
   roc_curve <- reactiveVal(NULL)
   feat_imp_plot <- reactiveVal(NULL)
+  comp_plot <- reactiveVal(NULL)
 
   # Dynamically render plot_color input
   observe({
@@ -1272,8 +1301,21 @@ server <- function(input, output, session) {
         )
       })
     } else {
-      showNotification("No group selection is required for this model.", type = "message")
       output$ml_case_ui <- NULL
+    }
+  })
+
+  observe({
+    req(input$ml_variable, metadata())
+    v_type <- hd_detect_vartype(metadata()[[input$ml_variable]], unique_threshold = 5)
+    if (v_type == "categorical" && isFALSE(input$multiclass)) {
+      output$ml_balance_ui <- renderUI({
+        tagList(
+          checkboxInput("balance_groups", "Balance Groups", value = TRUE)
+        )
+      })
+    } else {
+      output$ml_balance_ui <- NULL
     }
   })
 
@@ -1287,7 +1329,6 @@ server <- function(input, output, session) {
         )
       })
     } else {
-      showNotification("No multiclassification option for this variable.", type = "message")
       output$multiclass_ui <- NULL
     }
   })
@@ -1303,7 +1344,6 @@ server <- function(input, output, session) {
       })
     } else {
       output$ml_palette_ui <- NULL
-      showNotification("No color selection is required for this model.", type = "message")
     }
   })
 
@@ -1356,8 +1396,7 @@ server <- function(input, output, session) {
           if (is.null(ml_case) || input$case_c == "" || is.null(input$case_c) || !is_valid_hexcode(input$case_c)) {
             palette_c <- NULL
           } else {
-            palette_c <- c(input$case_c)
-            setNames(palette_c, ml_case)
+            palette_c <- setNames(input$case_c, input$ml_case)
           }
 
           res <- hd_model_rreg(
@@ -1370,7 +1409,7 @@ server <- function(input, output, session) {
             grid_size = 5,
             cv_sets = input$cv_sets,
             mixture = 1,
-            palette = NULL,
+            palette = palette_c,
             plot_y_labels = FALSE,
             verbose = TRUE,
             plot_title = NULL,
@@ -1382,18 +1421,64 @@ server <- function(input, output, session) {
           if (v_type == "categorical") {
             if (isFALSE(input$multiclass)){
               metrics <- data.frame(
-                Metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
-                Value = c(res$metrics$accuracy, res$metrics$sensitivity, res$metrics$specificity, res$metrics$auc)
+                Metric = c("Selected Features", "Accuracy", "Sensitivity", "Specificity", "AUC"),
+                Value = c(nrow(res$features),
+                          res$metrics$accuracy,
+                          res$metrics$sensitivity,
+                          res$metrics$specificity,
+                          res$metrics$auc)
               )
-              output$ml_metrics <- renderTable({
-                metrics
+              transposed_metrics <- as.data.frame(t(metrics[ , -1]))
+              colnames(transposed_metrics) <- metrics$Metric
+              output$ml_metrics <- renderDataTable({
+                datatable(transposed_metrics) %>%
+                  formatRound(columns = 1, digits = 0) %>%
+                  formatRound(columns = c(2, 3, 4, 5), digits = 2)
+              })
+            } else {
+              metrics <- data.frame(
+                Metric = c("Selected Features", "Accuracy", "Sensitivity", "Specificity"),
+                Value = c(nrow(res$features),
+                          res$metrics$accuracy,
+                          res$metrics$sensitivity,
+                          res$metrics$specificity)
+              )
+              auc_data <- res$metrics$auc
+              auc_data[[input$ml_variable]] <- paste("AUC", auc_data[[input$ml_variable]])
+
+              combined_metrics <- rbind(
+                metrics,
+                data.frame(Metric = auc_data[[input$ml_variable]], Value = auc_data$AUC)
+              )
+
+              transposed_metrics <- as.data.frame(t(combined_metrics[ , -1]))
+              colnames(transposed_metrics) <- combined_metrics$Metric
+
+              output$ml_metrics <- renderDataTable({
+                datatable(
+                  transposed_metrics,
+                  options = list(scrollX = TRUE)
+                ) %>%
+                  formatRound(columns = 1, digits = 0) %>%
+                  formatRound(columns = seq(2, ncol(transposed_metrics)), digits = 2)
               })
             }
 
             roc_curve(res$roc_curve)
             feat_imp_plot(res$feat_imp_plot)
           } else {
-            showNotification("Under development.", type = "message")
+              metrics <- data.frame(
+                Metric = c("Selected Features", "RMSE", "RSQ"),
+                Value = c(nrow(res$features), res$metrics$rmse, res$metrics$rsq)
+              )
+              transposed_metrics <- as.data.frame(t(metrics[ , -1]))
+              colnames(transposed_metrics) <- metrics$Metric
+              output$ml_metrics <- renderDataTable({
+                datatable(transposed_metrics) %>%
+                  formatRound(columns = 1, digits = 0) %>%
+                  formatRound(columns = c(2, 3), digits = 2)
+              })
+              comp_plot(res$comparison_plot)
           }
         } else {
           showNotification("Selected control group(s) not found in the metadata.", type = "error")
@@ -1407,33 +1492,49 @@ server <- function(input, output, session) {
   })
 
   observe({
-    req(metadata(), input$ml_variable, roc_curve(), feat_imp_plot())
-    v_type <- hd_detect_vartype(metadata()[[input$ml_variable]], unique_threshold = 5)
+    req(roc_curve(), feat_imp_plot())
 
     output$ml_plots_ui <- renderUI({
-      if (v_type == "categorical"){
-        tagList(
-          fluidRow(
-            column(6, plotOutput("feat_imp_plot_ml")),
-            column(6, plotOutput("roc_curve_ml"))
-          )
-        )
-      } else {
-        showNotification("Under development.", type = "message")
-      }
+      tagList(
+        hr(),
+        h4("ROC Curve"),
+        plotlyOutput("roc_curve_ml", height = 500),
+        hr(),
+        h4("Feature Importance"),
+        plotlyOutput("feat_imp_plot_ml", height = 750)
+      )
     })
   })
 
-  output$roc_curve_ml <- renderPlot({
+  observe({
+    req(comp_plot())
+
+    output$ml_plots_ui <- renderUI({
+      tagList(
+        hr(),
+        plotlyOutput("comp_plot_ml", height = 500)
+      )
+    })
+  })
+
+  output$roc_curve_ml <- renderPlotly({
     req(roc_curve())
-    plot(roc_curve())
+    ggplotly(roc_curve())
   })
 
-  output$feat_imp_plot_ml <- renderPlot({
+  output$feat_imp_plot_ml <- renderPlotly({
     req(feat_imp_plot())
-    plot(feat_imp_plot())
+    ggplotly(feat_imp_plot())
   })
 
+  output$comp_plot_ml <- renderPlotly({
+    req(comp_plot())
+    ggplotly(comp_plot()) |>
+      layout(
+        xaxis = list(scaleanchor = "y"),
+        yaxis = list(scaleanchor = "x")
+      )
+  })
 }
 
 
