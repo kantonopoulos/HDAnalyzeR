@@ -14,5 +14,5 @@
 ^vignettes
 ^LICENSE\.md$
 ^cheatsheet$
-^shiny_app$
+^hdanalyzer_app$
 ^index.md
