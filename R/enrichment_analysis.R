@@ -79,9 +79,9 @@ hd_ora <- function(gene_list,
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
-  # if (is.null(background)) {
-  #   message("No background provided. When working with proteomics data it is recommended to use background.")
-  # }
+  if (is.null(background)) {
+    message("No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA).")
+  }
 
   # Ensure 'clusterProfiler' package is loaded
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
