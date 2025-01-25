@@ -96,6 +96,7 @@
   
 ## New Analysis Module: WGCNA
 Added the Weighted Gene Co-expression Network Analysis (WGCNA) module for network analysis.
+
 - **Module Functions:**  
   - `hd_wgcna()`: Performs WGCNA analysis on the data.
   - `hd_plot_wgcna()`: Visualizes the WGCNA results.
