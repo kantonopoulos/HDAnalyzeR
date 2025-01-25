@@ -14,6 +14,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/news/index.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/add_axis_variance.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/apply_palette.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/background_lists.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/balance_groups.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/calc_na_percentage_col.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/calc_na_percentage_row.html</loc></url>
@@ -79,6 +80,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_qc_summary.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_save_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_save_path.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_show_backgrounds.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_show_palettes.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_split_data.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/hd_umap.html</loc></url>
@@ -98,6 +100,7 @@
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/remove_batch_effects.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/scale_color_hd.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/scale_fill_hd.html</loc></url>
+<url><loc>https://hda1472.github.io/HDAnalyzeR/reference/select_background.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/theme_hd.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/tune_lr_model.html</loc></url>
 <url><loc>https://hda1472.github.io/HDAnalyzeR/reference/tune_rf_model.html</loc></url>
