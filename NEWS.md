@@ -83,6 +83,9 @@
   Fixed color-matching issues in bar plots for `hd_plot_de_summary()` and `hd_plot_model_summary()` caused by frequency ties. Bars are now colored correctly.  
 
 ## Pathway Enrichment Analysis
+- **New Features**
+  - Added ready-to-use ORA background datasets for `hd_ora()`.
+  - Added `hd_show_backgrounds()`: See available backgrounds for ORA.
 - **Streamlined Outputs:**  
   Removed unnecessary returns from `hd_plot_gsea()`.
 
