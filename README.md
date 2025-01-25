@@ -13,6 +13,7 @@ The package is designed to be intuitive and accessible, even for those with limi
 - **Differential Expression Analysis:** Perform protein differential expression analysis with built-in support for multiple methods.
 - **Machine Learning Models:** Train and evaluate classification models with integrated variable importance visualization.
 - **Pathway Enrichment Analysis:** Identify enriched pathways and visualize results in multiple formats.
+- **Weighted Correlation Network Analysis:** Construct co-expression networks and identify modules of interest.
 - **Dimensionality Reduction:** Easily apply PCA or other dimensionality reduction techniques to explore complex data.
 - **Imputation and NA Handling:** Handle missing data with imputation techniques and filtering options.
 - **Publication-Ready Visualizations:** Generate high-quality plots, including volcano plots, heatmaps, and feature importance plots.
