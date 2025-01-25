@@ -35,7 +35,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' @param gene_list A character vector containing the gene names. These can be differentially expressed proteins or selected protein features from classification models.
 #' @param database The database to perform the ORA. It can be either "GO", "KEGG", or "Reactome".
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
-#' @param background A character vector containing the background genes.
+#' @param background A character vector containing the background genes or a string with the name of the background gene list to use (use `hd_show_backgrounds()` to see available lists). If NULL, the full proteome is used as background.
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis.
 #'
 #' @return A list containing the results of the ORA.
@@ -71,6 +71,15 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
+#'
+#' # With a background gene list
+#' enrichment <- hd_ora(sig_up_proteins_aml,
+#'                      database = "GO",
+#'                      ontology = "BP",
+#'                      background = "olink_explore_ht")
+#'
+#' # Access the results
+#' head(enrichment$enrichment@result)
 hd_ora <- function(gene_list,
                    database = c("GO", "Reactome", "KEGG"),
                    ontology = c("BP", "CC", "MF", "ALL"),
@@ -79,9 +88,11 @@ hd_ora <- function(gene_list,
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
-  # if (is.null(background)) {
-  #   message("No background provided. When working with proteomics data it is recommended to use background.")
-  # }
+  if (is.null(background)) {
+    message("No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA).")
+  } else {
+    background <- select_background(background)
+  }
 
   # Ensure 'clusterProfiler' package is loaded
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
@@ -134,7 +145,7 @@ hd_ora <- function(gene_list,
 
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
+  if (is.null(enrichment) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
 
@@ -196,11 +207,16 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]])
 
   # Ensure 'enrichplot' package is loaded
+  tree_plot <- NULL
   if (!requireNamespace("enrichplot", quietly = TRUE)) {
     stop("The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot').")
   }
-  tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
-  tree_plot <- enrichplot::treeplot(tree_plot_data)
+  tryCatch({
+    tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
+    tree_plot <- enrichplot::treeplot(tree_plot_data)
+  }, error = function(e) {
+    warning("Possible problem with the clustering in the treeplot. Might not have enough significant results.")
+  })
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
     cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
@@ -214,7 +230,9 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   }
 
   enrichment[["dotplot"]] <- dot_plot
-  enrichment[["treeplot"]] <- tree_plot
+  if (!is.null(tree_plot)){
+    enrichment[["treeplot"]] <- tree_plot
+  }
   enrichment[["cnetplot"]] <- cnet_plot
 
   return(enrichment)

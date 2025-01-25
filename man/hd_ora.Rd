@@ -19,7 +19,7 @@ hd_ora(
 
 \item{ontology}{The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.}
 
-\item{background}{A character vector containing the background genes.}
+\item{background}{A character vector containing the background genes or a string with the name of the background gene list to use (use \code{hd_show_backgrounds()} to see available lists). If NULL, the full proteome is used as background.}
 
 \item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis.}
 }
@@ -58,6 +58,15 @@ sig_up_proteins_aml <- de_results$de_res |>
 
 # Perform ORA with `GO` database and `BP` ontology
 enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+
+# Access the results
+head(enrichment$enrichment@result)
+
+# With a background gene list
+enrichment <- hd_ora(sig_up_proteins_aml,
+                     database = "GO",
+                     ontology = "BP",
+                     background = "olink_explore_ht")
 
 # Access the results
 head(enrichment$enrichment@result)
