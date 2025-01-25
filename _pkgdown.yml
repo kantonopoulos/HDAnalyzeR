@@ -107,6 +107,7 @@ reference:
   - hd_literature_search
   - hd_ora
   - hd_plot_ora
+  - hd_show_backgrounds
   - hd_gsea
   - hd_plot_gsea
 - title: Palettes and Themes
