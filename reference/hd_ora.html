@@ -135,6 +135,7 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu">hd_ora</span><span class="op">(</span><span class="va">sig_up_proteins_aml</span>, database <span class="op">=</span> <span class="st">"GO"</span>, ontology <span class="op">=</span> <span class="st">"BP"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>coercing argument of type 'double' to logical</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Access the results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
@@ -167,7 +168,8 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-in"><span>                     background <span class="op">=</span> <span class="st">"olink_explore_ht"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1.22% of input gene IDs are fail to map...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1.24% of input gene IDs are fail to map...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>coercing argument of type 'double' to logical</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Access the results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
@@ -179,19 +181,19 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 GO:0001666                           response to hypoxia      5/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 GO:0060135 maternal process involved in female pregnancy      3/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             BgRatio RichFactor FoldEnrichment   zScore       pvalue   p.adjust</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 213/4855 0.03286385       7.252454 6.295650 2.752688e-05 0.02445842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926  19/4855 0.15789474      34.844498 9.971823 7.469019e-05 0.02445842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 250/4855 0.02800000       6.179091 5.672331 7.730454e-05 0.02445842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 478/4855 0.01882845       4.155097 4.901074 1.242700e-04 0.02445842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 115/4855 0.04347826       9.594862 6.292909 1.303921e-04 0.02445842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135  23/4855 0.13043478      28.784585 9.010672 1.349124e-04 0.02445842</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 213/4854 0.03286385       7.250960 6.294827 2.756335e-05 0.02448193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926  19/4854 0.15789474      34.837321 9.970744 7.473564e-05 0.02448193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 250/4854 0.02800000       6.177818 5.671555 7.740526e-05 0.02448193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 478/4854 0.01882845       4.154241 4.900306 1.244693e-04 0.02448193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 115/4854 0.04347826       9.592885 6.292129 1.305178e-04 0.02448193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135  23/4854 0.13043478      28.778656 9.009686 1.349942e-04 0.02448193</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                qvalue                                geneID Count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.02029794        100/566/9048/25/2683/199/30817     7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.02029794                          566/285/9048     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 0.02029794         100/566/9289/181/25/976/30817     7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 0.02029794 100/566/9289/285/9048/25/59/51742/199     9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.02029794                100/285/51129/405/1386     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 0.02029794                         285/181/59272     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.02031746        100/566/9048/25/2683/199/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.02031746                          566/285/9048     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 0.02031746         100/566/9289/181/25/976/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 0.02031746 100/566/9289/285/9048/25/59/51742/199     9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.02031746                100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 0.02031746                         285/181/59272     3</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
