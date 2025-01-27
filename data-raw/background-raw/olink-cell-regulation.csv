@@ -1,0 +1,93 @@
+UniProt ID,Gene,Protein name
+Q9BWV1,BOC,Brother of CDO
+Q9NSA1,FGF21,Fibroblast growth factor 21
+O00220,TNFRSF10A,Tumor necrosis factor receptor superfamily member 10A
+O43915,VEGFD,Vascular endothelial growth factor D
+O75354,ENTPD6,Ectonucleoside triphosphate diphosphohydrolase 6
+A4D1B5,GSAP,Gamma-secretase-activating protein
+O00221,NFKBIE,NF-kappa-B inhibitor epsilon
+O00451,GFRA2,GDNF family receptor alpha-2
+O14662,STX16,Syntaxin-16
+O14904,WNT9A,Protein Wnt-9a
+O14917,PCDH17,Protocadherin-17
+O43186,CRX,Cone-rod homeobox protein
+O43699,SIGLEC6,Sialic acid-binding Ig-like lectin 6
+O43752,STX6,Syntaxin-6
+O60243,HS6ST1,Heparan-sulfate 6-O-sulfotransferase 1
+O75054,IGSF3,Immunoglobulin superfamily member 3
+O94760,DDAH1,"N(G),N(G)-dimethylarginine dimethylaminohydrolase 1"
+O95183,VAMP5,Vesicle-associated membrane protein 5
+O95644,NFATC1,"Nuclear factor of activated T-cells, cytoplasmic 1"
+O95988,TCL1B,T-cell leukemia/lymphoma protein 1B
+O96013,PAK4,Serine/threonine-protein kinase PAK 4
+P01242,GH2,Growth hormone variant
+P01275,GCG,Pro-glucagon
+P02462,COL4A1,Collagen alpha-1(IV) chain
+P04637,TP53,Cellular tumor antigen p53
+P05412,JUN,Transcription factor Jun
+P08237,PFKM,"ATP-dependent 6-phosphofructokinase, muscle type"
+P09758,TACSTD2,Tumor-associated calcium signal transducer 2
+P0CG37,CFC1,Cryptic protein
+P11274,BCR,Breakpoint cluster region protein
+P15848,ARSB,Arylsulfatase B
+P16562,CRISP2,Cysteine-rich secretory protein 2
+P21810,BGN,Biglycan
+P22681,CBL,E3 ubiquitin-protein ligase CBL
+P23515,OMG,Oligodendrocyte-myelin glycoprotein
+P25685,DNAJB1,DnaJ homolog subfamily B member 1
+P30041,PRDX6,Peroxiredoxin-6
+P47929,"LGALS7, LGALS7B",Galectin-7
+P52564,MAP2K6,Dual specificity mitogen-activated protein kinase kinase 6
+P57771,RGS8,Regulator of G-protein signaling 8
+P58294,PROK1,Prokineticin-1
+Q01543,FLI1,Friend leukemia integration 1 transcription factor
+Q02742,GCNT1,"Beta-1,3-galactosyl-O-glycosyl-glycoprotein beta-1,6-N-acetylglucosaminyltransferase"
+Q05516,ZBTB16,Zinc finger and BTB domain-containing protein 16
+Q06520,SULT2A1,Sulfotransferase 2A1
+Q07960,ARHGAP1,Rho GTPase-activating protein 1
+Q10471,GALNT2,Polypeptide N-acetylgalactosaminyltransferase 2
+Q12912,IRAG2,"Inositol 1,4,5-triphosphate receptor associated 2"
+Q13105,ZBTB17,Zinc finger and BTB domain-containing protein 17
+Q13561,DCTN2,Dynactin subunit 2
+Q13576,IQGAP2,Ras GTPase-activating-like protein IQGAP2
+Q16653,MOG,Myelin-oligodendrocyte glycoprotein
+Q49AH0,CDNF,Cerebral dopamine neurotrophic factor
+Q6UB28,METAP1D,"Methionine aminopeptidase 1D, mitochondrial"
+Q6UXD5,SEZ6L2,Seizure 6-like protein 2
+Q6UXK5,LRRN1,Leucine-rich repeat neuronal protein 1
+Q7Z5A7,TAFA5,Chemokine-like protein TAFA-5
+Q7Z5R6,APBB1IP,Amyloid beta A4 precursor protein-binding family B member 1-interacting protein
+Q86SJ2,AMIGO2,Amphoterin-induced protein 2
+Q86WV1,SKAP1,Src kinase-associated phosphoprotein 1
+Q8N2G4,LYPD1,Ly6/PLAUR domain-containing protein 1
+Q8N5S9,CAMKK1,Calcium/calmodulin-dependent protein kinase kinase 1
+Q8TD06,AGR3,Anterior gradient protein 3
+Q8WYN0,ATG4A,Cysteine protease ATG4A
+Q92558,WASF1,Actin-binding protein WASF1
+Q92982,NINJ1,Ninjurin-1
+Q969V3,NCLN,BOS complex subunit NCLN
+Q96I82,KAZALD1,Kazal-type serine protease inhibitor domain-containing protein 1
+Q96LC7,SIGLEC10,Sialic acid-binding Ig-like lectin 10
+Q96PD2,DCBLD2,"Discoidin, CUB and LCCL domain-containing protein 2"
+Q96PQ0,SORCS2,VPS10 domain-containing receptor SorCS2
+Q96SM3,CPXM1,Probable carboxypeptidase X1
+Q9BQT9,CLSTN3,Calsyntenin-3
+Q9C0C4,SEMA4C,Semaphorin-4C
+Q9H156,SLITRK2,SLIT and NTRK-like protein 2
+Q9H5Y7,SLITRK6,SLIT and NTRK-like protein 6
+Q9HCU5,PREB,Prolactin regulatory element-binding protein
+Q9NRM6,IL17RB,Interleukin-17 receptor B
+Q9NS71,GKN1,Gastrokine-1
+Q9NX58,LYAR,Cell growth-regulating nucleolar protein
+Q9NZ53,PODXL2,Podocalyxin-like protein 2
+Q9NZN5,ARHGEF12,Rho guanine nucleotide exchange factor 12
+Q9P0V8,SLAMF8,SLAM family member 8
+Q9UBG0,MRC2,C-type mannose receptor 2
+Q9UBM4,OPTC,Opticin
+Q9UK85,DKKL1,Dickkopf-like protein 1
+Q9UKR0,KLK12,Kallikrein-12
+Q9UPY6,WASF3,Actin-binding protein WASF3
+Q9Y2W6,TDRKH,Tudor and KH domain-containing protein
+Q9Y662,HS3ST3B1,Heparan sulfate glucosamine 3-O-sulfotransferase 3B1
+Q9Y6A5,TACC3,Transforming acidic coiled-coil-containing protein 3
+O43521-2,BCL2L11,"Bcl-2-like protein 11, Isoform BimL"

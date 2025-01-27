@@ -1,6 +1,7 @@
 # Folders
 inst/extdata/
 logo/
+paper/
 
 # Files
 .RData

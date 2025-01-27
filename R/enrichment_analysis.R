@@ -145,7 +145,7 @@ hd_ora <- function(gene_list,
 
   }
 
-  if (is.null(enrichment) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
+  if (is.null(enrichment) || is.na(any(enrichment@result[["p.adjust"]])) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
 

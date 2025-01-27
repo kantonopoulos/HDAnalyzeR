@@ -1,0 +1,93 @@
+UniProt ID,Gene,Protein name
+O00241,SIRPB1,Signal-regulatory protein beta-1
+O00339,MATN2,Matrilin-2
+O00585,CCL21,C-C motif chemokine 21
+O14773,TPP1,Tripeptidyl-peptidase 1
+O43278,SPINT1,Kunitz-type protease inhibitor 1
+O43291,SPINT2,Kunitz-type protease inhibitor 2
+O43405,COCH,Cochlin
+O43464,HTRA2,"Serine protease HTRA2, mitochondrial"
+O43505,B4GAT1,"Beta-1,4-glucuronyltransferase 1"
+O75326,SEMA7A,Semaphorin-7A
+O76076,CCN5,CCN family member 5
+O95633,FSTL3,Follistatin-related protein 3
+O95721,SNAP29,Synaptosomal-associated protein 29
+P00918,CA2,Carbonic anhydrase 2
+P00995,SPINK1,Serine protease inhibitor Kazal-type 1
+P01215,CGA,Glycoprotein hormones alpha chain
+P04066,FUCA1,Tissue alpha-L-fucosidase
+P04233,CD74,HLA class II histocompatibility antigen gamma chain
+P05067,APP,Amyloid-beta precursor protein
+P05556,ITGB1,Integrin beta-1
+P06734,FCER2,Low affinity immunoglobulin epsilon Fc receptor
+P07237,P4HB,Protein disulfide-isomerase
+P08118,MSMB,Beta-microseminoprotein
+P08236,GUSB,Beta-glucuronidase
+P08648,ITGA5,Integrin alpha-5
+P09619,PDGFRB,Platelet-derived growth factor receptor beta
+P10586,PTPRF,Receptor-type tyrosine-protein phosphatase F
+P11717,IGF2R,Cation-independent mannose-6-phosphate receptor
+P14174,MIF,Macrophage migration inhibitory factor
+P15289,ARSA,Arylsulfatase A
+P15291,B4GALT1,"Beta-1,4-galactosyltransferase 1"
+P16112,ACAN,Aggrecan core protein
+P19256,CD58,Lymphocyte function-associated antigen 3
+P23280,CA6,Carbonic anhydrase 6
+P23284,PPIB,Peptidyl-prolyl cis-trans isomerase B
+P24387,CRHBP,Corticotropin-releasing factor-binding protein
+P29350,PTPN6,Tyrosine-protein phosphatase non-receptor type 6
+P30043,BLVRB,Flavin reductase (NADPH)
+P30086,PEBP1,Phosphatidylethanolamine-binding protein 1
+P31948,STIP1,Stress-induced-phosphoprotein 1
+P47712,PLA2G4A,Cytosolic phospholipase A2
+P48745,CCN3,CCN family member 3
+P48960,ADGRE5,Adhesion G protein-coupled receptor E5
+P50895,BCAM,Basal cell adhesion molecule
+P55103,INHBC,Inhibin beta C chain
+P55808,XG,Glycoprotein Xg
+P63313,TMSB10,Thymosin beta-10
+P78552,IL13RA1,Interleukin-13 receptor subunit alpha-1
+Q02487,DSC2,Desmocollin-2
+Q07108,CD69,Early activation antigen CD69
+Q08431,MFGE8,Lactadherin
+Q10588,BST1,ADP-ribosyl cyclase/cyclic ADP-ribose hydrolase 2
+Q13822,ENPP2,Ectonucleotide pyrophosphatase/phosphodiesterase family member 2
+Q14112,NID2,Nidogen-2
+Q14118,DAG1,Dystroglycan 1
+Q14162,SCARF1,Scavenger receptor class F member 1
+Q14696,MESD,LRP chaperone MESD
+Q15828,CST6,Cystatin-M
+Q16363,LAMA4,Laminin subunit alpha-4
+Q4KMG0,CDON,Cell adhesion molecule-related/down-regulated by oncogenes
+Q5KU26,COLEC12,Collectin-12
+Q5VY43,PEAR1,Platelet endothelial aggregation receptor 1
+Q6GTX8,LAIR1,Leukocyte-associated immunoglobulin-like receptor 1
+Q6UXG3,CD300LG,CMRF35-like molecule 9
+Q6UXH1,CRELD2,Protein disulfide isomerase CRELD2
+Q6UXH9,PAMR1,Inactive serine protease PAMR1
+Q6YHK3,CD109,CD109 antigen
+Q86T13,CLEC14A,C-type lectin domain family 14 member A
+Q8IWV2,CNTN4,Contactin-4
+Q8N6Q3,CD177,CD177 antigen
+Q8TCZ2,CD99L2,CD99 antigen-like protein 2
+Q8TDQ0,HAVCR2,Hepatitis A virus cellular receptor 2
+Q8TEU8,WFIKKN2,"WAP, Kazal, immunoglobulin, Kunitz and NTR domain-containing protein 2"
+Q969Z4,RELT,Tumor necrosis factor receptor superfamily member 19L
+Q96AP7,ESAM,Endothelial cell-selective adhesion molecule
+Q96RD9,FCRL5,Fc receptor-like protein 5
+Q99497,PARK7,Parkinson disease protein 7
+Q99538,LGMN,Legumain
+Q99972,MYOC,Myocilin
+Q99983,OMD,Osteomodulin
+Q9BY76,ANGPTL4,Angiopoietin-related protein 4
+Q9NNX6,CD209,CD209 antigen
+Q9NQ38,SPINK5,Serine protease inhibitor Kazal-type 5
+Q9NZV1,CRIM1,Cysteine-rich motor neuron 1 protein
+Q9UBP4,DKK3,Dickkopf-related protein 3
+Q9UBX1,CTSF,Cathepsin F
+Q9UKJ1,PILRA,Paired immunoglobulin-like type 2 receptor alpha
+Q9UKK9,NUDT5,ADP-sugar pyrophosphatase
+Q9Y240,CLEC11A,C-type lectin domain family 11 member A
+Q9Y279,VSIG4,V-set and immunoglobulin domain-containing protein 4
+Q9Y6N7,ROBO1,Roundabout homolog 1
+P21217_Q11128,FUT3_FUT5,3-galactosyl-N-acetylglucosaminide 4-alpha-L-fucosyltransferase FUT3_4-galactosyl-N-acetylglucosaminide 3-alpha-L-fucosyltransferase FUT5
