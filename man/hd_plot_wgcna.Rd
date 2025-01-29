@@ -21,8 +21,8 @@ The input object enriched with the plots.
 \description{
 \code{hd_plot_wgcna()} generates useful visualizations for the results of the WGCNA analysis.
 The function generates a heatmap of proteins and their adjacency, a heatmap of module
-eigengene (MEs) adjacency, and heatmaps of predictive power score (PPS) between MEs and
-metadata.
+eigengene (MEs) adjacency, heatmaps of predictive power score (PPS) between MEs and
+metadata and the dendrogram of all genes.
 }
 \examples{
 # Initialize an HDAnalyzeR object
@@ -43,4 +43,5 @@ wgcna_res$pps
 wgcna_res$me_pps_heatmap
 wgcna_res$var_pps_heatmap
 wgcna_res$me_cor_heatmap
+wgcna_res$dendrogram
 }
