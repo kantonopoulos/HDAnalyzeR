@@ -327,13 +327,15 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
   dendro <- wgcna[["wgcna"]][["dendrograms"]][[1]]
   dendro$call <- NULL
   module_colors <- wgcna[["wgcna"]][["colors"]]
-  dendro_plot <- ggplotify::as.ggplot(~ WGCNA::plotDendroAndColors(
+
+  dendro_plot <- WGCNA::plotDendroAndColors(
     dendro,
     module_colors,
     main = "",
     groupLabels = "Module Colors",
     dendroLabels = FALSE
-  ))
+  )
+  dendro_plot <- recordPlot()
 
   wgcna[["tom_heatmap"]] <- tom_hm
   wgcna[["me_adjacency"]] <- me_adj
