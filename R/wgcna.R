@@ -109,8 +109,8 @@ hd_wgcna <- function(dat, power = NULL) {
 #'
 #' `hd_plot_wgcna()` generates useful visualizations for the results of the WGCNA analysis.
 #' The function generates a heatmap of proteins and their adjacency, a heatmap of module
-#' eigengene (MEs) adjacency, and heatmaps of predictive power score (PPS) between MEs and
-#' metadata.
+#' eigengene (MEs) adjacency, heatmaps of predictive power score (PPS) between MEs and
+#' metadata and the dendrogram of all genes.
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
@@ -139,6 +139,7 @@ hd_wgcna <- function(dat, power = NULL) {
 #' wgcna_res$me_pps_heatmap
 #' wgcna_res$var_pps_heatmap
 #' wgcna_res$me_cor_heatmap
+#' wgcna_res$dendrogram
 hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
   if (!requireNamespace("ppsr", quietly = TRUE)) {
@@ -322,12 +323,25 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5))
 
+  # Plot dendrogram
+  dendro <- wgcna[["wgcna"]][["dendrograms"]][[1]]
+  dendro$call <- NULL
+  module_colors <- wgcna[["wgcna"]][["colors"]]
+  dendro_plot <- ggplotify::as.ggplot(~ WGCNA::plotDendroAndColors(
+    dendro,
+    module_colors,
+    main = "",
+    groupLabels = "Module Colors",
+    dendroLabels = FALSE
+  ))
+
   wgcna[["tom_heatmap"]] <- tom_hm
   wgcna[["me_adjacency"]] <- me_adj
   wgcna[["pps"]] <- dplyr::bind_rows(me_pps, var_pps)
   wgcna[["me_pps_heatmap"]] <- me_pps_heatmap
   wgcna[["var_pps_heatmap"]] <- var_pps_heatmap
   wgcna[["me_cor_heatmap"]] <- me_metadata_hm
+  wgcna[["dendrogram"]] <- dendro_plot
 
   return(wgcna)
 }
