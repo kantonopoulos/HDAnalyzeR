@@ -293,7 +293,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2828261</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 64 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Feature  Importance Sign  Scaled_Importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ANGPT1        1.31  NEG               1    </span>
@@ -306,7 +306,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> AMIGO2        0.703 NEG               0.537</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ANGPTL2       0.596 POS               0.456</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> AMFR          0.509 POS               0.389</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 54 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
 <span class="r-plt img"><img src="hd_model_rreg-3.png" alt="" width="700" height="433"></span>
@@ -390,7 +390,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Main Arguments:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   penalty = 4.45590449619826e-06</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   mixture = 0.179142067208886</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mixture = 0.220184963848442</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computational engine: glmnet </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -403,25 +403,25 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3872563</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$specificity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.942447</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9424284</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$auc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 14 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Disease   AUC</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AML     0.907</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> BRC     0.773</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> CLL     0.979</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> CRC     0.904</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> CVX     0.752</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ENDC    0.776</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AML     0.906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> BRC     0.772</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> CLL     0.978</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> CRC     0.905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> CVX     0.751</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ENDC    0.774</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> GLIOM   0.778</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> LUNGC   0.692</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> LYMPH   0.713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MYEL    0.966</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> LUNGC   0.690</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> LYMPH   0.715</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MYEL    0.964</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> OVC     0.759</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> PRC     0.733</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> macro   0.811</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> PRC     0.732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> macro   0.810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> micro   0.806</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$confusion_matrix</span>
@@ -430,11 +430,11 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span>      AML     8   0   0   0   0    0     1     0     2    0   1   0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      BRC     0   1   0   0   0    0     0     1     1    0   0   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      CLL     0   1   7   0   0    0     0     0     1    0   0   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      CRC     0   1   0   8   0    0     0     3     0    0   1   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      CRC     0   1   0   8   0    0     0     3     1    0   1   0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      CVX     0   2   1   0   4    4     0     1     2    0   2   3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ENDC    0   0   0   0   4    3     1     1     0    1   2   2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      GLIOM   0   2   0   0   0    0     6     0     1    1   0   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      LUNGC   1   2   0   4   0    1     1     1     1    0   4   2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      LUNGC   1   2   0   4   0    1     1     1     0    0   4   2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      LYMPH   2   2   0   0   0    0     0     2     4    0   0   0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      MYEL    1   0   0   0   2    1     2     0     1    5   0   0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      OVC     0   0   0   1   1    1     2     2     2    0   3   1</span>
@@ -448,23 +448,23 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-plt img"><img src="hd_model_rreg-5.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mixture</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1791421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.220185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 97 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Feature  Importance Sign  Scaled_Importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AHCY           2.78 POS               1    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ANGPT1         2.50 NEG               0.899</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> AK1            1.96 NEG               0.704</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> APEX1          1.88 POS               0.675</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> ADAM8          1.87 NEG               0.672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ARTN           1.70 POS               0.611</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ARID4B         1.56 NEG               0.560</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ADAMTS16       1.41 NEG               0.507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ALPP           1.35 NEG               0.485</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ADGRG1         1.28 POS               0.459</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 87 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AHCY           2.96 POS               1    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ANGPT1         2.61 NEG               0.883</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> AK1            2.06 NEG               0.695</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> APEX1          1.97 POS               0.666</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> ADAM8          1.92 NEG               0.648</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ARTN           1.76 POS               0.594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ARID4B         1.61 NEG               0.545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ADAMTS16       1.47 NEG               0.497</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ALPP           1.43 NEG               0.483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ADGRG1         1.32 POS               0.447</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
 <span class="r-plt img"><img src="hd_model_rreg-6.png" alt="" width="700" height="433"></span>
@@ -574,7 +574,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8692857</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 99 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Feature Importance Sign  Scaled_Importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ARID4B        2.50 POS               1    </span>
@@ -587,7 +587,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> AHSP          1.75 NEG               0.702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> AMY2A         1.69 NEG               0.677</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ANXA4         1.65 POS               0.661</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 89 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
 <span class="r-plt img"><img src="hd_model_rreg-8.png" alt="" width="700" height="433"></span>
