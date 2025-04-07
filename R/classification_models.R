@@ -1052,7 +1052,6 @@ variable_imp <- function(dat,
                   Variable = forcats::fct_reorder(Variable, !!rlang::sym("Importance"))) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
     dplyr::mutate(Scaled_Importance = scales::rescale(!!rlang::sym("Importance"), to = c(0, 1))) |>
-    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
     dplyr::rename(Feature = !!rlang::sym("Variable"))
 
   if (model_type == "binary_class") {
@@ -1099,6 +1098,7 @@ variable_imp <- function(dat,
   }
 
   var_imp_plot <- features |>
+    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
     ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
     ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
     ggplot2::labs(y = NULL) +

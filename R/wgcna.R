@@ -335,7 +335,7 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
     groupLabels = "Module Colors",
     dendroLabels = FALSE
   )
-  dendro_plot <- recordPlot()
+  dendro_plot <- grDevices::recordPlot()
 
   wgcna[["tom_heatmap"]] <- tom_hm
   wgcna[["me_adjacency"]] <- me_adj
