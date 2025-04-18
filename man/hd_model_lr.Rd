@@ -58,6 +58,11 @@ be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If less than 3 features are selected, the feature
 importance plot will not be generated.
 
+Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+comparison of feature importance in each model.
+
 Logistic regression models are not supported for
 multiclass classification, so \code{case} argument is always required. If
 multi-class classification is needed, use \code{hd_model_rreg()} instead.

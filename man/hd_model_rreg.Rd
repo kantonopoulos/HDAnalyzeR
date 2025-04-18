@@ -70,6 +70,11 @@ be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If \code{case} is provided, the model will be a binary
 classification model. If \code{case} is NULL, the model will be a multiclass classification model.
 
+Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+comparison of feature importance in each model.
+
 In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 are calculated via macro-averaging. In case the model is run against a continuous variable,
 the palette will be ignored and we have to change the elements of \code{plot_title} to \code{rmse} and \code{rsq}

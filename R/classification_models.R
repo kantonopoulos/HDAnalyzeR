@@ -1048,10 +1048,14 @@ variable_imp <- function(dat,
   features <- final |>
     workflows::extract_fit_parsnip() |>
     vip::vi() |>
-    dplyr::mutate(Importance = abs(!!rlang::sym("Importance")),
+    # Clip negatives to zero to avoid negative importance in Random Forest permutation testing
+    dplyr::mutate(Importance = dplyr::if_else(!!rlang::sym("Importance") < 0,
+                                              0,
+                                              !!rlang::sym("Importance")),
                   Variable = forcats::fct_reorder(Variable, !!rlang::sym("Importance"))) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
-    dplyr::mutate(Scaled_Importance = scales::rescale(!!rlang::sym("Importance"), to = c(0, 1))) |>
+    # Min max scaling with min = 0 always and max = 1
+    dplyr::mutate(Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))) |>
     dplyr::rename(Feature = !!rlang::sym("Variable"))
 
   if (model_type == "binary_class") {
@@ -1160,6 +1164,11 @@ variable_imp <- function(dat,
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If `case` is provided, the model will be a binary
 #' classification model. If `case` is NULL, the model will be a multiclass classification model.
+#'
+#' Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+#' negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+#' zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+#' comparison of feature importance in each model.
 #'
 #' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging. In case the model is run against a continuous variable,
@@ -1346,6 +1355,11 @@ hd_model_rreg <- function(dat,
 #' will be used to impute. If `case` is provided, the model will be a binary
 #' classification model. If `case` is NULL, the model will be a multiclass classification model.
 #'
+#' Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+#' negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+#' zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+#' comparison of feature importance in each model.
+#'
 #' In multi-class models, the groups in the train set are not balanced and sensitivity and specificity
 #' are calculated via macro-averaging. In case the model is run against a continuous variable,
 #' the palette will be ignored and we have to change the elements of  `plot_title` to `rmse` and `rsq`
@@ -1518,6 +1532,11 @@ hd_model_rf <- function(dat,
 #' be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 #' will be used to impute. If less than 3 features are selected, the feature
 #' importance plot will not be generated.
+#'
+#' Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+#' negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+#' zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+#' comparison of feature importance in each model.
 #'
 #' Logistic regression models are not supported for
 #' multiclass classification, so `case` argument is always required. If
