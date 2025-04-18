@@ -150,6 +150,10 @@ The numeric predictors will be normalized and the nominal predictors will
 be one-hot encoded. If the data contain missing values, KNN (k=5) imputation
 will be used to impute. If less than 3 features are selected, the feature
 importance plot will not be generated.</p>
+<p>Scales feature importance values to the (0, 1) range. For permutation-based importance (e.g., from Random Forest),
+negative values are first set to zero to reflect non-informative or noisy features. The maximum value is then scaled to 1,
+zero remains zero, and all other values are linearly scaled between 0 and 1 accordingly. This facilitates more interpretable
+comparison of feature importance in each model.</p>
 <p>Logistic regression models are not supported for
 multiclass classification, so <code>case</code> argument is always required. If
 multi-class classification is needed, use <code><a href="hd_model_rreg.html">hd_model_rreg()</a></code> instead.
@@ -269,11 +273,11 @@ no continuous variable is allowed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Feature Importance Sign  Scaled_Importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ADA          3.71  POS              1     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sex_M        2.00  POS              0.502 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Age          1.78  NEG              0.440 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> ACAA1        1.16  NEG              0.259 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> ACOX1        0.563 NEG              0.085<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> AARSD1       0.268 POS              0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sex_M        2.00  POS              0.538 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Age          1.78  NEG              0.480 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> ACAA1        1.16  NEG              0.313 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> ACOX1        0.563 NEG              0.152 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> AARSD1       0.268 POS              0.072<span style="text-decoration: underline;">3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
 <span class="r-plt img"><img src="hd_model_lr-3.png" alt="" width="700" height="433"></span>
