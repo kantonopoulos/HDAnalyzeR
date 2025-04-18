@@ -986,12 +986,14 @@ generate_title <- function(features,
   }
 
   if ("features" %in% title) {
-    title_parts <- c(title_parts, paste0('Features = ', nrow(features), '    '))
+    title_parts <- c(title_parts, paste0('Features = ',
+                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") > 0)),
+                                         '    '))
   }
 
   if ("top-features" %in% title) {
     title_parts <- c(title_parts, paste0('Top-features = ',
-                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 50)),
+                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 0.5)),
                                          '    '))
   }
 
