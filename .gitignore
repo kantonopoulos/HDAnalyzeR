@@ -8,6 +8,8 @@ paper/
 .Rproj.user
 .Rhistory
 .Rprofile
+.DS_Store
+wide_data.rds
 docs
 inst/doc
 *.pptx
