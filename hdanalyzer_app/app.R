@@ -28,7 +28,7 @@ ui <- navbarPage(
           p("This app simplifies proteomics data analysis and biomarker discovery."),
           hr(),
           h4("Data"),
-          p("The data file should have the sample identifiers in the first column."),
+          p("The data file should have the sample identifiers in the first column. For more infomation check the Help tab."),
           fileInput("data_file",
                     "Upload Data File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
                     accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
@@ -36,7 +36,7 @@ ui <- navbarPage(
           uiOutput("variable_value_ui"),
           hr(),
           h4("Metadata"),
-          p("The metadata should contain the same sample identifiers as the data file."),
+          p("The metadata should contain the same sample identifiers as the data file. For more infomation check the Help tab."),
           fileInput("metadata_file",
                     "Upload Metadata File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
                     accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
@@ -44,12 +44,12 @@ ui <- navbarPage(
 
           # Filtering Section
           hr(),
-          h4("Filtering"),
+          h4("Data Filtering"),
           textInput("columns_to_keep",
-                    "Enter Column Names to Keep (comma-separated):",
+                    "Enter Column Names to Keep/Remove (comma-separated):",
                     value = ""),
           textInput("rows_to_keep",
-                    "Enter Row Numbers to Keep (comma-separated):",
+                    "Enter Row Numbers to Keep/Remove (row indexes comma-separated):",
                     value = ""),
 
           # Button Grid with Consistent Alignment
@@ -60,6 +60,16 @@ ui <- navbarPage(
           fluidRow(
             column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block")),
             column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block btn-primary"))
+          ),
+          tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
+          hr(),
+          h4("Metadata Filtering"),
+          p("Filter samples based on metadata variables. Select a metadata column and choose one or more categories."),
+          selectInput("metadata_filter_column", "Metadata Filtering Column:", choices = NULL),
+          uiOutput("metadata_filter_choices_ui"),
+          fluidRow(
+            column(6, actionButton("metadata_keep", "Keep", class = "btn-block")),
+            column(6, actionButton("metadata_remove", "Remove", class = "btn-block btn-primary"))
           ),
           tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
           hr(),
@@ -251,13 +261,64 @@ ui <- navbarPage(
         )
       )
     )
+  ),
+
+  ## Page 5: Help --------------------------------------------------------------
+  tabPanel(
+    "Help",
+    fluidPage(
+      h3("HDAnalyzeR App - User Guidelines"),
+      h4("1. Welcome & Data Upload Tab"),
+      p("• Use the file inputs to upload your data and metadata."),
+      p("• Data File: Upload your data in .csv, .tsv, .txt, .xlsx, .rds, .rda, or .parquet format. The data can be in either long or wide format. In case they are in wide format, ensure that the first column contains the sample identifiers and the rest of the columns are the gene/protein expression columns (no metadata or other columns are included - please include those in the metadata dataset)."),
+      p("• Metadata File: Upload a metadata file (accepted formats as above) that contains the same sample identifiers as your data file."),
+      p("Note: Maximum input file size is 50 MB. Generally .rds files are more compact in comparison to .csv or .xlsx, so consider using them for large datasets."),
+      p("• Select the sample ID column that contains the column identifies. This will be used to map the data samples to the metadata samples."),
+      p("• In case the data are in long format, please also select the Variable column (e.g., Protein Names) and the Value column (e.g., Protein Expression Levels)."),
+      p("• Use the Filtering section to specify columns, rows or values to retain or remove."),
+      p("• Click 'Remove NAs' to eliminate rows with missing values. (If not desired, skip this step and the NAs will be imputed using KNN with 5 neighbors.)"),
+      p("• Click 'Reset' to restore the original dataset."),
+      p("• Preview your Data, Metadata, and Processed Data in the respective tabs."),
+      h4("Exploratory Data Analysis"),
+      p("• Specify the X and Y variables and optionally a Color variable. If only X or Y is provided, the plot will be a histogram (if continuous) or a count-bar plot (if categorical). If both X and Y variables are provided and both are continuous, a scatter plot will be generated. If one of the variables is categorical and the other continuous, a box plot will be generated. If both variables are categorical, an error message will be displayed."),
+      p("• If a Color variable is provided, optional custom palette options will appear. For continuous palettes, enter hex codes and numeric limits for Low, Middle, and High values; for categorical palettes, enter category names and matching hex codes."),
+      p("• Check 'Equal Axes' to force the plot’s axes to use the same scale."),
+      p("• Click 'Plot' to generate the plot."),
+      hr(),
+      h4("2. Dimensionality Reduction"),
+      p("• Choose a method (PCA or UMAP) and set the number of components and other options. For UMAP analysis, the number of components is fixed at 2."),
+      p("• If 'By Sample' is checked, the analysis will be performed by sample. If unchecked, the analysis will be performed by feature."),
+      p("• Click 'Run Analysis' to view the results in a table."),
+      p("• Configure plot settings (similar as before) and click 'Plot' to view the results in an interactive plot. In case of PCA, additional plots for Explained Variance and PCA Loadings will be displayed."),
+      hr(),
+      h4("3. Differential Expression"),
+      p("• Specify the variable of interest and the case/control groups. If no control group is provided, all groups other than the case will be considered as the control."),
+      p("• Optionally specify metadata variables to correct for confounding factors."),
+      p("• Check 'Data Log Transform' to log-transform the data before analysis if required."),
+      p("• Set the Log Fold Change and P-Value limits for filtering the results."),
+      p("• Adjust plot settings (similar as before) and click 'Run Analysis'. The results will be displayed in a table and an interactive volcano plot."),
+      hr(),
+      h4("4. Classification Model"),
+      p("• Specify the variable of interest and the case/control groups. If no control group is provided, all groups other than the case will be considered as the control."),
+      p("Check 'Multiclassification' to run multiclass instead of binary classification. If that is the case no case/control groups are needed."),
+      p("• Configure the settings for a lasso regression model, including train/test ratio and cross-validation sets. Generally, the more you increase the cross-validation sets, the more accurate the model will be, but it will take longer to run."),
+      p("• Click 'Run Analysis' to view model performance metrics and plots. Plots include ROC curves, confusion matrices, and feature importance plots."),
+      hr(),
+      h4("General Notes"),
+      p("• Ensure that the column names entered in variable inputs exactly match the names in your uploaded data."),
+      p("• Notifications will alert you to errors (e.g., mismatched palette inputs or missing variables)."),
+      p("• The app dynamically updates data previews, plots, and palette settings based on your inputs."),
+      p("• You can download all displayed datasets and plots using the download buttons."),
+      p("• Some analyses might take longer to run, especially with large datasets or a lot of missing values."),
+      p("• For any questions or issues, please contact the developers."),
+    )
   )
 )
 
 
 # Define server ----------------------------------------------------------------
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize=30*1024^2)
+  options(shiny.maxRequestSize=50*1024^2)
   # Input data -----------------------------------------------------------------
   # Reactive values for data and metadata
   data <- reactive({
@@ -443,6 +504,53 @@ server <- function(input, output, session) {
     showNotification("Column filtering applied successfully! Processed data updated.", type = "message")
   })
 
+  # Perform category filtering
+  observe({
+    req(metadata())
+    updateSelectInput(session, "metadata_filter_column", choices = colnames(metadata()))
+  })
+
+  output$metadata_filter_choices_ui <- renderUI({
+    req(metadata(), input$metadata_filter_column)
+    if (input$metadata_filter_column %in% colnames(metadata())) {
+      choices <- sort(unique(metadata()[[input$metadata_filter_column]]))
+      selectInput("metadata_filter_choices", "Select Categories:",
+                  choices = choices, multiple = TRUE)
+    }
+  })
+
+  observeEvent(input$metadata_keep, {
+    req(metadata(), processed_data(), input$metadata_filter_column, input$metadata_filter_choices, input$sample_id)
+    meta <- metadata()
+
+    filtered_meta <- meta[ meta[[input$metadata_filter_column]] %in% input$metadata_filter_choices, ]
+    filtered_ids <- filtered_meta[[input$sample_id]]
+
+    # Subset the processed data: keep only rows with sample IDs in filtered_ids
+    current_data <- processed_data()
+    new_data <- current_data[ current_data[[input$sample_id]] %in% filtered_ids, ]
+
+    processed_data(new_data)
+
+    showNotification("Processed data updated: Only samples with the selected metadata were kept.", type = "message")
+  })
+
+  observeEvent(input$metadata_remove, {
+    req(metadata(), processed_data(), input$metadata_filter_column, input$metadata_filter_choices, input$sample_id)
+    meta <- metadata()
+
+    filtered_meta <- meta[ meta[[input$metadata_filter_column]] %in% input$metadata_filter_choices, ]
+    filtered_ids <- filtered_meta[[input$sample_id]]
+
+    # Subset the processed data: remove rows with sample IDs in filtered_ids
+    current_data <- processed_data()
+    new_data <- current_data[ !(current_data[[input$sample_id]] %in% filtered_ids), ]
+
+    processed_data(new_data)
+
+    showNotification("Processed data updated: Samples with the selected metadata were removed.", type = "message")
+  })
+
   merged_data <- reactive({
     req(processed_data(), metadata())  # Make sure both processed data and metadata are available
     # Merging processed data and metadata
@@ -493,6 +601,7 @@ server <- function(input, output, session) {
     if (c_type == "continuous") {
       output$dynamic_palette_ui <- renderUI({
         tagList(
+          p("Enter hex codes for Low, Middle, and High values."),
           fluidRow(
             column(4, textInput("low_color", "Low Color", value = "#5e4fa2")),
             column(4, textInput("middle_color", "Middle Color", value = "#ffffbf")),
@@ -504,6 +613,7 @@ server <- function(input, output, session) {
       output$dynamic_palette_ui <- renderUI({
         tagList(
           fluidRow(
+            p("Enter categories and respective colors separated by commas."),
             column(4, textInput("categories", "Categories", value = "")),
             column(4, textInput("category_colors", "Colors", value = ""))
           ),
@@ -752,7 +862,7 @@ server <- function(input, output, session) {
         plot
       })
     } else {
-      showNotification("Selected variables not found in the data.", type = "error")
+      showNotification("Selected variables not found in the data or metadata.", type = "error")
     }
   })
 
