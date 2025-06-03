@@ -1,5 +1,6 @@
 # Load required libraries
 library(shiny)
+library(shinybusy)
 library(DT)
 library(bslib)
 library(HDAnalyzeR)
@@ -13,304 +14,320 @@ light_theme <- bs_theme(
 )
 
 # Define UI --------------------------------------------------------------------
-ui <- navbarPage(
-  title = "HDAnalyzeR",
-  theme = light_theme,
-  id = "main_navbar", # Identifier for navigation
+ui <- tagList(
+  add_busy_spinner(                    # This goes first, before the navbarPage
+    spin = "fading-circle",
+    color = "#883268",
+    position = "bottom-right",
+    timeout = 300
+  ),
+  navbarPage(
+    title = "HDAnalyzeR",
+    theme = light_theme,
+    id = "main_navbar", # Identifier for navigation
 
-  ## Page 1: Welcome & Data Upload ---------------------------------------------
-  tabPanel(
-    "Welcome & Data Upload",
-    fluidPage(
-      sidebarLayout(
-        sidebarPanel(
-          h3("Welcome!"),
-          p("This app simplifies proteomics data analysis and biomarker discovery."),
-          hr(),
-          h4("Data"),
-          p("The data file should have the sample identifiers in the first column. For more infomation check the Help tab."),
-          fileInput("data_file",
-                    "Upload Data File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
-                    accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
-          uiOutput("sample_id_ui"),
-          uiOutput("variable_value_ui"),
-          hr(),
-          h4("Metadata"),
-          p("The metadata should contain the same sample identifiers as the data file. For more infomation check the Help tab."),
-          fileInput("metadata_file",
-                    "Upload Metadata File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
-                    accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
-          textOutput("validation_msg"),
+    ## Page 1: Welcome & Data Upload ---------------------------------------------
+    tabPanel(
+      "Welcome & Data Upload",
+      fluidPage(
+        sidebarLayout(
+          sidebarPanel(
+            h3("Welcome!"),
+            p("This app simplifies proteomics data analysis and biomarker discovery."),
+            hr(),
+            h4("Data"),
+            p("The data file should have the sample identifiers in the first column. For more infomation check the Help tab."),
+            fileInput("data_file",
+                      "Upload Data File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
+                      accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
+            uiOutput("sample_id_ui"),
+            uiOutput("variable_value_ui"),
+            hr(),
+            h4("Metadata"),
+            p("The metadata should contain the same sample identifiers as the data file. For more infomation check the Help tab."),
+            fileInput("metadata_file",
+                      "Upload Metadata File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
+                      accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
+            textOutput("validation_msg"),
+            hr(),
 
-          # Filtering Section
-          hr(),
-          h4("Data Filtering"),
-          textInput("columns_to_keep",
-                    "Enter Column Names to Keep/Remove (comma-separated):",
-                    value = ""),
-          textInput("rows_to_keep",
-                    "Enter Row Numbers to Keep/Remove (row indexes comma-separated):",
-                    value = ""),
-
-          # Button Grid with Consistent Alignment
-          fluidRow(
-            column(6, actionButton("rows_keep", "Keep Rows", class = "btn-block")),
-            column(6, actionButton("rows_remove", "Remove Rows", class = "btn-block btn-primary"))
+            # Filtering Section
+            h4("Sample Filtering"),
+            p("Filter samples based on metadata variables. Select a metadata column and choose one or more categories."),
+            selectInput("metadata_filter_column", "Metadata Filtering Column:", choices = NULL),
+            uiOutput("metadata_filter_choices_ui"),
+            fluidRow(
+              column(6, actionButton("metadata_keep", "Keep", class = "btn-block")),
+              column(6, actionButton("metadata_remove", "Remove", class = "btn-block btn-primary"))
+            ),
+            tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
+            hr(),
+            h4("Feature Filtering"),
+            uiOutput("columns_to_keep_ui"),
+            fluidRow(
+              column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block")),
+              column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block btn-primary"))
+            ),
+            tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
+            hr(),
+            
+            h4("Missing Data Removal"),
+            p("This button will remove rows with missing values (NAs) from the dataset. If the user does not want to remove them, this step can be skipped and the NAs will be imputed before the analysis."),
+            p("If not the desired behavior, please handle NAs manually before importing the dataset."),
+            fluidRow(
+              column(6, actionButton("remove_na_button", "Remove NAs", class = "btn-block btn-primary"))
+            ),
+            hr(),
+            h4("Reset Data"),
+            fluidRow(
+              column(6, actionButton("reset_data", "Reset", class = "btn-block"))
+            )
           ),
-          fluidRow(
-            column(6, actionButton("cols_keep", "Keep Cols", class = "btn-block")),
-            column(6, actionButton("cols_remove", "Remove Cols", class = "btn-block btn-primary"))
-          ),
-          tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
-          hr(),
-          h4("Metadata Filtering"),
-          p("Filter samples based on metadata variables. Select a metadata column and choose one or more categories."),
-          selectInput("metadata_filter_column", "Metadata Filtering Column:", choices = NULL),
-          uiOutput("metadata_filter_choices_ui"),
-          fluidRow(
-            column(6, actionButton("metadata_keep", "Keep", class = "btn-block")),
-            column(6, actionButton("metadata_remove", "Remove", class = "btn-block btn-primary"))
-          ),
-          tags$style(".btn-block { width: 100%; margin-top: 10px; }"),
-          hr(),
-          h4("Missing Data Removal"),
-          p("This button will remove rows with missing values (NAs) from the dataset. If the user does not want to remove them, this step can be skipped and the NAs will be imputed before the analysis."),
-          p("If not the desired behavior, please handle NAs manually before importing the dataset."),
-          fluidRow(
-            column(6, actionButton("remove_na_button", "Remove NAs", class = "btn-block btn-primary"))
-          ),
-          hr(),
-          h4("Reset Data"),
-          fluidRow(
-            column(6, actionButton("reset_data", "Reset", class = "btn-block"))
-          )
-        ),
-        mainPanel(
-          tabsetPanel(
-            tabPanel(
-              "Data Preview",
-              fluidRow(
-                column(
-                  width = 12,
-                  div(
-                    style = "overflow-x: auto; white-space: nowrap;",
-                    DTOutput("data_preview") # Render the Data Preview table
+          mainPanel(
+            tabsetPanel(
+              tabPanel(
+                "Data Preview",
+                fluidRow(
+                  column(
+                    width = 12,
+                    div(
+                      style = "overflow-x: auto; white-space: nowrap;",
+                      DTOutput("data_preview") # Render the Data Preview table
+                    )
                   )
-                )
+                ),
+                downloadButton("download_data", "Download Data CSV", class = "btn-block")
+              ),
+              tabPanel(
+                "Metadata Preview",
+                fluidRow(
+                  column(
+                    width = 12,
+                    div(
+                      style = "overflow-x: auto; white-space: nowrap;",
+                      DTOutput("metadata_preview") # Render the Metadata Preview table
+                    )
+                  )
+                ),
+                downloadButton("download_metadata", "Download Metadata CSV", class = "btn-block")
               )
             ),
-            tabPanel(
-              "Metadata Preview",
-              fluidRow(
-                column(
-                  width = 12,
-                  div(
-                    style = "overflow-x: auto; white-space: nowrap;",
-                    DTOutput("metadata_preview") # Render the Metadata Preview table
-                  )
-                )
+            # Plot Section - Place below the data preview section
+            hr(),
+            h4("Exploratory Data Analysis"),
+            fluidRow(
+              column(4,
+                    selectizeInput("x_variable", "X Variable", choices = NULL, selected = NULL)
+              ),
+              column(4,
+                    selectizeInput("y_variable", "Y Variable", choices = NULL, selected = NULL)
+              ),
+              column(4,
+                    selectizeInput("color_variable", "Color Variable", choices = NULL, selected = NULL)
+              ),
+            ),
+            uiOutput("dynamic_palette_ui"),
+            checkboxInput("equal_axis", "Equal Axes", value = TRUE),
+            fluidRow(
+              column(6,
+                    actionButton("plot_button", "Plot", class = "btn-block", style = "height: 50px;")
               )
             ),
-            tabPanel(
-              "Processed Data",
-              fluidRow(
-                column(
-                  width = 12,
-                  div(
-                    style = "overflow-x: auto; white-space: nowrap;",
-                    DTOutput("processed_data_preview") # Render the Processed Data table
-                  )
-                )
+            plotlyOutput("scatter_plot", height = 500)
+          )
+        )
+      )
+    ),
+
+    ## Page 2: Dimensionality Reduction ------------------------------------------
+    tabPanel(
+      "Dimensionality Reduction",
+      fluidPage(
+        sidebarLayout(
+          sidebarPanel(
+            h4("Analysis Settings"),
+            selectInput("method", "Choose Method:", choices = c("PCA", "UMAP")),
+            numericInput("components", "Number of Components:", value = 10, min = 2, step = 1),
+            checkboxInput("by_sample", "By Sample", value = TRUE),
+            actionButton("run", "Run Analysis", class = "btn-primary btn-block"),
+            hr(),
+            h4("Plot Settings"),
+            selectInput("plot_x", "X-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC1"),
+            selectInput("plot_y", "Y-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC2"),
+            checkboxInput("equal_axis_dim", "Equal Axes", value = TRUE),
+            uiOutput("plot_color_ui"),  # Color by options
+            uiOutput("dynamic_pca_palette_ui"),  # Palette options (if any)
+            actionButton("plot_update", "Plot", class = "btn-block")
+          ),
+          mainPanel(
+            tabsetPanel(
+              tabPanel("Results",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          div(
+                            style = "overflow-x: auto; white-space: nowrap;",
+                            DTOutput("dim_table")
+                          )
+                        )
+                      ),
+                      downloadButton("download_dim", "Download Results CSV", class = "btn-block"),
+                      hr(),
+                      plotlyOutput("dim_plot", height = 500),
+                      uiOutput("additional_plots_ui")
               )
             )
-          ),
-          # Plot Section - Place below the data preview section
-          hr(),
-          h4("Exploratory Data Analysis"),
-          fluidRow(
-            column(4,
-                   textInput("x_variable", "X Variable", value = "")
-            ),
-            column(4,
-                   textInput("y_variable", "Y Variable", value = "")
-            ),
-            column(4,
-                   textInput("color_variable", "Color Variable", value = "")
-            ),
-          ),
-          uiOutput("dynamic_palette_ui"),
-          checkboxInput("equal_axis", "Equal Axes", value = TRUE),
-          fluidRow(
-            column(6,
-                   actionButton("plot_button", "Plot", class = "btn-block", style = "height: 50px;")
-            )
-          ),
-          plotlyOutput("scatter_plot", height = 500)
+          )
         )
       )
-    )
-  ),
+    ),
 
-  ## Page 2: Dimensionality Reduction ------------------------------------------
-  tabPanel(
-    "Dimensionality Reduction",
-    fluidPage(
-      sidebarLayout(
-        sidebarPanel(
-          h4("Analysis Settings"),
-          selectInput("method", "Choose Method:", choices = c("PCA", "UMAP")),
-          numericInput("components", "Number of Components:", value = 10, min = 2, step = 1),
-          checkboxInput("by_sample", "By Sample", value = TRUE),
-          actionButton("run", "Run Analysis", class = "btn-primary btn-block"),
-          hr(),
-          h4("Plot Settings"),
-          selectInput("plot_x", "X-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC1"),
-          selectInput("plot_y", "Y-axis:", choices = c("PC1", "PC2", "PC3", "PC4", "PC5"), selected = "PC2"),
-          checkboxInput("equal_axis_dim", "Equal Axes", value = TRUE),
-          uiOutput("plot_color_ui"),  # Color by options
-          uiOutput("dynamic_pca_palette_ui"),  # Palette options (if any)
-          actionButton("plot_update", "Plot", class = "btn-block")
-        ),
-        mainPanel(
-          tabsetPanel(
-            tabPanel("Results",
-                     fluidRow(
-                       column(
-                         width = 12,
-                         div(
-                           style = "overflow-x: auto; white-space: nowrap;",
-                           DTOutput("dim_table")
-                         )
-                       )
-                     ),
-                     hr(),
-                     plotlyOutput("dim_plot", height = 500),
-                     uiOutput("additional_plots_ui")
+    ## Page 3: Differential Expression -------------------------------------------
+    tabPanel(
+      "Differential Expression",
+      fluidPage(
+        sidebarLayout(
+          sidebarPanel(
+            h4("Analysis Settings"),
+            p("Differential expression analysis using the limma package."),
+            uiOutput("de_variable_ui"),
+            uiOutput("de_case_ui"),
+            checkboxInput("de_log_transform", "Data Log Transform", value = FALSE),
+            hr(),
+            h4("Plot Settings"),
+            numericInput("logfc_lim", "Log Fold Change limit:", value = 1, min = 0, step = 0.5),
+            numericInput("pval_lim", "P-Value limit:", value = 0.05, min = 0, step = 0.001),
+            textInput("non_c", "Non-signifficant Color:", value = "#DCDCDC"),
+            textInput("down_c", "Down-regulated Color:", value = "#317EC2"),
+            textInput("up_c", "Up-regulated Color:", value = "#C03830"),
+            actionButton("de_run", "Run Analysis", class = "btn-primary btn-block")
+          ),
+          mainPanel(
+            tabsetPanel(
+              tabPanel("Results",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          div(
+                            style = "overflow-x: auto; white-space: nowrap;",
+                            DTOutput("de_table")
+                          )
+                        )
+                      ),
+                      downloadButton("download_de", "Download Results CSV", class = "btn-block"),
+                      hr(),
+                      plotlyOutput("de_plot", height = 500)
+              )
             )
           )
         )
       )
-    )
-  ),
+    ),
 
-  ## Page 3: Differential Expression -------------------------------------------
-  tabPanel(
-    "Differential Expression",
-    fluidPage(
-      sidebarLayout(
-        sidebarPanel(
-          h4("Analysis Settings"),
-          p("Differential expression analysis using the limma package."),
-          uiOutput("de_variable_ui"),
-          uiOutput("de_case_ui"),
-          checkboxInput("de_log_transform", "Data Log Transform", value = FALSE),
-          hr(),
-          h4("Plot Settings"),
-          numericInput("logfc_lim", "Log Fold Change limit:", value = 1, min = 0, step = 0.5),
-          numericInput("pval_lim", "P-Value limit:", value = 0.05, min = 0, step = 0.001),
-          textInput("non_c", "Non-signifficant Color:", value = "#DCDCDC"),
-          textInput("down_c", "Down-regulated Color:", value = "#317EC2"),
-          textInput("up_c", "Up-regulated Color:", value = "#C03830"),
-          actionButton("de_run", "Run Analysis", class = "btn-primary btn-block")
-        ),
-        mainPanel(
-          tabsetPanel(
-            tabPanel("Results",
-                     fluidRow(
-                       column(
-                         width = 12,
-                         div(
-                           style = "overflow-x: auto; white-space: nowrap;",
-                           DTOutput("de_table")
-                         )
-                       )
-                     ),
-                     hr(),
-                     plotlyOutput("de_plot", height = 500)
+    ## Page 4: Machine Learning --------------------------------------------------
+    tabPanel(
+      "Classification Model",
+      fluidPage(
+        sidebarLayout(
+          sidebarPanel(
+            h4("Analysis Settings"),
+            p("Lasso regression will be used."),
+            uiOutput("ml_variable_ui"),
+            uiOutput("ml_case_ui"),
+            uiOutput("multiclass_ui"),
+            numericInput("ratio", "Train/Test Ratio:", value = 0.8, min = 0.1, max = 0.9, step = 0.1),
+            numericInput("cv_sets", "Cross-validation sets:", value = 5, min = 2, max = 10, step = 1),
+            uiOutput("ml_balance_ui"),
+            uiOutput("ml_palette_ui"),
+            actionButton("ml_run", "Run Analysis", class = "btn-primary btn-block")
+          ),
+          mainPanel(
+            tabsetPanel(
+              tabPanel("Results",
+                      dataTableOutput("ml_metrics"),
+                      hr(),
+                      dataTableOutput("ml_features"),
+                      downloadButton("download_imp", "Download Feature Importance CSV", class = "btn-block"),
+                      uiOutput("ml_plots_ui")
+              )
             )
           )
         )
       )
-    )
-  ),
+    ),
 
-  ## Page 4: Machine Learning --------------------------------------------------
-  tabPanel(
-    "Classification Model",
-    fluidPage(
-      sidebarLayout(
-        sidebarPanel(
-          h4("Analysis Settings"),
-          p("Lasso regression will be used."),
-          uiOutput("ml_variable_ui"),
-          uiOutput("ml_case_ui"),
-          uiOutput("multiclass_ui"),
-          numericInput("ratio", "Train/Test Ratio:", value = 0.8, min = 0.1, max = 0.9, step = 0.1),
-          numericInput("cv_sets", "Cross-validation sets:", value = 5, min = 2, max = 10, step = 1),
-          uiOutput("ml_balance_ui"),
-          uiOutput("ml_palette_ui"),
-          actionButton("ml_run", "Run Analysis", class = "btn-primary btn-block")
+    ## Page 5: Help --------------------------------------------------------------
+    tabPanel(
+      "Help",
+      fluidPage(
+        h2("📘 HDAnalyzeR User Guide"),
+        br(),
+        
+        wellPanel(
+          h4("1. Welcome & Data Upload Tab"),
+          tags$ul(
+            tags$li("Upload your data and metadata using the file inputs."),
+            tags$li("Supported formats: .csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet."),
+            tags$li("For wide-format data: sample IDs in the first column, followed by expression columns."),
+            tags$li("Include metadata (e.g., group, condition) in a separate file."),
+            tags$li("Use RDS files for large datasets to reduce size (50MB limit)."),
+            tags$li("Select sample ID, variable, and value columns as needed."),
+            tags$li("Use filters to clean or reduce the dataset before analysis."),
+            tags$li("Missing values are handled automatically (KNN imputation if not removed).")
+          )
         ),
-        mainPanel(
-          tabsetPanel(
-            tabPanel("Results",
-                     dataTableOutput("ml_metrics"),
-                     uiOutput("ml_plots_ui")
-            )
+
+        wellPanel(
+          h4("2. Exploratory Data Analysis"),
+          tags$ul(
+            tags$li("Choose X and/or Y variables to visualize data."),
+            tags$li("Specify a Color variable for grouped or gradient plots."),
+            tags$li("Plot type depends on data types (e.g., histogram, boxplot, scatterplot)."),
+            tags$li("Use custom color palettes for more control."),
+            tags$li("Click 'Plot' to generate interactive plots.")
+          )
+        ),
+
+        wellPanel(
+          h4("3. Dimensionality Reduction"),
+          tags$ul(
+            tags$li("Choose PCA or UMAP for analysis."),
+            tags$li("Select number of components and analysis mode (by sample or feature)."),
+            tags$li("Visualize results with customizable plots."),
+            tags$li("PCA shows explained variance and loadings.")
+          )
+        ),
+
+        wellPanel(
+          h4("4. Differential Expression"),
+          tags$ul(
+            tags$li("Set case/control groups for comparison."),
+            tags$li("Optionally correct for confounders via metadata variables."),
+            tags$li("Configure logFC and p-value thresholds."),
+            tags$li("Generate interactive volcano plots and tables.")
+          )
+        ),
+
+        wellPanel(
+          h4("5. Classification Model"),
+          tags$ul(
+            tags$li("Run binary or multi-class classification with lasso regression."),
+            tags$li("Adjust train/test split and cross-validation settings."),
+            tags$li("Results include accuracy metrics and visualizations (ROC, confusion matrix).")
+          )
+        ),
+
+        wellPanel(
+          h4("General Tips"),
+          tags$ul(
+            tags$li("Double-check column names in your inputs."),
+            tags$li("Error messages and alerts will appear if something’s off."),
+            tags$li("Use the Download buttons to save outputs."),
+            tags$li("Some steps may take time — a spinner will indicate progress."),
+            tags$li("For support, reach out to the development team.")
           )
         )
       )
-    )
-  ),
-
-  ## Page 5: Help --------------------------------------------------------------
-  tabPanel(
-    "Help",
-    fluidPage(
-      h3("HDAnalyzeR App - User Guidelines"),
-      h4("1. Welcome & Data Upload Tab"),
-      p("• Use the file inputs to upload your data and metadata."),
-      p("• Data File: Upload your data in .csv, .tsv, .txt, .xlsx, .rds, .rda, or .parquet format. The data can be in either long or wide format. In case they are in wide format, ensure that the first column contains the sample identifiers and the rest of the columns are the gene/protein expression columns (no metadata or other columns are included - please include those in the metadata dataset)."),
-      p("• Metadata File: Upload a metadata file (accepted formats as above) that contains the same sample identifiers as your data file."),
-      p("Note: Maximum input file size is 50 MB. Generally .rds files are more compact in comparison to .csv or .xlsx, so consider using them for large datasets."),
-      p("• Select the sample ID column that contains the column identifies. This will be used to map the data samples to the metadata samples."),
-      p("• In case the data are in long format, please also select the Variable column (e.g., Protein Names) and the Value column (e.g., Protein Expression Levels)."),
-      p("• Use the Filtering section to specify columns, rows or values to retain or remove."),
-      p("• Click 'Remove NAs' to eliminate rows with missing values. (If not desired, skip this step and the NAs will be imputed using KNN with 5 neighbors.)"),
-      p("• Click 'Reset' to restore the original dataset."),
-      p("• Preview your Data, Metadata, and Processed Data in the respective tabs."),
-      h4("Exploratory Data Analysis"),
-      p("• Specify the X and Y variables and optionally a Color variable. If only X or Y is provided, the plot will be a histogram (if continuous) or a count-bar plot (if categorical). If both X and Y variables are provided and both are continuous, a scatter plot will be generated. If one of the variables is categorical and the other continuous, a box plot will be generated. If both variables are categorical, an error message will be displayed."),
-      p("• If a Color variable is provided, optional custom palette options will appear. For continuous palettes, enter hex codes and numeric limits for Low, Middle, and High values; for categorical palettes, enter category names and matching hex codes."),
-      p("• Check 'Equal Axes' to force the plot’s axes to use the same scale."),
-      p("• Click 'Plot' to generate the plot."),
-      hr(),
-      h4("2. Dimensionality Reduction"),
-      p("• Choose a method (PCA or UMAP) and set the number of components and other options. For UMAP analysis, the number of components is fixed at 2."),
-      p("• If 'By Sample' is checked, the analysis will be performed by sample. If unchecked, the analysis will be performed by feature."),
-      p("• Click 'Run Analysis' to view the results in a table."),
-      p("• Configure plot settings (similar as before) and click 'Plot' to view the results in an interactive plot. In case of PCA, additional plots for Explained Variance and PCA Loadings will be displayed."),
-      hr(),
-      h4("3. Differential Expression"),
-      p("• Specify the variable of interest and the case/control groups. If no control group is provided, all groups other than the case will be considered as the control."),
-      p("• Optionally specify metadata variables to correct for confounding factors."),
-      p("• Check 'Data Log Transform' to log-transform the data before analysis if required."),
-      p("• Set the Log Fold Change and P-Value limits for filtering the results."),
-      p("• Adjust plot settings (similar as before) and click 'Run Analysis'. The results will be displayed in a table and an interactive volcano plot."),
-      hr(),
-      h4("4. Classification Model"),
-      p("• Specify the variable of interest and the case/control groups. If no control group is provided, all groups other than the case will be considered as the control."),
-      p("Check 'Multiclassification' to run multiclass instead of binary classification. If that is the case no case/control groups are needed."),
-      p("• Configure the settings for a lasso regression model, including train/test ratio and cross-validation sets. Generally, the more you increase the cross-validation sets, the more accurate the model will be, but it will take longer to run."),
-      p("• Click 'Run Analysis' to view model performance metrics and plots. Plots include ROC curves, confusion matrices, and feature importance plots."),
-      hr(),
-      h4("General Notes"),
-      p("• Ensure that the column names entered in variable inputs exactly match the names in your uploaded data."),
-      p("• Notifications will alert you to errors (e.g., mismatched palette inputs or missing variables)."),
-      p("• The app dynamically updates data previews, plots, and palette settings based on your inputs."),
-      p("• You can download all displayed datasets and plots using the download buttons."),
-      p("• Some analyses might take longer to run, especially with large datasets or a lot of missing values."),
-      p("• For any questions or issues, please contact the developers."),
     )
   )
 )
@@ -382,6 +399,7 @@ server <- function(input, output, session) {
   # Handle data widening
   processed_data <- reactiveVal(NULL)
   original_data <- reactiveVal(NULL)
+  filtered_metadata <- reactiveVal(NULL)
   observeEvent(input$widen_data, {
     req(data(), input$sample_id, input$var_column, input$value_column)
 
@@ -434,16 +452,35 @@ server <- function(input, output, session) {
 
   # Preview uploaded data
   output$data_preview <- renderDT({
-    req(data())
-    datatable(data(), options = list(pageLength = 5))
+    req(processed_data())
+    datatable(processed_data(), options = list(pageLength = 5))
   })
 
-  # Preview uploaded metadata
-  output$metadata_preview <- renderDT({
-    req(metadata())
-    datatable(metadata(), options = list(pageLength = 5))
+  # Preview of filtered metadata
+  observeEvent(metadata(), {
+    filtered_metadata(metadata())  # initialize filtered_metadata as metadata on load
   })
+  output$metadata_preview <- DT::renderDT({
+    req(filtered_metadata())
+    datatable(filtered_metadata())
+  })
+  output$download_data <- downloadHandler(
+    filename = function() {
+      paste0("data_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(processed_data(), file, row.names = FALSE)
+    }
+  )
 
+  output$download_metadata <- downloadHandler(
+    filename = function() {
+      paste0("metadata_data_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(filtered_metadata(), file, row.names = FALSE)
+    }
+  )
   # Validation message
   output$validation_msg <- renderText({
     if (is.null(input$data_file) || is.null(input$metadata_file)) {
@@ -454,54 +491,37 @@ server <- function(input, output, session) {
 
 
   # Preprocessing Data Section -------------------------------------------------
-  # Perform Row Filtering
-  observeEvent(c(input$rows_keep, input$rows_remove), {
-    req(processed_data())
-
-    data <- processed_data()
-    row_indices <- as.numeric(unlist(strsplit(input$rows_to_keep, ",")))
-    if (any(is.na(row_indices)) && input$rows_to_keep != "") {
-      showNotification("Please enter valid row numbers.", type = "error")
-      return()
-    }
-
-    if (input$rows_keep > input$rows_remove) {
-      # Keep selected rows
-      filtered <- data[row_indices, , drop = FALSE]
-    } else {
-      # Remove selected rows
-      filtered <- data[-row_indices, , drop = FALSE]
-    }
-
-    # Update processed_data with the filtered data
-    processed_data(filtered)
-    showNotification("Row filtering applied successfully! Processed data updated.", type = "message")
-  })
-
   # Perform Column Filtering
-  observeEvent(c(input$cols_keep, input$cols_remove), {
-    req(processed_data())
-
+  observeEvent(input$cols_keep, {
+    req(processed_data(), input$columns_to_keep)
     data <- processed_data()
-    selected_columns <- unlist(strsplit(input$columns_to_keep, ","))
-    selected_columns <- trimws(selected_columns)
-    if (any(!selected_columns %in% names(data))) {
-      showNotification("Some column names are invalid. Please check your input.", type = "error")
+  
+    valid_cols <- input$columns_to_keep[input$columns_to_keep %in% names(data)]
+    if (length(valid_cols) == 0) {
+      showNotification("No valid columns selected.", type = "error")
       return()
     }
+  
+    updated <- data[, valid_cols, drop = FALSE]
+    processed_data(updated)
+    showNotification("Selected columns retained.", type = "message")
+  })
+  
+  observeEvent(input$cols_remove, {
+    req(processed_data(), input$columns_to_keep)
+    data <- processed_data()
+  
+    valid_cols <- input$columns_to_keep[input$columns_to_keep %in% names(data)]
+    updated <- data[, !(names(data) %in% valid_cols), drop = FALSE]
+    processed_data(updated)
+    showNotification("Selected columns removed.", type = "message")
+  })
+  
 
-    if (input$cols_keep > input$cols_remove) {
-      # Keep selected columns
-      showNotification("Selected columns: ", type = "message")
-      filtered <- data[, selected_columns, drop = FALSE]
-    } else {
-      # Remove selected columns
-      filtered <- data[, !(names(data) %in% selected_columns), drop = FALSE]
-    }
-
-    # Update processed_data with the filtered data
-    processed_data(filtered)
-    showNotification("Column filtering applied successfully! Processed data updated.", type = "message")
+  output$columns_to_keep_ui <- renderUI({
+    req(processed_data(), input$sample_id)
+    choices <- setdiff(names(processed_data()), input$sample_id)
+    selectInput("columns_to_keep", "Select Features:", choices = choices, multiple = TRUE)
   })
 
   # Perform category filtering
@@ -531,7 +551,7 @@ server <- function(input, output, session) {
     new_data <- current_data[ current_data[[input$sample_id]] %in% filtered_ids, ]
 
     processed_data(new_data)
-
+    filtered_metadata(filtered_meta)
     showNotification("Processed data updated: Only samples with the selected metadata were kept.", type = "message")
   })
 
@@ -547,7 +567,7 @@ server <- function(input, output, session) {
     new_data <- current_data[ !(current_data[[input$sample_id]] %in% filtered_ids), ]
 
     processed_data(new_data)
-
+    filtered_metadata(filtered_meta)
     showNotification("Processed data updated: Samples with the selected metadata were removed.", type = "message")
   })
 
@@ -559,9 +579,11 @@ server <- function(input, output, session) {
 
   # Reset button logic
   observeEvent(input$reset_data, {
-    req(original_data())
-    processed_data(original_data()) # Restore the original wide data
-    showNotification("Data has been reset to the original wide format.", type = "message")
+    req(original_data(), metadata())
+  
+    processed_data(original_data())
+    filtered_metadata(metadata())  # Reset metadata too
+    showNotification("Data and metadata have been reset to original.", type = "message")
   })
 
   # Display Processed Data
@@ -585,19 +607,18 @@ server <- function(input, output, session) {
   palette_data <- reactiveVal(NULL)
 
   observeEvent(input$color_variable, {
-    req(input$color_variable)
+    req(input$color_variable, processed_data(), metadata())
+  
+    merged <- full_join(processed_data(), metadata(), by = input$sample_id)
 
-    # if color variable not in merged data
-    if (!input$color_variable %in% colnames(merged_data())) {
+    if (!input$color_variable %in% names(merged)) {
       showNotification("Color variable not found in the merged data.", type = "error")
-      return(NULL)
+      return()
     }
-
-    merged <- merged_data()
+  
     plot_data <- merged %>% select(all_of(c(input$sample_id, input$color_variable)))
     c_type <- hd_detect_vartype(plot_data[[input$color_variable]], unique_threshold = 5)
-
-    # Dynamically render UI elements based on variable type
+    
     if (c_type == "continuous") {
       output$dynamic_palette_ui <- renderUI({
         tagList(
@@ -610,22 +631,33 @@ server <- function(input, output, session) {
         )
       })
     } else if (c_type == "categorical") {
-      output$dynamic_palette_ui <- renderUI({
-        tagList(
-          fluidRow(
-            p("Enter categories and respective colors separated by commas."),
-            column(4, textInput("categories", "Categories", value = "")),
-            column(4, textInput("category_colors", "Colors", value = ""))
-          ),
-        )
-      })
-    }
-  })
+        merged[[input$color_variable]] <- as.character(merged[[input$color_variable]])
+        merged[[input$color_variable]][is.na(merged[[input$color_variable]]) | merged[[input$color_variable]] == ""] <- "Missing"
+        unique_categories <- unique(na.omit(plot_data[[input$color_variable]]))
+    
+        output$dynamic_palette_ui <- renderUI({
+          unique_categories <- unique(plot_data[[input$color_variable]])
+
+          tagList(
+            p("Select categories and specify corresponding colors (comma-separated hex codes):"),
+            fluidRow(
+              column(6, selectInput("categories", "Categories",
+                                    choices = unique_categories,
+                                    selected = NULL,  # Don't preselect
+                                    multiple = TRUE)),
+              column(6, textInput("category_colors", "Colors",
+                                  value = ""))  # Leave blank
+            )
+          )
+        })
+      }
+    })
+  
 
   # Process the user input to generate the palette
   observeEvent(input$plot_button, {
     req(input$color_variable)
-    merged <- merged_data()
+    merged <- full_join(processed_data(), metadata(), by = input$sample_id)
     plot_data <- merged %>% select(all_of(c(input$sample_id, input$color_variable)))
     c_type <- hd_detect_vartype(plot_data[[input$color_variable]], unique_threshold = 5)
 
@@ -650,7 +682,7 @@ server <- function(input, output, session) {
       }
     } else if (c_type == "categorical") {
       # Collect categorical palette input
-      categories <- strsplit(input$categories, ",\\s*")[[1]]
+      categories <- input$categories
       colors <- strsplit(input$category_colors, ",\\s*")[[1]]
 
       if (length(categories) == length(colors) && length(categories) > 0) {
@@ -665,12 +697,21 @@ server <- function(input, output, session) {
     }
   })
 
+  observe({
+    req(processed_data(), metadata())
+    all_vars <- union(colnames(processed_data()), colnames(metadata()))
+  
+    updateSelectizeInput(session, "x_variable", choices = c("", all_vars), server = TRUE)
+    updateSelectizeInput(session, "y_variable", choices = c("", all_vars), server = TRUE)
+    updateSelectizeInput(session, "color_variable", choices = c("", all_vars), server = TRUE)
+  })
+
   observeEvent(input$plot_button, {
     req(processed_data())  # Ensure processed data is available
 
     # Create a merged data set (processed data + metadata)
-    merged <- merged_data()
-
+    merged <- full_join(processed_data(), metadata(), by = input$sample_id)
+    
     # Get the x and y variable input from the user
     x_var <- input$x_variable
     y_var <- input$y_variable
@@ -695,7 +736,11 @@ server <- function(input, output, session) {
           y_type <- ""
         }
         c_type <- hd_detect_vartype(plot_data[[color_var]], unique_threshold = 5)
-
+        if (c_type == "categorical") {
+          plot_data[[input$color_variable]] <- as.character(plot_data[[input$color_variable]])
+          plot_data[[input$color_variable]][is.na(plot_data[[input$color_variable]]) | plot_data[[input$color_variable]] == ""] <- "Missing"
+        }
+        
         custom_palette <- palette_data()
 
         if (x_type == "continuous" && y_type == "continuous") {
@@ -873,6 +918,15 @@ server <- function(input, output, session) {
   plot_variance <- reactiveVal(NULL)
   plot_loadings <- reactiveVal(NULL)
 
+  output$download_dim <- downloadHandler(
+    filename = function() {
+      paste0("dim_result_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(dim_result(), file, row.names = FALSE)
+    }
+  )
+
   # Dynamically render plot_color input
   observe({
     if (input$by_sample == FALSE) {
@@ -892,7 +946,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$run, {
     req(processed_data(), metadata())
-
+    
     if (input$method == "PCA") {
       res <- hd_auto_pca(
         dat = processed_data(),
@@ -1004,9 +1058,17 @@ server <- function(input, output, session) {
         )
       })
     } else if (c_type == "categorical" && input$by_sample == TRUE) {
-      output$dynamic_pca_palette_ui <- renderUI({
+        metadata[[input$plot_color]] <- as.character(metadata[[input$plot_color]])
+        metadata[[input$plot_color]][is.na(metadata[[input$plot_color]]) | metadata[[input$plot_color]] == ""] <- "Missing"
+        unique_categories <- unique(na.omit(metadata[[input$plot_color]]))
+    
+        output$dynamic_pca_palette_ui <- renderUI({
+          unique_categories <- unique(metadata[[input$plot_color]])
+
         tagList(
-          textInput("categories_pca", "Categories", value = ""),
+          p("Select categories and specify corresponding colors (comma-separated hex codes):"),
+          
+          selectInput("categories_pca", "Categories", choices = unique_categories, selected = NULL, multiple = TRUE),
           textInput("category_colors_pca", "Colors", value = "")
         )
       })
@@ -1040,10 +1102,18 @@ server <- function(input, output, session) {
       } else {
         palette_data_dim(NULL)
       }
-    } else if (c_type == "categorical") {
+   } else if (c_type == "categorical") {
       # Collect categorical palette input
-      categories <- strsplit(input$categories_pca, ",\\s*")[[1]]
-      colors <- strsplit(input$category_colors_pca, ",\\s*")[[1]]
+      categories <- input$categories_pca
+
+      # Check if input$category_colors_pca exists and is a character string
+      if (!is.null(input$category_colors_pca) && is.character(input$category_colors_pca)) {
+        colors <- strsplit(input$category_colors_pca, ",\\s*")[[1]]
+      } else {
+        showNotification("Please enter colors for the categories.", type = "error")
+        palette_data_dim(NULL)
+        return()  # Stop further processing here
+      }
 
       if (length(categories) == length(colors) && length(categories) > 0) {
         palette <- setNames(colors, categories)
@@ -1092,12 +1162,14 @@ server <- function(input, output, session) {
       plot_data <- plot_data |>
         left_join(metadata() |> select(all_of(c(input$sample_id, color_var))),
                   by = input$sample_id)
-
+      
       c_type <- hd_detect_vartype(plot_data[[color_var]], unique_threshold = 5)
 
       custom_palette <- palette_data_dim()
 
       if (c_type == "categorical") {
+        plot_data[[color_var]] <- as.character(plot_data[[color_var]])
+        plot_data[[color_var]][is.na(plot_data[[color_var]]) | plot_data[[color_var]] == ""] <- "Missing"
         plot <- plot_ly(
           data = plot_data,
           x = ~get(x_var),
@@ -1214,6 +1286,15 @@ server <- function(input, output, session) {
   # Differential Expression Section --------------------------------------------
   de_result <- reactiveVal(NULL)
 
+  output$download_de <- downloadHandler(
+    filename = function() {
+      paste0("de_result_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(de_result(), file, row.names = FALSE)
+    }
+  )
+
   # Dynamically render plot_color input
   observe({
     output$de_variable_ui <- renderUI({
@@ -1228,19 +1309,32 @@ server <- function(input, output, session) {
   observe({
     req(input$de_variable, metadata())
     v_type <- hd_detect_vartype(metadata()[[input$de_variable]], unique_threshold = 5)
+    correct_choices <- setdiff(colnames(metadata()), c(input$sample_id, input$de_variable))
     if (v_type == "categorical") {
+      # Get unique categories from de_variable column (remove NA)
+      unique_vals <- sort(unique(na.omit(metadata()[[input$de_variable]])))
+
       output$de_case_ui <- renderUI({
         tagList(
-          textInput("de_case", "Case Group:", value = ""),
-          textInput("de_control", "Control Group(s) (comma-separated):", value = ""),
+          selectInput("de_case", "Case Group:", choices = unique_vals, selected = NULL),
+          selectInput("de_control", "Control Group(s) (comma-separated):",
+                      choices = unique_vals,
+                      multiple = TRUE,
+                      selected = NULL),
           p("If no control group is selected, all other groups will be considered as controls."),
-          textInput("de_correct", "Metadata Variables to Correct for (comma-separated):", value = "")
+          selectInput("de_correct", "Metadata Variables to Correct for:",
+                    choices = correct_choices,
+                    multiple = TRUE,
+                    selected = NULL)
         )
       })
     } else {
       output$de_case_ui <- renderUI({
         tagList(
-          textInput("de_correct", "Metadata Variables to Correct for (comma-separated):", value = "")
+          selectInput("de_correct", "Metadata Variables to Correct for:",
+                    choices = correct_choices,
+                    multiple = TRUE,
+                    selected = NULL)
         )
       })
     }
@@ -1249,15 +1343,14 @@ server <- function(input, output, session) {
   observeEvent(input$de_run, {
     req(processed_data(), metadata(), input$de_variable)
 
-    if (input$de_control == "" || is.null(input$de_control)) {
+    de_control <- input$de_control
+    if (is.null(de_control) || length(de_control) == 0 || all(de_control == "")) {
       de_control <- NULL
-    } else {
-      de_control <- trimws(unlist(strsplit(input$de_control, ",")))
     }
-    if (input$de_correct == "") {
+
+    de_correct <- input$de_correct
+    if (is.null(de_correct) || length(de_correct) == 0 || all(de_correct == "")) {
       de_correct <- NULL
-    } else {
-      de_correct <- trimws(unlist(strsplit(input$de_correct, ",")))
     }
 
     if (input$de_variable %in% colnames(metadata())) {
@@ -1265,17 +1358,21 @@ server <- function(input, output, session) {
         if (all(de_control %in% metadata()[[input$de_variable]]) || is.null(de_control)) {
           if (all(de_correct %in% colnames(metadata())) || is.null(de_correct)) {
             if (!input$de_variable %in% de_correct) {
-              res <- hd_de_limma(
-                dat = processed_data(),
-                metadata = metadata(),
-                variable = input$de_variable,
-                case = input$de_case,
-                control = de_control,
-                correct = de_correct,
-                log_transform = input$de_log_transform
-              )
-              de_result(res$de_res)
-            } else{
+              tryCatch({
+                res <- hd_de_limma(
+                  dat = processed_data(),
+                  metadata = metadata(),
+                  variable = input$de_variable,
+                  case = input$de_case,
+                  control = de_control,
+                  correct = de_correct,
+                  log_transform = input$de_log_transform
+                )
+                de_result(res$de_res)
+              }, error = function(e) {
+                showNotification(paste("Error: Issue variable. Please try a different variable."), type = "error")
+              })
+              } else{
               showNotification("The variable to correct for cannot be the same as the variable containing the groups.", type = "error")
             }
           } else {
@@ -1387,7 +1484,7 @@ server <- function(input, output, session) {
   roc_curve <- reactiveVal(NULL)
   feat_imp_plot <- reactiveVal(NULL)
   comp_plot <- reactiveVal(NULL)
-
+  cm_plot <- reactiveVal(NULL)
   # Dynamically render plot_color input
   observe({
     output$ml_variable_ui <- renderUI({
@@ -1403,10 +1500,16 @@ server <- function(input, output, session) {
     req(input$ml_variable, metadata())
     v_type <- hd_detect_vartype(metadata()[[input$ml_variable]], unique_threshold = 5)
     if (v_type == "categorical" && isFALSE(input$multiclass)) {
+
+      unique_vals <- sort(unique(na.omit(metadata()[[input$ml_variable]])))
+
       output$ml_case_ui <- renderUI({
         tagList(
-          textInput("ml_case", "Case Group:", value = ""),
-          textInput("ml_control", "Control Group(s) (comma-separated):", value = ""),
+          selectInput("ml_case", "Case Group:", choices = unique_vals, selected = NULL),
+          selectInput("ml_control", "Control Group(s) (comma-separated):",
+                      choices = unique_vals,
+                      multiple = TRUE,
+                      selected = NULL),
           p("If no control group is selected, all other groups will be considered as controls.")
         )
       })
@@ -1468,6 +1571,7 @@ server <- function(input, output, session) {
     }
   }
 
+  feature_importance_data <- reactiveVal(NULL)
   observeEvent(input$ml_run, {
     req(processed_data(), metadata(), input$ml_variable)
 
@@ -1480,10 +1584,9 @@ server <- function(input, output, session) {
       return(NULL)
     }
 
-    if (input$ml_control == "" || is.null(input$ml_control)) {
+    ml_control <- input$ml_control
+    if (is.null(ml_control) || length(ml_control) == 0 || all(ml_control == "")) {
       ml_control <- NULL
-    } else {
-      ml_control <- trimws(unlist(strsplit(input$ml_control, ",")))
     }
 
     v_type <- hd_detect_vartype(metadata()[[input$ml_variable]], unique_threshold = 5)
@@ -1525,14 +1628,17 @@ server <- function(input, output, session) {
             plot_title = NULL,
             seed = 123
           )
-
+          
           ml_result(res)
-
+          output$ml_features <- renderDataTable({
+            datatable(res$features)
+          })
+          feature_importance_data(res$features)
           if (v_type == "categorical") {
             if (isFALSE(input$multiclass)){
               metrics <- data.frame(
                 Metric = c("Selected Features", "Accuracy", "Sensitivity", "Specificity", "AUC"),
-                Value = c(nrow(res$features),
+                Value = c(nrow(res$features |> dplyr::filter(Scaled_Importance > 0)),
                           res$metrics$accuracy,
                           res$metrics$sensitivity,
                           res$metrics$specificity,
@@ -1548,7 +1654,7 @@ server <- function(input, output, session) {
             } else {
               metrics <- data.frame(
                 Metric = c("Selected Features", "Accuracy", "Sensitivity", "Specificity"),
-                Value = c(nrow(res$features),
+                Value = c(nrow(res$features |> dplyr::filter(Scaled_Importance > 0)),
                           res$metrics$accuracy,
                           res$metrics$sensitivity,
                           res$metrics$specificity)
@@ -1576,10 +1682,13 @@ server <- function(input, output, session) {
 
             roc_curve(res$roc_curve)
             feat_imp_plot(res$feat_imp_plot)
+            cm_plot <- ggplot2::autoplot(res$metrics$confusion_matrix, type = "heatmap") +
+              ggplot2::scale_fill_gradient(low = "white", high = input$case_c)
+            cm_plot(cm_plot)
           } else {
               metrics <- data.frame(
                 Metric = c("Selected Features", "RMSE", "RSQ"),
-                Value = c(nrow(res$features), res$metrics$rmse, res$metrics$rsq)
+                Value = c(nrow(res$features |> dplyr::filter(Scaled_Importance > 0)), res$metrics$rmse, res$metrics$rsq)
               )
               transposed_metrics <- as.data.frame(t(metrics[ , -1]))
               colnames(transposed_metrics) <- metrics$Metric
@@ -1611,7 +1720,10 @@ server <- function(input, output, session) {
         plotlyOutput("roc_curve_ml", height = 500),
         hr(),
         h4("Feature Importance"),
-        plotlyOutput("feat_imp_plot_ml", height = 750)
+        plotlyOutput("feat_imp_plot_ml", height = 750),
+        hr(),
+        h4("Confusion Matrix"),
+        plotlyOutput("cm_plot", height = 500)
       )
     })
   })
@@ -1639,14 +1751,25 @@ server <- function(input, output, session) {
 
   output$comp_plot_ml <- renderPlotly({
     req(comp_plot())
-    ggplotly(comp_plot()) |>
-      layout(
-        xaxis = list(scaleanchor = "y"),
-        yaxis = list(scaleanchor = "x")
-      )
-  })
-}
 
+    ggplotly(comp_plot())
+  })
+
+  output$cm_plot <- renderPlotly({
+    req(cm_plot())
+    ggplotly(cm_plot())
+  })
+
+  output$download_imp <- downloadHandler(
+    filename = function() {
+      paste0("feature_importance", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(feature_importance_data(), file, row.names = FALSE)
+    }
+  )
+}
 
 # Run the app
 shinyApp(ui = ui, server = server)
+
