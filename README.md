@@ -1,9 +1,9 @@
-# HDAnalyzeR <a href="https://hda1472.github.io/HDAnalyzeR"><img src="man/figures/logo.png" align="right" height="200" alt="HDAnalyzeR website" /></a>
+# HDAnalyzeR <a href="https://kantonopoulos.github.io/HDAnalyzeR"><img src="man/figures/logo.png" align="right" height="200" alt="HDAnalyzeR website" /></a>
 
-[![R-CMD-check](https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/HDA1472/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
-[![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/HDA1472/HDAnalyzeR) 
-[![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/HDA1472/HDAnalyzeR/blob/main/LICENSE.md)
+[![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
+[![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/LICENSE.md)
 
 HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to simplify proteomics data analysis for biomarker discovery in disease research. It provides a set of user-friendly functions to efficiently process blood plasma proteomics data and gain insights into disease mechanisms. With HDAnalyzeR, you can easily perform tasks like protein differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. 
 
@@ -37,11 +37,11 @@ devtools::install_github("kantonopoulos/HDAnalyzeR")
 
 ## Cheat Sheet
 
-<a href="https://github.com/HDA1472/HDAnalyzeR/blob/main/cheatsheet/hdanalyzer_cheat-sheet.pdf"><img src="cheatsheet/hdanalyzer_cheat-sheet.png" width="630" height="252"/></a>
+<a href="https://github.com/kantonopoulos/HDAnalyzeR/blob/main/cheatsheet/hdanalyzer_cheat-sheet.pdf"><img src="cheatsheet/hdanalyzer_cheat-sheet.png" width="630" height="252"/></a>
 
 ## Usage
 
-The following example showcases how to perform differential expression analysis and plot the results. It is one of the many features of HDAnalyzeR. A complete guide is available through [package's documentation](https://hda1472.github.io/HDAnalyzeR/).
+The following example showcases how to perform differential expression analysis and plot the results. It is one of the many features of HDAnalyzeR. A complete guide is available through [package's documentation](https://kantonopoulos.github.io/HDAnalyzeR/).
 
 ``` r
 library(HDAnalyzeR)
