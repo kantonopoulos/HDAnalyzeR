@@ -28,11 +28,11 @@ install.packages("devtools")
 
 # Install HDAnalyzeR latest version
 options(timeout = 1200)  # Set timeout to 20 minutes to avoid timeout errors
-devtools::install_github("HDA1472/HDAnalyzeR@v1.1.0")
+devtools::install_github("kantonopoulos/HDAnalyzeR@v1.1.0")
 
 # Install HDAnalyzeR development version
 options(timeout = 1200) 
-devtools::install_github("HDA1472/HDAnalyzeR")
+devtools::install_github("kantonopoulos/HDAnalyzeR")
 ```
 
 ## Usage
