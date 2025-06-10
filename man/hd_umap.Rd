@@ -4,12 +4,14 @@
 \alias{hd_umap}
 \title{Run UMAP analysis}
 \usage{
-hd_umap(dat, by_sample = TRUE, components = 2, seed = 123)
+hd_umap(dat, by_sample = TRUE, impute = TRUE, components = 2, seed = 123)
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
+
+\item{impute}{If TRUE, missing values are imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.}
 
 \item{components}{The number of components to be calculated. Default is 10.}
 

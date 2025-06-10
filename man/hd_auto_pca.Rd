@@ -9,6 +9,7 @@ hd_auto_pca(
   metadata = NULL,
   components = 10,
   by_sample = TRUE,
+  impute = TRUE,
   plot_x = "PC1",
   plot_y = "PC2",
   plot_color = NULL,
@@ -23,6 +24,8 @@ hd_auto_pca(
 \item{components}{The number of PCs to be calculated. Default is 10.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
+
+\item{impute}{If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.}
 
 \item{plot_x}{The name of the column in \code{dim_res} that contains the x-axis values. Default is "PC1".}
 

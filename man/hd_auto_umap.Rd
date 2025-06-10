@@ -8,6 +8,7 @@ hd_auto_umap(
   dat,
   metadata = NULL,
   by_sample = TRUE,
+  impute = TRUE,
   plot_x = "UMAP1",
   plot_y = "UMAP2",
   plot_color = NULL,
@@ -20,6 +21,8 @@ hd_auto_umap(
 \item{metadata}{A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
+
+\item{impute}{If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE. description}
 
 \item{plot_x}{The name of the column in \code{dim_res} that contains the x-axis values. Default is "PC1".}
 

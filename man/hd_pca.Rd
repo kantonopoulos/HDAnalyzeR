@@ -4,7 +4,7 @@
 \alias{hd_pca}
 \title{Run PCA analysis}
 \usage{
-hd_pca(dat, components = 10, by_sample = TRUE, seed = 123)
+hd_pca(dat, components = 10, by_sample = TRUE, impute = TRUE, seed = 123)
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
@@ -12,6 +12,8 @@ hd_pca(dat, components = 10, by_sample = TRUE, seed = 123)
 \item{components}{The number of PCs to be calculated. Default is 10.}
 
 \item{by_sample}{If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.}
+
+\item{impute}{If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.}
 
 \item{seed}{The seed to be used in the PCA analysis. Default is 123.}
 }

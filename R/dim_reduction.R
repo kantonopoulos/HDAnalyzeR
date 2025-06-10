@@ -41,6 +41,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
+#' @param impute If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.
 #' @param seed The seed to be used in the PCA analysis. Default is 123.
 #'
 #' @return A list with the PCA results, PCA loadings and explained variance.
@@ -58,6 +59,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 hd_pca <- function(dat,
                    components = 10,
                    by_sample = TRUE,
+                   impute = TRUE,
                    seed = 123) {
 
   if (inherits(dat, "HDAnalyzeR")) {
@@ -93,10 +95,20 @@ hd_pca <- function(dat,
 
   pca_rec <- recipes::recipe( ~ ., data = wide_data) |>
     recipes::update_role(1, new_role = "id")  |>
-    recipes::step_normalize(recipes::all_predictors()) |>
-    recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5) |>
+    recipes::step_normalize(recipes::all_predictors())
+
+  if (impute) {
+    pca_rec <- pca_rec |>
+      recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5)
+  }
+
+  pca_rec <- pca_rec |>
     recipes::step_pca(recipes::all_predictors(), num_comp = components)
 
+  # iF THERE ARE NAS STOP
+  if (any(is.na(wide_data)) && impute == FALSE) {
+    stop("There are missing values in the data. Please impute them before or during the PCA analysis by setting `impute` to TRUE.")
+  }
   pca_prep <- recipes::prep(pca_rec)
 
   pca_loadings <- broom::tidy(pca_prep, 3) |> dplyr::select(-!!rlang::sym("id"))
@@ -444,6 +456,7 @@ hd_plot_dim <- function(dim_object,
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param components The number of PCs to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
+#' @param impute If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
 #' @param plot_y The name of the column in `dim_res` that contains the y-axis values. Default is "PC2".
 #' @param plot_color The name of the column in `dim_res` that contains the variable to be used to plot the points color. Default is NULL.
@@ -458,9 +471,9 @@ hd_plot_dim <- function(dim_object,
 #'
 #' # Run the PCA analysis
 #' hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
+hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE, impute = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
 
-  pca_object <- hd_pca(dat, components = components, by_sample = by_sample) |>
+  pca_object <- hd_pca(dat, components = components, by_sample = by_sample, impute = impute) |>
     hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 15) |>
     hd_plot_pca_variance()
 
@@ -485,6 +498,7 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param components The number of components to be calculated. Default is 10.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
+#' @param impute If TRUE, missing values are imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.
 #' @param seed The seed to be used in the UMAP analysis. Default is 123.
 #'
 #' @return A list with the UMAP results.
@@ -501,6 +515,7 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #' hd_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
 hd_umap <- function(dat,
                     by_sample = TRUE,
+                    impute = TRUE,
                     components = 2,
                     seed = 123) {
 
@@ -546,6 +561,19 @@ hd_umap <- function(dat,
     recipes::step_normalize(recipes::all_predictors()) |>
     recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5) |>
     embed::step_umap(recipes::all_predictors(), num_comp = components)
+  
+  if (impute) {
+    umap_rec <- umap_rec |>
+      recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5)
+  }
+
+  umap_rec <- umap_rec |>
+    embed::step_umap(recipes::all_predictors(), num_comp = components)
+
+  # iF THERE ARE NAS STOP
+  if (any(is.na(wide_data)) && impute == FALSE) {
+    stop("There are missing values in the data. Please impute them before or during the UMAP analysis by setting `impute` to TRUE.")
+  }
 
   umap_prep <- recipes::prep(umap_rec)
 
@@ -568,6 +596,7 @@ hd_umap <- function(dat,
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param by_sample If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.
+#' @param impute If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE. description
 #' @param plot_x The name of the column in `dim_res` that contains the x-axis values. Default is "PC1".
 #' @param plot_y The name of the column in `dim_res` that contains the y-axis values. Default is "PC2".
 #' @param plot_color The name of the column in `dim_res` that contains the variable to be used to plot the points color. Default is NULL.
@@ -582,13 +611,13 @@ hd_umap <- function(dat,
 #'
 #' # Run the UMAP analysis
 #' hd_auto_umap(hd_object, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_umap <- function(dat, metadata = NULL, by_sample = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
+hd_auto_umap <- function(dat, metadata = NULL, by_sample = TRUE, impute = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
 
   if (inherits(dat, "HDAnalyzeR")) {
-    umap_object <- hd_umap(dat, by_sample = by_sample) |>
+    umap_object <- hd_umap(dat, by_sample = by_sample, impute = impute) |>
       hd_plot_dim(dat, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
   } else {
-    umap_object <- hd_umap(dat, by_sample = by_sample) |>
+    umap_object <- hd_umap(dat, by_sample = by_sample, impute = impute) |>
       hd_plot_dim(metadata, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
   }
   return(umap_object)
