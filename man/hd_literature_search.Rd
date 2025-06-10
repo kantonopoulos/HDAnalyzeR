@@ -39,7 +39,7 @@ elements (see examples).
 \details{
 The disease and gene names should be correct in order for the query to
 be successful. For example AML should be written as "acute myeloid leukemia".
-The query is constructed as "gene\link{field} AND disease\link{field} AND keywords".
+The query is constructed as "gene[field] AND disease[field] AND keywords".
 For more details check the \code{easyPubMed} package documentation. For more complicated
 queries, you can use the \code{easyPubMed} package directly or use the PubMed website directly.
 }

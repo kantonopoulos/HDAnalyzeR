@@ -558,9 +558,7 @@ hd_umap <- function(dat,
 
   umap_rec <- recipes::recipe( ~ ., data = wide_data) |>
     recipes::update_role(1, new_role = "id")  |>
-    recipes::step_normalize(recipes::all_predictors()) |>
-    recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5) |>
-    embed::step_umap(recipes::all_predictors(), num_comp = components)
+    recipes::step_normalize(recipes::all_predictors())
   
   if (impute) {
     umap_rec <- umap_rec |>
