@@ -72,6 +72,7 @@
 <span>  <span class="va">dat</span>,</span>
 <span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  by_sample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  impute <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  plot_x <span class="op">=</span> <span class="st">"UMAP1"</span>,</span>
 <span>  plot_y <span class="op">=</span> <span class="st">"UMAP2"</span>,</span>
 <span>  plot_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -93,6 +94,10 @@
 
 <dt id="arg-by-sample">by_sample<a class="anchor" aria-label="anchor" href="#arg-by-sample"></a></dt>
 <dd><p>If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.</p></dd>
+
+
+<dt id="arg-impute">impute<a class="anchor" aria-label="anchor" href="#arg-impute"></a></dt>
+<dd><p>If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE. description</p></dd>
 
 
 <dt id="arg-plot-x">plot_x<a class="anchor" aria-label="anchor" href="#arg-plot-x"></a></dt>
@@ -125,18 +130,18 @@
 <span class="r-in"><span><span class="fu">hd_auto_umap</span><span class="op">(</span><span class="va">hd_object</span>, plot_color <span class="op">=</span> <span class="st">"Disease"</span>, plot_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $umap_res</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 586 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    DAid     UMAP1   UMAP2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> DA00001 -<span style="color: #BB0000;">2.39</span>  -<span style="color: #BB0000;">0.211</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> DA00002  1.42   2.15  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> DA00003 -<span style="color: #BB0000;">1.07</span>  -<span style="color: #BB0000;">2.34</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> DA00004 -<span style="color: #BB0000;">1.57</span>  -<span style="color: #BB0000;">2.31</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> DA00005 -<span style="color: #BB0000;">2.71</span>  -<span style="color: #BB0000;">0.450</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> DA00006  1.88  -<span style="color: #BB0000;">0.286</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> DA00007 -<span style="color: #BB0000;">2.90</span>  -<span style="color: #BB0000;">1.75</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> DA00008 -<span style="color: #BB0000;">0.300</span>  1.73  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> DA00009 -<span style="color: #BB0000;">0.803</span>  0.041<span style="text-decoration: underline;">1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> DA00010  1.03   2.13  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    DAid     UMAP1  UMAP2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> DA00001 -<span style="color: #BB0000;">2.62</span>   0.384</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> DA00002  1.99   1.73 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> DA00003 -<span style="color: #BB0000;">1.69</span>  -<span style="color: #BB0000;">1.87</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> DA00004 -<span style="color: #BB0000;">2.17</span>  -<span style="color: #BB0000;">1.74</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> DA00005 -<span style="color: #BB0000;">2.83</span>   0.315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> DA00006  1.54  -<span style="color: #BB0000;">0.733</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> DA00007 -<span style="color: #BB0000;">3.49</span>  -<span style="color: #BB0000;">0.886</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> DA00008  1.54  -<span style="color: #BB0000;">1.08</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> DA00009 -<span style="color: #BB0000;">0.655</span>  0.278</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> DA00010  1.93   1.53 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 576 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $by_sample</span>

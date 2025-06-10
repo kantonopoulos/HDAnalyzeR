@@ -73,6 +73,7 @@
 <span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  components <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  by_sample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  impute <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  plot_x <span class="op">=</span> <span class="st">"PC1"</span>,</span>
 <span>  plot_y <span class="op">=</span> <span class="st">"PC2"</span>,</span>
 <span>  plot_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -98,6 +99,10 @@
 
 <dt id="arg-by-sample">by_sample<a class="anchor" aria-label="anchor" href="#arg-by-sample"></a></dt>
 <dd><p>If TRUE, points represent samples. If FALSE, points represent features. Default is TRUE.</p></dd>
+
+
+<dt id="arg-impute">impute<a class="anchor" aria-label="anchor" href="#arg-impute"></a></dt>
+<dd><p>If TRUE, missing values will be imputed using the k-nearest neighbors algorithm (k = 5). Default is TRUE.</p></dd>
 
 
 <dt id="arg-plot-x">plot_x<a class="anchor" aria-label="anchor" href="#arg-plot-x"></a></dt>
