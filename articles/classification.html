@@ -535,8 +535,8 @@ three different cancers and summarize them.</p>
 <blockquote>
 <p>📓 Do not forget that Ovarian Cancer is sex specific and we should
 consider run the analysis only with samples of that sex. We can easily
-integrate that into our pipeline using the
-<code><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex()</a></code> function.</p>
+integrate that into our pipeline using the <code><a href="../reference/hd_filter.html">hd_filter()</a></code>
+function.</p>
 </blockquote>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">split_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span>, variable <span class="op">=</span> <span class="st">"Disease"</span><span class="op">)</span></span>
@@ -545,7 +545,7 @@ integrate that into our pipeline using the
 <span></span>
 <span><span class="va">model_gliom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">split_obj</span>, case <span class="op">=</span> <span class="st">"GLIOM"</span>, cv_sets <span class="op">=</span> <span class="fl">3</span>, grid_size <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">split_obj_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/hd_filter_by_sex.html">hd_filter_by_sex</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, sex <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>,</span>
+<span><span class="va">split_obj_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_split_data.html">hd_split_data</a></span><span class="op">(</span><span class="va">hd_obj</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/hd_filter.html">hd_filter</a></span><span class="op">(</span>variable <span class="op">=</span> <span class="st">"Sex"</span>, values <span class="op">=</span> <span class="st">"F"</span>, flag <span class="op">=</span> <span class="st">"k"</span><span class="op">)</span>,</span>
 <span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
 <span>                               ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span></span>
