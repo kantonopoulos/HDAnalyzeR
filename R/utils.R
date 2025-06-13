@@ -118,24 +118,28 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Determine which component (data or metadata) the variable is in
   if (variable %in% names(hd_obj$data)) {
     var_component <- hd_obj$data
+    other_component <- hd_obj$metadata
   } else {
     var_component <- hd_obj$metadata
+    other_component <- hd_obj$data
   }
 
-  # Detect variable type using hd_detect_vartype
+  # Check if variable is categorical or continuous
   var_type <- hd_detect_vartype(var_component[[variable]], unique_threshold = 5)
   if (verbose) {
     message(paste("Variable", variable, "is ", var_type))
   }
-
+  
   # Filter data and metadata based on variable type and flag
   if (var_type == "categorical") {
     if (flag == "k") {
       # Keep only rows where variable matches values
       var_component <- var_component[var_component[[variable]] %in% values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == "r") {
       # Remove rows where variable matches values
       var_component <- var_component[!(var_component[[variable]] %in% values), ]
+      other_component <- other_component[!(other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]]), ]
     } else {
       stop("Invalid flag for categorical variable")
     }
@@ -143,21 +147,27 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
     if (flag == "=") {
       # Keep only rows where variable equals values
       var_component <- var_component[var_component[[variable]] == values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == "<") {
       # Keep only rows where variable is less than values
       var_component <- var_component[var_component[[variable]] < values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == "<=") {
       # Keep only rows where variable is less than or equal to values
       var_component <- var_component[var_component[[variable]] <= values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == ">") {
       # Keep only rows where variable is greater than values
       var_component <- var_component[var_component[[variable]] > values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == ">=") {
       # Keep only rows where variable is greater than or equal to values
       var_component <- var_component[var_component[[variable]] >= values, ]
+      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
     } else if (flag == "!=") {
       # Keep only rows where variable is not equal to values
       var_component <- var_component[var_component[[variable]] != values, ]
+      other_component <- other_component[!(other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]]), ]
     } else {
       stop("Invalid flag for continuous variable")
     }
@@ -168,8 +178,10 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Update the original hd_obj
   if (variable %in% names(hd_obj$data)) {
     hd_obj$data <- var_component
+    hd_obj$metadata <- other_component
   } else {
     hd_obj$metadata <- var_component
+    hd_obj$data <- other_component
   }
 
   if (verbose) {
