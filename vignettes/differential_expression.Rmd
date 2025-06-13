@@ -99,7 +99,7 @@ If we have diseases that are sex specific like Breast Cancer for example, we sho
 
 ```{r}
 de_results <- hd_obj |> 
-  hd_filter(variable = "Sex", values = "F") |> 
+  hd_filter(variable = "Sex", values = "F", flag = "k") |> 
   hd_de_limma(case = "BRC", control = "AML", correct = "Age") |> 
   hd_plot_volcano()
 
