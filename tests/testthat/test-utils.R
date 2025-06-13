@@ -451,46 +451,61 @@ test_that("Numeric-like character columns are handled correctly", {
 })
 
 
-# Test hd_filter_by_sex --------------------------------------------------------
-test_that("hd_filter_by_sex filters data by sex correctly", {
-  test_data <- data.frame(
-    sample_id = c("S1", "S2", "S3", "S4", "S5"),
-    Protein1 = c(1.5, 2.3, 0.7, 4.1, 2.5),
-    Protein2 = c(0.8, 2.5, 3.1, 0.3, 4.0)
-  )
-
-  test_metadata <- data.frame(
-    sample_id = c("S1", "S2", "S3", "S4", "S5"),
-    Sex = c("M", "F", "M", "F", "M")
-  )
-
-  hd_object <- hd_initialize(test_data, test_metadata, sample_id = "sample_id", is_wide = TRUE)
-
-  # Test filtering by male
-  filtered_data_male <- hd_filter_by_sex(hd_object, variable = "Sex", sex = "M")
-  expect_equal(nrow(filtered_data_male$data), 3)  # Should only include male samples
-  expect_true(all(filtered_data_male$metadata$Sex == "M"))
-
-  # Test filtering by female
-  filtered_data_female <- hd_filter_by_sex(hd_object, variable = "Sex", sex = "F")
-  expect_equal(nrow(filtered_data_female$data), 2)  # Should only include female samples
-  expect_true(all(filtered_data_female$metadata$Sex == "F"))
-
-  # Test invalid sex input
-  expect_error(hd_filter_by_sex(hd_object, variable = "Sex", sex = "InvalidSex"),
-               "InvalidSex is not a valid value for the Sex variable.")
-
-  # Test missing metadata
-  no_metadata_object <- hd_object
-  no_metadata_object$metadata <- NULL
-  expect_error(hd_filter_by_sex(no_metadata_object, metadata = NULL, variable = "Sex", sex = "M"),
-               "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
-
-  # Test non-existent variable in metadata
-  expect_error(hd_filter_by_sex(hd_object, variable = "NonExistentVariable", sex = "M"),
-               "The variable NonExistentVariable does not exist in the metadata.")
+# Test hd_filter ---------------------------------------------------------------
+test_that("hd_filter works for categorical variable Sex", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Sex", c("M", "F"), "k")
+  expect_equal(nrow(filtered_hd_obj$data), nrow(hd_obj$data))
+  expect_true(all(filtered_hd_obj$metadata$Sex %in% c("M", "F")))
 })
 
+test_that("hd_filter works for categorical variable Sex with only M", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Sex", "M", "k")
+  expect_true(all(filtered_hd_obj$metadata$Sex == "M"))
+})
+
+test_that("hd_filter works for categorical variable Sex with only F", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Sex", "F", "r")
+  expect_true(all(filtered_hd_obj$metadata$Sex == "M"))
+})
+
+test_that("hd_filter works for continuous variable Age with =", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, "=")
+  expect_true(all(filtered_hd_obj$metadata$Age == 50))
+})
+
+test_that("hd_filter works for continuous variable Age with >", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, ">")
+  expect_true(all(filtered_hd_obj$metadata$Age > 50))
+})
+
+test_that("hd_filter works for continuous variable Age with <", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, "<")
+  expect_true(all(filtered_hd_obj$metadata$Age < 50))
+})
+
+test_that("hd_filter works for continuous variable Age with <=", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, "<=")
+  expect_true(all(filtered_hd_obj$metadata$Age <= 50))
+})
+
+test_that("hd_filter works for continuous variable Age with >=", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, ">=")
+  expect_true(all(filtered_hd_obj$metadata$Age >= 50))
+})
+
+test_that("hd_filter works for continuous variable Age with !=", {
+  hd_obj <- hd_initialize(example_data, example_metadata)
+  filtered_hd_obj <- hd_filter(hd_obj, "Age", 50, "!=")
+  expect_true(all(filtered_hd_obj$metadata$Age != 50))
+})
 
 # Test hd_log_transform --------------------------------------------------------
 test_that("hd_log_transform log transforms data correctly", {

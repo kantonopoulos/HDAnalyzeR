@@ -95,11 +95,11 @@ de_results$volcano_plot
 
 ## The case of Sex-specific Diseases
 
-If we have diseases that are sex specific like Breast Cancer for example, we should consider run the analysis only with samples of that sex. We can easily integrate that into our pipeline using the `hd_filter_by_sex()` function. In that case, we would not be able to correct for sex, as there will be only one sex "F" (female).
+If we have diseases that are sex specific like Breast Cancer for example, we should consider run the analysis only with samples of that sex. We can easily integrate that into our pipeline using the `hd_filter()` function. In that case, we would not be able to correct for sex, as there will be only one sex "F" (female).
 
 ```{r}
 de_results <- hd_obj |> 
-  hd_filter_by_sex(variable = "Sex", sex = "F") |> 
+  hd_filter(variable = "Sex", values = "F") |> 
   hd_de_limma(case = "BRC", control = "AML", correct = "Age") |> 
   hd_plot_volcano()
 

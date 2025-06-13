@@ -67,6 +67,118 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
   return(data_object)
 }
 
+#' Filter an HD object based on a variable
+#'
+#' @description
+#' Filter an HD object based on a variable, either in the data or metadata component.
+#'
+#' @param hd_obj An HD object to be filtered.
+#' @param variable The name of the variable to filter on.
+#' @param values The values to filter on (for categorical variables) or the value to compare to (for continuous variables).
+#' @param flag The type of filter to apply (see details).
+#' @param verbose A logical indicating whether to print messages during filtering. Default is TRUE.
+#'
+#' @details
+#' The `flag` argument can take the following values:
+#' \itemize{
+#'   \item "k" : Keep only rows where the variable matches the values (categorical)
+#'   \item "r" : Remove rows where the variable matches the values (categorical)
+#'   \item "=" : Keep only rows where the variable equals the value (continuous)
+#'   \item "<" : Keep only rows where the variable is less than the value (continuous)
+#'   \item "<=" : Keep only rows where the variable is less than or equal to the value (continuous)
+#'   \item ">" : Keep only rows where the variable is greater than the value (continuous)
+#'   \item ">=" : Keep only rows where the variable is greater than or equal to the value (continuous)
+#'   \item "!=" : Keep only rows where the variable is not equal to the value (continuous)
+#' }
+#'
+#' @return The filtered HD object
+#' @export
+#' 
+#' @examples
+#' # Create the HDAnalyzeR object providing the data and metadata
+#' hd_obj <- hd_initialize(example_data, example_metadata)
+#' hd_obj
+#' 
+#' # Filter by categorical variable
+#' hd_filter(hd_obj, variable = "Sex", values = "F", flag = "k")
+#' 
+#' # Filter by continuous variable
+#' hd_filter(hd_obj, variable = "Age", values = 80, flag = ">")
+hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
+  # Check if hd_obj is a valid HD object
+  if (!inherits(hd_obj, "HDAnalyzeR")) {
+    stop("Invalid HD object")
+  }
+
+  # Check if variable exists in data or metadata
+  if (!(variable %in% names(hd_obj$data)) && !(variable %in% names(hd_obj$metadata))) {
+    stop("Variable not found in data or metadata")
+  }
+
+  # Determine which component (data or metadata) the variable is in
+  if (variable %in% names(hd_obj$data)) {
+    var_component <- hd_obj$data
+  } else {
+    var_component <- hd_obj$metadata
+  }
+
+  # Detect variable type using hd_detect_vartype
+  var_type <- hd_detect_vartype(var_component[[variable]], unique_threshold = 5)
+  if (verbose) {
+    message(paste("Variable", variable, "is ", var_type))
+  }
+
+  # Filter data and metadata based on variable type and flag
+  if (var_type == "categorical") {
+    if (flag == "k") {
+      # Keep only rows where variable matches values
+      var_component <- var_component[var_component[[variable]] %in% values, ]
+    } else if (flag == "r") {
+      # Remove rows where variable matches values
+      var_component <- var_component[!(var_component[[variable]] %in% values), ]
+    } else {
+      stop("Invalid flag for categorical variable")
+    }
+  } else if (var_type == "continuous") {
+    if (flag == "=") {
+      # Keep only rows where variable equals values
+      var_component <- var_component[var_component[[variable]] == values, ]
+    } else if (flag == "<") {
+      # Keep only rows where variable is less than values
+      var_component <- var_component[var_component[[variable]] < values, ]
+    } else if (flag == "<=") {
+      # Keep only rows where variable is less than or equal to values
+      var_component <- var_component[var_component[[variable]] <= values, ]
+    } else if (flag == ">") {
+      # Keep only rows where variable is greater than values
+      var_component <- var_component[var_component[[variable]] > values, ]
+    } else if (flag == ">=") {
+      # Keep only rows where variable is greater than or equal to values
+      var_component <- var_component[var_component[[variable]] >= values, ]
+    } else if (flag == "!=") {
+      # Keep only rows where variable is not equal to values
+      var_component <- var_component[var_component[[variable]] != values, ]
+    } else {
+      stop("Invalid flag for continuous variable")
+    }
+  } else {
+    stop("Unsupported variable type")
+  }
+
+  # Update the original hd_obj
+  if (variable %in% names(hd_obj$data)) {
+    hd_obj$data <- var_component
+  } else {
+    hd_obj$metadata <- var_component
+  }
+
+  if (verbose) {
+    message(paste("Filtering complete. Rows remaining:", nrow(hd_obj$data)))
+  }
+
+  return(hd_obj)
+}
+
 
 #' Create directory to save results
 #'
@@ -436,67 +548,6 @@ check_numeric_columns <- function(dat) {
   }
 
   invisible(non_numeric)
-}
-
-
-#' Filter data and metadata by sex
-#'
-#' `hd_filter_by_sex()` filters the data and metadata by the metadata Sex variable and a specified value.
-#' It can be used in cases of sex specific diseases before running differential expression or classification analysis.
-#'
-#' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
-#' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
-#' @param variable The name of the variable in the metadata contain information for sex. Default is "Sex".
-#' @param sex The value of the sex variable to filter by.
-#'
-#' @return A list containing the filtered data and metadata.
-#' @export
-#'
-#' @examples
-#' # Create the HDAnalyzeR object providing the data and metadata
-#' hd_object <- hd_initialize(example_data, example_metadata)
-#'
-#' hd_filter_by_sex(hd_object, variable = "Sex", sex = "F")
-hd_filter_by_sex <- function(dat, metadata = NULL, variable = "Sex", sex) {
-
-  if (inherits(dat, "HDAnalyzeR")) {
-    if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
-    }
-    wide_data <- dat[["data"]]
-    metadata <- dat[["metadata"]]
-    sample_id <- dat[["sample_id"]]
-  } else {
-    wide_data <- dat
-    sample_id <- colnames(dat)[1]
-  }
-
-  if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
-  }
-  if (!variable %in% names(metadata)) {
-    stop(paste("The variable", variable, "does not exist in the metadata."))
-  }
-  if (!sex %in% unique(metadata[[variable]])) {
-    stop(paste(sex, "is not a valid value for the", variable, "variable."))
-  }
-
-  # Filter metadata based on sex
-  filtered_metadata <- metadata[metadata[[variable]] == sex, ]
-
-  # Extract the sample IDs from the filtered metadata
-  sample_ids <- filtered_metadata[[sample_id]]
-
-  # Subset the data based on the sample IDs
-  filtered_data <- wide_data |> dplyr::filter(!!rlang::sym(sample_id) %in% sample_ids)
-
-  if (inherits(dat, "HDAnalyzeR")) {
-    dat[["data"]] <- filtered_data
-    dat[["metadata"]] <- filtered_metadata
-    return(dat)
-  } else {
-    return(list("data" = filtered_data, "metadata" = filtered_metadata))
-  }
 }
 
 

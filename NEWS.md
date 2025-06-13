@@ -21,7 +21,7 @@
   - `hd_initialize()`: Initializes a base object used across all functions for simplified and consistent workflows.  
   - `hd_detect_vartype()`: Identifies if a variable is categorical or continuous.
   - `hd_bin_columns()`: Bins continuous variables into categories.
-  - `hd_filter_by_sex()`: Filters data based on sex and updates the data and metadata automatically
+  - `hd_filter()`: Filters data based on specified variables and updates the data and metadata automatically
   - `hd_log_transform()`: Log-transforms data.
   - `hd_long_data()`: Converts wide data to long format.
   
