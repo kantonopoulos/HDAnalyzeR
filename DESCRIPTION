@@ -25,6 +25,7 @@ Imports:
     dplyr,
     embed,
     forcats,
+    ggbeeswarm,
     ggnewscale,
     ggplot2,
     ggplotify,

@@ -54,7 +54,7 @@ apply_palette <- function(plot, palette, type = "color") {
 #' @param metadata A dataset containing the metadata information with the sample ID as the first column. If a HDAnalyzeR object is provided, this parameter is not needed.
 #' @param variable The name of the metadata variable containing the case and control groups. Default is "Disease".
 #' @param features The features to include in the boxplot. They should be columns of the data.
-#' @param case The case class.
+#' @param case The case class. If NULL all classes would be colored.
 #' @param type The type of boxplot to plot. Default is "case_vs_all". Other option is "case_vs_control".
 #' @param points Whether to add points to the boxplot.
 #' @param x_labels Whether to show the x-axis labels.
@@ -87,7 +87,7 @@ hd_plot_feature_boxplot <- function(dat,
                                     metadata = NULL,
                                     variable = "Disease",
                                     features,
-                                    case,
+                                    case = NULL,
                                     type = "case_vs_all",
                                     points = TRUE,
                                     x_labels = TRUE,
@@ -95,6 +95,7 @@ hd_plot_feature_boxplot <- function(dat,
                                     palette = NULL) {
 
   Variable <- rlang::sym(variable)
+  
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
@@ -106,101 +107,110 @@ hd_plot_feature_boxplot <- function(dat,
     wide_data <- dat
     sample_id <- colnames(dat)[1]
   }
+
   if (is.null(metadata)) {
     stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
   }
+
   if (isFALSE(variable %in% colnames(metadata))) {
-    stop("The variable is not be present in the metadata.")
+    stop("The variable is not present in the metadata.")
   }
+
   if (any(!(features %in% colnames(wide_data)))) {
-    warning(paste("The features", {features[!features %in% colnames(wide_data)]}, "are not present in the data and will be skipped."))
+    warning(paste("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
+                  "are not present in the data and will be skipped."))
     features <- features[features %in% colnames(wide_data)]
-    if (length(features) == 0) {
-      stop("None of the features are present in the data.")
-    }
+    if (length(features) == 0) stop("None of the features are present in the data.")
   }
+
   join_data <- wide_data |>
     dplyr::left_join(metadata |>
                        dplyr::select(dplyr::all_of(c(sample_id, variable))),
                      by = sample_id)
 
-  if (type == "case_vs_control") {
+  if (type == "case_vs_control" && !is.null(case)) {
     join_data <- join_data |>
       dplyr::mutate(!!Variable := ifelse(!!Variable == case, case, "Control"))
+  } else if (type == "case_vs_control" && is.null(case)) {
+    stop("Please provide the case class or change the type to 'case_vs_all'.")
   }
 
-  # Prepare palettes
+  # Palette
   pals <- hd_palettes()
   if (!is.null(palette) && is.null(names(palette))) {
     pal <- unlist(pals[[palette]])
   } else if (!is.null(palette)) {
     pal <- palette
+  } else if (!is.null(case) && is.null(palette)) {
+    pal <- '#883268'
   } else {
-    pal <- "#883268"
+    pal <- scales::hue_pal()(length(unique(metadata[[variable]])))
   }
 
   long_data <- join_data |>
     dplyr::select(!!Variable, dplyr::all_of(features)) |>
-    tidyr::pivot_longer(cols = !dplyr::any_of(c(variable)),
+    tidyr::pivot_longer(cols = !dplyr::any_of(variable),
                         names_to = "Features",
                         values_to = yaxis_title)
 
-  long_data$Features <- factor(long_data$Features, levels = features, labels = features)
-  long_data[[variable]] <- as.factor(long_data[[variable]])
+  long_data$Features <- factor(long_data$Features, levels = features)
+  long_data[[variable]] <- factor(long_data[[variable]])
 
-  # Create boxplot
+  # Base ggplot
   boxplot <- long_data |>
-    ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym(yaxis_title))) +
-    ggplot2::geom_boxplot(outlier.shape = NA) +
-    ggplot2::geom_boxplot(data = dplyr::filter(long_data, !!Variable == case),
-                          ggplot2::aes(fill = !!Variable),
-                          alpha = 0.5,
-                          show.legend = FALSE,
-                          outlier.shape = NA)
+    ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym(yaxis_title), fill = !!Variable))
 
+  # Add points behind boxes
   if (isTRUE(points)) {
     boxplot <- boxplot +
-      ggplot2::geom_point(data = dplyr::filter(long_data, !!Variable != case),
-                          position = ggplot2::position_jitter(width = 0.1),
-                          color = 'grey',
-                          alpha = 0.3)
-
-    if (!is.null(palette)) {
-      boxplot <- boxplot +
-        ggplot2::geom_point(data = dplyr::filter(long_data, !!Variable == case),
-                            ggplot2::aes(fill = !!Variable),
-                            position = ggplot2::position_jitter(width = 0.1),
-                            color = pal[case],
-                            alpha = 0.5,
-                            show.legend = FALSE)
-    } else {
-      boxplot <- boxplot +
-        ggplot2::geom_point(data = dplyr::filter(long_data, !!Variable == case),
-                            ggplot2::aes(fill = !!Variable),
-                            position = ggplot2::position_jitter(width = 0.1),
-                            color = pal,
-                            alpha = 0.5,
-                            show.legend = FALSE)
-    }
+      ggbeeswarm::geom_quasirandom(data = long_data,
+                                   ggplot2::aes(color = !!Variable),
+                                   alpha = 0.4,
+                                   dodge.width = 0.75,
+                                   groupOnX = TRUE,
+                                   show.legend = FALSE)
   }
 
+  # Add semi-transparent boxplots
+  boxplot <- boxplot +
+    ggplot2::geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE)
+
+  # Fill handling
+  if (!is.null(case)) {
+    # Only color the case differently, rest are gray
+    fill_values <- rep("gray80", length(levels(long_data[[variable]])))
+    names(fill_values) <- levels(long_data[[variable]])
+    fill_values[case] <- ifelse(is.null(names(pal)), pal[1], pal[case])
+    boxplot <- boxplot +
+      ggplot2::scale_fill_manual(values = fill_values) +
+      ggplot2::scale_color_manual(values = fill_values)
+  } else {
+    fill_values <- if (is.null(names(pal))) {
+      setNames(pal[1:length(levels(long_data[[variable]]))], levels(long_data[[variable]]))
+    } else {
+      pal
+    }
+    boxplot <- boxplot +
+      ggplot2::scale_fill_manual(values = fill_values) +
+      ggplot2::scale_color_manual(values = fill_values)
+  }
+
+  # Final styling
   boxplot_panel <- boxplot +
     ggplot2::theme(legend.position = 'none') +
-    ggplot2::scale_fill_manual(values = pal) +
     theme_hd() +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_text(angle = 90))
+                   axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::facet_wrap(ggplot2::vars(Features), scales = "free_y")
 
   if (isFALSE(x_labels)) {
     boxplot_panel <- boxplot_panel +
       ggplot2::theme(axis.text.x = ggplot2::element_blank())
   }
 
-  boxplot_panel <- boxplot_panel +
-    ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym("Features")), scale="free_y")
-
   return(boxplot_panel)
 }
+
 
 
 #' Regression plot

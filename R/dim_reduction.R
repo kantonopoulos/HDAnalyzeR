@@ -170,8 +170,8 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_featur
     dplyr::mutate(positive = factor((!!rlang::sym("value") > 0), levels = c(TRUE, FALSE))) |>
     ggplot2::ggplot(ggplot2::aes(abs(!!rlang::sym("value")), !!rlang::sym("terms"), fill = !!rlang::sym("positive"))) +
     ggplot2::geom_col() +
-    ggplot2::scale_fill_manual(values = c("TRUE" = "#C03830", "FALSE" = "#317EC2"),
-                               labels=c("Positive", "Negative")) +
+    ggplot2::scale_fill_manual(values = c("TRUE" = "#74B652", "FALSE" = "#653496"),
+                               labels=c("TRUE" = "Positive", "FALSE" = "Negative")) +
     ggplot2::facet_wrap( ~ component, scales = "free_y") +
     tidytext::scale_y_reordered() +
     ggplot2::labs(x = "Absolute Value of Contribution",

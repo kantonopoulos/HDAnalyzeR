@@ -9,7 +9,7 @@ hd_plot_feature_boxplot(
   metadata = NULL,
   variable = "Disease",
   features,
-  case,
+  case = NULL,
   type = "case_vs_all",
   points = TRUE,
   x_labels = TRUE,
@@ -26,7 +26,7 @@ hd_plot_feature_boxplot(
 
 \item{features}{The features to include in the boxplot. They should be columns of the data.}
 
-\item{case}{The case class.}
+\item{case}{The case class. If NULL all classes would be colored.}
 
 \item{type}{The type of boxplot to plot. Default is "case_vs_all". Other option is "case_vs_control".}
 
