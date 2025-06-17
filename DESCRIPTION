@@ -43,6 +43,7 @@ Imports:
     recipes,
     rlang,
     rsample,
+    scales,
     stats,
     stringr,
     tibble,

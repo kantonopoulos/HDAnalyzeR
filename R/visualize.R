@@ -95,7 +95,8 @@ hd_plot_feature_boxplot <- function(dat,
                                     palette = NULL) {
 
   Variable <- rlang::sym(variable)
-  
+  Features <- rlang::sym("Features")
+
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
@@ -153,7 +154,7 @@ hd_plot_feature_boxplot <- function(dat,
                         names_to = "Features",
                         values_to = yaxis_title)
 
-  long_data$Features <- factor(long_data$Features, levels = features)
+  long_data[["Features"]] <- factor(long_data[["Features"]], levels = features)
   long_data[[variable]] <- factor(long_data[[variable]])
 
   # Base ggplot
@@ -186,7 +187,7 @@ hd_plot_feature_boxplot <- function(dat,
       ggplot2::scale_color_manual(values = fill_values)
   } else {
     fill_values <- if (is.null(names(pal))) {
-      setNames(pal[1:length(levels(long_data[[variable]]))], levels(long_data[[variable]]))
+      stats::setNames(pal[1:length(levels(long_data[[variable]]))], levels(long_data[[variable]]))
     } else {
       pal
     }
@@ -201,7 +202,7 @@ hd_plot_feature_boxplot <- function(dat,
     theme_hd() +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_text(angle = 90)) +
-    ggplot2::facet_wrap(ggplot2::vars(Features), scales = "free_y")
+    ggplot2::facet_wrap(ggplot2::vars(!!Features), scales = "free_y")
 
   if (isFALSE(x_labels)) {
     boxplot_panel <- boxplot_panel +
