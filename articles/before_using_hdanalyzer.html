@@ -110,22 +110,47 @@ limited to specific workflows. Many labs already use their own
 preprocessing pipelines, tailored to their specific research needs and
 technologies. Integrating all these varied pipelines into the package
 would make it unnecessarily complex and restrictive.</p>
-<p>Therefore, the data provided to HDAnalyzeR must be preprocessed into
-a standard format that includes the following core components: - Sample
-IDs: The sample identifiers corresponding to each measurement, usually
-matching the columns of your expression matrix. - Protein or peptide
-names: These should be the identifiers for the proteins or peptides
-measured in your study. - Protein or peptide expression data: The
-quantitative expression values for each protein or peptide in each
-sample. - Metadata: Any additional information associated with your
-samples, such as disease class, patient demographic information, or
-experimental conditions.</p>
-<p>In this vignette, we will provide examples of how to prepare data
-from several common proteomics technologies to be compatible with
-HDAnalyzeR. These technologies include Proximity Extension Assay and
-Mass spectrometry. We will also touch upon the general principles that
-should apply when working with data from different proteomics
-platforms.</p>
+<p>Therefore, the data provided to HDAnalyzeR must be preprocessed in
+order to follow specific requirements (Table 1).</p>
+<p>Table 1. General requirements</p>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="81%">
+</colgroup>
+<thead><tr class="header">
+<th>Requirement</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>Data</strong></td>
+<td>
+<strong>Long format</strong> requires at least three columns:
+sample/ID, feature (e.g. proteins, genes, etc.), and measurement
+(e.g. TPM, NPX, RFU…).<br><strong>Wide format</strong> requires the
+following structure: rows = samples; columns = sample/ID (first column)
++ features.</td>
+</tr>
+<tr class="even">
+<td><strong>Metadata</strong></td>
+<td>Table with one row per sample; includes sample/ID and any required
+columns (e.g., group labels, covariates).</td>
+</tr>
+<tr class="odd">
+<td><strong>Standardized feature IDs</strong></td>
+<td>Recommended to use gene symbols, UniProt IDs, etc., depending on
+platform. Feature IDs may be platform-specific. Mapping tables can help
+translate to gene symbols when required (e.g., for pathway
+analyses).</td>
+</tr>
+<tr class="even">
+<td><strong>Matching sample IDs</strong></td>
+<td>Sample IDs must match exactly between metadata and expression
+matrix.</td>
+</tr>
+</tbody>
+</table>
 <blockquote>
 <p>⚠️ Although HDAnalyzeR is primarily designed for proteomics data,
 some functions in the package can also be applied to other omics data
