@@ -22,14 +22,15 @@ library(HDAnalyzeR)
 
 Before you can start using HDAnalyzeR for biomarker discovery, it is essential to ensure that your data is prepared in the appropriate format. While HDAnalyzeR offers a variety of powerful tools, it does not include technology-specific quality control (QC) or preprocessing functions. This design choice allows the package to be flexible and usable with a wide range of proteomics technologies without being limited to specific workflows. Many labs already use their own preprocessing pipelines, tailored to their specific research needs and technologies. Integrating all these varied pipelines into the package would make it unnecessarily complex and restrictive.
 
-Therefore, the data provided to HDAnalyzeR must be preprocessed into a standard format that includes the following core components:
--  Sample IDs: The sample identifiers corresponding to each measurement, usually matching the columns of your expression matrix.
--  Protein or peptide names: These should be the identifiers for the proteins or peptides measured in your study.
--  Protein or peptide expression data: The quantitative expression values for each protein or peptide in each sample.
--  Metadata: Any additional information associated with your samples, such as disease class, patient demographic information, or experimental conditions.
+Therefore, the data provided to HDAnalyzeR must be preprocessed in order to follow specific requirements (Table 1).
 
-In this vignette, we will provide examples of how to prepare data from several common proteomics technologies to be compatible with HDAnalyzeR. These technologies include Proximity Extension Assay and Mass spectrometry. We will also touch upon the general principles that should apply when working with data from different proteomics platforms.
+Table 1. General requirements
+
+| Requirement | Description |
+|-------------|-----------------------------------------------------------|
+| **Data** | **Long format** requires at least three columns: sample/ID, feature (e.g. proteins, genes, etc.), and measurement (e.g. TPM, NPX, RFU…).<br>**Wide format** requires the following structure: rows = samples; columns = sample/ID (first column) + features. |
+| **Metadata** | Table with one row per sample; includes sample/ID and any required columns (e.g., group labels, covariates). |
+| **Standardized feature IDs** | Recommended to use gene symbols, UniProt IDs, etc., depending on platform. Feature IDs may be platform-specific. Mapping tables can help translate to gene symbols when required (e.g., for pathway analyses). |
+| **Matching sample IDs** | Sample IDs must match exactly between metadata and expression matrix. |
 
 > ⚠️ Although HDAnalyzeR is primarily designed for proteomics data, some functions in the package can also be applied to other omics data types such as genomics, transcriptomics, or metabolomics. However, it is important to note that the specific choice of functions and how they should be used will depend on the study's goals and the nature of the data. HDAnalyzeR does not provide explicit guarantees and the user must make informed decisions regarding its application to other types of omics data. Documentation and the source code of all functions is freely available.
-
-

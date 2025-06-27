@@ -1,0 +1,236 @@
+---
+title: "blood_cancers_olink_case_study"
+output: html_document
+---
+
+# Case Study 1: Plasma Proteomics of Hematological Malignancies Using Proximity Extension Assay
+
+## Set-up & Data
+
+Data is downloaded from: https://www.ebi.ac.uk/biostudies/studies/S-BSST935 
+
+Download them and place them in the `data/` folder.
+
+Reference: Álvez, M.B., Edfors, F., von Feilitzen, K. et al. Next generation pan-cancer blood proteome profiling using proximity extension assay. Nat Commun 14, 4308 (2023). https://doi.org/10.1038/s41467-023-39765-y
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+library(HDAnalyzeR)
+library(dplyr)
+library(foreach)
+library(doParallel)
+
+cancer_dat <- hd_import_data("data/pancancer_olink_data_biostudies_v2.txt")
+```
+
+Keep only the blood cancer data.
+
+-   Acute Myeloid Leukemia (AML)
+
+-   Chronic Lymphocytic Leukemia (CLL)
+
+-   Myeloma (MYEL)
+
+Prepare metadata and HDAnalyzeR object.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+blood_cancers <- c("AML", "CLL", "MYEL")
+metadata <- cancer_dat |> 
+  select(Sample_ID, Cancer) |> 
+  filter(Cancer %in% blood_cancers) |> 
+  distinct()
+
+hd_obj <- hd_initialize(
+  cancer_dat |> filter(Cancer %in% blood_cancers),
+  metadata,
+  sample_id = "Sample_ID"
+)
+```
+
+Split data to training and validation sets. We will run the whole analysis on the training set and then only evaluate the trained model on the validation set. This is done to ensure there is no data leakage.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+split_obj <- hd_split_data(
+    hd_obj,
+    variable = "Cancer",
+    ratio = 0.8,
+    seed = 500
+)
+
+train_obj <- split_obj$train |> 
+  select(-Cancer) |> 
+  hd_initialize(
+    metadata = metadata |> filter(Sample_ID %in% split_obj$train$Sample_ID),
+    sample_id = "Sample_ID",
+    is_wide = TRUE
+  )
+
+test_obj <- split_obj$test |> 
+  select(-Cancer) |> 
+  hd_initialize(
+    metadata = metadata |> filter(Sample_ID %in% split_obj$test$Sample_ID),
+    sample_id = "Sample_ID",
+    is_wide = TRUE
+  )
+```
+
+## WGCNA
+
+We will run WGCNA on the training set to identify modules of highly correlated proteins. We will also see which modules correlate better with the cancer type. To make things quicker we will use parallel processing.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, results=FALSE}
+# Set-up parallel processing
+n_cores <- parallel::detectCores() - 1  # leave one core free
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+
+wgcna_res <- hd_wgcna(train_obj)
+wgcna_res <- hd_plot_wgcna(train_obj, 
+                           wgcna = wgcna_res, 
+                           clinical_vars = "Cancer")
+```
+
+```{r}
+wgcna_res$dendrogram
+wgcna_res$me_cor_heatmap
+```
+
+We will then select modules that correlate more than 0.7 with CLL to run an Over-Representation Analysis (ORA) 
+to identify enriched biological processes.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+colors <- wgcna_res$wgcna$colors
+
+# Get the proteins of the black and green modules
+green_proteins <- names(colors[colors == "green"])
+
+cat("Number of highly correlated module proteins:", length(green_proteins))
+
+# Run ORA with these proteins
+ora_res_black <- hd_ora(green_proteins,
+                        database = "GO",
+                        ontology = "ALL",
+                        background = "olink_explore_1536") |>  # Set background to the Olink Explore 1536 panel
+  hd_plot_ora()
+```
+
+```{r}
+ora_res_black$dotplot
+```
+
+## DEA
+
+We will select only the proteins of the selected module and run DEA for CLL vs the rest. We will also plot results 
+as a volcano plot.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+train_obj$data <- train_obj$data |> 
+  select(Sample_ID, all_of(green_proteins))
+
+de_res <- hd_de_limma(train_obj, variable = "Cancer", case = "CLL") |> 
+  hd_plot_volcano(pval_lim = 0.005, 
+                  logfc_lim = 2, 
+                  report_nproteins = FALSE)
+```
+
+```{r}
+de_res$volcano_plot
+```
+
+## Feature Selection
+
+We will define our final biomarker panel by filtering the proteins with p-value < 0.005 and then ranking them 
+based on |kME| × |log₂FC| and keep only the top 10 proteins. With this ranking we want to prioritize proteins that 
+are both highly correlated with the module (hubs) and have a high fold change between CLL and the rest.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+# Calculate the kME
+MEs_green <- wgcna_res$wgcna$MEs |> 
+  select(MEgreen)
+
+green_proteins_expr <- train_obj$data |> 
+  select(Sample_ID, all_of(green_proteins)) |>
+  tibble::column_to_rownames("Sample_ID")
+
+kME <- as.data.frame(cor(green_proteins_expr, MEs_green, use = "p"))
+
+# Combine kME and log2FC
+de_res_filtered <- de_res$de_res |> 
+  left_join(kME |> tibble::rownames_to_column("Feature"), by = "Feature") |> 
+  filter(adj.P.Val < 0.005) |>  # Filter by p-value
+  mutate(kME = abs(MEgreen)) |> 
+  mutate(logFC = abs(logFC)) |> 
+  mutate(rank = kME * logFC) |>  # Rank by kME * logFC
+  arrange(desc(rank))
+
+top_proteins <- de_res_filtered |> 
+  slice_head(n = 10) |> 
+  pull(Feature)
+```
+
+## Classification model
+
+We will use the top 10 proteins to train a classification model. We will use a Regularized Regression model 
+(LASSO) for this purpose. We will use 5-fold cross-validation to tune the model and then evaluate it on the 
+held-out test set.
+
+```{r}, error=FALSE, warning=FALSE, message=FALSE
+# Prepare updated data split object by keeping only the top proteins
+model_train <- split_obj$train |> 
+  select(Sample_ID, Cancer, all_of(top_proteins))
+model_test <- split_obj$test |> 
+  select(Sample_ID, Cancer, all_of(top_proteins))
+model_obj <- list("train_data" = model_train, "test_data" = model_test)
+class(model_obj) <- "hd_model"
+
+model_res <- hd_model_rreg(
+  model_obj,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+```
+
+```{r}
+model_res$feat_imp_plot
+model_res$probability_plot
+model_res$roc_curve
+```
+
+## Visualize Features
+
+We will visualize our top 4 features as boxplots.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+imp_proteins <- as.character(model_res$features |>
+  head(4) |>
+  pull(Feature))
+
+boxplots <- hd_plot_feature_boxplot(hd_obj, variable = "Cancer", 
+                        features = imp_proteins, 
+                        case = "CLL",
+                        palette = "cancers12") + 
+                        ggplot2::facet_wrap(~Features, nrow = 1)
+```
+
+```{r}
+boxplots
+```
+
+## Search in PubMed
+
+Finally, we will search in PubMed for the top 4 proteins. As it queries a database results might change over time.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+features_list <- list("Chronic lymphocytic leukemia" = imp_proteins)
+
+articles <- hd_literature_search(
+  features_list, 
+  max_articles = 3,
+  keywords = "human"
+)
+```
