@@ -5,6 +5,7 @@ paper/
 
 # Files
 .RData
+.DS_Store
 .Rproj.user
 .Rhistory
 .Rprofile
