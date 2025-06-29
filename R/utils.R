@@ -127,7 +127,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Check if variable is categorical or continuous
   var_type <- hd_detect_vartype(var_component[[variable]], unique_threshold = 5)
   if (verbose) {
-    message(paste("Variable", variable, "is ", var_type))
+    message("Variable", variable, "is ", var_type)
   }
   
   # Filter data and metadata based on variable type and flag
@@ -185,7 +185,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   }
 
   if (verbose) {
-    message(paste("Filtering complete. Rows remaining:", nrow(hd_obj$data)))
+    message("Filtering complete. Rows remaining:", nrow(hd_obj$data))
   }
 
   return(hd_obj)
@@ -240,11 +240,11 @@ hd_save_path <- function(path_name, date = FALSE) {
     # Check if the directory was created successfully
     if (dir.exists(path_name)) {
     } else {
-      warning(paste("Failed to create directory", path_name))
+      warning("Failed to create directory", path_name)
     }
 
   } else {
-    message(paste("Directory", path_name, "already exists."))
+    message("Directory", path_name, "already exists.")
   }
 
   return(path_name)
@@ -367,11 +367,9 @@ hd_import_data <- function(path_name) {
 #' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
 #' hd_widen_data(example_data, exclude = "Sample", names_from = "OlinkID")
 hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
-  suppressWarnings({
     wide_data <- dat |>
       dplyr::select(dplyr::all_of(c(exclude, names_from, values_from))) |>
       tidyr::pivot_wider(names_from = names_from, values_from = values_from)
-  })
   return(wide_data)
 }
 
@@ -402,10 +400,8 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #'                                    names_from = "OlinkID")
 #' hd_long_data(example_data_wide, exclude = "Sample", names_to = "OlinkID")
 hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
-  suppressWarnings({
     long_data <- dat |>
       tidyr::pivot_longer(cols = -dplyr::all_of(exclude), names_to = names_to, values_to = values_to)
-    })
   return(long_data)
 }
 
@@ -423,7 +419,7 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #' @return The type of the variable as a string: "categorical", "continuous", or "unknown".
 #' @details
 #' If you want to apply this function to each column of a dataframe, you can use the
-#' `sapply()` function. See examples. For more information check `sapply` documentation.
+#' `vapply()` function. See examples. For more information check `vapply` documentation.
 #'
 #' @export
 #'
@@ -441,7 +437,7 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #'                       Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
 #'                       Mixed = c(1, "1", 2, 2, "3", 3))
 #'
-#' sapply(example, hd_detect_vartype)
+#' vapply(example, hd_detect_vartype)
 hd_detect_vartype <- function(var, unique_threshold = 5) {
 
   if (is.factor(var) || is.character(var)) {
@@ -490,7 +486,7 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
 #' # Automatically detect variable types
 #' test_data <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
 #'                         Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9))
-#' column_types <- sapply(test_data, hd_detect_vartype)
+#' column_types <- vapply(test_data, hd_detect_vartype)
 #'
 #' # The variable to be binned has one significant digit
 #' # So we will also round the bins to one digit
@@ -548,11 +544,9 @@ check_numeric_columns <- function(dat) {
   cols_to_check <- dat[-1]
 
   non_numeric <- NULL
-  non_numeric <- names(cols_to_check)[!sapply(cols_to_check, function(col) {
-    suppressWarnings({ # Suppress warnings during coercion
+  non_numeric <- names(cols_to_check)[!vapply(cols_to_check, function(col) {
       coerced <- as.numeric(col)
       return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
-    })
   })]
 
   if (length(non_numeric) > 0) {
@@ -602,12 +596,10 @@ hd_log_transform <- function(dat) {
     warning("Data contains non-positive values (<= 0). These will be replaced with NA during log transformation.")
   }
 
-  suppressWarnings({
     wide_data[, -1] <- lapply(wide_data[, -1], function(col) {
       transformed <- log2(ifelse(col > 0, col, NA))
       transformed[is.nan(transformed)] <- NA  # Replace NaN with NA
       return(transformed)
-    })
   })
 
   if (inherits(dat, "HDAnalyzeR")) {

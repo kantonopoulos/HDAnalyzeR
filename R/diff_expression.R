@@ -101,12 +101,12 @@ hd_de_limma <- function(dat,
 
   nrows_after <- nrow(join_data)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ",
-                   variable,
-                   " or ",
-                   paste(correct, collapse = ", "),
-                   "!"))
+    warning(nrows_before - nrows_after,
+            " rows were removed because they contain NAs in ",
+            variable,
+            " or ",
+            paste(correct, collapse = ", "),
+            "!")
   }
 
   # Design a model
@@ -117,14 +117,14 @@ hd_de_limma <- function(dat,
   }
 
   if (!is.null(correct)) {
-    var_types <- sapply(metadata |>
+    var_types <- vapply(metadata |>
                           dplyr::select(dplyr::all_of(c(correct))),
                         hd_detect_vartype)
     for (i in correct) {
       if (var_types[i] == "categorical") {
-        cofactor = paste("as.factor(", i, ")")
+        cofactor <- paste("as.factor(", i, ")")
       } else {
-        cofactor = i
+        cofactor <- i
       }
       formula <- paste(formula, "+", cofactor)
     }
@@ -265,10 +265,10 @@ hd_de_ttest <- function(dat,
 
   nrows_after <- nrow(join_data)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after,
+            " rows were removed because they contain NAs in ",
+            variable,
+            "!")
   }
 
   de_res <- matrix(nrow=0, ncol=7)
@@ -366,7 +366,7 @@ hd_plot_volcano <- function(de_object,
     dplyr::pull(!!rlang::sym("Feature"))
 
   if (is.null(user_defined_proteins)) {
-    top.sig.prot <- c(top.sig.up[1:top_up_prot], top.sig.down[1:top_down_prot])
+    top.sig.prot <- c(top.sig.up[seq_len(top_up_prot)], top.sig.down[seq_len(top_down_prot)])
   } else {
     top.sig.prot <- user_defined_proteins
   }
@@ -450,7 +450,7 @@ extract_protein_list <- function(upset_data, proteins) {
   combinations <- as.data.frame(upset_data)
   proteins_list <- list()
 
-  for (i in 1:nrow(combinations)) {
+  for (i in seq_len(nrow(combinations))) {
     combo <- combinations[i, ]
     set_names <- names(combo)[combo == 1]
     set_name <- paste(set_names, collapse = "&")
@@ -525,7 +525,7 @@ hd_plot_de_summary <- function(de_results,
 
   Variable <- rlang::sym(variable)
   de_res_list <- list()
-  for (i in 1:length(de_results)) {
+  for (i in seq_len(length(de_results))) {
     de_res_list[[i]] <- de_results[[i]][["de_res"]] |>
       dplyr::mutate(sig = dplyr::case_when(
         !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",
@@ -592,10 +592,10 @@ hd_plot_de_summary <- function(de_results,
   }
   de_names <- names(significant_proteins_up)
   ordered_colors <- pal[de_names]
-  frequencies_up <- sapply(significant_proteins_up, length)
+  frequencies_up <- vapply(significant_proteins_up, length)
   ordered_names_up <- names(sort(frequencies_up, decreasing = TRUE))
   ordered_colors_up <- ordered_colors[ordered_names_up]
-  frequencies_down <- sapply(significant_proteins_down, length)
+  frequencies_down <- vapply(significant_proteins_down, length)
   ordered_names_down <- names(sort(frequencies_down, decreasing = TRUE))
   ordered_colors_down <- ordered_colors[ordered_names_down]
 

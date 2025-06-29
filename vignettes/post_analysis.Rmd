@@ -119,3 +119,7 @@ lit_res$`acute myeloid leukemia`$FLT3$title
 ```
 
 > 📓 Remember once again that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+
+```{r session-info}
+sessionInfo()
+```

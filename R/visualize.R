@@ -118,8 +118,8 @@ hd_plot_feature_boxplot <- function(dat,
   }
 
   if (any(!(features %in% colnames(wide_data)))) {
-    warning(paste("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
-                  "are not present in the data and will be skipped."))
+    warning("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
+            "are not present in the data and will be skipped.")
     features <- features[features %in% colnames(wide_data)]
     if (length(features) == 0) stop("None of the features are present in the data.")
   }
@@ -187,7 +187,7 @@ hd_plot_feature_boxplot <- function(dat,
       ggplot2::scale_color_manual(values = fill_values)
   } else {
     fill_values <- if (is.null(names(pal))) {
-      stats::setNames(pal[1:length(levels(long_data[[variable]]))], levels(long_data[[variable]]))
+      stats::setNames(pal[seq_len(length(levels(long_data[[variable]])))], levels(long_data[[variable]]))
     } else {
       pal
     }
@@ -403,7 +403,7 @@ hd_plot_feature_heatmap <- function(de_results,
   assays <- res_de[["Feature"]]
 
   res_plot <- tibble::tibble()
-  for (i in 1:length(de_results)) {
+  for (i in seq_len(length(de_results))) {
 
     res_de <- de_results[[i]][["de_res"]] |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>
@@ -473,7 +473,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -500,7 +500,7 @@ hd_plot_feature_heatmap <- function(de_results,
 #'                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
 #'                      dplyr::mutate(Class = "GLIOM"))
 #'
-#' print(head(feature_panel, 5))
+#' message(head(feature_panel, 5))
 #'
 #' hd_plot_feature_network(feature_panel,
 #'                         plot_color = "logFC",

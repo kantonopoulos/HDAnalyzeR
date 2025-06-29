@@ -62,5 +62,5 @@ enrichment <- hd_gsea(de_results,
                       pval_lim = 0.9)
 
 # Access the results
-head(enrichment$enrichment@result)
+head(result(enrichment[["enrichment"]]))
 }

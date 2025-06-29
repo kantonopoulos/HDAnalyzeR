@@ -9,7 +9,7 @@
 calculate_na_percentage <- function(dat) {
   tibble::tibble(
     Variable = colnames(dat),
-    NA_percentage = sapply(dat, function(col) mean(is.na(col)) * 100)
+    NA_percentage = vapply(dat, function(col) mean(is.na(col)) * 100)
   )
 }
 
@@ -89,7 +89,7 @@ hd_na_search <- function(dat,
     message("Some category columns provided do not exist in the dataset.")
   }
 
-  annotation_vars_type <- sapply(metadata |>
+  annotation_vars_type <- vapply(metadata |>
                                    dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
                                  hd_detect_vartype)
   metadata <- hd_bin_columns(metadata |>
@@ -257,7 +257,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   set.seed(123)
@@ -325,7 +325,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   set.seed(123)
@@ -379,7 +379,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
 #' res$data
 #'
-#' \dontrun{
+#' \donttest{
 #' # Parallelize the imputation
 #' library(doParallel)  # Load the doParallel package
 #' cl <- makeCluster(4)  # Create a cluster with 4 cores
@@ -408,7 +408,7 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   set.seed(123)

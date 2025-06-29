@@ -70,7 +70,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 #'
 #' # Access the results
-#' head(enrichment$enrichment@result)
+#' head(result(enrichment[["enrichment"]]))
 #'
 #' # With a background gene list
 #' enrichment <- hd_ora(sig_up_proteins_aml,
@@ -79,7 +79,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'                      background = "olink_explore_ht")
 #'
 #' # Access the results
-#' head(enrichment$enrichment@result)
+#' head(result(enrichment[["enrichment"]]))
 hd_ora <- function(gene_list,
                    database = c("GO", "Reactome", "KEGG"),
                    ontology = c("BP", "CC", "MF", "ALL"),
@@ -145,7 +145,7 @@ hd_ora <- function(gene_list,
 
   }
 
-  if (is.null(enrichment) || is.na(any(enrichment@result[["p.adjust"]])) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
+  if (is.null(enrichment) || is.na(any(result(enrichment)[["p.adjust"]])) || !any(result(enrichment)[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
 
@@ -218,7 +218,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
     warning("Possible problem with the clustering in the treeplot. Might not have enough significant results.")
   })
 
-  if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
+  if (grepl("hsa", utils::head(result(enrichment[["enrichment"]])[["ID"]], 1))) {
     cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))
@@ -282,7 +282,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #'                       pval_lim = 0.9)
 #'
 #' # Access the results
-#' head(enrichment$enrichment@result)
+#' head(result(enrichment[["enrichment"]]))
 hd_gsea <- function(de_results,
                     database = c("GO", "Reactome", "KEGG"),
                     ontology = c("BP", "CC", "MF", "ALL"),
@@ -307,7 +307,7 @@ hd_gsea <- function(de_results,
                                  de_results[["Feature"]])
   } else {
     if (ranked_by %in% colnames(de_results)) {
-      message(paste("The ranking will be done based on the", ranked_by, "variable."))
+      message("The ranking will be done based on the", ranked_by, "variable.")
       gene_list <- stats::setNames(de_results[[ranked_by]],
                                    de_results[["Feature"]])
     } else {
@@ -369,9 +369,10 @@ hd_gsea <- function(de_results,
 
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
+  if (!any(result(enrichment)[["p.adjust"]] < pval_lim)) {
     stop("No significant terms found.")
   }
+
 
   enrichment <- list("gene_list" = gene_list, "enrichment" = enrichment)
   class(enrichment) <- "hd_enrichment"
@@ -431,10 +432,10 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
 
   gseaplot <- clusterProfiler::gseaplot(enrichment[["enrichment"]],
                                         by = "all",
-                                        title = enrichment[["enrichment"]]@result[["Description"]][1],
+                                        title = result(enrichment[["enrichment"]])[["Description"]][1],
                                         geneSetID = 1)
 
-  if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
+  if (grepl("hsa", utils::head(result(enrichment[["enrichment"]])[["ID"]], 1))) {
     cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))

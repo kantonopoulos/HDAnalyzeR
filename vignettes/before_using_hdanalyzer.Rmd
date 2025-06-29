@@ -34,3 +34,7 @@ Table 1. General requirements
 | **Matching sample IDs** | Sample IDs must match exactly between metadata and expression matrix. |
 
 > ⚠️ Although HDAnalyzeR is primarily designed for proteomics data, some functions in the package can also be applied to other omics data types such as genomics, transcriptomics, or metabolomics. However, it is important to note that the specific choice of functions and how they should be used will depend on the study's goals and the nature of the data. HDAnalyzeR does not provide explicit guarantees and the user must make informed decisions regarding its application to other types of omics data. Documentation and the source code of all functions is freely available.
+
+```{r session-info}
+sessionInfo()
+```

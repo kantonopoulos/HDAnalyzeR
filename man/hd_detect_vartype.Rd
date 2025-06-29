@@ -22,7 +22,7 @@ it is considered categorical. Otherwise, it is considered continuous.
 }
 \details{
 If you want to apply this function to each column of a dataframe, you can use the
-\code{sapply()} function. See examples. For more information check \code{sapply} documentation.
+\code{vapply()} function. See examples. For more information check \code{vapply} documentation.
 }
 \examples{
 # Check categorical data
@@ -38,5 +38,5 @@ example <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
                       Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9),
                       Mixed = c(1, "1", 2, 2, "3", 3))
 
-sapply(example, hd_detect_vartype)
+vapply(example, hd_detect_vartype)
 }

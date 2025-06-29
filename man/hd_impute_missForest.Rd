@@ -46,7 +46,7 @@ hd_object$data
 res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
 res$data
 
-\dontrun{
+\donttest{
 # Parallelize the imputation
 library(doParallel)  # Load the doParallel package
 cl <- makeCluster(4)  # Create a cluster with 4 cores

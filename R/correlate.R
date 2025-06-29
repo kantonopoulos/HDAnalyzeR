@@ -21,7 +21,7 @@
 #'  tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
 #'  dplyr::select(-DAid)
 #'
-#' hd_correlate(dat)[1:5, 1:5]  # Subset of the correlation matrix
+#' hd_correlate(dat)[seq_len(5), seq_len(5)]  # Subset of the correlation matrix
 #'
 #' # Correlate 2 vectors
 #' vec1 <- c(1, 2, 3, 4, 5)
@@ -70,7 +70,7 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #' results <- hd_plot_cor_heatmap(dat, threshold = 0.7)
 #'
 #' # Print results
-#' results$cor_matrix[1:5, 1:5]  # Subset of the correlation matrix
+#' results$cor_matrix[seq_len(5), seq_len(5)]  # Subset of the correlation matrix
 #'
 #' results$cor_results  # Filtered protein pairs exceeding correlation threshold
 #'

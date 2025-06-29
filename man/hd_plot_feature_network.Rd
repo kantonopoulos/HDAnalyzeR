@@ -32,7 +32,7 @@ classes and the smaller nodes represent the features. The color of the nodes is 
 color variable which can be either the importance, the logFC or any value that can rank the features.
 }
 \examples{
-\dontrun{
+\donttest{
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -59,7 +59,7 @@ feature_panel <- de_results_aml[["de_res"]] |>
                      dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
                      dplyr::mutate(Class = "GLIOM"))
 
-print(head(feature_panel, 5))
+message(head(feature_panel, 5))
 
 hd_plot_feature_network(feature_panel,
                         plot_color = "logFC",

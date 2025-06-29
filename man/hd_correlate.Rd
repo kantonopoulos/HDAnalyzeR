@@ -32,7 +32,7 @@ dat <- example_data |>
  tidyr::pivot_wider(names_from = "Assay", values_from = "NPX") |>
  dplyr::select(-DAid)
 
-hd_correlate(dat)[1:5, 1:5]  # Subset of the correlation matrix
+hd_correlate(dat)[seq_len(5), seq_len(5)]  # Subset of the correlation matrix
 
 # Correlate 2 vectors
 vec1 <- c(1, 2, 3, 4, 5)

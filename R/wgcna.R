@@ -60,7 +60,7 @@ hd_wgcna <- function(dat, power = NULL) {
     tibble::column_to_rownames(sample_id)
 
   matrix_dat <- dat_impute |> as.matrix()
-  bicor = WGCNA::bicor  # Set bicor namespace to avoid error in WGCNA::blockwiseModules
+  bicor <- WGCNA::bicor  # Set bicor namespace to avoid error in WGCNA::blockwiseModules
 
   # Perform WGCNA
   if (is.null(power)) {
@@ -225,7 +225,7 @@ hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
   # Predictive power score between MEs and metadata
   me_names <- colnames(wgcna[["wgcna"]][["MEs"]])
-  vartype <- sapply(metadata |>
+  vartype <- vapply(metadata |>
                       dplyr::select(dplyr::all_of(c(clinical_vars))),
                     hd_detect_vartype)
 

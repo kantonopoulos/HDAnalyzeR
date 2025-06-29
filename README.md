@@ -2,7 +2,7 @@
 
 [![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
-[![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
+[![Version](https://img.shields.io/badge/Version-0.99.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/LICENSE.md)
 
 HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to simplify proteomics data analysis for biomarker discovery in disease research. It provides a set of user-friendly functions to efficiently process blood plasma proteomics data and gain insights into disease mechanisms. With HDAnalyzeR, you can easily perform tasks like protein differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. 
@@ -70,4 +70,4 @@ If you encounter any bugs or you want to recommend new features and changes to e
 
 ## Contact
 
-For any questions or further information, please contact us at [konstantinos.antonopoulos@scilifelab.se](mailto:konstantinos.antonopoulos@scilifelab.se).
+For any questions or further information, please contact us at [k.antono@outlook.com](mailto:k.antono@outlook.com).

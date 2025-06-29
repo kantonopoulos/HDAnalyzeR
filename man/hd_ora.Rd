@@ -60,7 +60,7 @@ sig_up_proteins_aml <- de_results$de_res |>
 enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 
 # Access the results
-head(enrichment$enrichment@result)
+head(result(enrichment[["enrichment"]]))
 
 # With a background gene list
 enrichment <- hd_ora(sig_up_proteins_aml,
@@ -69,5 +69,5 @@ enrichment <- hd_ora(sig_up_proteins_aml,
                      background = "olink_explore_ht")
 
 # Access the results
-head(enrichment$enrichment@result)
+head(result(enrichment[["enrichment"]]))
 }

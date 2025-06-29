@@ -39,7 +39,7 @@ hd_bin_columns(test_data, column_types, bins = 3)
 # Automatically detect variable types
 test_data <- data.frame(Category = c("A", "B", "A", "C", "B", "A"),
                         Continuous = c(1.1, 2.5, 3.8, 4.0, 5.8, 9))
-column_types <- sapply(test_data, hd_detect_vartype)
+column_types <- vapply(test_data, hd_detect_vartype)
 
 # The variable to be binned has one significant digit
 # So we will also round the bins to one digit

@@ -248,7 +248,7 @@ hd_cluster_samples <- function(dat,
   set.seed(seed)
 
   if (!is.null(k)) {
-    message(paste("Using user-defined number of clusters: ", k))
+    message("Using user-defined number of clusters: ", k)
   } else {
     message("Determining optimal number of clusters using gap statistic.")
     k <- get_optimal_k(clust_in,
@@ -258,7 +258,7 @@ hd_cluster_samples <- function(dat,
                        distance = distance_method,
                        method = clustering_method)[["optimal_k"]]
 
-    message(paste("Optimal number of clusters: ", k))
+    message("Optimal number of clusters: ", k)
   }
 
   clust <- cluster_help(clust_in, k = k, distance = distance_method, method = clustering_method)[["cluster"]]
@@ -333,7 +333,7 @@ hd_assess_clusters <- function(cluster_object,
   stab <- clust_dat |>
     stats::dist(method = distance_method) |>
     fpc::clusterboot(B = nrep,
-                     distances = T,
+                     distances = TRUE,
                      clustermethod = fpc::hclustCBI,
                      k = k,
                      method = clustering_method,
@@ -354,20 +354,20 @@ hd_assess_clusters <- function(cluster_object,
   new_clust <- stab_df |>
     dplyr::mutate(
       Cluster = dplyr::case_when(
-        !!rlang::sym("Cluster") %in% noise_clust ~ 0, T ~ !!rlang::sym("Cluster")
+        !!rlang::sym("Cluster") %in% noise_clust ~ 0, TRUE ~ !!rlang::sym("Cluster")
       )) |>
     dplyr::filter(!!rlang::sym("Cluster") != 0) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("n")))
 
   new_clust <- new_clust |>
-    dplyr::mutate(Cluster = 1:nrow(new_clust))
+    dplyr::mutate(Cluster = seq_len(nrow(new_clust)))
 
   # Keep key of old vs new names to know stability of clusters
   stab_df <- stab_df |>
     dplyr::rename(cluster_og = !!rlang::sym("Cluster")) |>
     dplyr::left_join(new_clust, by = c("n", "Mean_ji")) |>
     dplyr::mutate(Cluster = dplyr::case_when(
-      is.na(!!rlang::sym("Cluster")) ~ 0, T ~ !!rlang::sym("Cluster")
+      is.na(!!rlang::sym("Cluster")) ~ 0, TRUE ~ !!rlang::sym("Cluster")
     )) |>
     dplyr::arrange(!!rlang::sym("n")) |>
     dplyr::relocate(!!rlang::sym("Cluster"), !!rlang::sym("cluster_og"))

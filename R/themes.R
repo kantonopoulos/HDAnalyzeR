@@ -47,20 +47,20 @@ theme_hd <- function(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRU
                strip.text = ggplot2::element_text(face = "bold")) +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = angled, vjust = 0.5, hjust = 1))
 
-    if (axis_x == F) {
+    if (axis_x == FALSE) {
       t <- t + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
                      axis.line.x = ggplot2::element_blank(),
                      axis.title.x = ggplot2::element_blank())
     }
 
-    if (axis_y == F) {
+    if (axis_y == FALSE) {
       t <- t + ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                      axis.ticks.y = ggplot2::element_blank(),
                      axis.line.y = ggplot2::element_blank(),
                      axis.title.y = ggplot2::element_blank())
     }
-    if (facet_title == F) {
+    if (facet_title == FALSE) {
       t <- t + ggplot2::theme(strip.text = ggplot2::element_blank())
     }
     return(t)

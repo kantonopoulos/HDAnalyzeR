@@ -260,10 +260,10 @@ prepare_data <- function(dat,
 
   nrows_after <- nrow(train_set)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed from train set because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after, 
+            " rows were removed from train set because they contain NAs in ", 
+            variable,
+            "!")
   }
 
   nrows_before <- nrow(test_set)
@@ -273,10 +273,10 @@ prepare_data <- function(dat,
 
   nrows_after <- nrow(test_set)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed from test set because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after,
+            " rows were removed from test set because they contain NAs in ",
+            variable,
+            "!")
   }
 
   if (var_type != "continuous") {
@@ -904,7 +904,7 @@ evaluate_multiclass_model <- function(dat,
     dplyr::select(-dplyr::all_of(c("ID"))) |>
     as.data.frame()
 
-  suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
+  auc <- multiROC::multi_roc(final_df, force_diag = TRUE)
   auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
                         AUC = unlist(auc[["AUC"]][["glmnet"]]))
 
@@ -1719,7 +1719,7 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'
 #' # Split the data for training and validation sets
 #' dat <- hd_object$data
-#' train_indices <- sample(1:nrow(dat), size = floor(0.8 * nrow(dat)))
+#' train_indices <- sample(seq_len(nrow(dat)), size = floor(0.8 * nrow(dat)))
 #' train_data <- dat[train_indices, ]
 #' validation_data <- dat[-train_indices, ]
 #'
@@ -1978,7 +1978,7 @@ hd_model_test <- function(model_object,
         dplyr::select(-dplyr::all_of(c("ID"))) |>
         as.data.frame()
 
-      suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
+      auc <- multiROC::multi_roc(final_df, force_diag = TRUE)
       auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
                             AUC = unlist(auc[["AUC"]][["glmnet"]]))
 
@@ -2119,7 +2119,7 @@ hd_plot_model_summary <- function(model_results,
       ) |>
         dplyr::mutate(Category = case)
     } else {
-      warning(paste("Classification metrics are not available for", case, "model."))
+      warning("Classification metrics are not available for", case, "model.")
       return(NA)
     }
   })
@@ -2171,7 +2171,7 @@ hd_plot_model_summary <- function(model_results,
   }
   feature_names <- names(model_results)
   ordered_colors <- pal[feature_names]
-  frequencies <- sapply(upset_features, length)
+  frequencies <- vapply(upset_features, length)
   ordered_feature_names <- names(sort(frequencies, decreasing = TRUE))
   ordered_colors <- ordered_colors[ordered_feature_names]
 
