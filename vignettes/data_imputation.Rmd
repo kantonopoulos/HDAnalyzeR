@@ -174,3 +174,7 @@ res$data
 In this vignette we showed that via HDAnalyzeR you can impute your data with different methods, each of them with its own advantages and drawbacks. You can choose the method that best fits your data and your analysis needs. When using KNN or MissForest imputation methods, you should experiment with the parameters and look at the distributions of assays before and after to pick the most suitable.
 
 > 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+
+```{r session-info}
+sessionInfo()
+```

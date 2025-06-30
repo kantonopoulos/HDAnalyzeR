@@ -318,3 +318,7 @@ hd_plot_feature_network(feature_panel,
 ```
 
 > 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+
+```{r session-info}
+sessionInfo()
+```
