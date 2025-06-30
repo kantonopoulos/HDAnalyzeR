@@ -337,7 +337,7 @@ hd_assess_clusters <- function(cluster_object,
   stab <- clust_dat |>
     stats::dist(method = distance_method) |>
     fpc::clusterboot(B = nrep,
-                     distances = T,
+                     distances = TRUE,
                      clustermethod = fpc::hclustCBI,
                      k = k,
                      method = clustering_method,
@@ -358,7 +358,7 @@ hd_assess_clusters <- function(cluster_object,
   new_clust <- stab_df |>
     dplyr::mutate(
       Cluster = dplyr::case_when(
-        !!rlang::sym("Cluster") %in% noise_clust ~ 0, T ~ !!rlang::sym("Cluster")
+        !!rlang::sym("Cluster") %in% noise_clust ~ 0, TRUE ~ !!rlang::sym("Cluster")
       )) |>
     dplyr::filter(!!rlang::sym("Cluster") != 0) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("n")))
@@ -371,7 +371,7 @@ hd_assess_clusters <- function(cluster_object,
     dplyr::rename(cluster_og = !!rlang::sym("Cluster")) |>
     dplyr::left_join(new_clust, by = c("n", "Mean_ji")) |>
     dplyr::mutate(Cluster = dplyr::case_when(
-      is.na(!!rlang::sym("Cluster")) ~ 0, T ~ !!rlang::sym("Cluster")
+      is.na(!!rlang::sym("Cluster")) ~ 0, TRUE ~ !!rlang::sym("Cluster")
     )) |>
     dplyr::arrange(!!rlang::sym("n")) |>
     dplyr::relocate(!!rlang::sym("Cluster"), !!rlang::sym("cluster_og"))
