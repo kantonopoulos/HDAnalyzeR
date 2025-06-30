@@ -74,7 +74,7 @@ The user can also specify the number of neighbors to consider for imputation.</p
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hd_impute_knn</span><span class="op">(</span><span class="va">dat</span>, k <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hd_impute_knn</span><span class="op">(</span><span class="va">dat</span>, k <span class="op">=</span> <span class="fl">5</span>, seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -87,6 +87,10 @@ The user can also specify the number of neighbors to consider for imputation.</p
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
 <dd><p>The number of neighbors to consider for imputation. Default is 5.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>The seed to be used in the imputation. Default is 123.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

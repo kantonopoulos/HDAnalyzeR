@@ -140,7 +140,7 @@ Default is "pearson". Other options are "kendall" or "spearman".</p></dd>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">hd_plot_cor_heatmap</span><span class="op">(</span><span class="va">dat</span>, threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print results</span></span></span>
-<span class="r-in"><span><span class="va">results</span><span class="op">$</span><span class="va">cor_matrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>  <span class="co"># Subset of the correlation matrix</span></span></span>
+<span class="r-in"><span><span class="va">results</span><span class="op">$</span><span class="va">cor_matrix</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">]</span>  <span class="co"># Subset of the correlation matrix</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        AARSD1  ABL1 ACAA1  ACAN ACE2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AARSD1   1.00  0.47  0.19 -0.06 0.04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ABL1     0.47  1.00  0.46 -0.01 0.13</span>

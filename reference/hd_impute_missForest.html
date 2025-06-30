@@ -76,6 +76,7 @@ It can also display the percentage of missing values in each column before imput
 <span>  maxiter <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  ntree <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  parallelize <span class="op">=</span> <span class="st">"no"</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -98,6 +99,10 @@ It can also display the percentage of missing values in each column before imput
 
 <dt id="arg-parallelize">parallelize<a class="anchor" aria-label="anchor" href="#arg-parallelize"></a></dt>
 <dd><p>If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the <code>missForest</code> documentation.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>The seed to be used in the imputation. Default is 123.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -162,7 +167,7 @@ imputation is provided in the examples section.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   missForest iteration 1 in progress...done!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     estimated error(s): 0.6198153 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     difference(s): 0.003816952 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     time: 20.785 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     time: 20.577 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">data</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 586 × 101</span></span>
