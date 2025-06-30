@@ -122,9 +122,9 @@ hd_de_limma <- function(dat,
                         hd_detect_vartype)
     for (i in correct) {
       if (var_types[i] == "categorical") {
-        cofactor = paste("as.factor(", i, ")")
+        cofactor <- paste("as.factor(", i, ")")
       } else {
-        cofactor = i
+        cofactor <- i
       }
       formula <- paste(formula, "+", cofactor)
     }
@@ -406,16 +406,16 @@ hd_plot_volcano <- function(de_object,
   # Title and subtitle
   title_text <- ""
   if (!is.null(title)) {
-    title_text = title
+    title_text <- title
   }
 
   if (isTRUE(report_nproteins)) {
     if (title_text != "") {
-      title_text = paste0(title_text,
+      title_text <- paste0(title_text,
                           "\nNum significant up = ", num.sig.up,
                           "\nNum significant down = ", num.sig.down)
     } else {
-      title_text = paste0("Num significant up = ", num.sig.up,
+      title_text <- paste0("Num significant up = ", num.sig.up,
                           "\nNum significant down = ", num.sig.down)
     }
   }
