@@ -187,7 +187,7 @@ hd_plot_feature_boxplot <- function(dat,
       ggplot2::scale_color_manual(values = fill_values)
   } else {
     fill_values <- if (is.null(names(pal))) {
-      stats::setNames(pal[1:length(levels(long_data[[variable]]))], levels(long_data[[variable]]))
+      stats::setNames(pal[seq_len(length(levels(long_data[[variable]])))], levels(long_data[[variable]]))
     } else {
       pal
     }
@@ -403,7 +403,7 @@ hd_plot_feature_heatmap <- function(de_results,
   assays <- res_de[["Feature"]]
 
   res_plot <- tibble::tibble()
-  for (i in 1:length(de_results)) {
+  for (i in seq_len(length(de_results))) {
 
     res_de <- de_results[[i]][["de_res"]] |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>

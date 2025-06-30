@@ -15,9 +15,9 @@ utils::globalVariables(c(":="))
 #' @keywords internal
 fix_components_names <- function(pca_res, components, by_sample, sample_id, var_name, type = "pca") {
   if (type == "pca") {
-    pc_names <- paste0("PC", 1:components)
+    pc_names <- paste0("PC", seq_len(components))
   } else if (type == "umap") {
-    pc_names <- paste0("UMAP", 1:components)
+    pc_names <- paste0("UMAP", seq_len(components))
   }
   if (isTRUE(by_sample)) {
     col_names <- c(sample_id, pc_names)
@@ -162,7 +162,7 @@ hd_pca <- function(dat,
 hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_features = 15) {
 
   loadings_plot <- pca_object[["pca_loadings"]] |>
-    dplyr::filter(!!rlang::sym("component") %in% paste0("PC", 1:displayed_pcs)) |>
+    dplyr::filter(!!rlang::sym("component") %in% paste0("PC", seq_len(displayed_pcs))) |>
     dplyr::group_by(!!rlang::sym("component")) |>
     dplyr::top_n(displayed_features, abs(!!rlang::sym("value"))) |>
     dplyr::ungroup() |>

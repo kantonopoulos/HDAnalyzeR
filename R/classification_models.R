@@ -1735,7 +1735,7 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'
 #' # Split the data for training and validation sets
 #' dat <- hd_object$data
-#' train_indices <- sample(1:nrow(dat), size = floor(0.8 * nrow(dat)))
+#' train_indices <- sample(seq_len(nrow(dat)), size = floor(0.8 * nrow(dat)))
 #' train_data <- dat[train_indices, ]
 #' validation_data <- dat[-train_indices, ]
 #'

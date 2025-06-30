@@ -52,7 +52,7 @@ dat <- example_data |>
 results <- hd_plot_cor_heatmap(dat, threshold = 0.7)
 
 # Print results
-results$cor_matrix[1:5, 1:5]  # Subset of the correlation matrix
+results$cor_matrix[seq_len(5), seq_len(5)]  # Subset of the correlation matrix
 
 results$cor_results  # Filtered protein pairs exceeding correlation threshold
 

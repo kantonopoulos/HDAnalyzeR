@@ -366,7 +366,7 @@ hd_plot_volcano <- function(de_object,
     dplyr::pull(!!rlang::sym("Feature"))
 
   if (is.null(user_defined_proteins)) {
-    top.sig.prot <- c(top.sig.up[1:top_up_prot], top.sig.down[1:top_down_prot])
+    top.sig.prot <- c(top.sig.up[seq_len(top_up_prot)], top.sig.down[seq_len(top_down_prot)])
   } else {
     top.sig.prot <- user_defined_proteins
   }
@@ -450,7 +450,7 @@ extract_protein_list <- function(upset_data, proteins) {
   combinations <- as.data.frame(upset_data)
   proteins_list <- list()
 
-  for (i in 1:nrow(combinations)) {
+  for (i in seq_len(nrow(combinations))) {
     combo <- combinations[i, ]
     set_names <- names(combo)[combo == 1]
     set_name <- paste(set_names, collapse = "&")
@@ -525,7 +525,7 @@ hd_plot_de_summary <- function(de_results,
 
   Variable <- rlang::sym(variable)
   de_res_list <- list()
-  for (i in 1:length(de_results)) {
+  for (i in seq_len(length(de_results))) {
     de_res_list[[i]] <- de_results[[i]][["de_res"]] |>
       dplyr::mutate(sig = dplyr::case_when(
         !!rlang::sym("adj.P.Val") < pval_lim & !!rlang::sym("logFC") < -logfc_lim ~ "significant down",

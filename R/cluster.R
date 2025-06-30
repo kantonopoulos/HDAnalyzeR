@@ -364,7 +364,7 @@ hd_assess_clusters <- function(cluster_object,
     dplyr::arrange(dplyr::desc(!!rlang::sym("n")))
 
   new_clust <- new_clust |>
-    dplyr::mutate(Cluster = 1:nrow(new_clust))
+    dplyr::mutate(Cluster = seq_len(nrow(new_clust)))
 
   # Keep key of old vs new names to know stability of clusters
   stab_df <- stab_df |>

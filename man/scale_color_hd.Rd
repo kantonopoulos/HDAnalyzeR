@@ -19,7 +19,7 @@ palettes.
 \examples{
 # Create an example dataframe
 data <- data.frame(
-  var1 = 1:10,
+  var1 = seq_len(10),
   var2 = seq(2, 20, by = 2),
   Sex = rep(c("M", "F"), each = 5)
 )
