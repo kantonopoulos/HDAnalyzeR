@@ -1,15 +1,15 @@
 Package: HDAnalyzeR
 Title: Streamlining Proteomic Data Analysis for Biomarker Research
-Version: 1.1.0
+Version: 0.99.0
 Authors@R: 
     c(
-      person("Konstantinos", "Antonopoulos", , "konstantinos.antonopoulos@scilifelab.se", 
+      person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", 
              role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2781-3872")),
       person("Maria", "Bueno Alvez", , "maria.bueno@scilifelab.se", role = c("aut"),
              comment = c(ORCID = "0000-0002-2669-7796")),
       person("Emil", "Johansson", , "emilj6@kth.se", role = c("aut"),
              comment = c(ORCID = "0009-0003-1250-0678")),
-      person("Fredrik", "Edfors Arfwidsson", , "edfors@kth.se", role = c("aut", "cph"),
+      person("Fredrik", "Edfors Arfwidsson", , "edfors@kth.se", role = c("aut", "cph", "fnd"),
              comment = c(ORCID = "0000-0002-0017-7987"))
     )
 Description: HDAnalyzeR accelerates and simplifies proteomics data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.
@@ -17,7 +17,7 @@ License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-biocViews:
+biocViews: DifferentialExpression, Visualization, Classification
 Imports: 
     arrow,
     broom,
@@ -56,6 +56,7 @@ Imports:
     UpSetR,
     utils,
     vip,
+    withr,
     workflows,
     yardstick
 Suggests: 
@@ -77,6 +78,9 @@ Suggests:
     writexl
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 4.5.0)
 LazyData: true
 URL: https://kantonopoulos.github.io/HDAnalyzeR, https://github.com/kantonopoulos/HDAnalyzeR
+VignetteBuilder: knitr
+VignetteEngine: knitr::rmarkdown
+BugReports: https://github.com/kantonopoulos/HDAnalyzeR/issues
