@@ -7,8 +7,8 @@ Authors@R:
              role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2781-3872")),
       person("Maria", "Bueno Alvez", , "maria.bueno@scilifelab.se", role = c("aut"),
              comment = c(ORCID = "0000-0002-2669-7796")),
-      person("Mathias", "", , "", role = c("aut", "cph", "fnd"),
-             comment = c(ORCID = ""))
+      person("Mathias", "Uhlen", , "mathias.uhlen@scilifelab.se", role = c("aut", "cph", "fnd"),
+             comment = c(ORCID = "0000-0002-4858-8056"))
     )
 Description: HDAnalyzeR accelerates and simplifies data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.
 License: Apache License (>= 2)
