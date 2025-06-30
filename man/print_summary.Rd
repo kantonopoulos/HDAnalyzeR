@@ -29,6 +29,9 @@ print_summary(
 
 \item{cor_threshold}{The reporting protein-protein correlation threshold.}
 }
+\value{
+Prints the summary, returs NULL
+}
 \description{
 \code{print_summary()} prints the summary of the quality control results of the
 input dataset. It includes the number of samples and variables, the counts of

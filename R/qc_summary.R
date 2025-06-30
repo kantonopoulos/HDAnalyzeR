@@ -79,7 +79,7 @@ calc_na_percentage_row <- function(dat, sample_id) {
 #' @param cor_results A tibble with the filtered protein pairs and their correlation values.
 #' @param cor_threshold The reporting protein-protein correlation threshold.
 #'
-#' @return NULL
+#' @return Prints the summary, returs NULL
 #' @keywords internal
 print_summary <- function(sample_n,
                           var_n,
