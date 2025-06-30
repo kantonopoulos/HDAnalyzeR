@@ -245,7 +245,9 @@ hd_cluster_samples <- function(dat,
   clust_in <- hd_impute_knn(wide_data, k = 5, verbose = FALSE) |>
     tibble::column_to_rownames(sample_id)
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   if (!is.null(k)) {
     message(paste("Using user-defined number of clusters: ", k))
@@ -329,7 +331,9 @@ hd_assess_clusters <- function(cluster_object,
     stop("The input object is not a valid HDAnalyzeR cluster object. Only objects created with hd_cluster_samples() are accepted.")
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   stab <- clust_dat |>
     stats::dist(method = distance_method) |>
     fpc::clusterboot(B = nrep,

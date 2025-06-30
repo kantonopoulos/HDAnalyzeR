@@ -9,6 +9,7 @@ hd_impute_missForest(
   maxiter = 10,
   ntree = 100,
   parallelize = "no",
+  seed = 123,
   verbose = TRUE
 )
 }
@@ -20,6 +21,8 @@ hd_impute_missForest(
 \item{ntree}{The number of trees to grow.}
 
 \item{parallelize}{If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the \code{missForest} documentation.}
+
+\item{seed}{The seed to be used in the imputation. Default is 123.}
 
 \item{verbose}{If TRUE, the percentage of missing values in each column is displayed.}
 }

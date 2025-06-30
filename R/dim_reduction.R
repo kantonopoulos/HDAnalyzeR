@@ -91,7 +91,9 @@ hd_pca <- function(dat,
     components <- ncol(wide_data)-1
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   pca_rec <- recipes::recipe( ~ ., data = wide_data) |>
     recipes::update_role(1, new_role = "id")  |>
@@ -554,7 +556,9 @@ hd_umap <- function(dat,
     components <- ncol(wide_data)-2
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   umap_rec <- recipes::recipe( ~ ., data = wide_data) |>
     recipes::update_role(1, new_role = "id")  |>

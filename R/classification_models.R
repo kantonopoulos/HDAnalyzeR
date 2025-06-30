@@ -67,7 +67,9 @@ hd_split_data <- function(dat,
                      by = sample_id) |>
     dplyr::relocate(!!Variable, .after = sample_id)
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   if (!is.null(variable)) {
     data_split <- rsample::initial_split(join_data, prop = ratio, strata = dplyr::any_of(variable))
   } else {
@@ -104,7 +106,9 @@ balance_groups <- function(dat,
 
   Variable <- rlang::sym(variable)
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   case_data <- dat |> dplyr::filter(!!Variable == case)
   control_data <- dat |> dplyr::filter(!!Variable != case)
 
@@ -283,7 +287,9 @@ prepare_data <- function(dat,
     train_set <- train_set |> dplyr::mutate(!!Variable := as.factor(!!Variable))
     test_set <- test_set |> dplyr::mutate(!!Variable := as.factor(!!Variable))
   }
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   train_folds <- rsample::vfold_cv(train_set, v = cv_sets, strata = !!Variable)
 
   dat[["train_data"]] <- train_set
@@ -379,7 +385,9 @@ tune_rreg_model <- function(dat,
 
   ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   if (model_type == "regression") {
     tune <- wf |> tune::tune_grid(train_folds,
                                   grid = grid,
@@ -473,7 +481,9 @@ tune_rf_model <- function(dat,
 
   ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   if (model_type == "regression") {
     tune <- wf |> tune::tune_grid(train_folds,
                                   grid = grid,
@@ -598,7 +608,9 @@ evaluate_model <- function(dat,
 
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   final <- final_wf |>
     parsnip::fit(train_set)
 
@@ -723,7 +735,9 @@ evaluate_regression_model <- function(dat,
 
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   final <- final_wf |>
     parsnip::fit(train_set)
 
@@ -809,7 +823,9 @@ evaluate_multiclass_model <- function(dat,
 
   }
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   final <- final_wf |>
     parsnip::fit(train_set)
 
@@ -1801,7 +1817,9 @@ hd_model_test <- function(model_object,
   train_set <- dat[["train_data"]]
   test_set <- dat[["test_data"]]
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   final <- final_wf |>
     parsnip::fit(train_set)
 

@@ -201,7 +201,9 @@ hd_ora <- function(gene_list,
 #' enrichment$cnetplot
 hd_plot_ora <- function(enrichment, seed = 123) {
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   # Visualize results
   dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]])
@@ -423,7 +425,9 @@ hd_gsea <- function(de_results,
 #' enrichment$ridgeplot
 hd_plot_gsea <- function(enrichment, seed = 123) {
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   # Visualize results
   dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]], split=".sign") +

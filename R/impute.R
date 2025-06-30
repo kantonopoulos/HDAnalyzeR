@@ -260,7 +260,6 @@ hd_impute_median <- function(dat, verbose = TRUE) {
     print(na_percentages)
   }
 
-  set.seed(123)
   recipe <- recipes::recipe(~ ., data = data_in) |>
     recipes::step_impute_median(recipes::all_predictors())
 
@@ -290,6 +289,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
 #'
 #' @param dat An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.
 #' @param k The number of neighbors to consider for imputation. Default is 5.
+#' @param seed The seed to be used in the imputation. Default is 123.
 #' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
@@ -303,7 +303,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
 #' # Data after imputation
 #' res <- hd_impute_knn(hd_object, k = 3)
 #' res$data
-hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
+hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
 
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
@@ -328,7 +328,9 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
     print(na_percentages)
   }
 
-  set.seed(123)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   recipe <- recipes::recipe(~ ., data = data_in) |>
     recipes::step_impute_knn(recipes::all_predictors(), neighbors = k)
 
@@ -359,6 +361,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' @param maxiter The maximum number of iterations.
 #' @param ntree  The number of trees to grow.
 #' @param parallelize If "no", the imputation is done in a single core. If "variables", the imputation is done in parallel for each variable. If "forest", the imputation is done in parallel for each tree. For more information, check the `missForest` documentation.
+#' @param seed The seed to be used in the imputation. Default is 123.
 #' @param verbose If TRUE, the percentage of missing values in each column is displayed.
 #'
 #' @return The imputed dataset.
@@ -386,7 +389,7 @@ hd_impute_knn <- function(dat, k = 5, verbose = TRUE) {
 #' registerDoParallel(cl)  # Register the cluster
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
 #' }
-hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", verbose = TRUE) {
+hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", seed = 123, verbose = TRUE) {
 
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
@@ -411,7 +414,9 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
     print(na_percentages)
   }
 
-  set.seed(123)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   data_in <- as.data.frame(data_in)  # Convert to data frame for missForest
   imputed_data <- missForest::missForest(data_in,
                                          maxiter = maxiter,

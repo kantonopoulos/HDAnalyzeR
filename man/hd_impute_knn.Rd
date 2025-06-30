@@ -4,12 +4,14 @@
 \alias{hd_impute_knn}
 \title{Impute via k-nearest neighbors}
 \usage{
-hd_impute_knn(dat, k = 5, verbose = TRUE)
+hd_impute_knn(dat, k = 5, seed = 123, verbose = TRUE)
 }
 \arguments{
 \item{dat}{An HDAnalyzeR object or a dataset in wide format and sample ID as its first column.}
 
 \item{k}{The number of neighbors to consider for imputation. Default is 5.}
+
+\item{seed}{The seed to be used in the imputation. Default is 123.}
 
 \item{verbose}{If TRUE, the percentage of missing values in each column is displayed.}
 }

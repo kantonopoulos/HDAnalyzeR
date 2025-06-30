@@ -513,7 +513,9 @@ hd_plot_feature_network <- function(feature_panel,
                                     importance_palette = NULL,
                                     seed = 123) {
 
-  set.seed(seed)
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
   tbl_graph <- feature_panel |>
     dplyr::select(dplyr::all_of(c("Feature", "Class", plot_color))) |>
     tidygraph::as_tbl_graph()
