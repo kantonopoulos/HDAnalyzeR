@@ -159,85 +159,6 @@ HDAnalyzeR palettes by running <code><a href="../reference/hd_show_palettes.html
 <span>                         variable <span class="op">=</span> <span class="st">"Disease"</span>, </span>
 <span>                         palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Disease <span class="op">=</span> <span class="st">"cancers12"</span>, Sex <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span>, </span>
 <span>                         cor_threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Summary:"</span></span>
-<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 101"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "categorical : 1"</span></span>
-<span><span class="co">#&gt; [1] "continuous : 100"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 91 × 2</span></span></span>
-<span><span class="co">#&gt;    column   na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> ACE2               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> ACTA2              6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ACTN4              6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ADAM15             6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> ADAMTS16           6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ADH4               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AKR1C4             6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AMBN               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AMN                6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AOC1               6.1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 81 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 144 × 2</span></span></span>
-<span><span class="co">#&gt;    DAid    na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00450          57.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00482          53.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00542          53.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00003          50.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00463          46.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00116          43.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00475          42.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00578          42.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00443          41.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00476          35.6</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 134 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Protein-protein correlations above 0.7:"</span></span>
-<span><span class="co">#&gt;   Protein1 Protein2 Correlation</span></span>
-<span><span class="co">#&gt; 1  ATP5IF1    AIFM1        0.76</span></span>
-<span><span class="co">#&gt; 2    AXIN1 ARHGEF12        0.76</span></span>
-<span><span class="co">#&gt; 3    AIFM1  ATP5IF1        0.76</span></span>
-<span><span class="co">#&gt; 4 ARHGEF12    AXIN1        0.76</span></span>
-<span><span class="co">#&gt; 5 ARHGEF12    AIFM1        0.71</span></span>
-<span><span class="co">#&gt; 6    AIFM1 ARHGEF12        0.71</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "Summary:"</span></span>
-<span><span class="co">#&gt; [1] "Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()"</span></span>
-<span><span class="co">#&gt; [1] "Number of samples: 586"</span></span>
-<span><span class="co">#&gt; [1] "Number of variables: 9"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "categorical : 7"</span></span>
-<span><span class="co">#&gt; [1] "continuous : 2"</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each column:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
-<span><span class="co">#&gt;   column na_percentage</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Grade           91.5</span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
-<span><span class="co">#&gt; [1] "NA percentage in each row:"</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 536 × 2</span></span></span>
-<span><span class="co">#&gt;    DAid    na_percentage</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DA00001          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> DA00002          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> DA00003          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> DA00004          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> DA00005          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> DA00006          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DA00007          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DA00008          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> DA00009          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> DA00010          11.1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 526 more rows</span></span></span>
-<span><span class="co">#&gt; [1] "--------------------------------------"</span></span>
 <span></span>
 <span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">na_col_hist</span></span></code></pre></div>
 <p><img src="data_preprocessing_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
@@ -436,7 +357,7 @@ its functions.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Konstantinos Antonopoulos, Maria Bueno Alvez, Emil Johansson, Fredrik Edfors Arfwidsson.</p>
+  <p>Developed by Konstantinos Antonopoulos, Maria Bueno Alvez, Mathias Uhlen.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -150,24 +150,16 @@ imputation is provided in the examples section.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Data after imputation</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">hd_impute_missForest</span><span class="op">(</span><span class="va">hd_object</span>, maxiter <span class="op">=</span> <span class="fl">1</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 91 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable NA_percentage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> AARSD1            5.80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ABL1              5.80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ACAA1             5.29</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ACAN              3.92</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> ACE2              6.14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ACOX1             3.92</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ACP6              2.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ACTA2             6.14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ACTN4             6.14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ACY1              3.92</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 81 more rows</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> c("AARSD1", "ABL1", "ACAA1", "ACAN", "ACE2", "ACOX1", "ACP6", "ACTA2", "ACTN4", "ACY1", "ADA", "ADA2", "ADAM15", "ADAM23", "ADAMTS15", "ADAMTS16", "ADAMTS8", "ADCYAP1R1", "ADGRE2", "ADGRG1", "ADGRG2", "ADH4", "ADM", "AGER", "AGR2", "AGR3", "AGRN", "AGRP", "AGXT", "AHCY", "AHSP", "AIF1", "AIFM1", "AK1", "AKR1B1", "AKR1C4", "AKT1S1", "AKT3", "ALDH1A1", "ALDH3A1", "ALPP", "AMBN", "AMBP", "AMFR", "AMIGO2", "AMN", "ANG", "ANGPT1", "ANGPT2", "ANGPTL1", "ANGPTL2", "ANGPTL3", "ANGPTL4", "ANGPTL7", "ANKRD54", </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> "ANPEP", "ANXA10", "ANXA11", "ANXA4", "ANXA5", "AOC1", "AOC3", "APBB1IP", "APEX1", "APLP1", "APOH", "APOM", "APP", "AREG", "ARG1", "ARHGAP1", "ARHGAP25", "ARHGEF12", "ARID4B", "ARNT", "ARSA", "ARSB", "ART3", "ARTN", "ATF2", "ATG4A", "ATOX1", "ATP5IF1", "ATP5PO", "ATP6AP2", "ATP6V1D", "ATP6V1F", "ATXN10", "AXIN1", "AXL", "B4GALT1")c(AARSD1 = 5.80204778156997, ABL1 = 5.80204778156997, ACAA1 = 5.2901023890785, ACAN = 3.92491467576792, ACE2 = 6.14334470989761, ACOX1 = 3.92491467576792, ACP6 = 2.21843003412969, ACTA2 = 6.14334470989761, ACTN4 = 6.14334470989761, ACY1 = 3.92491467576792, ADA = 1.36518771331058, ADA2 = 4.09556313993174, ADAM15 = 6.14334470989761, ADAM23 = 1.36518771331058, ADAMTS15 = 5.80204778156997, ADAMTS16 = 6.14334470989761, ADAMTS8 = 4.09556313993174, ADCYAP1R1 = 5.2901023890785, ADGRE2 = 3.41296928327645, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ADGRG1 = 5.80204778156997, ADGRG2 = 3.92491467576792, ADH4 = 6.14334470989761, ADM = 2.21843003412969, AGER = 3.41296928327645, AGR2 = 5.97269624573379, AGR3 = 5.2901023890785, AGRN = 3.41296928327645, AGRP = 1.36518771331058, AGXT = 3.92491467576792, AHCY = 3.92491467576792, AHSP = 3.41296928327645, AIF1 = 5.2901023890785, AIFM1 = 5.80204778156997, AK1 = 3.92491467576792, AKR1B1 = 5.2901023890785, AKR1C4 = 6.14334470989761, AKT1S1 = 5.97269624573379, AKT3 = 5.2901023890785, ALDH1A1 = 3.41296928327645, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ALDH3A1 = 4.94880546075085, ALPP = 5.80204778156997, AMBN = 6.14334470989761, AMBP = 2.21843003412969, AMFR = 5.97269624573379, AMIGO2 = 5.80204778156997, AMN = 6.14334470989761, ANG = 4.09556313993174, ANGPT1 = 3.41296928327645, ANGPT2 = 2.21843003412969, ANGPTL1 = 3.92491467576792, ANGPTL2 = 3.41296928327645, ANGPTL3 = 4.09556313993174, ANGPTL4 = 3.41296928327645, ANGPTL7 = 2.21843003412969, ANKRD54 = 5.2901023890785, ANPEP = 4.09556313993174, ANXA10 = 5.97269624573379, ANXA11 = 4.94880546075085, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ANXA4 = 3.92491467576792, ANXA5 = 5.97269624573379, AOC1 = 6.14334470989761, AOC3 = 4.09556313993174, APBB1IP = 5.80204778156997, APEX1 = 2.21843003412969, APLP1 = 3.92491467576792, APOH = 3.41296928327645, APOM = 4.09556313993174, APP = 3.41296928327645, AREG = 5.80204778156997, ARG1 = 2.21843003412969, ARHGAP1 = 5.2901023890785, ARHGAP25 = 5.2901023890785, ARHGEF12 = 4.94880546075085, ARID4B = 5.97269624573379, ARNT = 6.14334470989761, ARSA = 3.41296928327645, ARSB = 5.80204778156997, ART3 = 4.09556313993174, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ARTN = 6.14334470989761, ATF2 = 5.97269624573379, ATG4A = 5.2901023890785, ATOX1 = 4.09556313993174, ATP5IF1 = 3.41296928327645, ATP5PO = 5.97269624573379, ATP6AP2 = 5.2901023890785, ATP6V1D = 5.80204778156997, ATP6V1F = 5.97269624573379, ATXN10 = 5.97269624573379, AXIN1 = 4.94880546075085, AXL = 4.09556313993174, B4GALT1 = 3.41296928327645)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   missForest iteration 1 in progress...done!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     estimated error(s): 0.6198153 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     difference(s): 0.003816952 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     time: 20.577 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     time: 21.067 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">data</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 586 × 101</span></span>
@@ -205,7 +197,7 @@ imputation is provided in the examples section.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Konstantinos Antonopoulos, Maria Bueno Alvez, Emil Johansson, Fredrik Edfors Arfwidsson.</p>
+  <p>Developed by Konstantinos Antonopoulos, Maria Bueno Alvez, Mathias Uhlen.</p>
 </div>
 
 <div class="pkgdown-footer-right">
