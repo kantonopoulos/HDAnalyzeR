@@ -127,7 +127,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Check if variable is categorical or continuous
   var_type <- hd_detect_vartype(var_component[[variable]], unique_threshold = 5)
   if (verbose) {
-    message(paste("Variable", variable, "is ", var_type))
+    message("Variable", variable, "is ", var_type)
   }
   
   # Filter data and metadata based on variable type and flag
@@ -185,7 +185,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   }
 
   if (verbose) {
-    message(paste("Filtering complete. Rows remaining:", nrow(hd_obj$data)))
+    message("Filtering complete. Rows remaining:", nrow(hd_obj$data))
   }
 
   return(hd_obj)
@@ -240,11 +240,11 @@ hd_save_path <- function(path_name, date = FALSE) {
     # Check if the directory was created successfully
     if (dir.exists(path_name)) {
     } else {
-      warning(paste("Failed to create directory", path_name))
+      warning("Failed to create directory", path_name)
     }
 
   } else {
-    message(paste("Directory", path_name, "already exists."))
+    message("Directory", path_name, "already exists.")
   }
 
   return(path_name)
@@ -298,7 +298,7 @@ hd_save_data <- function(dat, path_name) {
   if (file.exists(path_name)) {
     return(paste("File saved as", path_name))
   } else {
-    stop(paste("Failed to save file as", path_name))
+    stop("Failed to save file as", path_name)
   }
 
 }

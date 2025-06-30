@@ -250,7 +250,7 @@ hd_cluster_samples <- function(dat,
   }
 
   if (!is.null(k)) {
-    message(paste("Using user-defined number of clusters: ", k))
+    message("Using user-defined number of clusters:", k)
   } else {
     message("Determining optimal number of clusters using gap statistic.")
     k <- get_optimal_k(clust_in,
@@ -260,7 +260,7 @@ hd_cluster_samples <- function(dat,
                        distance = distance_method,
                        method = clustering_method)[["optimal_k"]]
 
-    message(paste("Optimal number of clusters: ", k))
+    message("Optimal number of clusters:", k)
   }
 
   clust <- cluster_help(clust_in, k = k, distance = distance_method, method = clustering_method)[["cluster"]]

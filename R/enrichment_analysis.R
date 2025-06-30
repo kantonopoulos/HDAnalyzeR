@@ -309,7 +309,7 @@ hd_gsea <- function(de_results,
                                  de_results[["Feature"]])
   } else {
     if (ranked_by %in% colnames(de_results)) {
-      message(paste("The ranking will be done based on the", ranked_by, "variable."))
+      message("The ranking will be done based on the", ranked_by, "variable.")
       gene_list <- stats::setNames(de_results[[ranked_by]],
                                    de_results[["Feature"]])
     } else {

@@ -118,8 +118,8 @@ hd_plot_feature_boxplot <- function(dat,
   }
 
   if (any(!(features %in% colnames(wide_data)))) {
-    warning(paste("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
-                  "are not present in the data and will be skipped."))
+    warning("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
+            "are not present in the data and will be skipped.")
     features <- features[features %in% colnames(wide_data)]
     if (length(features) == 0) stop("None of the features are present in the data.")
   }

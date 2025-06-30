@@ -101,12 +101,12 @@ hd_de_limma <- function(dat,
 
   nrows_after <- nrow(join_data)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ",
-                   variable,
-                   " or ",
-                   paste(correct, collapse = ", "),
-                   "!"))
+    warning(nrows_before - nrows_after,
+            " rows were removed because they contain NAs in ",
+            variable,
+            " or ",
+            paste(correct, collapse = ", "),
+            "!")
   }
 
   # Design a model
@@ -265,10 +265,10 @@ hd_de_ttest <- function(dat,
 
   nrows_after <- nrow(join_data)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after,
+            "rows were removed because they contain NAs in",
+            variable,
+            "!")
   }
 
   de_res <- matrix(nrow=0, ncol=7)

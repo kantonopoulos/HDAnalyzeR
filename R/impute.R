@@ -257,7 +257,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   recipe <- recipes::recipe(~ ., data = data_in) |>
@@ -325,7 +325,7 @@ hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   if (!is.null(seed)) {
@@ -411,7 +411,7 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    print(na_percentages)
+    message(na_percentages)
   }
 
   if (!is.null(seed)) {

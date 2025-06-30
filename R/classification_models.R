@@ -264,10 +264,10 @@ prepare_data <- function(dat,
 
   nrows_after <- nrow(train_set)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed from train set because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after,
+            "rows were removed from train set because they contain NAs in",
+            variable,
+            "!")
   }
 
   nrows_before <- nrow(test_set)
@@ -277,10 +277,10 @@ prepare_data <- function(dat,
 
   nrows_after <- nrow(test_set)
   if (nrows_before != nrows_after){
-    warning(paste0(nrows_before - nrows_after,
-                   " rows were removed from test set because they contain NAs in ",
-                   variable,
-                   "!"))
+    warning(nrows_before - nrows_after,
+            "rows were removed from test set because they contain NAs in",
+            variable,
+            "!")
   }
 
   if (var_type != "continuous") {
@@ -2137,7 +2137,7 @@ hd_plot_model_summary <- function(model_results,
       ) |>
         dplyr::mutate(Category = case)
     } else {
-      warning(paste("Classification metrics are not available for", case, "model."))
+      warning("Classification metrics are not available for", case, "model.")
       return(NA)
     }
   })

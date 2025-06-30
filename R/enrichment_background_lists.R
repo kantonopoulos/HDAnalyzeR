@@ -76,9 +76,9 @@ select_background <- function(background){
 #' hd_show_backgrounds()
 hd_show_backgrounds <- function(){
   backgrounds <- background_lists()
-  cat("Available background lists:\n")
-  cat(paste(names(backgrounds), collapse = ", "))
-  cat("\n")
+  message("Available background lists:\n")
+  message(paste(names(backgrounds), collapse = ", "))
+  message("\n")
 }
 
 

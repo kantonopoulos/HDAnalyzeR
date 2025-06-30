@@ -89,27 +89,27 @@ print_summary <- function(sample_n,
                           cor_results = NULL,
                           cor_threshold = 0.8) {
 
-  print("Summary:")
-  print("Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()")
-  print(paste0("Number of samples: ", sample_n))
-  print(paste0("Number of variables: ", var_n))
-  print("--------------------------------------")
+  message("Summary:")
+  message("Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()")
+  message("Number of samples: ", sample_n)
+  message("Number of variables: ", var_n)
+  message("--------------------------------------")
   for (class_name in names(class_summary)) {
-    print(paste(class_name, ":", class_summary[class_name]))
+    message(class_name, ":", class_summary[class_name])
   }
-  print("--------------------------------------")
-  print("NA percentage in each column:")
-  print(na_percentage_col)
-  print("--------------------------------------")
+  message("--------------------------------------")
+  message("NA percentage in each column:")
+  message(na_percentage_col)
+  message("--------------------------------------")
   if (!is.null(na_percentage_row)) {
-    print("NA percentage in each row:")
-    print(na_percentage_row)
-    print("--------------------------------------")
+    message("NA percentage in each row:")
+    message(na_percentage_row)
+    message("--------------------------------------")
   }
   if (!is.null(cor_results)) {
-    print(paste0("Protein-protein correlations above ", cor_threshold, ":"))
-    print(cor_results)
-    print("--------------------------------------")
+    message("Protein-protein correlations above ", cor_threshold, ":")
+    message(cor_results)
+    message("--------------------------------------")
   }
 
   invisible(NULL)

@@ -85,9 +85,9 @@ hd_pca <- function(dat,
   }
 
   if (components > ncol(wide_data)-1) {
-    warning(paste("The number of PCs to be calculated is higher than the number of features in the data.",
-                  ncol(wide_data)-1,
-                  "PCs will be used."))
+    warning("The number of PCs to be calculated is higher than the number of features in the data.",
+            ncol(wide_data)-1,
+            "PCs will be used.")
     components <- ncol(wide_data)-1
   }
 
@@ -550,9 +550,9 @@ hd_umap <- function(dat,
   }
 
   if (components > ncol(wide_data)-2) {
-    message(paste("The number of UMAPs to be calculated is higher than the number of features in the data.",
-                  ncol(wide_data)-2,
-                  "UMAPs will be used."))
+    message("The number of UMAPs to be calculated is higher than the number of features in the data.",
+            ncol(wide_data)-2,
+            "UMAPs will be used.")
     components <- ncol(wide_data)-2
   }
 

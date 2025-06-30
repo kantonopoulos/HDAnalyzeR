@@ -58,13 +58,13 @@ hd_literature_search <- function(feature_class_list,
       }
 
       if (verbose) {
-        message(paste0("Searching for articles on ", gene, " and ", disease))
+        message("Searching for articles on", gene, "and", disease)
       }
 
       ids <- easyPubMed::get_pubmed_ids(query, api_key = api_key)
 
       if (ids[["Count"]] == 0) {
-        message(paste0("No articles found for ", gene, " and ", disease))
+        message("No articles found for", gene, "and", disease)
         next
       }
 
@@ -72,11 +72,11 @@ hd_literature_search <- function(feature_class_list,
         abstracts_xml <- easyPubMed::fetch_pubmed_data(pubmed_id_list = ids, retmax = max_articles)
       }, error = function(e) {
         # Handle any errors during the query or processing
-        message(paste0("An error occurred while searching for ", gene, " and ", disease, ": ", e$message))
+        message("Problem while searching for", gene, "and", disease, ":", e$message)
       })
 
       if (is.null(abstracts_xml) || length(abstracts_xml) == 0) {
-        message(paste0("No abstracts could be fetched for ", gene, " and ", disease))
+        message("No abstracts could be fetched for", gene, "and", disease)
         next
       }
 
