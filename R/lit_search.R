@@ -63,7 +63,13 @@ hd_literature_search <- function(feature_class_list,
 
       ids <- easyPubMed::get_pubmed_ids(query, api_key = api_key)
 
-      if (ids[["Count"]] == 0) {
+      if (is.null(ids) || length(ids) == 0) {
+        message("No articles found for", gene, "and", disease)
+        next
+      } else if (!"Count" %in% names(ids)) {
+        message("Invalid response from PubMed API")
+        next
+      } else if (ids[["Count"]] == 0) {
         message("No articles found for", gene, "and", disease)
         next
       }
