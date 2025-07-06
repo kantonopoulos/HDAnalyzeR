@@ -2,7 +2,7 @@
 title: "Exploratory Data Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data Preprocessing}
+  %\VignetteIndexEntry{data_preprocessing}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
