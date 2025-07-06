@@ -328,7 +328,9 @@ hd_gsea <- function(de_results,
 
   conversion <- gene_to_entrezid(names(sorted_gene_list), NULL)
   gene_list <- stats::setNames(sorted_gene_list, conversion[["gene_list"]])
-
+  # Removed unmapped genes
+  gene_list <- gene_list[!is.na(names(gene_list))]
+  
   if (database == "KEGG") {
 
     # Perform GSEA for KEGG
