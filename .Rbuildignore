@@ -10,10 +10,9 @@
 ^logo$
 ^\.github$
 ^_pkgdown\.yml$
-^pkgdown$
 ^LICENSE\.md$
-^cheatsheet$
-^hdanalyzer_app$
+^inst\cheatsheet$
+^inst\hdanalyzer_app$
 ^paper$
 ^index.md
 ^case_studies$
