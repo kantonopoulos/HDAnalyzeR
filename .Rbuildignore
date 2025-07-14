@@ -4,14 +4,13 @@
 ^Rpackage\.Rproj$
 ^\.Rproj\.user$
 ^HDAnalyzeR\.Rproj$
-^inst$
+^inst\extdata$
+^inst\CITATION
 ^data-raw$
 ^logo$
 ^\.github$
 ^_pkgdown\.yml$
-^docs$
 ^pkgdown$
-^vignettes
 ^LICENSE\.md$
 ^cheatsheet$
 ^hdanalyzer_app$
