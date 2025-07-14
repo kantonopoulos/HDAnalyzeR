@@ -13,5 +13,5 @@ wide_data.rds
 docs
 inst/doc
 *.pptx
-cheatsheet/hdanalyzer_cheat-sheet_horizontal.pdf
-cheatsheet/hdanalyzer_cheat-sheet.afdesign
+inst/cheatsheet/hdanalyzer_cheat-sheet_horizontal.pdf
+inst/cheatsheet/hdanalyzer_cheat-sheet.afdesign
