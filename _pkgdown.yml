@@ -3,7 +3,7 @@ template:
   bootstrap: 5
   light-switch: yes
   assets:
-    - inst/pkgdown/extra.css
+    - pkgdown/extra.css
 footer:
   structure:
     left: developed_by
