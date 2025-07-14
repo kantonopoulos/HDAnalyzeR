@@ -2,9 +2,8 @@ url: https://kantonopoulos.github.io/HDAnalyzeR
 template:
   bootstrap: 5
   light-switch: yes
-  includes:
-    in_header: .github/pkgdown/extra.css
-
+  assets:
+    - .github/pkgdown/extra.css
 footer:
   structure:
     left: developed_by
