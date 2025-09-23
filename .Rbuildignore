@@ -16,3 +16,10 @@
 ^paper$
 ^index.md
 ^case_studies$
+
+^vignettes/before_using_hdanalyzer.Rmd$
+^vignettes/data_preprocessing.Rmd$
+^vignettes/data_imputation.Rmd$
+^vignettes/differential_expression.Rmd$
+^vignettes/classification.Rmd$
+^vignettes/post_analysis.Rmd$
