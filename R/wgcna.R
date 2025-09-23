@@ -18,6 +18,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -29,6 +30,7 @@
 #' head(wgcna_res$wgcna$MEs)
 #' wgcna_res$power
 #' wgcna_res$power_plots
+#' }
 hd_wgcna <- function(dat, power = NULL) {
 
   if (!requireNamespace("WGCNA", quietly = TRUE)) {
@@ -121,6 +123,7 @@ hd_wgcna <- function(dat, power = NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -140,6 +143,7 @@ hd_wgcna <- function(dat, power = NULL) {
 #' wgcna_res$var_pps_heatmap
 #' wgcna_res$me_cor_heatmap
 #' wgcna_res$dendrogram
+#' }
 hd_plot_wgcna <- function(dat, metadata = NULL, wgcna, clinical_vars = NULL) {
 
   if (!requireNamespace("ppsr", quietly = TRUE)) {

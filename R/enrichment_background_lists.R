@@ -73,7 +73,9 @@ select_background <- function(background){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' hd_show_backgrounds()
+#' }
 hd_show_backgrounds <- function(){
   backgrounds <- background_lists()
   message("Available background lists:\n")

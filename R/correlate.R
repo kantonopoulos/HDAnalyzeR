@@ -15,6 +15,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Correlate features in a dataset (column wise)
 #' dat <- example_data |>
 #'  dplyr::select(DAid, Assay, NPX) |>
@@ -27,6 +28,7 @@
 #' vec1 <- c(1, 2, 3, 4, 5)
 #' vec2 <- c(5, 4, 3, 2, 1)
 #' hd_correlate(vec1, vec2)
+#' }
 hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "pearson") {
 
   cor_matrix <- round(
@@ -60,6 +62,7 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Prepare data
 #' dat <- example_data |>
 #'   dplyr::select(DAid, Assay, NPX) |>
@@ -75,6 +78,7 @@ hd_correlate <- function(x, y = NULL, use = "pairwise.complete.obs", method = "p
 #' results$cor_results  # Filtered protein pairs exceeding correlation threshold
 #'
 #' results$cor_heatmap  # Heatmap of protein-protein correlations
+#' }
 hd_plot_cor_heatmap <- function(x,
                                 y = NULL,
                                 use = "pairwise.complete.obs",

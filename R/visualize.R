@@ -65,6 +65,7 @@ apply_palette <- function(plot, palette, type = "color") {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -83,6 +84,7 @@ apply_palette <- function(plot, palette, type = "color") {
 #'                         type = "case_vs_control",
 #'                         palette = "cancers12",
 #'                         points = FALSE)
+#' }
 hd_plot_feature_boxplot <- function(dat,
                                     metadata = NULL,
                                     variable = "Disease",
@@ -233,6 +235,7 @@ hd_plot_feature_boxplot <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -248,6 +251,7 @@ hd_plot_feature_boxplot <- function(dat,
 #'                    x = "AARSD1",
 #'                    y = "Age",
 #'                    r_2 = FALSE)
+#' }
 hd_plot_regression <- function(dat,
                                metadata = NULL,
                                metadata_cols = NULL,
@@ -337,6 +341,7 @@ hd_plot_regression <- function(dat,
 #' and in the right format (see examples).
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -387,6 +392,7 @@ hd_plot_regression <- function(dat,
 #'
 #' # Create the summary heatmap
 #' hd_plot_feature_heatmap(res_de, res_model, order_by = "MYEL")
+#' }
 hd_plot_feature_heatmap <- function(de_results,
                                     model_results,
                                     order_by,

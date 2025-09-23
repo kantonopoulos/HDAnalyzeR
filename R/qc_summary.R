@@ -314,6 +314,7 @@ qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, u
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data,
 #'                            example_metadata |> dplyr::select(-Sample))
@@ -340,6 +341,7 @@ qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, u
 #' qc_res$metadata_summary$Stage
 #' qc_res$metadata_summary$Grade
 #' qc_res$metadata_summary$Cohort
+#' }
 hd_qc_summary <- function(dat,
                           metadata = NULL,
                           variable,

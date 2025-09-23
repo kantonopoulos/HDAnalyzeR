@@ -10,7 +10,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' hd_palettes()
+#' }
 hd_palettes <- function() {
 
   palettes <- list(
@@ -214,7 +216,9 @@ hd_palettes <- function() {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' hd_show_palettes()
+#' }
 hd_show_palettes <- function(palettes = hd_palettes(), n = NULL) {
 
   # Prepare a data frame with all palette information
@@ -265,6 +269,7 @@ hd_show_palettes <- function(palettes = hd_palettes(), n = NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create an example dataframe
 #' data <- data.frame(
 #'   var1 = seq_len(10),
@@ -279,6 +284,7 @@ hd_show_palettes <- function(palettes = hd_palettes(), n = NULL) {
 #'
 #' # Add a custom palette
 #' plot + scale_color_hd("sex")
+#' }
 scale_color_hd <- function(palette) {
   hpa_palettes <- hd_palettes()
 
@@ -301,6 +307,7 @@ scale_color_hd <- function(palette) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create an example dataframe
 #' data <- data.frame(
 #'   Sex = c("M", "F"),
@@ -314,6 +321,7 @@ scale_color_hd <- function(palette) {
 #'
 #' # Add a custom palette
 #' plot + scale_fill_hd("sex")
+#' }
 scale_fill_hd <- function(palette) {
   hpa_palettes <- hd_palettes()
 

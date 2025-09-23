@@ -27,11 +27,13 @@ utils::globalVariables(c(":="))
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Split the data into training and test sets
 #' hd_split_data(hd_object, variable = "Disease")
+#' }
 hd_split_data <- function(dat,
                           metadata = NULL,
                           variable = "Disease",
@@ -1197,6 +1199,7 @@ variable_imp <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -1234,6 +1237,7 @@ variable_imp <- function(dat,
 #'                              "features",
 #'                              "mixture"),
 #'               verbose = FALSE)
+#' }
 hd_model_rreg <- function(dat,
                           variable = "Disease",
                           case,
@@ -1387,6 +1391,7 @@ hd_model_rreg <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -1423,6 +1428,7 @@ hd_model_rreg <- function(dat,
 #'                            "rsq",
 #'                            "features"),
 #'             verbose = FALSE)
+#' }
 hd_model_rf <- function(dat,
                         variable = "Disease",
                         case,
@@ -1565,6 +1571,7 @@ hd_model_rf <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object with only a subset of the predictors
 #' hd_object <- hd_initialize(
 #'   example_data |> dplyr::filter(Assay %in% c("ADA", "AARSD1", "ACAA1", "ACAN1", "ACOX1")),
@@ -1583,6 +1590,7 @@ hd_model_rf <- function(dat,
 #'             variable = "Disease",
 #'             case = "AML",
 #'             palette = "cancers12")
+#' }
 hd_model_lr <- function(dat,
                         variable = "Disease",
                         case,
@@ -1730,6 +1738,7 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -1771,6 +1780,7 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'
 #' # Run the model evaluation pipeline
 #' hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)
+#' }
 hd_model_test <- function(model_object,
                           train_set,
                           test_set,
@@ -2033,6 +2043,7 @@ hd_model_test <- function(model_object,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object with only a subset of the predictors
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -2083,6 +2094,7 @@ hd_model_test <- function(model_object,
 #'
 #' # Plot summary visualizations
 #' hd_plot_model_summary(res, class_palette = "cancers12")
+#' }
 hd_plot_model_summary <- function(model_results,
                                   importance = 0.5,
                                   class_palette = NULL,

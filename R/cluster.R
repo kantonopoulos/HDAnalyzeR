@@ -87,11 +87,13 @@ get_optimal_k <- function(x, k_max = 15, b = 50, distance, method, verbose = FAL
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Clustered data
 #' hd_cluster(hd_object)
+#' }
 hd_cluster <- function(dat,
                        distance_method = "euclidean",
                        clustering_method = "ward.D2",
@@ -196,6 +198,7 @@ hd_cluster <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -210,6 +213,7 @@ hd_cluster <- function(dat,
 #'
 #' # Access the results
 #' head(clustering[["cluster_res"]])
+#' }
 hd_cluster_samples <- function(dat,
                                distance_method = "euclidean",
                                clustering_method = "ward.D2",
@@ -299,6 +303,7 @@ hd_cluster_samples <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -310,6 +315,7 @@ hd_cluster_samples <- function(dat,
 #'
 #' # Access the results
 #' clustering$cluster_assessment
+#' }
 hd_assess_clusters <- function(cluster_object,
                                nrep = 100,
                                ji_lim = 0.5,
