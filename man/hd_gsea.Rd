@@ -9,7 +9,8 @@ hd_gsea(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   ranked_by = "logFC",
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  db = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ hd_gsea(
 \item{ranked_by}{The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (\code{de_results} argument).}
 
 \item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.}
+
+\item{db}{External annotation resource required for some databases. If \code{database = "GO"}, supply an \code{OrgDb} object (e.g. \code{org.Hs.eg.db::org.Hs.eg.db}). If \code{database = "Reactome"}, supply a function compatible with \code{\link[ReactomePA:gsePathway]{ReactomePA::gsePathway()}} (e.g. \code{ReactomePA::enrichPathway}). If \code{database = "KEGG"}, this argument is ignored.}
 }
 \value{
 A list containing the results of the GSEA.
@@ -40,6 +43,10 @@ If you want to learn more about GSEA, please refer to the following publications
 }
 }
 \examples{
+\dontrun{
+if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+  BiocManager::install("org.Hs.eg.db")
+}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -51,7 +58,8 @@ hd_gsea(de_results,
         database = "GO",
         ontology = "BP",
         ranked_by = "logFC",
-        pval_lim = 0.9)
+        pval_lim = 0.9,
+        db = org.Hs.eg.db::org.Hs.eg.db)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Run GSEA with different ranking variable
@@ -59,8 +67,10 @@ enrichment <- hd_gsea(de_results,
                       database = "GO",
                       ontology = "BP",
                       ranked_by = "both",
-                      pval_lim = 0.9)
+                      pval_lim = 0.9,
+                      db = org.Hs.eg.db::org.Hs.eg.db)
 
 # Access the results
 head(enrichment$enrichment@result)
+}
 }

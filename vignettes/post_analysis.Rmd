@@ -14,6 +14,20 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, include = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+  BiocManager::install("org.Hs.eg.db")
+}
+
+if (!requireNamespace("ReactomePA", quietly = TRUE)) {
+  BiocManager::install("ReactomePA")
+}
+```
+
 This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
 
 If you want to learn more about ORA and GSEA, please refer to the following publications:
@@ -54,7 +68,10 @@ proteins <- de_res$de_res |>
   filter(logFC > 0 & adj.P.Val < 0.05) |> 
   pull(Feature)
 
-enrichment <- hd_ora(proteins, database = "GO", ontology = "BP")
+enrichment <- hd_ora(proteins, 
+                     database = "GO", 
+                     ontology = "BP", 
+                     db = org.Hs.eg.db::org.Hs.eg.db)
 
 enrichment_plots <- hd_plot_ora(enrichment)
 
@@ -66,7 +83,10 @@ enrichment_plots$cnetplot
 Let's change the database and the p-value threshold.
 
 ```{r, message = FALSE, warning = FALSE}
-enrichment  <- hd_ora(proteins, database = "Reactome", pval_lim = 0.2)
+enrichment  <- hd_ora(proteins, 
+                      database = "Reactome", 
+                      pval_lim = 0.2, 
+                      db = ReactomePA::enrichPathway)
 
 enrichment_plots <- hd_plot_ora(enrichment)
 
@@ -82,7 +102,11 @@ We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_gsea()` and 
 > ⚠️ In this case, the function requires strictly differential expression results, so a ranked list of proteins is derived based on the `ranked_by` argument.
 
 ```{r, message = FALSE, warning = FALSE}
-enrichment <- hd_gsea(de_res, database = "GO", ontology = "BP", pval_lim = 0.55)
+enrichment <- hd_gsea(de_res, 
+                      database = "GO", 
+                      ontology = "BP", 
+                      pval_lim = 0.55, 
+                      db = org.Hs.eg.db::org.Hs.eg.db)
 
 enrichment_plots <- hd_plot_gsea(enrichment)
 
@@ -99,7 +123,8 @@ enrichment <- hd_gsea(de_res,
                       database = "GO", 
                       ontology = "BP", 
                       pval_lim = 0.9, 
-                      ranked_by = "both")
+                      ranked_by = "both",
+                      db = org.Hs.eg.db::org.Hs.eg.db)
 
 enrichment_plots <- hd_plot_gsea(enrichment)
 enrichment_plots$cnetplot

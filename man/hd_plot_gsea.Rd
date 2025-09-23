@@ -25,6 +25,10 @@ If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto)
 Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 }
 \examples{
+\dontrun{
+if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+  BiocManager::install("org.Hs.eg.db")
+}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -36,7 +40,8 @@ enrichment <- hd_gsea(de_results,
                       database = "GO",
                       ontology = "BP",
                       ranked_by = "logFC",
-                      pval_lim = 0.9)
+                      pval_lim = 0.9,
+                      db = org.Hs.eg.db::org.Hs.eg.db)
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Plot the results
@@ -47,4 +52,5 @@ enrichment$dotplot
 enrichment$gseaplot
 enrichment$cnetplot
 enrichment$ridgeplot
+}
 }

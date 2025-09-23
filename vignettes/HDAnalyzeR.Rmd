@@ -247,8 +247,7 @@ intersect_proteins <- intersect(de_proteins, lasso_proteins)
 
 # Perform ORA with GO database and visualize results
 enrichment <- hd_ora(intersect_proteins, 
-                     database = "GO", 
-                     ontology = "BP", 
+                     database = "KEGG", 
                      pval_lim = 0.2)  # We will use a higher p-value threshold for this example
 enrichment_plots <- hd_plot_ora(enrichment)
 

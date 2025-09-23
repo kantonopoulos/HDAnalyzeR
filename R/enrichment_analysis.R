@@ -8,11 +8,18 @@
 #' @return A list containing the gene list and the background with ENTREZID.
 #' @keywords internal
 gene_to_entrezid <- function(gene_list, background = NULL){
+  # Ensure 'org.Hs.eg.db' package is loaded
+  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+  } else {
+    db_org <- get("org.Hs.eg.db", envir = asNamespace("org.Hs.eg.db"))
+  }
+  
   # From gene name to ENTREZID
   gene_conversion <- clusterProfiler::bitr(gene_list,
                                            fromType = "SYMBOL",
                                            toType = "ENTREZID",
-                                           OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+                                           OrgDb = db_org)
 
   gene_list <- gene_conversion |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
 
@@ -20,7 +27,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
     background <- clusterProfiler::bitr(background,
                                         fromType = "SYMBOL",
                                         toType = "ENTREZID",
-                                        OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+                                        OrgDb = db_org)
 
     background <- background |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
   }
@@ -37,6 +44,7 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
 #' @param background A character vector containing the background genes or a string with the name of the background gene list to use (use `hd_show_backgrounds()` to see available lists). If NULL, the full proteome is used as background.
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis.
+#' @param db External annotation resource required for some databases. If `database = "GO"`, supply an `OrgDb` object (e.g. `org.Hs.eg.db::org.Hs.eg.db`). If `database = "Reactome"`, supply a function compatible with [ReactomePA::enrichPathway()] (e.g. `ReactomePA::enrichPathway`). If `database = "KEGG"`, this argument is ignored.
 #'
 #' @return A list containing the results of the ORA.
 #'
@@ -55,6 +63,11 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+#'   BiocManager::install("org.Hs.eg.db")
+#' }
+#' 
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -67,7 +80,10 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'   dplyr::pull(Feature)
 #'
 #' # Perform ORA with `GO` database and `BP` ontology
-#' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#' enrichment <- hd_ora(sig_up_proteins_aml, 
+#'                      database = "GO", 
+#'                      ontology = "BP", 
+#'                      db = org.Hs.eg.db::org.Hs.eg.db)
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
@@ -76,15 +92,18 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #' enrichment <- hd_ora(sig_up_proteins_aml,
 #'                      database = "GO",
 #'                      ontology = "BP",
-#'                      background = "olink_explore_ht")
+#'                      background = "olink_explore_ht"
+#'                      db = org.Hs.eg.db::org.Hs.eg.db)
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
+#' }
 hd_ora <- function(gene_list,
                    database = c("GO", "Reactome", "KEGG"),
                    ontology = c("BP", "CC", "MF", "ALL"),
                    background = NULL,
-                   pval_lim = 0.05) {
+                   pval_lim = 0.05,
+                   db = NULL) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
@@ -115,6 +134,11 @@ hd_ora <- function(gene_list,
 
   } else if (database == "GO") {
 
+    # Ensure db argument is provided
+    if (!inherits(db, "OrgDb")) {
+      stop("For GO analysis, db must be an OrgDb object such as org.Hs.eg.db::org.Hs.eg.db.")
+    }
+
     # Ensure 'org.Hs.eg.db' package is loaded
     if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
       stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
@@ -122,27 +146,29 @@ hd_ora <- function(gene_list,
 
     # Perform GO enrichment analysis
     enrichment <- clusterProfiler::enrichGO(gene = gene_list,
-                                            OrgDb = org.Hs.eg.db::org.Hs.eg.db,
+                                            OrgDb = db,
                                             ont = ontology,
                                             pvalueCutoff = pval_lim,
                                             qvalueCutoff = 1,
                                             universe = background)
 
   } else if (database == "Reactome") {
+    
+    # Ensure db argument is provided
+    if (!is.function(db)) {
+      stop("For Reactome analysis, db must be a function such as ReactomePA::enrichPathway.")
+    }
 
     # Ensure 'ReactomePA' package is loaded
     if (!requireNamespace("ReactomePA", quietly = TRUE)) {
       stop("The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA').")
     }
 
-    # Perform Reactome enrichment analysis
-    enrichment <- ReactomePA::enrichPathway(gene = gene_list,
-                                            organism = "human",
-                                            pvalueCutoff = pval_lim,
-                                            qvalueCutoff = 1,
-                                            universe = background)
-
-
+    enrichment <- db(gene = gene_list,
+                     organism = "human",
+                     pvalueCutoff = pval_lim,
+                     qvalueCutoff = 1,
+                     universe = background)
   }
 
   if (is.null(enrichment) || is.na(any(enrichment@result[["p.adjust"]])) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
@@ -178,6 +204,10 @@ hd_ora <- function(gene_list,
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+#'   BiocManager::install("org.Hs.eg.db")
+#' }
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -190,7 +220,10 @@ hd_ora <- function(gene_list,
 #'   dplyr::pull(Feature)
 #'
 #' # Perform ORA with `GO` database and `BP` ontology
-#' enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+#' enrichment <- hd_ora(sig_up_proteins_aml, 
+#'                      database = "GO", 
+#'                      ontology = "BP", 
+#'                      db = org.Hs.eg.db::org.Hs.eg.db)
 #'
 #' # Plot the results
 #' enrichment <- hd_plot_ora(enrichment)
@@ -199,6 +232,7 @@ hd_ora <- function(gene_list,
 #' enrichment$dotplot
 #' enrichment$treeplot
 #' enrichment$cnetplot
+#' }
 hd_plot_ora <- function(enrichment, seed = 123) {
 
   if (!is.null(seed)) {
@@ -225,7 +259,15 @@ hd_plot_ora <- function(enrichment, seed = 123) {
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))
   } else {
-    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+    # Ensure db argument is provided
+    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+      stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+    } else{
+      db <- get("org.Hs.eg.db", envir = asNamespace("org.Hs.eg.db"))
+    }
+
+    
+    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = db)
     cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))
@@ -236,7 +278,6 @@ hd_plot_ora <- function(enrichment, seed = 123) {
     enrichment[["treeplot"]] <- tree_plot
   }
   enrichment[["cnetplot"]] <- cnet_plot
-
   return(enrichment)
 }
 
@@ -250,7 +291,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
 #' @param ranked_by The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
-#'
+#' @param db External annotation resource required for some databases. If `database = "GO"`, supply an `OrgDb` object (e.g. `org.Hs.eg.db::org.Hs.eg.db`). If `database = "Reactome"`, supply a function compatible with [ReactomePA::gsePathway()] (e.g. `ReactomePA::enrichPathway`). If `database = "KEGG"`, this argument is ignored.
 #' @return A list containing the results of the GSEA.
 #' @details
 #' To perform the GSEA, `clusterProfiler` package is used. For more information, please
@@ -262,6 +303,10 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+#'   BiocManager::install("org.Hs.eg.db")
+#' }
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -273,7 +318,8 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #'         database = "GO",
 #'         ontology = "BP",
 #'         ranked_by = "logFC",
-#'         pval_lim = 0.9)
+#'         pval_lim = 0.9,
+#'         db = org.Hs.eg.db::org.Hs.eg.db)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Run GSEA with different ranking variable
@@ -281,15 +327,18 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #'                       database = "GO",
 #'                       ontology = "BP",
 #'                       ranked_by = "both",
-#'                       pval_lim = 0.9)
+#'                       pval_lim = 0.9,
+#'                       db = org.Hs.eg.db::org.Hs.eg.db)
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
+#' }
 hd_gsea <- function(de_results,
                     database = c("GO", "Reactome", "KEGG"),
                     ontology = c("BP", "CC", "MF", "ALL"),
                     ranked_by = "logFC",
-                    pval_lim = 0.05) {
+                    pval_lim = 0.05,
+                    db = NULL) {
 
   database <- match.arg(database)
   ontology <- match.arg(ontology)
@@ -342,6 +391,10 @@ hd_gsea <- function(de_results,
                                            maxGSSize = 500)
 
   } else if (database == "GO") {
+    # Ensure db argument is provided
+    if (!inherits(db, "OrgDb")) {
+      stop("For GO analysis, db must be an OrgDb object such as org.Hs.eg.db::org.Hs.eg.db.")
+    }
 
     # Ensure 'org.Hs.eg.db' package is loaded
     if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
@@ -350,7 +403,7 @@ hd_gsea <- function(de_results,
 
     # Perform GSEA for GO
     enrichment <- clusterProfiler::gseGO(geneList = gene_list,
-                                         OrgDb = org.Hs.eg.db::org.Hs.eg.db,
+                                         OrgDb = db,
                                          ont = ontology,
                                          pvalueCutoff = pval_lim,
                                          pAdjustMethod = "BH",
@@ -358,6 +411,10 @@ hd_gsea <- function(de_results,
                                          maxGSSize = 500)
 
   } else if (database == "Reactome") {
+    # Ensure db argument is provided
+    if (!is.function(db)) {
+      stop("For Reactome analysis, db must be a function such as ReactomePA::gsePathway.")
+    }
 
     # Ensure 'ReactomePA' package is loaded
     if (!requireNamespace("ReactomePA", quietly = TRUE)) {
@@ -365,11 +422,11 @@ hd_gsea <- function(de_results,
     }
 
     # Perform GSEA for Reactome
-    enrichment <- ReactomePA::gsePathway(gene_list,
-                                         organism = "human",
-                                         pvalueCutoff = pval_lim,
-                                         pAdjustMethod = "BH",
-                                         verbose = FALSE)
+    enrichment <- db(gene_list,
+                     organism = "human",
+                     pvalueCutoff = pval_lim,
+                     pAdjustMethod = "BH",
+                     verbose = FALSE)
 
   }
 
@@ -403,6 +460,10 @@ hd_gsea <- function(de_results,
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+#'   BiocManager::install("org.Hs.eg.db")
+#' }
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -414,7 +475,8 @@ hd_gsea <- function(de_results,
 #'                       database = "GO",
 #'                       ontology = "BP",
 #'                       ranked_by = "logFC",
-#'                       pval_lim = 0.9)
+#'                       pval_lim = 0.9,
+#'                       db = org.Hs.eg.db::org.Hs.eg.db)
 #' # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 #'
 #' # Plot the results
@@ -425,6 +487,7 @@ hd_gsea <- function(de_results,
 #' enrichment$gseaplot
 #' enrichment$cnetplot
 #' enrichment$ridgeplot
+#' }
 hd_plot_gsea <- function(enrichment, seed = 123) {
 
   if (!is.null(seed)) {
@@ -445,7 +508,14 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))
   } else {
-    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+    # Ensure db argument is provided
+    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+      stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+    } else{
+      db <- get("org.Hs.eg.db", envir = asNamespace("org.Hs.eg.db"))
+    }
+    
+    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = db)
     cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
                                            cex.params = list(gene_label = 0.5, gene_node = 0.8),
                                            color.params = list(edge = TRUE))
