@@ -90,7 +90,7 @@ hd_wgcna <- function(dat, power = NULL) {
 
     return(wgcna)
   } else {
-    wgcna <- WGCNA::blockwiseModules(datExpr = matrix_dat,
+    wgcna_obj <- WGCNA::blockwiseModules(datExpr = matrix_dat,
                                      corType = "bicor",
                                      power = power,
                                      verbose = 0,
