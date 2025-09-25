@@ -13,7 +13,7 @@ the model, and plots the feature importance and model performance."><meta proper
 
 
 
-  pkgdown/extra.css
+  .github/pkgdown/extra.css
 
   
 
@@ -62,7 +62,7 @@ the model, and plots the feature importance and model performance."><meta proper
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Random forest model pipeline</h1>
-      <small class="dont-index">Source: <a href="https://github.com/kantonopoulos/HDAnalyzeR/blob/website/R/classification_models.R" class="external-link"><code>R/classification_models.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/kantonopoulos/HDAnalyzeR/blob/main/R/classification_models.R" class="external-link"><code>R/classification_models.R</code></a></small>
       <div class="d-none name"><code>hd_model_rf.Rd</code></div>
     </div>
 
@@ -252,9 +252,9 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random Forest Model Specification (classification)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Main Arguments:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   mtry = 28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mtry = 22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   trees = 1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   min_n = 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   min_n = 15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Engine-Specific Arguments:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   importance = permutation</span>
@@ -264,44 +264,45 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$accuracy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7891156</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7755102</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$sensitivity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9166667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8333333</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$specificity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7777778</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7703704</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$auc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9253086</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9283951</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$confusion_matrix</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           Truth</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Prediction   0   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          0 105   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          1  30  11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          0 104   2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          1  31  10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $roc_curve</span>
 <span class="r-plt img"><img src="hd_model_rf-1.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $probability_plot</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`label` cannot be a <span style="color: #0000BB;">&lt;ggplot2::element_blank&gt;</span> object.</span>
 <span class="r-plt img"><img src="hd_model_rf-2.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Feature Importance Scaled_Importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> APBB1IP    0.057<span style="text-decoration: underline;">7</span>             1     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ADA        0.041<span style="text-decoration: underline;">4</span>             0.717 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> AZU1       0.015<span style="text-decoration: underline;">6</span>             0.270 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ADGRG1     0.014<span style="text-decoration: underline;">2</span>             0.246 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> APEX1      0.011<span style="text-decoration: underline;">9</span>             0.206 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ANGPT1     0.011<span style="text-decoration: underline;">8</span>             0.205 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ABL1       0.004<span style="text-decoration: underline;">25</span>            0.073<span style="text-decoration: underline;">6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ANXA3      0.004<span style="text-decoration: underline;">11</span>            0.071<span style="text-decoration: underline;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ANGPT2     0.003<span style="text-decoration: underline;">63</span>            0.062<span style="text-decoration: underline;">9</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> AIF1       0.002<span style="text-decoration: underline;">19</span>            0.038<span style="text-decoration: underline;">0</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> APBB1IP    0.050<span style="text-decoration: underline;">2</span>             1     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ADA        0.036<span style="text-decoration: underline;">4</span>             0.725 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> AZU1       0.016<span style="text-decoration: underline;">2</span>             0.322 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ADGRG1     0.014<span style="text-decoration: underline;">0</span>             0.279 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> APEX1      0.012<span style="text-decoration: underline;">4</span>             0.246 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ANGPT1     0.010<span style="text-decoration: underline;">8</span>             0.214 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ANXA3      0.006<span style="text-decoration: underline;">08</span>            0.121 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ABL1       0.003<span style="text-decoration: underline;">42</span>            0.068<span style="text-decoration: underline;">1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ANGPT2     0.002<span style="text-decoration: underline;">95</span>            0.058<span style="text-decoration: underline;">7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> AIF1       0.002<span style="text-decoration: underline;">83</span>            0.056<span style="text-decoration: underline;">4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
@@ -445,6 +446,7 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-plt img"><img src="hd_model_rf-4.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $probability_plot</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`label` cannot be a <span style="color: #0000BB;">&lt;ggplot2::element_blank&gt;</span> object.</span>
 <span class="r-plt img"><img src="hd_model_rf-5.png" alt="" width="700" height="433"></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
@@ -549,9 +551,9 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random Forest Model Specification (regression)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Main Arguments:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   mtry = 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mtry = 20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   trees = 1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   min_n = 39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   min_n = 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Engine-Specific Arguments:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   importance = permutation</span>
@@ -561,10 +563,10 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$rmse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 14.9279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 15.07659</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$rsq</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01869677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03559442</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $comparison_plot</span>
@@ -572,18 +574,18 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Feature  Importance Scaled_Importance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ALCAM         2.47              1    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ADAM15        1.65              0.671</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ADAM23        1.09              0.443</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ADAMTS8       0.935             0.379</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> ADM           0.835             0.339</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> AREG          0.791             0.321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ARHGEF12      0.717             0.291</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> ART3          0.567             0.230</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ANGPT2        0.507             0.205</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> AGRN          0.444             0.180</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Feature Importance Scaled_Importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ALCAM        1.78              1    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ADAMTS8      1.21              0.680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ADAM15       1.14              0.641</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ADM          0.948             0.532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> AREG         0.843             0.473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> ARID4B       0.770             0.432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ADAM23       0.692             0.388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> AOC3         0.605             0.339</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> ALDH3A1      0.597             0.335</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> APEX1        0.558             0.313</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
