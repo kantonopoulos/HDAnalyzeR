@@ -28,8 +28,10 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_initialize(example_data, example_metadata)
+#' }
 hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DAid", var_name = "Assay", value_name = "NPX") {
 
   if (!is.data.frame(dat)) stop("dat must be a data frame.")
@@ -95,6 +97,7 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
 #' @export
 #' 
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_obj <- hd_initialize(example_data, example_metadata)
 #' hd_obj
@@ -104,6 +107,7 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
 #' 
 #' # Filter by continuous variable
 #' hd_filter(hd_obj, variable = "Age", values = 80, flag = ">")
+#' }
 hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Check if hd_obj is a valid HD object
   if (!inherits(hd_obj, "HDAnalyzeR")) {
@@ -205,6 +209,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create a directory
 #' hd_save_path("my_directory", date = FALSE)
 #' unlink("my_directory", recursive = TRUE)  # Clean up the created directory
@@ -226,6 +231,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
 #' hd_save_path("outer_directory", date = FALSE)
 #' hd_save_path("outer_directory", date = TRUE)
 #' unlink("outer_directory", recursive = TRUE)
+#' }
 hd_save_path <- function(path_name, date = FALSE) {
 
   if (isTRUE(date) && !is.null(path_name)) {
@@ -266,10 +272,12 @@ hd_save_path <- function(path_name, date = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Save a metadata dataframe as an RDS file
 #' hd_save_data(example_metadata, "my_data/metadata.rds")
 #'
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
+#' }
 hd_save_data <- function(dat, path_name) {
 
   dir_path <- dirname(path_name)
@@ -316,6 +324,7 @@ hd_save_data <- function(dat, path_name) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Save a dataframe as an RDS file
 #' hd_save_data(example_metadata, "my_data/metadata.rds")
 #'
@@ -323,6 +332,7 @@ hd_save_data <- function(dat, path_name) {
 #' hd_import_data("my_data/metadata.rds")
 #'
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
+#' }
 hd_import_data <- function(path_name) {
 
   # Determine file extension from file path
@@ -358,6 +368,7 @@ hd_import_data <- function(path_name) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Olink data in long format
 #' example_data
 #'
@@ -366,6 +377,7 @@ hd_import_data <- function(path_name) {
 #'
 #' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
 #' hd_widen_data(example_data, exclude = "Sample", names_from = "OlinkID")
+#' }
 hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
   suppressWarnings({
     wide_data <- dat |>
@@ -389,6 +401,7 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Olink data in wide format
 #' example_data_wide <- hd_widen_data(example_data)
 #' example_data_wide
@@ -401,6 +414,7 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #'                                    exclude = "Sample",
 #'                                    names_from = "OlinkID")
 #' hd_long_data(example_data_wide, exclude = "Sample", names_to = "OlinkID")
+#' }
 hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
   suppressWarnings({
     long_data <- dat |>
@@ -428,6 +442,7 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Check categorical data
 #' category <- c("A", "B", "A", "C")
 #' hd_detect_vartype(category)
@@ -442,6 +457,7 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #'                       Mixed = c(1, "1", 2, 2, "3", 3))
 #'
 #' sapply(example, hd_detect_vartype)
+#' }
 hd_detect_vartype <- function(var, unique_threshold = 5) {
 
   if (is.factor(var) || is.character(var)) {
@@ -477,6 +493,7 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Example dataframe
 #' test_data <- data.frame(
 #'   age = c(25, 35, 45, 55, 65),
@@ -495,6 +512,7 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
 #' # The variable to be binned has one significant digit
 #' # So we will also round the bins to one digit
 #' hd_bin_columns(test_data, column_types, bins = 3, round_digits = 1)
+#' }
 hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
   # Ensure inputs are valid
   if (!is.data.frame(dat)) stop("data must be a dataframe.")
@@ -574,6 +592,7 @@ check_numeric_columns <- function(dat) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #' hd_object$data
@@ -582,6 +601,7 @@ check_numeric_columns <- function(dat) {
 #' hd_object_transformed <- hd_log_transform(hd_object)
 #' # Normally you should not transform Olink data as they are already log-transformed
 #' hd_object_transformed$data
+#' }
 hd_log_transform <- function(dat) {
 
   if (inherits(dat, "HDAnalyzeR")) {

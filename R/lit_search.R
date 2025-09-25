@@ -23,6 +23,7 @@
 #' queries, you can use the `easyPubMed` package directly or use the PubMed website directly.
 #'
 #' @examples
+#' \dontrun{
 #' # Prepare the list of gene-disease pairs
 #' feature_class_list <- list("acute myeloid leukemia" = c("FLT3", "EPO"),
 #'                            "chronic lymphocytic leukemia" = c("PARP1"))
@@ -32,6 +33,7 @@
 #'
 #' # Results for FLT3 in acute myeloid leukemia
 #' lit_search_results$`acute myeloid leukemia`$FLT3
+#' }
 hd_literature_search <- function(feature_class_list,
                                  max_articles = 10,
                                  keywords = NULL,

@@ -66,6 +66,7 @@ remove_batch_effects <- function(wide_data,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -84,6 +85,7 @@ remove_batch_effects <- function(wide_data,
 #' # Center, scale and remove batch effects
 #' scaled_dat <- hd_normalize(hd_object, batch = "Cohort")
 #' scaled_dat$data
+#' }
 hd_normalize <- function(dat,
                          metadata = NULL,
                          center = TRUE,

@@ -229,34 +229,6 @@ features_summary$features_barplot
 features_summary$upset_plot_features
 ```
 
-## One step further
-
-The final step involves performing a pathway enrichment analysis to get more biological information about the features. In this example, we will run an Over-Representation Analysis for the up-regulated proteins from differential expression, that are also identified as features by the ML model. We will use the Gene Ontology (GO) database and show the results only for AML. We will use `hd_ora()` and `hd_plot_ora()` to perform the analysis and visualize its results.
-
-```{r, message = FALSE, warning = FALSE}
-# Extract the proteins identified by both DE and Lasso
-de_proteins <- de_res_aml$de_res |> 
-  dplyr::filter(adj.P.Val < 0.05) |> 
-  dplyr::pull(Feature)
-
-lasso_proteins <- lasso_res_aml$features |> 
-  dplyr::filter(Scaled_Importance > 0) |> 
-  dplyr::pull(Feature)
-
-intersect_proteins <- intersect(de_proteins, lasso_proteins)
-
-# Perform ORA with GO database and visualize results
-enrichment <- hd_ora(intersect_proteins, 
-                     database = "GO", 
-                     ontology = "BP", 
-                     pval_lim = 0.2)  # We will use a higher p-value threshold for this example
-enrichment_plots <- hd_plot_ora(enrichment)
-
-enrichment_plots$dotplot
-enrichment_plots$treeplot
-enrichment_plots$cnetplot
-```
-
 > 📓 Remember that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
 
 ```{r session-info}

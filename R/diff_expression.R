@@ -29,6 +29,7 @@ utils::globalVariables(c(":=", "sig.label"))
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -43,6 +44,7 @@ utils::globalVariables(c(":=", "sig.label"))
 #'
 #' # Run differential expression analysis for continuous variable
 #' hd_de_limma(hd_object, variable = "Age", case = NULL, correct = c("Sex"))
+#' }
 hd_de_limma <- function(dat,
                         metadata = NULL,
                         variable = "Disease",
@@ -206,6 +208,7 @@ hd_de_limma <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -214,6 +217,7 @@ hd_de_limma <- function(dat,
 #'
 #' # Run differential expression analysis for AML vs CLL
 #' hd_de_ttest(hd_object, case = "AML", control = "CLL")
+#' }
 hd_de_ttest <- function(dat,
                         metadata = NULL,
                         variable = "Disease",
@@ -330,6 +334,7 @@ hd_de_ttest <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -338,6 +343,7 @@ hd_de_ttest <- function(dat,
 #'
 #' # Create a volcano plot
 #' hd_plot_volcano(de_results)
+#' }
 hd_plot_volcano <- function(de_object,
                             pval_lim = 0.05,
                             logfc_lim = 0,
@@ -497,6 +503,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -516,6 +523,7 @@ extract_protein_list <- function(upset_data, proteins) {
 #'
 #' # Plot summary visualizations
 #' hd_plot_de_summary(res, class_palette = "cancers12")
+#' }
 hd_plot_de_summary <- function(de_results,
                                variable = "Disease",
                                class_palette = NULL,

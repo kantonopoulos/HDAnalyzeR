@@ -20,5 +20,7 @@
 #'   \item{PlateID}{The ID of the plate where the sample was processed}
 #' }
 #' @examples
+#' \dontrun{
 #' example_data
+#' }
 "example_data"

@@ -41,6 +41,7 @@ calculate_na_percentage <- function(dat) {
 #' format (check examples bellow).
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -57,6 +58,7 @@ calculate_na_percentage <- function(dat) {
 #'                        annotation_vars = c("Disease", "Sex"),
 #'                        palette = palette)
 #' na_res$na_heatmap
+#' }
 hd_na_search <- function(dat,
                          metadata = NULL,
                          annotation_vars = NULL,

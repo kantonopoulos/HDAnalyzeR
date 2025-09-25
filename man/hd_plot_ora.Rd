@@ -25,6 +25,10 @@ If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto)
 Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 }
 \examples{
+\dontrun{
+if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+  BiocManager::install("org.Hs.eg.db")
+}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -37,7 +41,10 @@ sig_up_proteins_aml <- de_results$de_res |>
   dplyr::pull(Feature)
 
 # Perform ORA with `GO` database and `BP` ontology
-enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+enrichment <- hd_ora(sig_up_proteins_aml, 
+                     database = "GO", 
+                     ontology = "BP", 
+                     db = org.Hs.eg.db::org.Hs.eg.db)
 
 # Plot the results
 enrichment <- hd_plot_ora(enrichment)
@@ -46,4 +53,5 @@ enrichment <- hd_plot_ora(enrichment)
 enrichment$dotplot
 enrichment$treeplot
 enrichment$cnetplot
+}
 }

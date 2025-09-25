@@ -48,6 +48,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -56,6 +57,7 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #'
 #' # Run the PCA analysis by feature
 #' hd_pca(hd_object, components = 5, by_sample = FALSE, seed = 123)
+#' }
 hd_pca <- function(dat,
                    components = 10,
                    by_sample = TRUE,
@@ -151,6 +153,7 @@ hd_pca <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -159,6 +162,7 @@ hd_pca <- function(dat,
 #'   hd_plot_pca_loadings()
 #'
 #' pca_object$pca_loadings_plot
+#' }
 hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_features = 15) {
 
   loadings_plot <- pca_object[["pca_loadings"]] |>
@@ -196,6 +200,7 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_featur
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -203,6 +208,7 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_featur
 #' pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
 #'   hd_plot_pca_variance()
 #' pca_object$pca_variance_plot
+#' }
 hd_plot_pca_variance <- function(pca_object) {
 
   variance_plot <- ggplot2::ggplot(
@@ -384,6 +390,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -398,6 +405,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #'  hd_plot_dim(hd_object, x = "UMAP1", y = "UMAP2", color = "Disease", palette = "cancers12")
 #'
 #'  umap_object$umap_plot
+#' }
 hd_plot_dim <- function(dim_object,
                         metadata,
                         x,
@@ -468,11 +476,13 @@ hd_plot_dim <- function(dim_object,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run the PCA analysis
 #' hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "cancers12")
+#' }
 hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE, impute = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
 
   pca_object <- hd_pca(dat, components = components, by_sample = by_sample, impute = impute) |>
@@ -507,6 +517,7 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -515,6 +526,7 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #'
 #' # Run the UMAP analysis by feature
 #' hd_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
+#' }
 hd_umap <- function(dat,
                     by_sample = TRUE,
                     impute = TRUE,
@@ -608,11 +620,13 @@ hd_umap <- function(dat,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
 #' # Run the UMAP analysis
 #' hd_auto_umap(hd_object, plot_color = "Disease", plot_palette = "cancers12")
+#' }
 hd_auto_umap <- function(dat, metadata = NULL, by_sample = TRUE, impute = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
 
   if (inherits(dat, "HDAnalyzeR")) {

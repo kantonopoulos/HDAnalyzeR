@@ -19,5 +19,7 @@
 #'   \item{Cohort}{The cohort the patient belongs to}
 #' }
 #' @examples
+#' \dontrun{
 #' example_metadata
+#' }
 "example_metadata"

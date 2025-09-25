@@ -11,6 +11,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create a plot
 #' plot <- example_metadata |>
 #'   ggplot2::ggplot(ggplot2::aes(x = Sex)) +
@@ -19,6 +20,7 @@
 #'
 #' # Apply the HPA theme
 #' plot + theme_hd()
+#' }
 theme_hd <- function(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRUE) {
 
     t <- ggplot2::theme(panel.grid.major = ggplot2::element_blank(),

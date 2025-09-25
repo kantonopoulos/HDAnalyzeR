@@ -9,7 +9,8 @@ hd_ora(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   background = NULL,
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  db = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ hd_ora(
 \item{background}{A character vector containing the background genes or a string with the name of the background gene list to use (use \code{hd_show_backgrounds()} to see available lists). If NULL, the full proteome is used as background.}
 
 \item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis.}
+
+\item{db}{External annotation resource required for some databases. If \code{database = "GO"}, supply an \code{OrgDb} object (e.g. \code{org.Hs.eg.db::org.Hs.eg.db}). If \code{database = "Reactome"}, supply a function compatible with \code{\link[ReactomePA:enrichPathway]{ReactomePA::enrichPathway()}} (e.g. \code{ReactomePA::enrichPathway}). If \code{database = "KEGG"}, this argument is ignored.}
 }
 \value{
 A list containing the results of the ORA.
@@ -45,6 +48,11 @@ If you want to learn more about ORA, please refer to the following publications:
 }
 }
 \examples{
+\dontrun{
+if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+  BiocManager::install("org.Hs.eg.db")
+}
+
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -57,7 +65,10 @@ sig_up_proteins_aml <- de_results$de_res |>
   dplyr::pull(Feature)
 
 # Perform ORA with `GO` database and `BP` ontology
-enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
+enrichment <- hd_ora(sig_up_proteins_aml, 
+                     database = "GO", 
+                     ontology = "BP", 
+                     db = org.Hs.eg.db::org.Hs.eg.db)
 
 # Access the results
 head(enrichment$enrichment@result)
@@ -66,8 +77,10 @@ head(enrichment$enrichment@result)
 enrichment <- hd_ora(sig_up_proteins_aml,
                      database = "GO",
                      ontology = "BP",
-                     background = "olink_explore_ht")
+                     background = "olink_explore_ht"
+                     db = org.Hs.eg.db::org.Hs.eg.db)
 
 # Access the results
 head(enrichment$enrichment@result)
+}
 }

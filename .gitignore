@@ -2,8 +2,11 @@
 inst/extdata/
 logo/
 paper/
+case_studies/
+pkgdown/
 
 # Files
+.github/workflows/pkgdown.yaml
 .RData
 .Rproj.user
 .Rhistory
