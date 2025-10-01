@@ -494,9 +494,118 @@ to plot the RMSE and RSQ instead of <code>accuracy</code>, <code>sensitivity</co
 <span class="r-in"><span>                             <span class="st">"mixture"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>              verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in step_corr():</span> <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `step_corr()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `grepl()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> reached elapsed time limit</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #BB0000; font-weight: bold;">A</span> | <span style="color: #BB0000;">error</span>:   <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `step_impute_knn()`:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                <span style="font-weight: bold;">Caused by error in `environment()`:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>                <span style="color: #BBBB00;">!</span> reached elapsed time limit</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> There were issues with some computations   <span style="color: #BB0000; font-weight: bold;">A</span>: x1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> There were issues with some computations   <span style="color: #BB0000; font-weight: bold;">A</span>: x1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $train_data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 438 × 102</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    DAid      Age AARSD1       ABL1   ACAA1   ACAN  ACE2   ACOX1   ACP5     ACP6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> DA00011    54   3.48  4.96       3.50   -<span style="color: #BB0000;">0.338</span> 4.48   1.26    2.18   1.62   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> DA00015    47   3.31  1.90      <span style="color: #BB0000;">NA</span>      -<span style="color: #BB0000;">0.926</span> 0.408  0.687   1.03   0.612  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> DA00017    44   1.46  0.832     -<span style="color: #BB0000;">2.73</span>   -<span style="color: #BB0000;">0.371</span> 2.27   0.023<span style="text-decoration: underline;">4</span>  0.144  0.826  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> DA00023    42   2.92 -<span style="color: #BB0000;">0.000</span><span style="color: #BB0000; text-decoration: underline;">070</span><span style="color: #BB0000;">6</span>  0.602   1.59  0.198  1.61    0.283  2.35   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> DA00024    46   1.92  0.257      0.058<span style="text-decoration: underline;">7</span>  1.44  1.29   0.503   0.463  1.01   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> DA00026    44   4.92  1.89       0.560   0.558 2.39   0.455   0.743 -<span style="color: #BB0000;">0.955</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> DA00036    54   1.54  1.07      -<span style="color: #BB0000;">1.49</span>   -<span style="color: #BB0000;">0.171</span> 0.553 -<span style="color: #BB0000;">0.144</span>  -<span style="color: #BB0000;">0.240</span>  0.005<span style="text-decoration: underline;">82</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> DA00037    54   3.65  3.30       0.748   0.571 1.20   1.30    2.09   0.717  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> DA00049    40   4.48  4.56       4.86    0.230 2.24   2.97    2.60  -<span style="color: #BB0000;">1.11</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> DA00062    48   2.67  0.540      1.97    0.363 0.455  1.77    0.624  1.12   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 428 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 92 more variables: ACTA2 &lt;dbl&gt;, ACTN4 &lt;dbl&gt;, ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADA2 &lt;dbl&gt;, ADAM15 &lt;dbl&gt;, ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADAMTS15 &lt;dbl&gt;, ADAMTS16 &lt;dbl&gt;, ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;, ADGRG1 &lt;dbl&gt;, ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;, AGR3 &lt;dbl&gt;, AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;, AIF1 &lt;dbl&gt;, AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, …</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $test_data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 148 × 102</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    DAid    Age AARSD1  ABL1  ACAA1    ACAN    ACE2   ACOX1    ACP5    ACP6 ACTA2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> DA00…    42   3.39 2.76   1.71   0.033<span style="text-decoration: underline;">3</span>  1.76   -<span style="color: #BB0000;">0.919</span>   1.54    2.15   2.81 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> DA00…    69   1.42 1.25  -<span style="color: #BB0000;">0.816</span> -<span style="color: #BB0000;">0.459</span>   0.826  -<span style="color: #BB0000;">0.902</span>   0.647   1.30   0.798</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> DA00…    54   3.41 3.38   1.69  <span style="color: #BB0000;">NA</span>       1.52   <span style="color: #BB0000;">NA</span>       0.841   0.582  1.70 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> DA00…    57   5.01 5.05   0.128  0.401  -<span style="color: #BB0000;">0.933</span>  -<span style="color: #BB0000;">0.584</span>   0.026<span style="text-decoration: underline;">5</span>  1.16   2.73 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> DA00…    86   6.83 1.18  -<span style="color: #BB0000;">1.74</span>  -<span style="color: #BB0000;">0.156</span>   1.53   -<span style="color: #BB0000;">0.721</span>   0.620   0.527  0.772</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> DA00…    48   1.83 1.21  -<span style="color: #BB0000;">0.912</span> -<span style="color: #BB0000;">1.04</span>   -<span style="color: #BB0000;">0.091</span><span style="color: #BB0000; text-decoration: underline;">8</span> -<span style="color: #BB0000;">0.304</span>   1.69    0.092<span style="text-decoration: underline;">0</span> 2.04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> DA00…    78   4.31 0.710 -<span style="color: #BB0000;">1.44</span>  -<span style="color: #BB0000;">0.218</span>  -<span style="color: #BB0000;">0.469</span>  -<span style="color: #BB0000;">0.361</span>  -<span style="color: #BB0000;">0.071</span><span style="color: #BB0000; text-decoration: underline;">4</span> -<span style="color: #BB0000;">1.30</span>   2.86 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> DA00…    75   2.62 2.48   0.537 -<span style="color: #BB0000;">0.215</span>   1.82    0.290   1.27    1.11   0.206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> DA00…    65   1.80 1.70   2.77  -<span style="color: #BB0000;">1.04</span>    1.33   -<span style="color: #BB0000;">0.024</span><span style="color: #BB0000; text-decoration: underline;">7</span>  1.02    0.112  2.58 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> DA00…    67   6.28 6.57   1.62   0.650   0.392   0.113   1.09    1.07   2.07 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 138 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 91 more variables: ACTN4 &lt;dbl&gt;, ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;, ADA2 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADAM15 &lt;dbl&gt;, ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;, ADAMTS15 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADAMTS16 &lt;dbl&gt;, ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;, ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ADGRG1 &lt;dbl&gt;, ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   AGR3 &lt;dbl&gt;, AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   AIF1 &lt;dbl&gt;, AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, …</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $model_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "regression"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $final_workflow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ══ Workflow ════════════════════════════════════════════════════════════════════</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-style: italic;">Preprocessor:</span> Recipe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-style: italic;">Model:</span> linear_reg()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Preprocessor ────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Recipe Steps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • step_dummy()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • step_nzv()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • step_normalize()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • step_corr()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • step_impute_knn()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Model ───────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Linear Regression Model Specification (regression)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Main Arguments:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   penalty = 0.49228286213658</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mixture = 0.869285719160689</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Computational engine: glmnet </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $metrics</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$rmse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 15.30525</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $metrics$rsq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.008168707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $comparison_plot</span>
+<span class="r-plt img"><img src="hd_model_rreg-7.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $mixture</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8692857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $features</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Feature Importance Sign  Scaled_Importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> ARID4B        2.50 POS               1    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> ACY1          2.20 NEG               0.880</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> ALCAM         2.19 POS               0.878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> ANGPT2        2.08 NEG               0.834</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> AGXT          2.08 NEG               0.833</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> AKT3          1.84 NEG               0.737</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> ADAM15        1.77 POS               0.707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> AHSP          1.75 NEG               0.702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> AMY2A         1.69 NEG               0.678</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> ANXA4         1.65 POS               0.661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $feat_imp_plot</span>
+<span class="r-plt img"><img src="hd_model_rreg-8.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "hd_model"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
