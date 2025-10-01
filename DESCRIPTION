@@ -60,7 +60,7 @@ Imports:
 Suggests: 
     cluster,
     clusterProfiler,
-    easyPubMed (>= 2.13),
+    easyPubMed,
     enrichplot,
     fpc,
     glmnet,
