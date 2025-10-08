@@ -56,26 +56,24 @@ hd_literature_search <- function(feature_class_list,
       if (!is.null(keywords)) {
         query <- paste0(query, ' AND ', keywords)
       }
-
+      #print(query)
       if (verbose) {
-        message("Searching for articles on", gene, "and", disease)
+        message("Searching for articles on ", gene, " and ", disease)
       }
 
-      ids <- easyPubMed::get_pubmed_ids(query, api_key = api_key)
-
-      if (is.null(ids) || length(ids) == 0) {
-        message("No articles found for", gene, "and", disease)
-        next
-      } else if (!"Count" %in% names(ids)) {
-        message("Invalid response from PubMed API")
-        next
-      } else if (ids[["Count"]] == 0) {
-        message("No articles found for", gene, "and", disease)
+      qobj <- easyPubMed::epm_query(query = query, api_key = api_key)
+      print(qobj)
+      meta <- easyPubMed::get_epm_meta(qobj)
+      #print(meta)
+      #print(qobj)
+      if (is.null(meta) || !"ncbi_esearch_count" %in% names(meta) || as.integer(meta$ncbi_esearch_count) == 0) {
+        message("No articles found for ", gene, " and ", disease)
         next
       }
 
       tryCatch({
-        abstracts_xml <- easyPubMed::fetch_pubmed_data(pubmed_id_list = ids, retmax = max_articles)
+        abstracts_xml <- easyPubMed::epm_fetch(qobj, retmax = max_articles)
+        print(abstracts_xml)
       }, error = function(e) {
         # Handle any errors during the query or processing
         message("Problem while searching for", gene, "and", disease, ":", e$message)
