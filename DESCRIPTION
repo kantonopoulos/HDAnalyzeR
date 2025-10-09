@@ -21,6 +21,7 @@ Imports:
     broom,
     dials,
     dplyr,
+    easyPubMed,
     embed,
     forcats,
     ggbeeswarm,
@@ -60,7 +61,6 @@ Imports:
 Suggests: 
     cluster,
     clusterProfiler,
-    easyPubMed,
     enrichplot,
     fpc,
     glmnet,
