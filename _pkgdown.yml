@@ -104,7 +104,6 @@ reference:
   desc: |
     Functions that analyze further the potential biormarkers and their biological impact.
   contents:
-  - hd_literature_search
   - hd_ora
   - hd_plot_ora
   - hd_show_backgrounds

@@ -1,5 +1,5 @@
 ---
-title: "Post Analysis: Pathway Enrichment & Automated Literature Search"
+title: "Post Analysis: Pathway Enrichment"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{post_analysis}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The post analysis consists of two possible steps: pathway enrichment analysis and automated literature search. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively. The automated literature search is performed using the the PubMed database.
+This vignette will guide you through the post analysis of the results obtained from the HDAnalyzeR pipeline. The pathway enrichment analysis is performed using the Gene Ontology, KEGG and Reactome databases from `clusterProfiler` and `ReactomePA` packages respectively.
 
 If you want to learn more about ORA and GSEA, please refer to the following publications:
 
@@ -103,19 +103,6 @@ enrichment <- hd_gsea(de_res,
 
 enrichment_plots <- hd_plot_gsea(enrichment)
 enrichment_plots$cnetplot
-```
-
-## Searching PubMed for our Biomarkers
-
-Finally, let's perform an automated literature search using the `hd_literature_search()`. The function requires a list with disease names as names and genes/proteins as values. We will create the list, run the search and preview the results.
-
-```{r}
-biomarkers <- list("acute myeloid leukemia" = c("FLT3", "EPO"),
-                   "chronic lymphocytic leukemia" = c("PARP1", "FCER2"))
-
-lit_res <- hd_literature_search(biomarkers, max_articles = 5)
-
-lit_res$`acute myeloid leukemia`$FLT3$title
 ```
 
 > 📓 Remember once again that these data are a dummy-dataset with artificial data and the results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
