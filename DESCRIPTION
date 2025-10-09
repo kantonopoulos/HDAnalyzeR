@@ -76,6 +76,8 @@ Suggests:
     viridis,
     WGCNA,
     writexl
+Remotes:
+    dami82/easyPubMed
 Config/testthat/edition: 3
 Depends: 
     R (>= 4.5.0)

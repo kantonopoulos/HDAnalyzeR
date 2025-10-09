@@ -56,16 +56,13 @@ hd_literature_search <- function(feature_class_list,
       if (!is.null(keywords)) {
         query <- paste0(query, ' AND ', keywords)
       }
-      #print(query)
       if (verbose) {
         message("Searching for articles on ", gene, " and ", disease)
       }
 
       qobj <- easyPubMed::epm_query(query = query, api_key = api_key)
-      print(qobj)
       meta <- easyPubMed::get_epm_meta(qobj)
-      #print(meta)
-      #print(qobj)
+
       if (is.null(meta) || !"ncbi_esearch_count" %in% names(meta) || as.integer(meta$ncbi_esearch_count) == 0) {
         message("No articles found for ", gene, " and ", disease)
         next
@@ -73,7 +70,6 @@ hd_literature_search <- function(feature_class_list,
 
       tryCatch({
         abstracts_xml <- easyPubMed::epm_fetch(qobj, retmax = max_articles)
-        print(abstracts_xml)
       }, error = function(e) {
         # Handle any errors during the query or processing
         message("Problem while searching for", gene, "and", disease, ":", e$message)
