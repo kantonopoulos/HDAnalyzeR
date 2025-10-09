@@ -139,14 +139,15 @@ queries, you can use the <code>easyPubMed</code> package directly or use the Pub
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the literature search</span></span></span>
 <span class="r-in"><span><span class="va">lit_search_results</span> <span class="op">&lt;-</span> <span class="fu">hd_literature_search</span><span class="op">(</span><span class="va">feature_class_list</span>, max_articles <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles onFLT3andacute myeloid leukemia</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The get_pubmed_ids() function has become obsolete. You should use the EPM_query() function instead. Please, have a look at the manual or the vignette. The get_pubmed_ids() function will be retired in the second half of 2024.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Invalid response from PubMed API</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles onEPOandacute myeloid leukemia</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Invalid response from PubMed API</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles onPARP1andchronic lymphocytic leukemia</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Invalid response from PubMed API</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles on FLT3 and acute myeloid leukemia</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No articles found for FLT3 and acute myeloid leukemia</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles on EPO and acute myeloid leukemia</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No articles found for EPO and acute myeloid leukemia</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching for articles on PARP1 and chronic lymphocytic leukemia</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No articles found for PARP1 and chronic lymphocytic leukemia</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Results for FLT3 in acute myeloid leukemia</span></span></span>
 <span class="r-in"><span><span class="va">lit_search_results</span><span class="op">$</span><span class="va">`acute myeloid leukemia`</span><span class="op">$</span><span class="va">FLT3</span></span></span>
