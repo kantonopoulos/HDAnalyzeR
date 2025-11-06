@@ -1,0 +1,22 @@
+name: Create and publish a Docker image to hub.docker.com
+
+on:
+  push:
+    branches:
+      - app
+
+jobs:
+  build:
+    if: github.repository == 'kantonopoulos/HDAnalyzeR'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set date and time as tag
+        id: set_tag
+        run: echo "TAG=$(TZ="Europe/Stockholm" date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+      - name: Build Docker image
+        run: docker build -t kantono/hdanalyzer-app:$TAG -f Dockerfile .
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish to Docker Hub
+        run: docker push kantono/hdanalyzer-app:$TAG
