@@ -14,6 +14,7 @@ RUN Rscript -e 'install.packages(c("renv"))'
 COPY /renv.lock /srv/shiny-server/renv.lock
 RUN Rscript -e 'setwd("/srv/shiny-server/");renv::restore();'
 
+
 # Option 2: Install R packages manually
 # Command to install standard R packages from CRAN; enter the list of required packages for your app here
 #RUN Rscript -e 'install.packages(c("shiny","tidyverse","BiocManager"), dependencies = TRUE)'
