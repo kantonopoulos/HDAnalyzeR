@@ -139,27 +139,27 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Access the results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                          Description GeneRatio   BgRatio</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 GO:0050900                  leukocyte migration      7/22 395/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 GO:0050926    regulation of positive chemotaxis      3/22  27/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 GO:0071674           mononuclear cell migration      5/22 230/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 GO:0045785 positive regulation of cell adhesion      6/22 499/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 GO:0001666                  response to hypoxia      5/22 316/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 GO:0036293  response to decreased oxygen levels      5/22 330/18805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            RichFactor FoldEnrichment    zScore       pvalue     p.adjust</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.01772152       15.14787  9.725607 2.222549e-07 0.0002611495</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.11111111       94.97475 16.723315 3.991584e-06 0.0022807251</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 0.02173913       18.58202  9.181680 5.823128e-06 0.0022807251</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 0.01202405       10.27783  7.188758 1.760247e-05 0.0051707246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.01582278       13.52488  7.684481 2.702828e-05 0.0063516447</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 0.01515152       12.95110  7.495950 3.326012e-05 0.0065134398</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  qvalue                         geneID Count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.0001586198 100/566/9048/25/2683/199/30817     7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.0013852915                   566/285/9048     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 0.0013852915           566/9048/25/2683/199     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0045785 0.0031406506      100/566/54518/9289/25/199     6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.0038579306         100/285/51129/405/1386     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 0.0039562036         100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                                   Description GeneRatio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 GO:0050900                           leukocyte migration      7/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 GO:0050926             regulation of positive chemotaxis      3/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 GO:0071674                    mononuclear cell migration      5/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 GO:0001666                           response to hypoxia      5/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 GO:0036293           response to decreased oxygen levels      5/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 GO:0060135 maternal process involved in female pregnancy      3/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              BgRatio RichFactor FoldEnrichment    zScore       pvalue</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 397/18860 0.01763224       15.11564  9.713997 2.255163e-07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926  26/18860 0.11538462       98.91608 17.073506 3.519968e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 235/18860 0.02127660       18.23985  9.088086 6.375236e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 317/18860 0.01577287       13.52165  7.683419 2.706145e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 330/18860 0.01515152       12.98898  7.508528 3.280154e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135  60/18860 0.05000000       42.86364 11.099079 4.515298e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                p.adjust      qvalue                         geneID Count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.0002753554 0.000166882 100/566/9048/25/2683/199/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.0021489407 0.001302388                   566/285/9048     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0071674 0.0025947211 0.001572558           566/9048/25/2683/199     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.0080101353 0.004854627         100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0036293 0.0080101353 0.004854627         100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 0.0083253886 0.005045690                  285/181/59272     3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With a background gene list</span></span></span>
 <span class="r-in"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu">hd_ora</span><span class="op">(</span><span class="va">sig_up_proteins_aml</span>,</span></span>
@@ -168,32 +168,32 @@ For more information, please refer to the <code>clusterProfiler</code> documenta
 <span class="r-in"><span>                     background <span class="op">=</span> <span class="st">"olink_explore_ht"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'select()' returned 1:1 mapping between keys and columns</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1.31% of input gene IDs are fail to map...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1.51% of input gene IDs are fail to map...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>coercing argument of type 'double' to logical</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Access the results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                                   Description GeneRatio</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 GO:0050900                           leukocyte migration      7/22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 GO:0007186  G protein-coupled receptor signaling pathway      7/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 GO:0050926             regulation of positive chemotaxis      3/22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 GO:0007186  G protein-coupled receptor signaling pathway      7/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 GO:0001666                           response to hypoxia      5/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 GO:0040012                      regulation of locomotion      9/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 GO:0060135 maternal process involved in female pregnancy      3/22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             BgRatio RichFactor FoldEnrichment   zScore       pvalue   p.adjust</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 209/4805 0.03349282       7.315137 6.330362 2.600575e-05 0.02554723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 244/4805 0.02868852       6.265835 5.725254 7.066822e-05 0.02554723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926  19/4805 0.15789474      34.485646 9.917719 7.700889e-05 0.02554723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 115/4805 0.04347826       9.496047 6.253772 1.368573e-04 0.02554723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 479/4805 0.01878914       4.103720 4.854781 1.368986e-04 0.02554723</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135  23/4805 0.13043478      28.488142 8.961221 1.390836e-04 0.02554723</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 210/4812 0.03333333       7.290909 6.317002 2.657681e-05 0.02384161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926  19/4812 0.15789474      34.535885 9.925311 7.667855e-05 0.02384161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 256/4812 0.02734375       5.980824 5.549969 9.510644e-05 0.02384161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 113/4812 0.04424779       9.678198 6.325973 1.250600e-04 0.02384161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 479/4812 0.01878914       4.109698 4.860186 1.353602e-04 0.02384161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135  23/4812 0.13043478      28.529644 8.968160 1.384894e-04 0.02384161</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                qvalue                                geneID Count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.02125936        100/566/9048/25/2683/199/30817     7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 0.02125936         100/566/9289/181/25/976/30817     7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.02125936                          566/285/9048     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.02125936                100/285/51129/405/1386     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 0.02125936 100/566/9289/285/9048/25/59/51742/199     9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 0.02125936                         285/181/59272     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050900 0.01972001        100/566/9048/25/2683/199/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0050926 0.01972001                          566/285/9048     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0007186 0.01972001         100/566/9289/181/25/976/30817     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0001666 0.01972001                100/285/51129/405/1386     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0040012 0.01972001 100/566/9289/285/9048/25/59/51742/199     9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0060135 0.01972001                         285/181/59272     3</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

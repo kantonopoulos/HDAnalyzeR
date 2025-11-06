@@ -182,19 +182,19 @@ refer to the <code>clusterProfiler</code> documentation.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "names")= chr [1:100] "328" "566" "100" "9289" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...nPerm 	 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...pvalues adjusted by 'BH' with cutoff &lt;0.9 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #...228 enriched terms found</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	228 obs. of  11 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID             : chr  "GO:0015031" "GO:0033036" "GO:0045184" "GO:0071495" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description    : chr  "protein transport" "macromolecule localization" "establishment of protein localization" "cellular response to endogenous stimulus" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ setSize        : int  10 19 11 14 41 16 16 75 70 69 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ enrichmentScore: num  -0.769 -0.61 -0.706 0.721 0.563 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ NES            : num  -1.87 -1.75 -1.74 1.7 1.69 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue         : num  0.00295 0.00659 0.00911 0.00644 0.00614 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust       : num  0.223 0.223 0.223 0.223 0.223 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue         : num  0.21 0.21 0.21 0.21 0.21 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rank           : num  7 15 15 24 19 7 7 28 28 24 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ leading_edge   : chr  "tags=30%, list=7%, signal=31%" "tags=32%, list=15%, signal=33%" "tags=36%, list=15%, signal=35%" "tags=57%, list=24%, signal=50%" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ core_enrichment: chr  "115201/351/284" "93974/55937/115201/10551/351/284" "93974/115201/351/284" "9289/285/181/25/59/51742/1386/405" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #...233 enriched terms found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	233 obs. of  11 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ID             : chr  "GO:0015031" "GO:0045184" "GO:0033036" "GO:0048518" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Description    : chr  "protein transport" "establishment of protein localization" "macromolecule localization" "positive regulation of biological process" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ setSize        : int  10 11 19 42 77 71 11 70 16 11 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ enrichmentScore: num  -0.769 -0.706 -0.61 0.557 0.55 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ NES            : num  -1.87 -1.77 -1.76 1.64 1.61 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pvalue         : num  0.0041 0.00544 0.00614 0.00634 0.00475 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ p.adjust       : num  0.264 0.264 0.264 0.264 0.264 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ qvalue         : num  0.25 0.25 0.25 0.25 0.25 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rank           : num  7 15 15 19 28 28 7 24 7 20 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ leading_edge   : chr  "tags=30%, list=7%, signal=31%" "tags=36%, list=15%, signal=35%" "tags=32%, list=15%, signal=33%" "tags=36%, list=19%, signal=50%" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ core_enrichment: chr  "115201/351/284" "93974/115201/351/284" "93974/55937/115201/10551/351/284" "328/566/100/9289/54518/9048/285/181/25/51129/59/59272/51742/199/2683" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> #...Citation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -221,34 +221,27 @@ refer to the <code>clusterProfiler</code> documentation.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Access the results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">$</span><span class="va">enrichment</span><span class="op">@</span><span class="va">result</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                                 Description setSize</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008 GO:0003008                              system process      15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0090304 GO:0090304              nucleic acid metabolic process      16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134 GO:0080134            regulation of response to stress      14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252 GO:0002252                     immune effector process      12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0032101 GO:0032101 regulation of response to external stimulus      13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0051641 GO:0051641                       cellular localization      25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            enrichmentScore      NES     pvalue  p.adjust    qvalue rank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008       0.7263352 1.313089 0.01343014 0.8620727 0.8620727   19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0090304       0.7151243 1.300144 0.01313003 0.8620727 0.8620727   22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134       0.7198164 1.291349 0.03510532 0.8620727 0.8620727   18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252       0.7285557 1.290966 0.04116466 0.8620727 0.8620727   10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0032101       0.6989173 1.247750 0.06024096 0.8620727 0.8620727   18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0051641       0.6631260 1.246663 0.03096903 0.8620727 0.8620727   39</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                              leading_edge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008 tags=27%, list=19%, signal=25%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0090304 tags=44%, list=22%, signal=41%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134 tags=36%, list=18%, signal=34%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252 tags=25%, list=10%, signal=26%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0032101 tags=31%, list=18%, signal=29%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0051641 tags=60%, list=39%, signal=49%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     core_enrichment</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008                                                       231/177/81693/8312</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0090304                                           81/177/9131/333/8312/80755/283</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134                                                       54/383/177/117/350</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252                                                               54/383/177</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0032101                                                           54/383/177/350</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0051641 81/177/81693/9131/117/392/8312/283/51382/129138/558/411/101/375790/93974</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    ID                         Description setSize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008 GO:0003008                      system process      17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0044283 GO:0044283 small molecule biosynthetic process      10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003013 GO:0003013          circulatory system process      12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0008015 GO:0008015                   blood circulation      12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134 GO:0080134    regulation of response to stress      16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252 GO:0002252             immune effector process      12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            enrichmentScore      NES      pvalue  p.adjust    qvalue rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008       0.7487751 1.375646 0.005471063 0.7639186 0.7596414   19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0044283       0.7847467 1.374343 0.018755240 0.7639186 0.7596414   13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003013       0.7432055 1.322340 0.028197382 0.7639186 0.7596414   10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0008015       0.7432055 1.322340 0.028197382 0.7639186 0.7596414   10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134       0.7162173 1.309517 0.012654474 0.7639186 0.7596414   18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252       0.7285557 1.296274 0.033232628 0.7639186 0.7596414   10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                              leading_edge        core_enrichment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003008 tags=29%, list=19%, signal=29% 231/290/177/81693/8312</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0044283 tags=50%, list=13%, signal=48%    51/231/1109/189/117</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0003013 tags=17%, list=10%, signal=17%                290/177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0008015 tags=17%, list=10%, signal=17%                290/177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0080134 tags=31%, list=18%, signal=31%     54/383/177/117/350</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GO:0002252 tags=25%, list=10%, signal=26%             54/383/177</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
