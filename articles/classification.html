@@ -199,13 +199,13 @@ progress of the model in shake of clarity for this vignette.</p>
 <span><span class="co">#&gt;          0 15  0</span></span>
 <span><span class="co">#&gt;          1  9 10</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" width="700"></p>
 <p>We can change several parameters in the <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 function. For example, we can change the number of cross-validation
 folds, the number of grid points for the hyperparameter optimization, or
@@ -328,7 +328,7 @@ visualize protein features.</p>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
 <span>                        type <span class="op">=</span> <span class="st">"case_vs_control"</span>,</span>
 <span>                        points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feature_boxplot</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
@@ -336,7 +336,7 @@ visualize protein features.</p>
 <span>                        case <span class="op">=</span> <span class="st">"AML"</span>, </span>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
 <span>                        type <span class="op">=</span> <span class="st">"case_vs_all"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="multi-classification-model">Multi-classification Model<a class="anchor" aria-label="anchor" href="#multi-classification-model"></a>
@@ -377,13 +377,13 @@ regression!</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="regression-instead-of-classification">Regression instead of Classification<a class="anchor" aria-label="anchor" href="#regression-instead-of-classification"></a>
@@ -434,10 +434,10 @@ argument by changing the metrics from “accuracy”, “sensitivity”,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">comparison_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="test-the-model-on-new-data">Test the Model on new Data<a class="anchor" aria-label="anchor" href="#test-the-model-on-new-data"></a>
@@ -515,10 +515,10 @@ this. Let’s see an example with the AML model.</p>
 <span><span class="co">#&gt;          0 88  2</span></span>
 <span><span class="co">#&gt;          1 21  7</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">test_roc_curve</span>  <span class="co"># Results from the validation set</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-2.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="summarizing-results-from-multiple-binary-models">Summarizing Results from Multiple Binary Models<a class="anchor" aria-label="anchor" href="#summarizing-results-from-multiple-binary-models"></a>
@@ -554,13 +554,13 @@ function.</p>
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">metrics_barplot</span></span>
 <span><span class="co">#&gt; Ignoring unknown labels:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">colour</span> : <span style="color: #0000BB;">"Metric"</span></span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-2.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">upset_plot_features</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" class="r-plt" width="700"></p>
 <p>In case we have one case and multiple controls we can use the
 <code><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap()</a></code> function to visualize the protein
 features in a heatmap. This function is useful as we can easily see if
@@ -595,7 +595,7 @@ results of the same comparisons.</p>
 <span>                                             <span class="st">"Blood"</span> <span class="op">=</span> <span class="va">model_blood</span>, </span>
 <span>                                             <span class="st">"All"</span> <span class="op">=</span> <span class="va">model_all</span><span class="op">)</span>, </span>
 <span>                        order_by <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="700"></p>
 <p>Finally, we can use the <code><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network()</a></code>
 function to visualize the protein features in a network. This function
 is useful as we can easily see the connections between the features and
@@ -626,7 +626,7 @@ the same 3 models from before.</p>
 <span><span class="fu"><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network</a></span><span class="op">(</span><span class="va">feature_panel</span>,</span>
 <span>                        plot_color <span class="op">=</span> <span class="st">"Scaled_Importance"</span>,</span>
 <span>                        class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
@@ -695,7 +695,7 @@ its functions.</p>
 <span><span class="co">#&gt; [100] viridisLite_0.4.2   lava_1.8.2          gtable_0.3.6       </span></span>
 <span><span class="co">#&gt; [103] GPfit_1.0-9         sass_0.4.10         digest_0.6.37      </span></span>
 <span><span class="co">#&gt; [106] ggrepel_0.9.6       htmlwidgets_1.6.4   farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [109] memoise_2.0.1       htmltools_0.5.8.1   pkgdown_2.1.3      </span></span>
+<span><span class="co">#&gt; [109] memoise_2.0.1       htmltools_0.5.8.1   pkgdown_2.2.0      </span></span>
 <span><span class="co">#&gt; [112] lifecycle_1.0.4     hardhat_1.4.2       statmod_1.5.1      </span></span>
 <span><span class="co">#&gt; [115] MASS_7.3-65         sparsevctrs_0.3.4</span></span></code></pre></div>
 </div>

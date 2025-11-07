@@ -152,12 +152,12 @@ the analysis and plot the results respectively.</p>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span>
 <span><span class="co">#&gt; NULL</span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="700"></p>
 <p>Let’s change the database and the p-value threshold.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_ora.html">hd_ora</a></span><span class="op">(</span><span class="va">proteins</span>, database <span class="op">=</span> <span class="st">"Reactome"</span>, pval_lim <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
@@ -165,12 +165,12 @@ the analysis and plot the results respectively.</p>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span>
 <span><span class="co">#&gt; NULL</span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="gene-set-enrichment-analysis">Gene Set Enrichment Analysis<a class="anchor" aria-label="anchor" href="#gene-set-enrichment-analysis"></a>
@@ -189,16 +189,16 @@ expression results, so a ranked list of proteins is derived based on the
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">gseaplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-3.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">ridgeplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-5-4.png" class="r-plt" width="700"></p>
 <p>We can also change the ranking variable to the product of logFC and
 -log(adjusted p value) instead of the default logFC by changing the
 <code>ranked_by</code> argument to “both”. We could also use other
@@ -214,7 +214,7 @@ biological relevance of the variable.</p>
 <span></span>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_gsea.html">hd_plot_gsea</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="post_analysis_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p><img src="post_analysis_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
 <blockquote>
 <p>📓 Remember once again that these data are a dummy-dataset with
 artificial data and the results in this guide should not be interpreted
@@ -257,7 +257,7 @@ the package and its functions.</p>
 <span><span class="co">#&gt;  [13] vctrs_0.6.5             reshape2_1.4.4          stringr_1.6.0          </span></span>
 <span><span class="co">#&gt;  [16] pkgconfig_2.0.3         crayon_1.5.3            fastmap_1.2.0          </span></span>
 <span><span class="co">#&gt;  [19] XVector_0.50.0          ggraph_2.2.2            labeling_0.4.3         </span></span>
-<span><span class="co">#&gt;  [22] rmarkdown_2.30          enrichplot_1.30.0       graph_1.88.0           </span></span>
+<span><span class="co">#&gt;  [22] rmarkdown_2.30          enrichplot_1.30.1       graph_1.88.0           </span></span>
 <span><span class="co">#&gt;  [25] ragg_1.5.0              purrr_1.2.0             bit_4.6.0              </span></span>
 <span><span class="co">#&gt;  [28] xfun_0.54               cachem_1.1.0            graphite_1.56.0        </span></span>
 <span><span class="co">#&gt;  [31] aplot_0.2.9             jsonlite_2.0.0          blob_1.2.4             </span></span>
@@ -265,7 +265,7 @@ the package and its functions.</p>
 <span><span class="co">#&gt;  [37] R6_2.6.1                bslib_0.9.0             stringi_1.8.7          </span></span>
 <span><span class="co">#&gt;  [40] RColorBrewer_1.1-3      limma_3.66.0            jquerylib_0.1.4        </span></span>
 <span><span class="co">#&gt;  [43] GOSemSim_2.36.0         Rcpp_1.1.0              Seqinfo_1.0.0          </span></span>
-<span><span class="co">#&gt;  [46] knitr_1.50              ggtangle_0.0.7          R.utils_2.13.0         </span></span>
+<span><span class="co">#&gt;  [46] knitr_1.50              ggtangle_0.0.8          R.utils_2.13.0         </span></span>
 <span><span class="co">#&gt;  [49] Matrix_1.7-4            splines_4.5.2           igraph_2.2.1           </span></span>
 <span><span class="co">#&gt;  [52] tidyselect_1.2.1        viridis_0.6.5           qvalue_2.42.0          </span></span>
 <span><span class="co">#&gt;  [55] yaml_2.3.10             codetools_0.2-20        lattice_0.22-7         </span></span>
@@ -287,7 +287,7 @@ the package and its functions.</p>
 <span><span class="co">#&gt; [103] yulab.utils_0.2.1       fontquiver_0.2.1        sass_0.4.10            </span></span>
 <span><span class="co">#&gt; [106] digest_0.6.37           ggrepel_0.9.6           ggplotify_0.1.3        </span></span>
 <span><span class="co">#&gt; [109] htmlwidgets_1.6.4       farver_2.1.2            memoise_2.0.1          </span></span>
-<span><span class="co">#&gt; [112] htmltools_0.5.8.1       pkgdown_2.1.3           R.oo_1.27.1            </span></span>
+<span><span class="co">#&gt; [112] htmltools_0.5.8.1       pkgdown_2.2.0           R.oo_1.27.1            </span></span>
 <span><span class="co">#&gt; [115] lifecycle_1.0.4         httr_1.4.7              GO.db_3.22.0           </span></span>
 <span><span class="co">#&gt; [118] statmod_1.5.1           fontLiberation_0.1.0    bit64_4.6.0-1          </span></span>
 <span><span class="co">#&gt; [121] MASS_7.3-65</span></span></code></pre></div>

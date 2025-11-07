@@ -224,17 +224,17 @@ and “Age”.</p>
 <span></span>
 <span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">na_col_hist</span></span>
 <span><span class="co">#&gt; `stat_bin()` using `bins = 30`. Pick better value `binwidth`.</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">data_summary</span><span class="op">$</span><span class="va">cor_heatmap</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Sex</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-3.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qc_data</span><span class="op">$</span><span class="va">metadata_summary</span><span class="op">$</span><span class="va">Age</span></span>
 <span><span class="co">#&gt; Picking joint bandwidth of 6.06</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-4.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-7-4.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="imputation-and-dimensionality-reduction">Imputation and Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#imputation-and-dimensionality-reduction"></a>
@@ -286,13 +286,13 @@ scaling the data and coloring the plots by metadata variables.</p>
 <span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_plot</span></span>
 <span><span class="co">#&gt; Ignoring unknown labels:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">Color</span> : <span style="color: #0000BB;">"Disease"</span></span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_variance_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-3.png" class="r-plt" width="700"></p>
 <p>Let’s color UMAP by Sex instead of Disease to see if there are any
 sex related differences.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -313,7 +313,7 @@ sex related differences.</p>
 <span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span></span>
 <span><span class="co">#&gt; Ignoring unknown labels:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">Color</span> : <span style="color: #0000BB;">"Sex"</span></span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="biomarker-identification">Biomarker Identification<a class="anchor" aria-label="anchor" href="#biomarker-identification"></a>
@@ -347,7 +347,7 @@ Myeloid Leukemia (AML).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ANGPT1  -<span style="color: #BB0000;">1.63</span>  -<span style="color: #BB0000;">2.09</span>  -<span style="color: #BB0000;">1.16</span>   1.72  -<span style="color: #BB0000;">6.87</span> 1.65<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span>  3.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  15.3 AML    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ARTN     0.826  0.572  1.08   0.423  6.38 3.60<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  6.00<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  12.3 AML</span></span>
 <span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_de_limma.html">hd_de_limma</a></span><span class="op">(</span><span class="va">hd_obj</span>,</span>
 <span>                          variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
@@ -369,13 +369,13 @@ to store all the results in a list.</p>
 <span><span class="va">de_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_de_summary.html">hd_plot_de_summary</a></span><span class="op">(</span><span class="va">de_res</span>, class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary</span><span class="op">$</span><span class="va">upset_plot_down</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-15-3.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="machine-learning-classification-model">Machine Learning Classification Model<a class="anchor" aria-label="anchor" href="#machine-learning-classification-model"></a>
@@ -419,13 +419,13 @@ times but we will present only the results for AML.</p>
 <span><span class="co">#&gt;          0 106   1</span></span>
 <span><span class="co">#&gt;          1  29  11</span></span>
 <span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-3.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lasso_res_crc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_model_rreg.html">hd_model_rreg</a></span><span class="op">(</span><span class="va">hd_split</span>, </span>
 <span>                               variable <span class="op">=</span> <span class="st">"Disease"</span>,</span>
@@ -455,13 +455,13 @@ need to store the results in a list as before.</p>
 <code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">metrics_barplot</span></span>
 <span><span class="co">#&gt; Ignoring unknown labels:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">colour</span> : <span style="color: #0000BB;">"Metric"</span></span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-2.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">upset_plot_features</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-3.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-3.png" class="r-plt" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -495,12 +495,12 @@ results.</p>
 <span><span class="va">enrichment_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_ora.html">hd_plot_ora</a></span><span class="op">(</span><span class="va">enrichment</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">dotplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-21-1.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">treeplot</span></span>
 <span><span class="co">#&gt; NULL</span></span>
 <span><span class="va">enrichment_plots</span><span class="op">$</span><span class="va">cnetplot</span></span></code></pre></div>
-<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-21-2.png" width="700"></p>
+<p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-21-2.png" class="r-plt" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
@@ -539,17 +539,17 @@ its functions.</p>
 <span><span class="co">#&gt;  [10] globals_0.18.0          lattice_0.22-7          MASS_7.3-65            </span></span>
 <span><span class="co">#&gt;  [13] backports_1.5.0         SnowballC_0.7.1         magrittr_2.0.4         </span></span>
 <span><span class="co">#&gt;  [16] limma_3.66.0            sass_0.4.10             rmarkdown_2.30         </span></span>
-<span><span class="co">#&gt;  [19] jquerylib_0.1.4         yaml_2.3.10             ggtangle_0.0.7         </span></span>
+<span><span class="co">#&gt;  [19] jquerylib_0.1.4         yaml_2.3.10             ggtangle_0.0.8         </span></span>
 <span><span class="co">#&gt;  [22] askpass_1.2.1           reticulate_1.44.0       cowplot_1.2.0          </span></span>
 <span><span class="co">#&gt;  [25] DBI_1.2.3               RColorBrewer_1.1-3      lubridate_1.9.4        </span></span>
 <span><span class="co">#&gt;  [28] purrr_1.2.0             R.utils_2.13.0          BiocGenerics_0.56.0    </span></span>
 <span><span class="co">#&gt;  [31] yulab.utils_0.2.1       nnet_7.3-20             rappdirs_0.3.3         </span></span>
 <span><span class="co">#&gt;  [34] ipred_0.9-15            gdtools_0.4.4           lava_1.8.2             </span></span>
 <span><span class="co">#&gt;  [37] IRanges_2.44.0          embed_1.2.0             S4Vectors_0.48.0       </span></span>
-<span><span class="co">#&gt;  [40] enrichplot_1.30.0       ggrepel_0.9.6           tokenizers_0.3.0       </span></span>
+<span><span class="co">#&gt;  [40] enrichplot_1.30.1       ggrepel_0.9.6           tokenizers_0.3.0       </span></span>
 <span><span class="co">#&gt;  [43] listenv_0.10.0          tidytree_0.4.6          pheatmap_1.0.13        </span></span>
 <span><span class="co">#&gt;  [46] umap_0.2.10.0           RSpectra_0.16-2         parallelly_1.45.1      </span></span>
-<span><span class="co">#&gt;  [49] pkgdown_2.1.3           codetools_0.2-20        DOSE_4.4.0             </span></span>
+<span><span class="co">#&gt;  [49] pkgdown_2.2.0           codetools_0.2-20        DOSE_4.4.0             </span></span>
 <span><span class="co">#&gt;  [52] tidyselect_1.2.1        shape_1.4.6.1           aplot_0.2.9            </span></span>
 <span><span class="co">#&gt;  [55] farver_2.1.2            stats4_4.5.2            Seqinfo_1.0.0          </span></span>
 <span><span class="co">#&gt;  [58] jsonlite_2.0.0          ggridges_0.5.7          survival_3.8-3         </span></span>
