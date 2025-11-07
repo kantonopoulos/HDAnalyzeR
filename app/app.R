@@ -7,6 +7,10 @@ library(HDAnalyzeR)
 library(dplyr)
 library(plotly)
 library(ggplot2)
+if (FALSE) {
+  library(glmnet)
+  library(umap)
+}
 
 # Define custom themes
 light_theme <- bs_theme(
@@ -341,19 +345,62 @@ ui <- tagList(
 # Define server ----------------------------------------------------------------
 server <- function(input, output, session) {
   options(shiny.maxRequestSize=100*1024^2)
+
+  user_choice <- reactiveVal(NULL)
+
+  # Modal asking which mode to use
+  observe({
+    showModal(modalDialog(
+      title = "Start HDAnalyzeR",
+      "Use your own datasets or explore with example datasets?",
+      footer = tagList(
+        modalButton("Use my own"),
+        actionButton("use_example", "Use example datasets", class = "btn-primary")
+      ),
+      easyClose = FALSE
+    ))
+  })
+
+  observeEvent(input$use_example, {
+    removeModal()
+    user_choice("example")
+  })
+
+  observeEvent(input$cancel, {  # optional if you later add a cancel button
+    removeModal()
+    user_choice("own")
+  })
+
   # Input data -----------------------------------------------------------------
   # Reactive values for data and metadata
   data <- reactive({
-    req(input$data_file)
-    file <- input$data_file$datapath
+    req(user_choice())  # wait until user makes a choice
+
+    if (user_choice() == "example") {
+      file <- "example_data.rda"
+      showNotification("Using example dataset.", type = "message")
+    } else {
+      req(input$data_file)
+      file <- input$data_file$datapath
+    }
+
     hd_import_data(file)
   })
 
   metadata <- reactive({
-    req(input$metadata_file)
-    file <- input$metadata_file$datapath
+    req(user_choice())
+
+    if (user_choice() == "example") {
+      file <- "example_metadata.rda"
+      showNotification("Using example metadata.", type = "message")
+    } else {
+      req(input$metadata_file)
+      file <- input$metadata_file$datapath
+    }
+
     hd_import_data(file)
   })
+
 
   output$sample_id_ui <- renderUI({
     req(data())
