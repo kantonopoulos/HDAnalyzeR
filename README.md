@@ -37,7 +37,7 @@ devtools::install_github("kantonopoulos/HDAnalyzeR")
 
 ## App Interface
 
-HDAnalyzeR combines a [grsphical user interface (GUI)](https://hdanalyzer.serve.scilifelab.se) to make it accessible to researchers with no coding experience. With this app, users can run complex analyses even on their phone or tablet. The app includes features for data and metadata uploads, exploratory data analysis visualizations, dimensionality reduction, differential expression analysis, and simple classification models. All outputs can be downloaded as .CSV or .PNG files.
+HDAnalyzeR combines a [graphical user interface (GUI)](https://hdanalyzer.serve.scilifelab.se) to make it accessible to researchers with no coding experience. With this app, users can run complex analyses even on their phone or tablet. The app includes features for data and metadata uploads, exploratory data analysis visualizations, dimensionality reduction, differential expression analysis, and simple classification models. All outputs can be downloaded as .CSV or .PNG files.
 
 ## Cheat Sheet
 
