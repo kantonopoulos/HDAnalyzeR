@@ -7,6 +7,7 @@ library(HDAnalyzeR)
 library(dplyr)
 library(plotly)
 library(ggplot2)
+library(vembedr)
 if (FALSE) {
   library(glmnet)
   library(umap)
@@ -40,7 +41,7 @@ ui <- tagList(
             p("This app simplifies proteomics data analysis and biomarker discovery."),
             hr(),
             h4("Data"),
-            p("The data file should have the sample identifiers in the first column. For more infomation check the Help tab."),
+            p("The data file should have the sample identifiers in the first column. For more infomation check the Help tab. Max file size 500MB."),
             fileInput("data_file",
                       "Upload Data File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
                       accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
@@ -48,7 +49,7 @@ ui <- tagList(
             uiOutput("variable_value_ui"),
             hr(),
             h4("Metadata"),
-            p("The metadata should contain the same sample identifiers as the data file. For more infomation check the Help tab."),
+            p("The metadata should contain the same sample identifiers as the data file. For more infomation check the Help tab. Max file size 500MB."),
             fileInput("metadata_file",
                       "Upload Metadata File (.csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet):",
                       accept = c(".csv", ".tsv", ".txt", ".xlsx", ".rds", ".rda", ".parquet")),
@@ -266,11 +267,12 @@ ui <- tagList(
       fluidPage(
         h2("📘 HDAnalyzeR User Guide"),
         br(),
-        
+        embed_url("https://youtu.be/Fxk4wfVUezM"),
+        br(),
         wellPanel(
           h4("1. Welcome & Data Upload Tab"),
           tags$ul(
-            tags$li("Upload your data and metadata using the file inputs. Both of them are required to start!"),
+            tags$li("Upload your data and metadata using the file inputs. Max file size 500MB. Both of them are required to start!"),
             tags$li("Supported formats: .csv, .tsv, .txt, .xlsx, .rds, .rda, .parquet."),
             tags$li("For wide-format data: sample IDs in the first column, followed by expression columns."),
             tags$li("Include metadata (e.g., group, condition) in a separate file."),
@@ -344,7 +346,7 @@ ui <- tagList(
 
 # Define server ----------------------------------------------------------------
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize=100*1024^2)
+  options(shiny.maxRequestSize=500*1024^2)
 
   user_choice <- reactiveVal(NULL)
 
@@ -1405,7 +1407,7 @@ server <- function(input, output, session) {
           selectInput("de_case", "Case Group:", choices = unique_vals,
                       selected = if (!is.null(input$de_case)) input$de_case else NULL),
           # Dynamically exclude the selected case from controls
-          selectInput("de_control", "Control Group(s) (comma-separated):",
+          selectInput("de_control", "Control Group(s):",
                       choices = if (!is.null(input$de_case)) setdiff(unique_vals, input$de_case) else unique_vals,
                       multiple = TRUE,
                       selected = NULL),
@@ -1598,7 +1600,7 @@ server <- function(input, output, session) {
           selectInput("ml_case", "Case Group:", choices = unique_vals,
                       selected = if (!is.null(input$ml_case)) input$ml_case else NULL),
           # Update controls dynamically based on the selected case
-          selectInput("ml_control", "Control Group(s) (comma-separated):",
+          selectInput("ml_control", "Control Group(s):",
                       choices = if (!is.null(input$ml_case)) setdiff(unique_vals, input$ml_case) else unique_vals,
                       multiple = TRUE,
                       selected = NULL),
