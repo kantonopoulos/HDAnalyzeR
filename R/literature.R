@@ -2,8 +2,8 @@
 #' 
 #' `hd_literature_search()` fetches PubMed articles for disease-protein biomarker associations.
 #' 
-#' @param query_list Named list of diseases with associated proteins.
-#'                   Example: list(AML = c("TCL1A", "TNFRSF9"), CLL = c("CD22", "FCRL3"))
+#' @param query_list Named list of diseases with associated proteins. Example: list( "Acute Myeloid Leukemia" 
+#' = c("TCL1A", "TNFRSF9"), "Chronic Lymphocytic Leukemia" = c("CD22"))
 #' @param max_results Maximum number of articles to return per protein query.
 #' @param min_year Only include articles published in or after this year.
 #' 
