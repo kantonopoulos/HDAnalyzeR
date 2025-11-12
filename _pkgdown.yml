@@ -109,6 +109,7 @@ reference:
   - hd_show_backgrounds
   - hd_gsea
   - hd_plot_gsea
+  - hd_literature_search
 - title: Palettes and Themes
   desc: |
     Functions that customize the appearance of your plots.
