@@ -34,7 +34,12 @@ hd_literature_search <- function(query_list, max_results = 20, min_year = NULL) 
         q <- paste0(q, " AND \"", min_year, "\"[PDAT] : \"3000\"[PDAT]")
       }
       
-      epm_obj <- easyPubMed::epm_query(q)
+      epm_obj <- tryCatch(
+        easyPubMed::epm_query(q),
+        error = function(e) return(NULL)
+      )
+      if (is.null(epm_obj)) next
+
       epm_obj <- easyPubMed::epm_fetch(epm_obj)
       epm_obj <- easyPubMed::epm_parse(epm_obj, max_authors = 1, include_abstract = TRUE)
       df <- easyPubMed::get_epm_data(epm_obj)
