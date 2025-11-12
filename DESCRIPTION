@@ -21,7 +21,7 @@ Imports:
     broom,
     dials,
     dplyr,
-    easyPubMed,
+    easyPubMed (>= 3.0),
     embed,
     forcats,
     ggbeeswarm,
