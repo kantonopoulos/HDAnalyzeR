@@ -39,7 +39,7 @@ hd_literature_search <- function(query_list, max_results = 20, min_year = NULL) 
       epm_obj <- easyPubMed::epm_parse(epm_obj, max_authors = 1, include_abstract = TRUE)
       df <- easyPubMed::get_epm_data(epm_obj)
       
-      if (nrow(df) == 0) next
+      if (is.null(df) || nrow(df) == 0) next
       
       df <- df[seq_len(min(nrow(df), max_results)), , drop = FALSE]
       
