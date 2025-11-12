@@ -161,6 +161,8 @@ biological impact.
   : Gene set enrichment analysis
 - [`hd_plot_gsea()`](https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_gsea.md)
   : Plot gene set enrichment analysis results
+- [`hd_literature_search()`](https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_literature_search.md)
+  : Fetch PubMed articles for disease-protein biomarker associations
 
 ## Palettes and Themes
 

@@ -193,7 +193,7 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>   [1] DBI_1.2.3               gson_0.1.0              gridExtra_2.3          
 #>   [4] rlang_1.1.6             magrittr_2.0.4          DOSE_4.4.0             
-#>   [7] ggridges_0.5.7          compiler_4.5.2          RSQLite_2.4.3          
+#>   [7] ggridges_0.5.7          compiler_4.5.2          RSQLite_2.4.4          
 #>  [10] reactome.db_1.94.0      png_0.1-8               systemfonts_1.3.1      
 #>  [13] vctrs_0.6.5             reshape2_1.4.4          stringr_1.6.0          
 #>  [16] pkgconfig_2.0.3         crayon_1.5.3            fastmap_1.2.0          

@@ -450,6 +450,11 @@ hd_model_rreg(hd_split,
                              "mixture"),
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
+#> → A | error:   reached elapsed time limit
+#> There were issues with some computations   A: x1
+#> Warning: All models failed. Run `show_notes(.Last.tune.result)` for more information.
+#> There were issues with some computations   A: x1
+#> 
 #> $train_data
 #> # A tibble: 438 × 102
 #>    DAid      Age AARSD1       ABL1   ACAA1   ACAN  ACE2   ACOX1   ACP5     ACP6
