@@ -69,7 +69,7 @@ Imports:
     WGCNA,
     withr,
     workflows,
-    writexl
+    writexl,
     yardstick
 Suggests: 
     org.Hs.eg.db,
