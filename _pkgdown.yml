@@ -1,3 +1,4 @@
+use_callr: false
 url: https://kantonopoulos.github.io/HDAnalyzeR
 template:
   bootstrap: 5
