@@ -72,7 +72,7 @@ Antonopoulos, K., Bueno Alvez, M., Johansson, E., & Edfors Arfwidsson, F. (2024)
 
 ## Issues and Support
 
-If you encounter any bugs or you want to recommend new features and changes to existing ones, please open a new issue on our GitHub repository.
+If you encounter any bugs or you want to recommend new features and changes to existing ones, please open a [new issue](https://github.com/kantonopoulos/HDAnalyzeR/issues) on our GitHub repository.
 
 ## Contact
 
