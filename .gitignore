@@ -2,6 +2,7 @@
 inst/extdata/
 logo/
 paper/
+case_studies/data
 
 # Files
 .RData
