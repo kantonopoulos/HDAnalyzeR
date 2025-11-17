@@ -1,30 +1,29 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  release:
-    types: [published]
   workflow_dispatch:
 
 name: pkgdown
 
-permissions: read-all
-
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_ENVIRON_USER: ~/.Renviron
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Write .Renviron to disable callr
+        run: |
+          echo "PKGDOWN_USE_CALLR=false" >> ~/.Renviron
+          echo "R_BUILD_TAR=tar" >> ~/.Renviron
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -34,18 +33,20 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: |
+            any::pkgdown
+            any::rmarkdown
+            local::.
           needs: website
 
-      - name: Build site
+      - name: Build site (no subprocess, no callr)
         run: |
-          Rscript -e "options(pkgdown.internet = FALSE);
-                      pkgdown::build_site(devel = TRUE)"
+          Rscript -e "options(pkgdown.use_callr = FALSE); pkgdown::build_site(install = TRUE, new_process = FALSE)"
 
-      - name: Deploy to GitHub pages 🚀
+      - name: Deploy to GitHub pages
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          clean: false
           branch: gh-pages
           folder: docs
+          clean: false
