@@ -36,12 +36,18 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-      
-     - name: Build site
+
+      - name: Build site
+        run: |
+          options(pkgdown.use_callr = FALSE)
+          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      - name: Build site
         run: |
           Rscript -e "options(pkgdown.internet = FALSE);
                       pkgdown::build_site(devel = TRUE)"
-
+                      
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
