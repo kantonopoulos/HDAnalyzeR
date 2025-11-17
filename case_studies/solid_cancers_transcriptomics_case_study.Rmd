@@ -13,7 +13,9 @@ Reference: Edwards NJ, Oberti M, Thangudu RR, Cai S, McGarvey PB, Jacob S, Madha
 
 ```{r}
 library(dplyr)
+library(tidyr)
 library(readr)
+library(stringr)
 library(ggplot2)
 library(SummarizedExperiment)
 library(HDAnalyzeR)
@@ -63,7 +65,7 @@ df_endometrial <-
 We then only keep the TPM values for coding genes based on the HPA database (https://www.proteinatlas.org/humanproteome/tissue/data#normal_tissues_ihc). We will log transform the data as well by (log2(TPM + 1)).
 
 ```{r}
-hpa_rna <- read_tsv("normal_tissue.tsv")
+hpa_rna <- read_tsv("data/normal_tissue.tsv")
 
 coding_genes <- 
   hpa_rna |> 
@@ -193,8 +195,7 @@ meta_simple_endometrial <- parse_meta(
 ## Initialize HDAobject
 
 ```{r}
-hd_kidney <-
-  hd_initialize(
+hd_kidney <- hd_initialize(
     kidney,
     meta_simple_kidney,
     sample_id = "sample_id",
@@ -202,8 +203,7 @@ hd_kidney <-
     value_name = "tpm"
   )
 
-hd_lung <-
-  hd_initialize(
+hd_lung <- hd_initialize(
     lung,
     meta_simple_lung,
     sample_id = "sample_id",
@@ -211,8 +211,7 @@ hd_lung <-
     value_name = "tpm"
   )
 
-hd_endometrial <-
-  hd_initialize(
+hd_endometrial <- hd_initialize(
     endometrial,
     meta_simple_endometrial,
     sample_id = "sample_id",
@@ -228,52 +227,45 @@ We will run a PCA analysis on the data to check if the data contain any outliers
 ```{r}
 # Kidney
 pca_kidney <- hd_pca(hd_kidney)
-pca_plot_kidney <- 
-  pca_kidney |>
+pca_plot_kidney <- pca_kidney |>
   hd_plot_dim(hd_kidney, "PC1", "PC2", color = "sample_type_short", palette = palette_sample_type, axis_variance = TRUE) 
 
 # Lung
 pca_lung <- hd_pca(hd_lung)
-pca_plot_lung <- 
-  pca_lung |>
+pca_plot_lung <- pca_lung |>
   hd_plot_dim(hd_lung, "PC1", "PC2", color = "sample_type_short", palette = palette_sample_type, axis_variance = TRUE) 
 
 # Endometrial
 pca_endometrial <- hd_pca(hd_endometrial)
-pca_plot_endometrial <- 
-  pca_endometrial |>
+pca_plot_endometrial <- pca_endometrial |>
   hd_plot_dim(hd_endometrial, "PC1", "PC2", color = "sample_type_short", palette = palette_sample_type,  axis_variance = TRUE) 
 
 # Combined plots
-combined_pca_plots <- 
-  pca_plot_kidney$pca_plot | 
+combined_pca_plots_ <- pca_plot_kidney$pca_plot | 
   pca_plot_lung$pca_plot | 
   pca_plot_endometrial$pca_plot 
-combined_pca_plots <- combined_pca_plots +  plot_layout(guides = "collect")
+combined_pca_plots_ <- combined_pca_plots +  plot_layout(guides = "collect")
 ```
 
 We will also check the variance of the principal components for each cancer to see which transcripts are driving the variance in each case.
 
 ```{r}
 # Kidney
-pca_variance_kidney <- 
-  pca_kidney |>   
+pca_variance_kidney <- pca_kidney |>   
   hd_plot_pca_loadings(displayed_pcs = 1, displayed_features = 10)
 
 # Lung
-pca_variance_lung <- 
-  pca_lung |>   
+pca_variance_lung <- pca_lung |>   
   hd_plot_pca_loadings(displayed_pcs = 1, displayed_features = 10)
 
 # Endometrial
-pca_variance_endometrial <- 
-  pca_endometrial |>   
+pca_variance_endometrial <- pca_endometrial |>   
   hd_plot_pca_loadings(displayed_pcs = 1, displayed_features = 10)
 
-combined_variance_plots <- 
-  pca_variance_kidney$pca_loadings_plot |
+combined_variance_plots <- pca_variance_kidney$pca_loadings_plot |
   pca_variance_lung$pca_loadings_plot | 
   pca_variance_endometrial$pca_loadings_plot 
+
 combined_variance_plots <- combined_variance_plots +  plot_layout(guides = "collect")
 ```
 
@@ -281,55 +273,49 @@ Finally, we will plot the top two features that drive the variance in each case 
 
 ```{r}
 # Kidney
-top_features_kidney <- 
-  pca_variance_kidney$pca_loadings |> 
+top_features_kidney <- pca_variance_kidney$pca_loadings |> 
   filter(component == "PC1") |> 
   arrange(-abs(value)) |> 
   head(2) |> 
   pull(terms)
 
-top_features_kidney_plot <- 
-  hd_plot_feature_boxplot(hd_kidney, 
+top_features_kidney_plot <- hd_plot_feature_boxplot(hd_kidney, 
                         features = top_features_kidney, 
                         variable = "sample_type_short",
                         palette = palette_sample_type, 
                         points = T)
 
 # Lung
-top_features_lung <- 
-  pca_variance_lung$pca_loadings |> 
+top_features_lung <- pca_variance_lung$pca_loadings |> 
   filter(component == "PC1") |> 
   arrange(-abs(value)) |> 
   head(2) |> 
   pull(terms)
 
-top_features_lung_plot <- 
-  hd_plot_feature_boxplot(hd_lung, 
+top_features_lung_plot <- hd_plot_feature_boxplot(hd_lung, 
                         features = top_features_lung, 
                         variable = "sample_type_short",
                         palette = palette_sample_type, 
                         points = T)
 
 # Endometrial
-top_features_endometrial <- 
-  pca_variance_endometrial$pca_loadings |> 
+top_features_endometrial <- pca_variance_endometrial$pca_loadings |> 
   filter(component == "PC1") |> 
   arrange(-abs(value)) |> 
   head(2) |> 
   pull(terms)
 
-top_features_endometrial_plot <- 
-  hd_plot_feature_boxplot(hd_endometrial, 
+top_features_endometrial_plot <- hd_plot_feature_boxplot(hd_endometrial, 
                         features = top_features_endometrial, 
                         variable = "sample_type_short",
                         palette = palette_sample_type, 
                         points = T)
 
 
-combined_pca_boxplots_plots <- 
-  top_features_kidney_plot | 
+combined_pca_boxplots_plots <- top_features_kidney_plot | 
   top_features_lung_plot |
   top_features_endometrial_plot 
+
 combined_pca_boxplots_plots <- combined_pca_boxplots_plots +  plot_layout(guides = "collect")
 ```
 
@@ -362,30 +348,27 @@ de_endometrial <- hd_de_limma(hd_endometrial,
 ```
 
 ```{r}
-volcano_kidney <- 
-  de_kidney |> 
+volcano_kidney <- de_kidney |> 
   hd_plot_volcano(report_nproteins = FALSE,
                   top_up_prot = 3,
                   top_down_prot = 3)
 
-volcano_lung <- 
-  de_lung |> 
-  hd_plot_volcano(report_nproteins = FALSE,
-                  top_up_prot = 3,
-                  top_down_prot = 3)
-
-
-volcano_endometrial <- 
-  de_endometrial |> 
+volcano_lung <- de_lung |> 
   hd_plot_volcano(report_nproteins = FALSE,
                   top_up_prot = 3,
                   top_down_prot = 3)
 
 
-combined_volcano_plots <- 
-  volcano_kidney$volcano_plot | 
+volcano_endometrial <- de_endometrial |> 
+  hd_plot_volcano(report_nproteins = FALSE,
+                  top_up_prot = 3,
+                  top_down_prot = 3)
+
+
+combined_volcano_plots <- volcano_kidney$volcano_plot | 
   volcano_lung$volcano_plot |
   volcano_endometrial$volcano_plot 
+
 combined_volcano_plots <- combined_volcano_plots +  plot_layout(guides = "collect")
 ```
 
@@ -393,8 +376,7 @@ We will plot the most up- and the most down-regulated transcripts as boxplots to
   
 ```{r}
 # Kidney
-top_features_de_kidney <- 
-  de_kidney$de_res |> 
+top_features_de_kidney <- de_kidney$de_res |> 
   slice_max(logFC, n = 1) |>         
   bind_rows(slice_min(de_kidney$de_res, logFC, n = 1)) |> 
   pull(Feature)
@@ -407,22 +389,20 @@ top_features_de_kidney_plot <-
                           points = T)
 
 # Lung
-top_features_de_lung <- 
-  de_lung$de_res |> 
+top_features_de_lung <- de_lung$de_res |> 
   slice_max(logFC, n = 1) |>         
   bind_rows(slice_min(de_lung$de_res, logFC, n = 1)) |> 
   pull(Feature)
 
 top_features_de_lung_plot <- 
-  hd_plot_feature_boxplot(hd_lung, 
+hd_plot_feature_boxplot(hd_lung, 
                           features = top_features_de_lung, 
                           variable = "sample_type_short",
                           palette = palette_sample_type, 
                           points = T)
 
 # Endometrial
-top_features_de_endometrial <- 
-  de_endometrial$de_res |> 
+top_features_de_endometrial <- de_endometrial$de_res |> 
   slice_max(logFC, n = 1) |>         
   bind_rows(slice_min(de_endometrial$de_res, logFC, n = 1)) |> 
   pull(Feature)
@@ -434,8 +414,7 @@ top_features_de_endometrial_plot <-
                           palette = palette_sample_type, 
                           points = T)
 
-combined_de_boxplots <- 
-  top_features_de_kidney_plot | 
+combined_de_boxplots <- top_features_de_kidney_plot | 
   top_features_de_lung_plot |
   top_features_de_endometrial_plot
 combined_de_boxplots <- combined_de_boxplots +  plot_layout(guides = "collect")

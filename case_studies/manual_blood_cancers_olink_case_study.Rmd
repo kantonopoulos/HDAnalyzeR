@@ -1,0 +1,790 @@
+---
+title: "blood_cancers_olink_case_study"
+output: html_document
+---
+
+# Case Study 1: Plasma Proteomics of Hematological Malignancies Using Proximity Extension Assay
+
+## Set-up & Data
+
+Data is downloaded from: https://www.ebi.ac.uk/biostudies/studies/S-BSST935 
+
+Download them and place them in the `data/` folder.
+
+Reference: Álvez, M.B., Edfors, F., von Feilitzen, K. et al. Next generation pan-cancer blood proteome profiling using proximity extension assay. Nat Commun 14, 4308 (2023). https://doi.org/10.1038/s41467-023-39765-y
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(foreach)
+library(doParallel)
+library(withr)
+library(rsample)
+library(recipes)
+library(WGCNA)
+library(ggplot2)
+library(tidyheatmaps)
+library(ppsr)
+library(ggplotify)
+library(grDevices)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(enrichplot)
+library(limma)
+library(rsample)
+library(tune)
+library(parsnip)
+library(workflows)
+library(dials)
+library(yardstick)
+library(vip)
+library(forcats)
+library(ggbeeswarm)
+
+select <- dplyr::select
+mutate <- dplyr::mutate
+filter <- dplyr::filter
+rename <- dplyr::rename
+cancer_dat <- read.table("data/pancancer_olink_data_biostudies_v2.txt", header = TRUE, stringsAsFactors = FALSE)
+cancer_dat <- as_tibble(cancer_dat)
+```
+
+Keep only the blood cancer data.
+
+-   Acute Myeloid Leukemia (AML)
+
+-   Chronic Lymphocytic Leukemia (CLL)
+
+-   Myeloma (MYEL)
+
+Define plotting theme.
+
+```{r}
+theme_custom <- function(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRUE) {
+
+  t <- theme(panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.spacing = unit(0.2, "lines"),
+             panel.background = element_rect(fill = "white"),
+             panel.border = element_blank(),
+             plot.title = element_text(face = "bold",
+                                       size = rel(1),
+                                       hjust = 0.5),
+             plot.subtitle = element_text(face = "bold",
+                                          hjust = 0.5,
+                                          size = rel(1),
+                                          vjust = 1),
+             axis.title = element_text(face = "bold", size = rel(1)),
+             axis.ticks.length = unit(.25, "cm"),
+             axis.line = element_line(linewidth = 0.5),
+             axis.text = element_text(size = rel(1), color = 'black'),
+             legend.key = element_blank(),
+             legend.position = "right",
+             legend.text = element_text(size = rel(0.8)),
+             legend.key.size = unit(0.7, "cm"),
+             legend.title = element_text(size = rel(1)),
+             plot.margin = unit(c(10, 5, 5, 5), "mm"),
+             strip.background = element_rect(colour = "grey90", fill = "grey90"),
+             strip.text = element_text(face = "bold")) +
+    theme(axis.text.x = element_text(angle = angled, vjust = 0.5, hjust = 1))
+  if (axis_x == FALSE) {
+    t <- t + theme(axis.text.x = element_blank(),
+                   axis.ticks.x = element_blank(),
+                   axis.line.x = element_blank(),
+                   axis.title.x = element_blank())
+  }
+  if (axis_y == FALSE) {
+    t <- t + theme(axis.text.y = element_blank(),
+                   axis.ticks.y = element_blank(),
+                   axis.line.y = element_blank(),
+                   axis.title.y = element_blank())
+  }
+  if (facet_title == FALSE) {
+    t <- t + theme(strip.text = element_blank())
+  }
+  return(t)
+}
+```
+
+Prepare metadata and HDAnalyzeR object.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+blood_cancers <- c("AML", "CLL", "MYEL")
+metadata <- cancer_dat |> 
+  select(Sample_ID, Cancer) |> 
+  filter(Cancer %in% blood_cancers) |> 
+  distinct()
+
+
+cancer_dat <- cancer_dat |> filter(Cancer %in% blood_cancers) |> select(Sample_ID, Assay, NPX) |> pivot_wider(names_from = Assay, values_from = NPX)
+```
+
+Split data to training and validation sets. We will run the whole analysis on the training set and then only evaluate the trained model on the validation set. This is done to ensure there is no data leakage.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+join_data <- cancer_dat |>
+    left_join(metadata |>
+                select(all_of(c("Sample_ID", "Cancer"))),
+                by = "Sample_ID") |>
+    relocate("Cancer", .after = "Sample_ID")
+
+set.seed(500)
+data_split <- initial_split(join_data, prop = 0.8, strata = "Cancer")
+train_data <- training(data_split) |> select(-Cancer)
+test_data <- testing(data_split) |> select(-Cancer)
+```
+
+## WGCNA
+
+We will run WGCNA on the training set to identify modules of highly correlated proteins. We will also see which modules correlate better with the cancer type. To make things quicker we will use parallel processing.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, results=FALSE}
+# Set-up parallel processing
+n_cores <- parallel::detectCores() - 1  # leave one core free
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+
+data_in <- train_data |>
+  select(-Sample_ID)
+
+recipe <- recipe(~ ., data = data_in) |>
+  step_impute_knn(all_predictors(), neighbors = 5)
+
+imputed_data <- recipe |>
+  prep() |>
+  bake(new_data = NULL)
+
+cols <- train_data |>
+  select(Sample_ID)
+
+imputed_data <- bind_cols(cols, imputed_data)
+```
+
+```{r}
+matrix_dat <- imputed_data |> column_to_rownames("Sample_ID") |> as.matrix()
+bicor <- WGCNA::bicor
+
+# Perform WGCNA
+power_check <- pickSoftThreshold(data = matrix_dat, dataIsExpr = TRUE, verbose = 0)
+power_plts <- power_check$fitIndices |>
+  rename_with(tolower) |>
+  select(1, 2, 5:7) |>
+  pivot_longer(cols = -power) |>
+  ggplot(aes(x = power, y = value)) +
+  geom_point() +
+  geom_line(aes(group = name)) +
+  geom_vline(xintercept = power_check[["powerEstimate"]], colour = "red", linetype = "dotted") +
+  facet_wrap(~ name, scales = "free_y") +
+  theme_custom() +
+  theme(axis.text.x = element_text(hjust = 0.5))
+
+wgcna_obj <- blockwiseModules(datExpr = matrix_dat,
+                              corType = "bicor",
+                              power = power_check[["powerEstimate"]],
+                              verbose = 0,
+                              saveTOMs = FALSE)
+
+wgcna <- list("wgcna" = wgcna_obj,
+              "power" = power_check[["powerEstimate"]],
+              "power_plots" = power_plts)
+```
+
+```{r}
+metadata_train <- metadata |> filter(Sample_ID %in% train_data$Sample_ID)
+detect_vartype <- function(var, unique_threshold = 5) {
+
+  if (is.factor(var) || is.character(var)) {
+    return("categorical")
+  } else if (is.numeric(var)) {
+    # Check number of unique values
+    if (length(unique(var)) <= unique_threshold) {
+      return("categorical")
+    } else {
+      return("continuous")
+    }
+  } else {
+    return("unknown")  # For unsupported types
+  }
+
+}
+
+clinical_vars = "Cancer"
+dat_impute <- imputed_data |> column_to_rownames("Sample_ID")
+tom <- TOMsimilarityFromExpr(dat_impute, power = wgcna[["power"]])
+
+# Get dissimilarity and transform for plotting
+plot_tom <- (1 - tom) ** 10
+rownames(plot_tom) <- colnames(dat_impute)
+colnames(plot_tom) <- colnames(dat_impute)
+diag(plot_tom) <- NA
+
+# Use modules and their colours to annotate columns
+annot_df <- data.frame(module = wgcna[["wgcna"]][["colors"]], Assay = names(wgcna[["wgcna"]][["colors"]]))
+annot_col <- list(module = unique(wgcna[["wgcna"]][["colors"]]) |>
+                    setNames(unique(wgcna[["wgcna"]][["colors"]])))
+# Prepare dataset and plot heatmap
+plot_tom <- as.data.frame(as.table(plot_tom)) |>
+  left_join(annot_df, by = c("Var2" = "Assay")) |>
+  rename(Module = module)
+tom_hm <- as.ggplot(
+  tidyheatmap(plot_tom,
+              rows = Var1,
+              columns = Var2,
+              values = Freq,
+              annotation_col = Module,
+              annotation_colors = annot_col,
+              show_rownames = FALSE,
+              show_colnames = FALSE,
+              cluster_rows = wgcna[["wgcna"]][["dendrograms"]][[1]],
+              cluster_cols = wgcna[["wgcna"]][["dendrograms"]][[1]],
+              color_legend_min = -1,
+              color_legend_max = 1,
+              treeheight_row = 0,
+              silent = TRUE))
+# Module eigengene (MEs) adjacency (defined as (1 + cor) / 2)
+me_adj_dat <- wgcna[["wgcna"]][["MEs"]] |> cor()
+# Prepare dataset and plot heatmap
+me_adj_dat <- as.data.frame(as.table(me_adj_dat)) |>
+  mutate(Freq = (Freq + 1)/2)
+me_adj <- as.ggplot(
+  tidyheatmap(me_adj_dat,
+              rows = Var1,
+              columns = Var2,
+              values = Freq,
+              legend_breaks = seq(0, 1, length.out = 11),
+              border_color = "white",
+              color_legend_min = 0,
+              color_legend_max = 1,
+              display_numbers = TRUE,
+              number_color = "black",
+              fontsize_number = 11,
+              silent = TRUE))
+# Predictive power score between MEs and metadata
+me_names <- colnames(wgcna[["wgcna"]][["MEs"]])
+vartype <- sapply(metadata_train |>
+                    select(all_of(c(clinical_vars))),
+                  detect_vartype)
+# Input df to score function
+pps_in <- wgcna[["wgcna"]][["MEs"]] |>
+  rownames_to_column("Sample_ID") |>
+  left_join(metadata_train |>
+                     select(all_of(c("Sample_ID", clinical_vars))),
+                   by = "Sample_ID")
+for (var in names(vartype)) {
+  if (vartype[[var]] == "categorical") {
+    # Convert categorical variables to factors
+    pps_in[[var]] <- as.factor(pps_in[[var]])
+  } else if (vartype[[var]] == "continuous") {
+    pps_in[[var]] <- as.numeric(pps_in[[var]])
+  }
+}
+# ME as predictor for variables
+me_pps <- lapply(me_names, \(x) {
+  lapply(clinical_vars, \(y) {
+    sc <- ppsr::score(pps_in, x = x, y = y) |> as_tibble()
+  }) |> bind_rows()
+}) |> bind_rows()
+# Variables as predictors for MEs
+var_pps <- lapply(clinical_vars, \(x) {
+  lapply(me_names, \(y) {
+    sc <- ppsr::score(pps_in, x = x, y = y) |> as_tibble()
+  }) |> bind_rows()
+}) |> bind_rows()
+# Make heatmaps
+me_pps_heatmap <- me_pps |>
+  select(all_of(c("x", "y", "pps"))) |>
+  ggplot(aes(x = x,
+                               y = y,
+                               fill = pps)) +
+  geom_tile() +
+  labs(x = "Predictor", y = "Outcome", fill = "PPS") +
+  scale_fill_gradient(low = "#FFFFFF",
+                               high = "#9E0142",
+                               limits = c(0, 1)) +
+  theme_minimal()
+var_pps_heatmap <- var_pps |>
+  select(all_of(c("x", "y", "pps"))) |>
+  ggplot(aes(x = x,
+                               y = y,
+                               fill = pps)) +
+  geom_tile() +
+  labs(x = "Predictor", y = "Outcome", fill = "PPS") +
+  scale_fill_gradient(low = "#FFFFFF",
+                               high = "#9E0142",
+                               limits = c(0, 1)) +
+  theme_minimal()
+# Run correlation between Module Eigengens and clinical metadata variables
+# Separate categorical and continuous variables
+categorical_vars <- names(vartype[vartype == "categorical"])
+continuous_vars <- names(vartype[vartype == "continuous"])
+# One-hot encoding for categorical variables
+if (length(categorical_vars) > 0) {
+  one_hot_encoded <- model.matrix(~ . - 1, data = metadata_train[, categorical_vars, drop = FALSE])
+  one_hot_encoded <- as.data.frame(one_hot_encoded)
+} else {
+  one_hot_encoded <- NULL
+}
+# Combine continuous variables and one-hot encoded categorical variables
+processed_data <- cbind(metadata_train[, continuous_vars, drop = FALSE], one_hot_encoded)
+pps_in <- cbind(wgcna$wgcna$MEs, processed_data)
+me_metadata_cor <- lapply(me_names, \(x) {
+  lapply(names(processed_data), \(y) {
+    cor <- cor.test(pps_in[[x]], pps_in[[y]], method = "pearson")
+    tibble(ME = x, Variable = y, Correlation = cor[["estimate"]])
+  }) |> bind_rows()
+}) |> bind_rows()
+# Plot heatmap
+me_metadata_hm <- me_metadata_cor |>
+  ggplot(aes(x = Variable,
+                               y = ME,
+                               fill = Correlation)) +
+  geom_tile() +
+  labs(x = "Variable", y = "ME", fill = "Correlation") +
+  scale_fill_gradient2(low = "#5E4FA2",
+                                mid = "#FFFFBF",
+                                high = "#9E0142",
+                                midpoint = 0,
+                                limits = c(-1, 1)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+# Plot dendrogram
+dendro <- wgcna[["wgcna"]][["dendrograms"]][[1]]
+dendro$call <- NULL
+module_colors <- wgcna[["wgcna"]][["colors"]]
+dendro_plot <- plotDendroAndColors(
+  dendro,
+  module_colors,
+  main = "",
+  groupLabels = "Module Colors",
+  dendroLabels = FALSE
+)
+dendro_plot <- recordPlot()
+wgcna[["tom_heatmap"]] <- tom_hm
+wgcna[["me_adjacency"]] <- me_adj
+wgcna[["pps"]] <- bind_rows(me_pps, var_pps)
+wgcna[["me_pps_heatmap"]] <- me_pps_heatmap
+wgcna[["var_pps_heatmap"]] <- var_pps_heatmap
+wgcna[["me_cor_heatmap"]] <- me_metadata_hm
+wgcna[["dendrogram"]] <- dendro_plot
+```
+
+```{r}
+wgcna$dendrogram
+wgcna$me_cor_heatmap
+```
+
+We will then select modules that correlate more than 0.7 with CLL to run an Over-Representation Analysis (ORA) 
+to identify enriched biological processes.
+
+```{r}
+gene_to_entrez <- function(gene_list, background = NULL){
+  # From gene name to ENTREZID
+  gene_conversion <- bitr(gene_list,
+                          fromType = "SYMBOL",
+                          toType = "ENTREZID",
+                          OrgDb = org.Hs.eg.db)
+
+  gene_list <- gene_conversion |> pull(ENTREZID) |> unique()
+
+  if (!is.null(background)) {
+    background <- bitr(background,
+                       fromType = "SYMBOL",
+                       toType = "ENTREZID",
+                       OrgDb = org.Hs.eg.db)
+
+    background <- background |> pull(ENTREZID) |> unique()
+  }
+
+  return(list("gene_list" = gene_list, "background" = background))
+}
+
+colors <- wgcna$wgcna$colors
+
+# Get the proteins of the green module
+green_proteins <- names(colors[colors == "green"])
+
+cat("Number of highly correlated module proteins:", length(green_proteins))
+source("background.R")
+background <- background_lists()
+
+conversion <- gene_to_entrez(green_proteins, background)
+gene_list <- conversion[["gene_list"]]
+background <- conversion[["background"]]
+
+# Perform GO enrichment analysis
+enrichment <- enrichGO(gene = gene_list,
+                       OrgDb = org.Hs.eg.db,
+                       ont = "ALL",
+                       pvalueCutoff = 0.05,
+                       qvalueCutoff = 1,
+                       universe = background)
+
+enrichment <- list("gene_list" = gene_list, "background" = background, "enrichment" = enrichment)
+```
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+# Visualize results
+dot_plot <- dotplot(enrichment[["enrichment"]])
+
+tree_plot <- NULL
+
+tryCatch({
+  tree_plot_data <- pairwise_termsim(enrichment[["enrichment"]])
+  tree_plot <- treeplot(tree_plot_data)
+}, error = function(e) {
+  warning("Possible problem with the clustering in the treeplot. Might not have enough significant results.")
+})
+if (grepl("hsa", head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
+  cnet_plot <- cnetplot(enrichment[["enrichment"]],
+                        cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                        color.params = list(edge = TRUE))
+} else {
+  enrichment_transformed <- setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db)
+  cnet_plot <- cnetplot(enrichment_transformed,
+                        cex.params = list(gene_label = 0.5, gene_node = 0.8),
+                        color.params = list(edge = TRUE))
+}
+enrichment[["dotplot"]] <- dot_plot
+if (!is.null(tree_plot)){
+  enrichment[["treeplot"]] <- tree_plot
+}
+enrichment[["cnetplot"]] <- cnet_plot
+```
+
+```{r}
+enrichment$dotplot
+```
+
+## DEA
+
+We will select only the proteins of the selected module and run DEA for CLL vs the rest. We will also plot results 
+as a volcano plot.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+train_data <- train_data |> 
+  select(Sample_ID, all_of(green_proteins))
+
+# If control is NULL, set it to the unique values of the variable that are not the case
+control <- setdiff(unique(metadata[["Cancer"]]), "CLL")
+
+join_data <- train_data |>
+  left_join(metadata |>
+                     select(all_of(c("Sample_ID", "Cancer"))),
+                   by = "Sample_ID") |>
+  filter(Cancer %in% c("CLL", control))
+
+join_data <- join_data |>
+  filter(!if_any(all_of(c("Cancer")), is.na)) |>  # Remove NAs from columns in formula
+  mutate(Cancer := ifelse(Cancer == "CLL", "1_Case", "0_Control"))
+
+# Design a model
+formula <- paste("~0 + as.factor(", "Cancer", ")")
+design <- model.matrix(as.formula(formula), data = join_data)
+
+cols <- c("control", "case")
+cols <- cols[!is.null(cols)]
+colnames(design) <- paste(cols)
+contrast <- makeContrasts(Diff = case - control, levels = design)
+
+# Fit linear model to each protein assay
+data_fit <- join_data |>
+  select(-any_of(c("Cancer"))) |>
+  column_to_rownames("Sample_ID") |>
+  t()
+fit <- lmFit(data_fit, design = design, method = "robust", maxit = 10000)
+
+# Apply empirical Bayes smoothing to the SE
+contrast_fit <- contrasts.fit(fit, contrast)
+ebays_fit <- eBayes(contrast_fit)
+
+# Extract DE results
+de_results <- topTable(ebays_fit,
+                              n = nrow(ebays_fit$p.value),
+                              adjust.method = "fdr",
+                              confint = TRUE)
+
+de_res <- de_results |>
+  as_tibble(rownames = "Feature") |>
+  mutate(Cancer = "CLL") |>
+  arrange(adj.P.Val)
+
+top.sig.down <- de_res |>
+  filter(adj.P.Val < 0.005 & logFC < -2) |>
+  arrange(adj.P.Val) |>
+  pull(Feature)
+top.sig.up <- de_res |>
+  filter(adj.P.Val < 0.005 & logFC > 2) |>
+  arrange(adj.P.Val) |>
+  pull(Feature)
+
+top.sig.prot <- c(top.sig.up[seq_len(5)], top.sig.down[seq_len(10)])
+
+tab <- de_res |>
+  mutate(
+    sig.label = ifelse(Feature %in% top.sig.prot, "top significance", 0),
+    sig = case_when(
+      adj.P.Val < 0.005 & logFC < -2 ~ "significant down",
+      adj.P.Val < 0.005 & logFC > 2 ~ "significant up",
+      TRUE ~ "not significant"
+    )
+  )
+num.sig.up <- length(top.sig.up)
+num.sig.down <- length(top.sig.down)
+volcano_plot <- de_res |>
+  mutate(sig =case_when(
+    adj.P.Val < 0.005 & logFC < -2 ~ "significant down",
+    adj.P.Val < 0.005 & logFC > 2 ~ "significant up",
+    TRUE ~ "not significant"
+  )) |>
+  ggplot(aes(x = logFC,
+                               y = -log10(adj.P.Val),
+                               color = sig,
+                               label = Feature)) +
+  geom_point(size = 1, alpha = 0.4) +
+  ggrepel::geom_text_repel(data = subset(tab, sig.label == "top significance"), show.legend = FALSE) +
+  geom_hline(yintercept = -log10(0.005), linetype = 'dashed') +
+  geom_vline(xintercept = 2, linetype = 'dashed') +
+  geom_vline(xintercept = -2, linetype = 'dashed') +
+  labs(x = "log2(Fold Change)",
+                y = "-log10(Adjusted P-value)",
+                color = "Significance")
+
+diff_exp = c("not significant" = "grey",
+                 "significant down" = "#317EC2",
+                 "significant up" = "#C03830")
+                 
+volcano_plot <- volcano_plot + scale_color_manual(values = diff_exp) + theme_custom() + theme(legend.position = "none")
+volcano_plot
+```
+
+## Feature Selection
+
+We will define our final biomarker panel by filtering the proteins with p-value < 0.005 and then ranking them 
+based on |kME| × |log₂FC| and keep only the top 10 proteins. With this ranking we want to prioritize proteins that 
+are both highly correlated with the module (hubs) and have a high fold change between CLL and the rest.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+# Calculate the kME
+MEs_green <- wgcna$wgcna$MEs |> 
+  select(MEgreen)
+
+green_proteins_expr <- train_data |> 
+  select(Sample_ID, all_of(green_proteins)) |>
+  column_to_rownames("Sample_ID")
+
+kME <- as.data.frame(cor(green_proteins_expr, MEs_green, use = "p"))
+
+# Combine kME and log2FC
+de_res_filtered <- de_res |> 
+  left_join(kME |> rownames_to_column("Feature"), by = "Feature") |> 
+  filter(adj.P.Val < 0.005) |>  # Filter by p-value
+  mutate(kME = abs(MEgreen)) |> 
+  mutate(logFC = abs(logFC)) |> 
+  mutate(rank = kME * logFC) |>  # Rank by kME * logFC
+  arrange(desc(rank))
+
+top_proteins <- de_res_filtered |> 
+  slice_head(n = 10) |> 
+  pull(Feature)
+```
+
+## Classification model
+
+We will use the top 10 proteins to train a classification model. We will use a Regularized Regression model 
+(LASSO) for this purpose. We will use 5-fold cross-validation to tune the model and then evaluate it on the 
+held-out test set.
+
+```{r}, error=FALSE, warning=FALSE, message=FALSE
+set.seed(500)
+# Prepare updated data split object by keeping only the top proteins
+model_train <- train_data |>
+  left_join(metadata) |>
+  select(Sample_ID, Cancer, all_of(top_proteins))
+model_test <- test_data |> 
+  left_join(metadata) |>
+  select(Sample_ID, Cancer, all_of(top_proteins))
+
+class_count <- length(unique(model_train[["Cancer"]]))
+
+control <- setdiff(unique(model_train[["Cancer"]]), "CLL")
+case_data <- model_train |> filter(Cancer == "CLL")
+control_data <- model_train |> filter(Cancer != "CLL")
+case_sample_num <- nrow(case_data)
+group <- case_data
+control_data <- control_data |>
+  filter(Cancer != "CLL") |>
+  sample_n(size = case_sample_num, replace = TRUE)
+train_set <- rbind(group, control_data)
+
+train_set <- train_set |>
+  filter(Cancer %in% c("CLL", control)) |>
+  mutate(Cancer = ifelse(Cancer == "CLL", 1, 0))
+
+test_set <- model_test |>
+  filter(Cancer %in% c("CLL", control)) |>
+  mutate(Cancer = ifelse(Cancer == "CLL", 1, 0))
+
+train_set <- train_set |>
+  filter(!if_any(all_of(c("Cancer")), is.na))  # Remove NAs from columns in formula
+
+test_set <- test_set |>
+  filter(!if_any(all_of(c("Cancer")), is.na))  # Remove NAs from columns in formula
+
+train_set <- train_set |> mutate(Cancer := as.factor(Cancer))
+test_set <- test_set |> mutate(Cancer := as.factor(Cancer))
+
+train_folds <- vfold_cv(train_set, v = 5, strata = Cancer)
+
+sample_id <- colnames(train_set)[1]
+formula <- as.formula(paste("Cancer", "~ ."))
+rec <- recipe(formula, data = train_set) |>
+  update_role(Sample_ID, new_role = "id") |>
+  step_dummy(all_nominal_predictors()) |>
+  step_nzv(all_numeric(), -all_outcomes()) |>
+  step_normalize(all_numeric(), -all_outcomes()) |>
+  step_corr(all_numeric(), -all_outcomes(), threshold = 0.9) |>
+  step_impute_knn(all_numeric(), -all_outcomes())
+
+spec <- logistic_reg(penalty = tune(),
+                     mixture = 1) |>
+  set_engine("glmnet")
+
+wf <- workflow() |>
+  add_model(spec) |>
+  add_recipe(rec)
+
+grid <- wf |>
+  extract_parameter_set_dials() |>
+  grid_space_filling(size = 30, type = "latin_hypercube")
+ctrl <- control_grid(save_pred = TRUE, parallel_over = "everything", verbose = FALSE)
+
+
+tune <- wf |> tune_grid(train_folds,
+                        grid = grid,
+                        control = ctrl,
+                        metrics = metric_set(roc_auc))
+
+
+best <- tune |>
+  select_best(metric = "roc_auc") |>
+  select(-dplyr::all_of(c(".config")))
+final_wf <- tune::finalize_workflow(wf, best)
+final <- final_wf |>
+  fit(train_set)
+splits <- make_splits(train_set, test_set)
+preds <- last_fit(final_wf,
+                  splits,
+                  metrics = metric_set(roc_auc))
+res <- predict(final, new_data = test_set)
+res <- bind_cols(res, test_set |> dplyr::select("Cancer"))
+accuracy <- res |> accuracy("Cancer", .pred_class)
+sensitivity <- res |> sensitivity("Cancer", .pred_class, event_level = "second")
+specificity <- res |> specificity("Cancer", .pred_class, event_level = "second")
+auc <- preds |> collect_metrics()
+cm <- res |> conf_mat("Cancer", .pred_class)
+
+prob_plot <- predict(final, new_data = test_set, type = "prob") |>
+  bind_cols(test_set |> select(Cancer)) |>
+  mutate(Cancer = if_else(Cancer == 1, "CLL", "Control")) |>
+  ggplot(aes(x = factor(Cancer), y = .pred_1)) +
+  geom_violin() +
+  stat_summary(fun = median, geom = "crossbar", width = 0.8, color = "black") +
+  geom_jitter(aes(color = "Cancer"), width = 0.1) +
+  theme_custom() +
+  theme(legend.position = "none", axis.text.x = element_text(angle = 90)) +
+  labs(x = element_blank(), y = paste("CLL", "Probability"))
+roc <- preds |>
+  collect_predictions(summarize = FALSE) |>
+  roc_curve(truth = "Cancer", .pred_0) |>
+  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
+  geom_path(linewidth = 2) +
+  geom_abline(lty = 3) +
+  coord_equal() +
+  theme_custom()
+
+features <- final |>
+  extract_fit_parsnip() |>
+  vi() |>
+  # Clip negatives to zero to avoid negative importance in Random Forest permutation testing
+  mutate(Importance = if_else(Importance < 0,
+                                            0,
+                                            Importance),
+                Variable = fct_reorder(Variable, Importance)) |>
+  arrange(desc(Importance)) |>
+  # Min max scaling with min = 0 always and max = 1
+  mutate(Scaled_Importance = Importance / max(Importance)) |>
+  rename(Feature = Variable)
+
+var_imp_plot <- features |>
+  filter(Scaled_Importance > 0) |>
+  ggplot(aes(x = Scaled_Importance, y = Feature)) +
+  geom_col(aes(fill = ifelse(Scaled_Importance > 0.5, "CLL", NA))) +
+  labs(y = NULL) +
+  scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
+  xlab('Importance') +
+  ylab('Features') +
+  theme_custom()
+
+
+var_imp_plot <- var_imp_plot +
+    theme(legend.position = "none")
+
+var_imp_plot
+roc
+```
+
+## Visualize Features
+
+We will visualize our top 4 features as boxplots.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+imp_proteins <- as.character(features |>
+  head(4) |>
+  pull(Feature))
+
+join_data <- cancer_dat |>
+  left_join(metadata |>
+              select(all_of(c("Sample_ID", "Cancer"))),
+              by = "Sample_ID") |>
+  select(Cancer, all_of(imp_proteins)) |>
+  pivot_longer(cols = !dplyr::any_of("Cancer"),
+                      names_to = "Features",
+                      values_to = "NPX")
+
+
+
+join_data[["Features"]] <- factor(join_data[["Features"]], levels = imp_proteins)
+join_data[["Cancer"]] <- factor(join_data[["Cancer"]])
+
+# Base ggplot
+boxplot <- join_data |>
+  ggplot(aes(x = Cancer, y = NPX, fill = Cancer)) + 
+  geom_quasirandom(data = join_data,
+                   aes(color = Cancer),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE)
+
+pal <- c("CLL" = "#2271B5", "AML" = "gray80", "MYEL" = "gray80")
+# Fill handling
+# Only color the case differently, rest are gray
+boxplot <- boxplot +
+  scale_fill_manual(values = pal) +
+  scale_color_manual(values = pal)
+# Final styling
+boxplot_panel <- boxplot +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+boxplot_panel
+```
+
+```{r}
+
+```

@@ -100,13 +100,13 @@ to identify enriched biological processes.
 ```{r, error=FALSE, warning=FALSE, message=FALSE}
 colors <- wgcna_res$wgcna$colors
 
-# Get the proteins of the black and green modules
+# Get the proteins of the green module
 green_proteins <- names(colors[colors == "green"])
 
 cat("Number of highly correlated module proteins:", length(green_proteins))
 
 # Run ORA with these proteins
-ora_res_black <- hd_ora(green_proteins,
+ora_res_green <- hd_ora(green_proteins,
                         database = "GO",
                         ontology = "ALL",
                         background = "olink_explore_1536") |>  # Set background to the Olink Explore 1536 panel
@@ -114,7 +114,7 @@ ora_res_black <- hd_ora(green_proteins,
 ```
 
 ```{r}
-ora_res_black$dotplot
+ora_res_green$dotplot
 ```
 
 ## DEA
@@ -219,18 +219,4 @@ boxplots <- hd_plot_feature_boxplot(hd_obj, variable = "Cancer",
 
 ```{r}
 boxplots
-```
-
-## Search in PubMed
-
-Finally, we will search in PubMed for the top 4 proteins. As it queries a database results might change over time.
-
-```{r, error=FALSE, warning=FALSE, message=FALSE}
-features_list <- list("Chronic lymphocytic leukemia" = imp_proteins)
-
-articles <- hd_literature_search(
-  features_list, 
-  max_articles = 3,
-  keywords = "human"
-)
 ```

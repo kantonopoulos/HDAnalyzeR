@@ -1,0 +1,725 @@
+---
+title: "blood_cancers_olink_case_study"
+output: html_document
+---
+
+# Hyperparameter Sensitivity Analysis on Plasma Proteomics of Hematological Malignancies Using Proximity Extension Assay (Case Study 1 Data)
+
+## Set-up & Data
+
+Data is downloaded from: https://www.ebi.ac.uk/biostudies/studies/S-BSST935 
+
+Download them and place them in the `data/` folder.
+
+Reference: Álvez, M.B., Edfors, F., von Feilitzen, K. et al. Next generation pan-cancer blood proteome profiling using proximity extension assay. Nat Commun 14, 4308 (2023). https://doi.org/10.1038/s41467-023-39765-y
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+library(HDAnalyzeR)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+
+cancer_dat <- hd_import_data("data/pancancer_olink_data_biostudies_v2.txt")
+```
+
+Keep only the blood cancer data.
+
+-   Acute Myeloid Leukemia (AML)
+
+-   Chronic Lymphocytic Leukemia (CLL)
+
+-   Myeloma (MYEL)
+
+Prepare metadata and HDAnalyzeR object.
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+blood_cancers <- c("AML", "CLL", "MYEL")
+metadata <- cancer_dat |> 
+  select(Sample_ID, Cancer) |> 
+  filter(Cancer %in% blood_cancers) |> 
+  distinct()
+
+hd_obj <- hd_initialize(
+  cancer_dat |> filter(Cancer %in% blood_cancers),
+  metadata,
+  sample_id = "Sample_ID"
+)
+```
+
+## Imputation
+
+```{r}
+imp_res1 <- hd_impute_knn(hd_obj, k = 1, seed = 123, verbose = FALSE)
+imp_res3 <- hd_impute_knn(hd_obj, k = 3, seed = 123, verbose = FALSE)
+imp_res5 <- hd_impute_knn(hd_obj, k = 5, seed = 123, verbose = FALSE)
+imp_res7 <- hd_impute_knn(hd_obj, k = 7, seed = 123, verbose = FALSE)
+imp_res9 <- hd_impute_knn(hd_obj, k = 9, seed = 123, verbose = FALSE)
+```
+
+```{r}
+miss_bins <- hd_obj$data |>
+  summarise(across(where(is.numeric), ~mean(is.na(.)))) |>
+  tidyr::pivot_longer(everything(), names_to = "Feature", values_to = "MissingRate") |>
+  mutate(MissingBin = cut(MissingRate,
+                          breaks = c(-1, 0.05, 0.1, 0.25, 0.5, 1),
+                          labels = c("<5%", "5–10%", "10–25%", "25–50%", ">50%")))
+
+imps <- list(
+  k1 = imp_res1$data,
+  k3 = imp_res3$data,
+  k5 = imp_res5$data,
+  k7 = imp_res7$data,
+  k9 = imp_res9$data
+)
+
+# Matrix of original data
+orig <- hd_obj$data
+mask <- is.na(orig)
+
+compare_k <- function(mat1, mat2, mask) {
+  diff_vals <- abs(mat1[mask] - mat2[mask])
+  mean(diff_vals, na.rm = TRUE)
+}
+
+results <- expand.grid(k1 = names(imps), k2 = names(imps)) |>
+  dplyr::filter(k1 != k2) |>   # remove self-comparisons
+  dplyr::mutate(
+    idx1 = match(k1, names(imps)),
+    idx2 = match(k2, names(imps))
+  ) |>
+  dplyr::filter(idx1 < idx2) |>   # keep only unique pairs
+  dplyr::rowwise() |>
+  dplyr::mutate(MAD = compare_k(imps[[k1]], imps[[k2]], mask)) |>
+  dplyr::ungroup()
+
+# Mean absolute differences per feature and k
+diff_by_feature <- data.frame()
+
+for (k in names(imps)) {
+  mat <- imps[[k]]
+
+  # Keep only numeric columns
+  num_mat <- mat[, sapply(mat, is.numeric), drop = FALSE]
+
+  # Compute feature-wise means
+  means <- colMeans(num_mat, na.rm = TRUE)
+
+  # Build data frame
+  temp <- data.frame(
+    Feature = names(means),
+    k = k,
+    Value = means,
+    stringsAsFactors = FALSE
+  )
+
+  diff_by_feature <- rbind(diff_by_feature, temp)
+}
+
+# Compute per-feature variance across ks
+feature_var <- diff_by_feature |>
+  group_by(Feature) |>
+  summarise(VarAcrossK = var(Value, na.rm = TRUE)) |>
+  left_join(miss_bins, by = "Feature")
+
+ggplot(feature_var, aes(MissingBin, VarAcrossK)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  labs(
+    x = "% Missing",
+    y = "Variance across KNN imputations"
+  ) +
+  theme_hd()
+```
+
+## DEA
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+de_res <- hd_de_limma(hd_obj, variable = "Cancer", case = "CLL")
+
+de_res_0005_2 <- de_res$de_res |> filter(abs(logFC) > 2, adj.P.Val < 0.0005) |> mutate(Significance = if_else(logFC < -2, "significant down", if_else(logFC > 2, "significant up", "not significant")))
+de_res_005_2 <- de_res$de_res |> filter(abs(logFC) > 2, adj.P.Val < 0.005) |> mutate(Significance = if_else(logFC < -2, "significant down", if_else(logFC > 2, "significant up", "not significant")))
+de_res_05_2 <- de_res$de_res |> filter(abs(logFC) > 2, adj.P.Val < 0.05) |> mutate(Significance = if_else(logFC < -2, "significant down", if_else(logFC > 2, "significant up", "not significant")))
+de_res_0005_0 <- de_res$de_res |> filter(adj.P.Val < 0.0005) |> mutate(Significance = if_else(logFC < 0, "significant down", if_else(logFC > 0, "significant up", "not significant")))
+de_res_005_0 <- de_res$de_res |> filter(adj.P.Val < 0.005) |> mutate(Significance = if_else(logFC < 0, "significant down", if_else(logFC > 0, "significant up", "not significant")))
+de_res_05_0 <- de_res$de_res |> filter( adj.P.Val < 0.05) |> mutate(Significance = if_else(logFC < 0, "significant down", if_else(logFC > 0, "significant up", "not significant")))
+```
+
+```{r}
+# Create a summary table for all thresholds
+sensitivity_table <- tibble(
+  Condition = c("adj.P.Val < 0.0005 & |logFC| > 2",
+                "adj.P.Val < 0.005 & |logFC| > 2",
+                "adj.P.Val < 0.05 & |logFC| > 2",
+                "adj.P.Val < 0.0005",
+                "adj.P.Val < 0.005",
+                "adj.P.Val < 0.05"),
+  `significant up` = c(nrow(filter(de_res_0005_2, Significance == "significant up")),
+                      nrow(filter(de_res_005_2,  Significance == "significant up")),
+                      nrow(filter(de_res_05_2,   Significance == "significant up")),
+                      nrow(filter(de_res_0005_0, Significance == "significant up")),
+                      nrow(filter(de_res_005_0,  Significance == "significant up")),
+                      nrow(filter(de_res_05_0,   Significance == "significant up"))),
+  `significant down` = c(nrow(filter(de_res_0005_2, Significance == "significant down")),
+                         nrow(filter(de_res_005_2,  Significance == "significant down")),
+                         nrow(filter(de_res_05_2,   Significance == "significant down")),
+                         nrow(filter(de_res_0005_0, Significance == "significant down")),
+                         nrow(filter(de_res_005_0,  Significance == "significant down")),
+                         nrow(filter(de_res_05_0,   Significance == "significant down")))
+)
+
+sensitivity_long <- sensitivity_table |> 
+  tidyr::pivot_longer(cols = c("significant up", "significant down"), 
+               names_to = "Direction", values_to = "Count")
+
+ggplot(sensitivity_long, aes(x = Condition, y = Count, fill = Direction)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_hd("diff_exp") + 
+  theme_hd() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") +
+  labs(
+    x = "Threshold Condition",
+    y = "Number of Features"
+  )
+```
+
+## Classification model
+
+```{r, error=FALSE, warning=FALSE, message=FALSE}
+split_obj_80 <- hd_split_data(
+    hd_obj,
+    variable = "Cancer",
+    ratio = 0.8,
+    seed = 500
+)
+
+split_obj_95 <- hd_split_data(
+    hd_obj,
+    variable = "Cancer",
+    ratio = 0.8,
+    seed = 500
+)
+
+split_obj_50 <- hd_split_data(
+    hd_obj,
+    variable = "Cancer",
+    ratio = 0.8,
+    seed = 500
+)
+```
+
+```{r}, error=FALSE, warning=FALSE, message=FALSE
+print("Start first split")
+# Prepare updated data split object by keeping only the top proteins
+model_res_2_1_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_1_80 <- model_res_2_1$metrics$auc
+features_2_1_80 <- model_res_2_1$features
+rm(model_res_2_1_80)
+
+model_res_2_10_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_10_80 <- model_res_2_10_80$metrics$auc
+features_2_10_80 <- model_res_2_10_80$features
+rm(model_res_2_10_80)
+
+model_res_2_30_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_30_80 <- model_res_2_30_80$metrics$auc
+features_2_30_80 <- model_res_2_30_80$features
+rm(model_res_2_30_80)
+
+model_res_5_1_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_1_80 <- model_res_5_1_80$metrics$auc
+features_5_1_80 <- model_res_5_1_80$features
+rm(model_res_5_1_80)
+
+model_res_5_10_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_10_80 <- model_res_5_10_80$metrics$auc
+features_5_10_80 <- model_res_5_10_80$features
+rm(model_res_5_10_80)
+
+model_res_5_30_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_30_80 <- model_res_5_30_80$metrics$auc
+features_5_30_80 <- model_res_5_30_80$features
+rm(model_res_5_30_80)
+
+model_res_10_1_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_1_80 <- model_res_10_1_80$metrics$auc
+features_10_1_80 <- model_res_10_1_80$features
+rm(model_res_10_1_80)
+
+model_res_10_10_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_10_80 <- model_res_10_10_80$metrics$auc
+features_10_10_80 <- model_res_10_10_80$features
+rm(model_res_10_10_80)
+
+model_res_10_30_80 <- hd_model_rreg(
+  split_obj_80,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_30_80 <- model_res_10_30_80$metrics$auc
+features_10_30_80 <- model_res_10_30_80$features
+rm(model_res_10_30_80)
+
+
+
+print("Start second split")
+# Prepare updated data split object by keeping only the top proteins
+model_res_2_1_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_1_95 <- model_res_2_1$metrics$auc
+features_2_1_95 <- model_res_2_1$features
+rm(model_res_2_1_95)
+
+model_res_2_10_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_10_95 <- model_res_2_10_95$metrics$auc
+features_2_10_95 <- model_res_2_10_95$features
+rm(model_res_2_10_95)
+
+model_res_2_30_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_30_95 <- model_res_2_30_95$metrics$auc
+features_2_30_95 <- model_res_2_30_95$features
+rm(model_res_2_30_95)
+
+model_res_5_1_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_1_95 <- model_res_5_1_95$metrics$auc
+features_5_1_95 <- model_res_5_1_95$features
+rm(model_res_5_1_95)
+
+model_res_5_10_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_10_95 <- model_res_5_10_95$metrics$auc
+features_5_10_95 <- model_res_5_10_95$features
+rm(model_res_5_10_95)
+
+model_res_5_30_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_30_95 <- model_res_5_30_95$metrics$auc
+features_5_30_95 <- model_res_5_30_95$features
+rm(model_res_5_30_95)
+
+model_res_10_1_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_1_95 <- model_res_10_1_95$metrics$auc
+features_10_1_95 <- model_res_10_1_95$features
+rm(model_res_10_1_95)
+
+model_res_10_10_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_10_95 <- model_res_10_10_95$metrics$auc
+features_10_10_95 <- model_res_10_10_95$features
+rm(model_res_10_10_95)
+
+model_res_10_30_95 <- hd_model_rreg(
+  split_obj_95,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_30_95 <- model_res_10_30_95$metrics$auc
+features_10_30_95 <- model_res_10_30_95$features
+rm(model_res_10_30_95)
+
+
+
+print("Start third split")
+# Prepare updated data split object by keeping only the top proteins
+model_res_2_1_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_1_50 <- model_res_2_1$metrics$auc
+features_2_1_50 <- model_res_2_1$features
+rm(model_res_2_1_50)
+
+model_res_2_10_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_10_50 <- model_res_2_10_50$metrics$auc
+features_2_10_50 <- model_res_2_10_50$features
+rm(model_res_2_10_50)
+
+model_res_2_30_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 2,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_2_30_50 <- model_res_2_30_50$metrics$auc
+features_2_30_50 <- model_res_2_30_50$features
+rm(model_res_2_30_50)
+
+model_res_5_1_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_1_50 <- model_res_5_1_50$metrics$auc
+features_5_1_50 <- model_res_5_1_50$features
+rm(model_res_5_1_50)
+
+model_res_5_10_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_10_50 <- model_res_5_10_50$metrics$auc
+features_5_10_50 <- model_res_5_10_50$features
+rm(model_res_5_10_50)
+
+model_res_5_30_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 5,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_5_30_50 <- model_res_5_30_50$metrics$auc
+features_5_30_50 <- model_res_5_30_50$features
+rm(model_res_5_30_50)
+
+model_res_10_1_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 1,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_1_50 <- model_res_10_1_50$metrics$auc
+features_10_1_50 <- model_res_10_1_50$features
+rm(model_res_10_1_50)
+
+model_res_10_10_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 10,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_10_50 <- model_res_10_10_50$metrics$auc
+features_10_10_50 <- model_res_10_10_50$features
+rm(model_res_10_10_50)
+
+model_res_10_30_50 <- hd_model_rreg(
+  split_obj_50,
+  variable = "Cancer",
+  case = "CLL",
+  grid_size = 30,
+  mixture = 1,  # LASSO
+  cv_sets = 10,
+  palette = "cancers12",
+  plot_y_labels = TRUE,
+  verbose = FALSE,
+  seed = 500
+)
+auc_10_30_50 <- model_res_10_30_50$metrics$auc
+features_10_30_50 <- model_res_10_30_50$features
+rm(model_res_10_30_50)
+```
+
+```{r}
+library(tidyverse)
+
+CV_vals    <- c(2,5,10)
+Grid_vals  <- c(1,10,30)
+Split_vals <- c(50,80,95)
+
+auc_df <- expand_grid(CV = CV_vals,
+                      Grid = Grid_vals,
+                      Split = Split_vals) %>%
+  mutate(
+    obj_name = paste0("auc_", CV, "_", Grid, "_", Split),
+    AUC = map_dbl(obj_name, ~ get(.x))
+  ) %>%
+  select(-obj_name)
+
+ggplot(auc_df, aes(x = factor(Split), y = factor(CV), fill = AUC)) +
+  geom_tile() +
+  scale_fill_viridis_c() +
+  facet_wrap(~ Grid, nrow = 1) +
+  labs(x = "Train/Test Split", y = "CV Sets", fill = "AUC") +
+  theme_minimal(base_size = 12)
+
+feature_df <- expand_grid(CV = CV_vals,
+                          Grid = Grid_vals,
+                          Split = Split_vals) %>%
+  mutate(
+    obj_name = paste0("features_", CV, "_", Grid, "_", Split),
+    df = map(obj_name, ~ get(.x))
+  ) %>%
+  select(-obj_name) %>%
+  unnest(df) %>%
+  mutate(Model = paste0("CV", CV, "_G", Grid, "_S", Split))
+
+binary_01 <- feature_df %>%
+  mutate(selected = if_else(Scaled_Importance >= 0.1, 1, 0)) %>%
+  select(Model, Feature, selected)
+
+binary_05 <- feature_df %>%
+  mutate(selected = if_else(Scaled_Importance >= 0.5, 1, 0)) %>%
+  select(Model, Feature, selected)
+
+binary_01 %>%
+  ggplot(aes(x = Model, y = Feature, fill = factor(selected))) +
+  geom_tile(color = "grey70") +
+  scale_fill_manual(values = c("0" = "white", "1" = "steelblue"),
+                    name = "Selected\n≥0.1") +
+  theme_minimal(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+binary_05 %>%
+  ggplot(aes(x = Model, y = Feature, fill = factor(selected))) +
+  geom_tile(color = "grey70") +
+  scale_fill_manual(values = c("0" = "white", "1" = "firebrick"),
+                    name = "Selected\n≥0.5") +
+  theme_minimal(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+stability_05 <- binary_05 %>%
+  group_by(Feature) %>%
+  summarise(n_models = sum(selected)) %>%
+  ungroup() %>%
+  arrange(desc(n_models))
+
+ggplot(stability_05, aes(x = reorder(Feature, n_models), y = n_models)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Models Selecting Feature (≥0.5)", x = "Feature") +
+  theme_minimal(base_size = 12)
+
+```

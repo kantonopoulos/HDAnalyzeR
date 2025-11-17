@@ -1,0 +1,787 @@
+---
+title: "solid_sample_type_shorts_transcriptomics_case_study"
+output: html_document
+---
+
+# Case Study 2: Transcriptomic Signatures Across Solid Tumors in CPTAC Datasets
+
+## Set-up & Data
+
+Download and preprocess data using `get_CPTAC_sample_type_short_TPMs.R` script them and store the resulting data in the `data/` folder.
+
+Reference: Edwards NJ, Oberti M, Thangudu RR, Cai S, McGarvey PB, Jacob S, Madhavan S, Ketchum KA. The CPTAC Data Portal: A Resource for sample_type_short Proteomics Research. J Proteome Res. 2015 Jun 5;14(6):2707-13. doi: 10.1021/pr501254j. Epub 2015 May 4. PMID: 25873244.
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tibble)
+library(stringr)
+library(ggplot2)
+library(SummarizedExperiment)
+library(patchwork)
+library(withr)
+library(recipes)
+library(broom)
+library(tidytext)
+library(ggbeeswarm)
+library(limma)
+library(UpSetR)
+
+# Read data
+data_kidney <- readRDS("data/all_CPTAC_KIAD.rds")
+data_lung <- readRDS("data/all_CPTAC_LUAD.rds")
+data_endometrial <- readRDS("data/all_CPTAC_UCEC.rds")
+
+# Read metadata
+meta_kidney <- read_tsv("data/sample_sheet_KIAD.tsv")
+meta_lung <- read_tsv("data/sample_sheet_CPTAC_LUAD.txt")
+meta_endometrial <- read_tsv("data/sample_sheet_CPTAC_UCEC.txt")
+```
+
+## Palettes
+
+```{r}
+palette_sample_type <- c("Tumor" = "#F3717A",
+                         "Normal" = "#D6DA90")
+
+
+palette_sample_type_short <- c("Kidney" = "#F9A265",
+                    "Lung" = "#6BA592", 
+                    "Endometrial" = "#F8BCD7")
+```
+
+```{r}
+theme_custom <- function(angled = 0, axis_x = TRUE, axis_y = TRUE, facet_title = TRUE) {
+
+  t <- theme(panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.spacing = unit(0.2, "lines"),
+             panel.background = element_rect(fill = "white"),
+             panel.border = element_blank(),
+             plot.title = element_text(face = "bold",
+                                       size = rel(1),
+                                       hjust = 0.5),
+             plot.subtitle = element_text(face = "bold",
+                                          hjust = 0.5,
+                                          size = rel(1),
+                                          vjust = 1),
+             axis.title = element_text(face = "bold", size = rel(1)),
+             axis.ticks.length = unit(.25, "cm"),
+             axis.line = element_line(linewidth = 0.5),
+             axis.text = element_text(size = rel(1), color = 'black'),
+             legend.key = element_blank(),
+             legend.position = "right",
+             legend.text = element_text(size = rel(0.8)),
+             legend.key.size = unit(0.7, "cm"),
+             legend.title = element_text(size = rel(1)),
+             plot.margin = unit(c(10, 5, 5, 5), "mm"),
+             strip.background = element_rect(colour = "grey90", fill = "grey90"),
+             strip.text = element_text(face = "bold")) +
+    theme(axis.text.x = element_text(angle = angled, vjust = 0.5, hjust = 1))
+  if (axis_x == FALSE) {
+    t <- t + theme(axis.text.x = element_blank(),
+                   axis.ticks.x = element_blank(),
+                   axis.line.x = element_blank(),
+                   axis.title.x = element_blank())
+  }
+  if (axis_y == FALSE) {
+    t <- t + theme(axis.text.y = element_blank(),
+                   axis.ticks.y = element_blank(),
+                   axis.line.y = element_blank(),
+                   axis.title.y = element_blank())
+  }
+  if (facet_title == FALSE) {
+    t <- t + theme(strip.text = element_blank())
+  }
+  return(t)
+}
+```
+
+## Preprocessing
+
+Extract the TPM data from the object for all 3 sample_type_shorts.
+
+```{r}
+df_kidney <- 
+  assay(data_kidney, "tpm_unstrand") |> 
+  as.data.frame()
+
+df_lung <- 
+  assay(data_lung, "tpm_unstrand") |> 
+  as.data.frame()
+
+df_endometrial <- 
+  assay(data_endometrial, "tpm_unstrand") |> 
+  as.data.frame()
+```
+
+We then only keep the TPM values for coding genes based on the HPA database (https://www.proteinatlas.org/humanproteome/tissue/data#normal_tissues_ihc). We will log transform the data as well by (log2(TPM + 1)).
+
+```{r}
+hpa_rna <- read_tsv("data/normal_tissue.tsv")
+
+coding_genes <- 
+  hpa_rna |> 
+  distinct(Gene) |> 
+  pull()
+
+gene_mapping <- 
+  tibble(gene = rownames(df_kidney)) |> 
+  mutate(gene_no_suffix = sub("\\..*", "", gene)) |> 
+  left_join(hpa_rna |> 
+              distinct(Gene, `Gene name`), by = c("gene_no_suffix" = "Gene"))
+
+parse_data <- function(df) {
+  
+  df |>
+    as_tibble(rownames = "gene") |>
+    
+    # Exclude genes with _PAR_Y suffix
+    filter(!str_ends(gene, "_PAR_Y")) |>
+    
+    # Split Ensembl gene ID and version
+    mutate(gene_split = gene) |> 
+    separate(gene_split, into = c("gene_no_suffix", "version"), sep = "\\.", convert = TRUE) |>
+    
+    # Keep only genes that are in your list of coding genes
+    filter(gene_no_suffix %in% coding_genes) |>
+    
+    # Map Ensembl ID to gene symbol (HGNC name)
+    left_join(gene_mapping, by = c("gene", "gene_no_suffix")) |>
+    
+    # Keep the lowest ensembl id for genes names with multiple mappings
+    group_by(`Gene name`) |>
+    slice_min(order_by = gene_no_suffix, with_ties = FALSE) |>
+    ungroup() |>
+    
+    # Clean up and reshape
+    select(-gene_no_suffix, -version, -gene) |>
+    relocate(gene = `Gene name`) |>
+    pivot_longer(
+      cols = -gene,
+      names_to = "sample_id",
+      values_to = "tpm"
+    ) |> 
+    mutate(tpm = log(tpm + 1 , base = exp(1)))
+
+}
+
+kidney <- parse_data(df_kidney)
+lung <- parse_data(df_lung)
+endometrial <- parse_data(df_endometrial)
+```
+
+
+We will also extract some metadata variables: age and sex.
+
+```{r}
+kidney_age_sex <- tibble(
+  sample_id = data_kidney$sample,
+  sex = data_kidney$gender,
+  age = data_kidney$age_at_diagnosis
+) |>
+  mutate(age = as.numeric(age) / 365)
+
+lung_age_sex <- tibble(
+  sample_id = data_lung$sample,
+  sex = data_lung$gender,
+  age = data_lung$age_at_diagnosis
+) |>
+  mutate(age = as.numeric(age) / 365)
+
+endometrial_age_sex <- tibble(
+  sample_id = data_endometrial$sample,
+  sex = data_endometrial$gender,
+  age = data_endometrial$age_at_diagnosis
+) |>
+  mutate(age = as.numeric(age) / 365)
+```
+
+Finally, we will process the metadata by renaming some variables, filtering the samples based on the IDs in the data and joining the age and sex information.
+
+```{r}
+# Function to parse metadata
+parse_meta <- function(meta,
+                       data,
+                       age_sex,
+                       sample_type_short) {
+  meta |>
+    filter(sample.submitter_id %in% data$sample_id) |>
+    distinct(sample.submitter_id, sample_type) |>
+    mutate(
+      sample_type_short = sample_type_short,
+      sample_type = sub(";.*", "", sample_type),
+      sample_type_short = recode(
+        sample_type,
+        "Primary Tumor" = "Tumor",
+        "Solid Tissue Normal" = "Normal"
+      ),
+      sample_combined = paste(sample_type_short, sample_type_short)
+    ) |>
+    dplyr::rename(sample_id = sample.submitter_id) |> 
+    left_join(age_sex, by = "sample_id")
+}
+
+# Parse metadata for all sample_type_shorts
+meta_simple_kidney <- parse_meta(
+  meta = meta_kidney,
+  data = kidney,
+  age_sex = kidney_age_sex,
+  sample_type_short = "Kidney"
+)
+
+meta_simple_lung <- parse_meta(
+  meta = meta_lung,
+  data = lung,
+  age_sex = lung_age_sex,
+  sample_type_short = "Lung"
+)
+
+meta_simple_endometrial <- parse_meta(
+  meta = meta_endometrial,
+  data = endometrial,
+  age_sex = endometrial_age_sex,
+  sample_type_short = "Endometrial"
+)
+```
+
+## Widen data
+
+```{r}
+kidney_wide <- kidney |> pivot_wider(names_from = gene, values_from = tpm)
+lung_wide <- lung |> pivot_wider(names_from = gene, values_from = tpm)
+endometrial_wide <- endometrial |> pivot_wider(names_from = gene, values_from = tpm)
+```
+
+## PCA
+
+We will run a PCA analysis on the data to check if the data contain any outliers or cluster in an unexpected way. The analysis will be run for each sample_type_short separately.
+
+```{r}
+run_pca <- function(wide_data, metadata) {
+  withr::local_seed(123)
+
+  pca_rec <- recipe( ~ ., data = wide_data) |>
+    update_role(1, new_role = "id")  |>
+    step_normalize(all_predictors()) |>
+    step_impute_knn(all_predictors(), neighbors = 5) |>
+    step_pca(all_predictors(), num_comp = 10)
+
+  pca_prep <- prep(pca_rec)
+  pca_loadings <- tidy(pca_prep, 3) |> dplyr::select(-id)
+  pca_variance <- tidy(pca_prep, number = 3, type = "variance") |>
+    dplyr::filter(terms %in% c("percent variance", "cumulative percent variance")) |>
+    dplyr::filter(component >= 1 & component <= 10) |>
+    pivot_wider(names_from = terms, values_from = value) |>
+    dplyr::rename(percent_variance = `percent variance`, cumulative_percent_variance = `cumulative percent variance`) |>
+    dplyr::select(-id)
+  pca_res <-  juice(pca_prep)
+
+  # Prepare data for plotting
+  dim_res <- pca_res |>
+    dplyr::left_join(metadata |> dplyr::select(dplyr::any_of(c("sample_id", "sample_type_short"))),
+                    by = "sample_id")
+  # Create basic plot with points
+  dim_plot <- dim_res |>
+        ggplot(aes(PC01, PC02, color = sample_type_short)) +
+        geom_point(alpha = 0.7, size = 2) +
+        scale_color_manual(values = palette_sample_type) +
+        xlab("PC1") +
+        ylab("PC2") +
+        theme_custom()
+
+  loadings_plot <- pca_loadings |>
+    dplyr::filter(component %in% paste0("PC", seq_len(1))) |>
+    dplyr::group_by(component) |>
+    dplyr::top_n(10, abs(value)) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(terms = reorder_within(terms,
+                                        abs(value),
+                                        component)) |>
+    dplyr::mutate(positive = factor((value > 0), levels = c(TRUE, FALSE))) |>
+    ggplot(aes(abs(value), terms, fill = positive)) +
+    geom_col() +
+    scale_fill_manual(values = c("TRUE" = "#74B652", "FALSE" = "#653496"),
+                                labels=c("TRUE" = "Positive", "FALSE" = "Negative")) +
+    facet_wrap( ~ component, scales = "free_y") +
+    scale_y_reordered() +
+    labs(x = "Absolute Value of Contribution",
+                    y = NULL, fill = "Sign") +
+    theme_custom()
+
+  return(list(dim_plot, loadings_plot, pca_loadings))
+}
+```
+
+```{r}
+pca_kidney <- run_pca(kidney_wide, meta_simple_kidney)
+pca_lung <- run_pca(lung_wide, meta_simple_lung)
+pca_endometrial <- run_pca(endometrial_wide, meta_simple_endometrial)
+```
+
+```{r}
+pca_plot_kidney <- pca_kidney[[1]]
+pca_plot_lung <- pca_lung[[1]]
+pca_plot_endometrial <- pca_endometrial[[1]]
+
+# Combined plots
+combined_pca_plots <- pca_plot_kidney | 
+  pca_plot_lung | 
+  pca_plot_endometrial 
+combined_pca_plots <- combined_pca_plots +  plot_layout(guides = "collect")
+```
+
+We will also check the variance of the principal components for each sample_type_short to see which transcripts are driving the variance in each case.
+
+```{r}
+# Kidney
+pca_variance_kidney <- pca_kidney[[2]]
+
+# Lung
+pca_variance_lung <- pca_lung[[2]]
+
+# Endometrial
+pca_variance_endometrial <- pca_endometrial[[2]]
+
+combined_variance_plots <- pca_variance_kidney |
+  pca_variance_lung | 
+  pca_variance_endometrial
+
+combined_variance_plots <- combined_variance_plots +  plot_layout(guides = "collect")
+```
+
+Finally, we will plot the top two features that drive the variance in each case as boxplots.
+
+```{r}
+# Kidney
+top_features_kidney <- pca_kidney[[3]] |> 
+  filter(component == "PC1") |> 
+  arrange(-abs(value)) |> 
+  head(2) |> 
+  pull(terms)
+
+
+join_data_kidney <- kidney_wide |>
+  left_join(meta_simple_kidney |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_kidney)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_kidney[["Features"]] <- factor(join_data_kidney[["Features"]], levels = top_features_kidney)
+join_data_kidney[["sample_type_short"]] <- factor(join_data_kidney[["sample_type_short"]])
+
+# Base ggplot
+top_features_kidney_plot <- join_data_kidney |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_kidney,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+# lung
+top_features_lung <- pca_lung[[3]] |> 
+  filter(component == "PC1") |> 
+  arrange(-abs(value)) |> 
+  head(2) |> 
+  pull(terms)
+
+
+join_data_lung <- lung_wide |>
+  left_join(meta_simple_lung |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_lung)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_lung[["Features"]] <- factor(join_data_lung[["Features"]], levels = top_features_lung)
+join_data_lung[["sample_type_short"]] <- factor(join_data_lung[["sample_type_short"]])
+
+# Base ggplot
+top_features_lung_plot <- join_data_lung |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_lung,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+# endometrial
+top_features_endometrial <- pca_endometrial[[3]] |> 
+  filter(component == "PC1") |> 
+  arrange(-abs(value)) |> 
+  head(2) |> 
+  pull(terms)
+
+
+join_data_endometrial <- endometrial_wide |>
+  left_join(meta_simple_endometrial |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_endometrial)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_endometrial[["Features"]] <- factor(join_data_endometrial[["Features"]], levels = top_features_endometrial)
+join_data_endometrial[["sample_type_short"]] <- factor(join_data_endometrial[["sample_type_short"]])
+
+# Base ggplot
+top_features_endometrial_plot <- join_data_endometrial |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_endometrial,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+combined_pca_boxplots_plots <- top_features_kidney_plot | 
+  top_features_lung_plot |
+  top_features_endometrial_plot 
+
+combined_pca_boxplots_plots <- combined_pca_boxplots_plots +  plot_layout(guides = "collect")
+```
+
+
+## DE
+
+Then, we will run a DE analysis on the data again for each sample_type_short separately and plot the results as volcano plots.
+
+```{r}
+run_dea <- function(wide_data, metadata) {
+  # If control is NULL, set it to the unique values of the variable that are not the case
+  control <- setdiff(unique(metadata[["sample_type_short"]]), "Tumor")
+
+  join_data <- wide_data |>
+    left_join(metadata |> select(all_of(c("sample_id", "sample_type_short"))),
+                    by = "sample_id") |>
+    filter(sample_type_short %in% c("Tumor", control))
+
+  join_data <- join_data |>
+    filter(!if_any(all_of(c("sample_type_short")), is.na)) |>  # Remove NAs from columns in formula
+    mutate(sample_type_short := ifelse(sample_type_short == "Tumor", "1_Case", "0_Control"))
+
+  # Design a model
+  formula <- paste("~0 + as.factor(", "sample_type_short", ")")
+
+  design <- model.matrix(as.formula(formula), data = join_data)
+
+  cols <- c("control", "case")
+  cols <- cols[!is.null(cols)]
+  colnames(design) <- paste(cols)
+  contrast <- makeContrasts(Diff = case - control, levels = design)
+
+  # Fit linear model to each protein assay
+  data_fit <- join_data |>
+    select(-any_of(c("sample_type_short"))) |>
+    column_to_rownames("sample_id") |>
+    t()
+  fit <- lmFit(data_fit, design = design, method = "robust", maxit = 10000)
+
+  # Apply empirical Bayes smoothing to the SE
+  contrast_fit <- contrasts.fit(fit, contrast)
+  ebays_fit <- eBayes(contrast_fit)
+
+  # Extract DE results
+  de_results <- topTable(ebays_fit,
+                                n = nrow(ebays_fit$p.value),
+                                adjust.method = "fdr",
+                                confint = TRUE)
+
+  de_res <- de_results |>
+    as_tibble(rownames = "Feature") |>
+    mutate(sample_type_short = "Tumor") |>
+    arrange(adj.P.Val)
+
+  top.sig.down <- de_res |>
+    filter(adj.P.Val < 0.05 & logFC < -0) |>
+    arrange(adj.P.Val) |>
+    pull(Feature)
+  top.sig.up <- de_res |>
+    filter(adj.P.Val < 0.05 & logFC > 0) |>
+    arrange(adj.P.Val) |>
+    pull(Feature)
+
+  top.sig.prot <- c(top.sig.up[seq_len(3)], top.sig.down[seq_len(3)])
+
+  tab <- de_res |>
+    mutate(
+      sig.label = ifelse(Feature %in% top.sig.prot, "top significance", 0),
+      sig = case_when(
+        adj.P.Val < 0.05 & logFC < -0 ~ "significant down",
+        adj.P.Val < 0.05 & logFC > 0 ~ "significant up",
+        TRUE ~ "not significant"
+      )
+    )
+  num.sig.up <- length(top.sig.up)
+  num.sig.down <- length(top.sig.down)
+  volcano_plot <- de_res |>
+    mutate(sig =case_when(
+      adj.P.Val < 0.05 & logFC < -0 ~ "significant down",
+      adj.P.Val < 0.05 & logFC > 0 ~ "significant up",
+      TRUE ~ "not significant"
+    )) |>
+    ggplot(aes(x = logFC,
+                                y = -log10(adj.P.Val),
+                                color = sig,
+                                label = Feature)) +
+    geom_point(size = 1, alpha = 0.4) +
+    ggrepel::geom_text_repel(data = subset(tab, sig.label == "top significance"), show.legend = FALSE) +
+    geom_hline(yintercept = -log10(0.05), linetype = 'dashed') +
+    geom_vline(xintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = -0, linetype = 'dashed') +
+    labs(x = "log2(Fold Change)",
+                  y = "-log10(Adjusted P-value)",
+                  color = "Significance")
+
+  diff_exp = c("not significant" = "grey",
+                  "significant down" = "#317EC2",
+                  "significant up" = "#C03830")
+                  
+  volcano_plot <- volcano_plot + scale_color_manual(values = diff_exp) + theme_custom() + theme(legend.position = "none")
+  return(list(de_res, volcano_plot))
+}
+```
+
+```{r}
+de_kidney <- run_dea(kidney_wide, meta_simple_kidney)
+de_lung <- run_dea(lung_wide, meta_simple_lung)
+de_endometrial <- run_dea(endometrial_wide, meta_simple_endometrial)
+
+combined_volcano_plots <- de_kidney[[2]] | 
+  de_lung[[2]] |
+  de_endometrial[[2]]
+
+combined_volcano_plots <- combined_volcano_plots +  plot_layout(guides = "collect")
+```
+
+We will plot the most up- and the most down-regulated transcripts as boxplots to see their difference between the sample_type_short and control samples.
+  
+```{r}
+# Kidney
+top_features_de_kidney <- de_kidney[[1]] |> 
+  slice_max(logFC, n = 1) |>         
+  bind_rows(slice_min(de_kidney[[1]], logFC, n = 1)) |> 
+  pull(Feature)
+
+
+join_data_kidney <- kidney_wide |>
+  left_join(meta_simple_kidney |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_de_kidney)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_kidney[["Features"]] <- factor(join_data_kidney[["Features"]], levels = top_features_de_kidney)
+join_data_kidney[["sample_type_short"]] <- factor(join_data_kidney[["sample_type_short"]])
+
+# Base ggplot
+top_features_kidney_plot <- join_data_kidney |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_kidney,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+
+# Lung
+top_features_de_lung <- de_lung[[1]] |> 
+  slice_max(logFC, n = 1) |>         
+  bind_rows(slice_min(de_lung[[1]], logFC, n = 1)) |> 
+  pull(Feature)
+
+
+join_data_lung <- lung_wide |>
+  left_join(meta_simple_lung |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_de_lung)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_lung[["Features"]] <- factor(join_data_lung[["Features"]], levels = top_features_de_lung)
+join_data_lung[["sample_type_short"]] <- factor(join_data_lung[["sample_type_short"]])
+
+# Base ggplot
+top_features_lung_plot <- join_data_lung |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_lung,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+
+# Endometrial
+top_features_de_endometrial <- de_endometrial[[1]] |> 
+  slice_max(logFC, n = 1) |>         
+  bind_rows(slice_min(de_endometrial[[1]], logFC, n = 1)) |> 
+  pull(Feature)
+
+
+join_data_endometrial <- endometrial_wide |>
+  left_join(meta_simple_endometrial |>
+              select(all_of(c("sample_id", "sample_type_short"))),
+              by = "sample_id") |>
+  select(sample_type_short, all_of(top_features_de_endometrial)) |>
+  pivot_longer(cols = !dplyr::any_of("sample_type_short"),
+                      names_to = "Features",
+                      values_to = "tpm")
+
+
+
+join_data_endometrial[["Features"]] <- factor(join_data_endometrial[["Features"]], levels = top_features_de_endometrial)
+join_data_endometrial[["sample_type_short"]] <- factor(join_data_endometrial[["sample_type_short"]])
+
+# Base ggplot
+top_features_endometrial_plot <- join_data_endometrial |>
+  ggplot(aes(x = sample_type_short, y = tpm, fill = sample_type_short)) + 
+  geom_quasirandom(data = join_data_endometrial,
+                   aes(color = sample_type_short),
+                   alpha = 0.4,
+                   dodge.width = 0.75,
+                   groupOnX = TRUE,
+                   show.legend = FALSE) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE) +
+  scale_fill_manual(values = palette_sample_type) +
+  scale_color_manual(values = palette_sample_type) +
+  theme(legend.position = 'none') +
+  theme_custom() +
+  theme(axis.title.x = element_blank(),
+                 axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Features, nrow = 1)
+```
+
+Last but not least, we will plot the DE results for all 3 analyses as summary upset plots, one for up- and one for down-regulated transcripts.
+
+```{r}
+de_results <- list("Kidney" = de_kidney, 
+                   "Lung" = de_lung, 
+                   "Endometrial" = de_endometrial)
+
+de_res_list <- list()
+for (i in seq_len(length(de_results))) {
+  de_res_list[[i]] <- de_results[[i]][[1]] |>
+    dplyr::mutate(sig = dplyr::case_when(
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") < -0 ~ "significant down",
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") > 0 ~ "significant up",
+      TRUE ~ "not significant"
+    )) |>
+    dplyr::mutate(sample_type_short := de_results[[i]][[1]][["sample_type_short"]])
+}
+
+significant_proteins_up <- lapply(names(de_results), function(disease) {
+  significant_proteins_up <- de_results[[disease]][[1]] |>
+    dplyr::mutate(sig = dplyr::case_when(
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") < -0 ~ "significant down",
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") > 0 ~ "significant up",
+      TRUE ~ "not significant"
+    )) |>
+    dplyr::filter(!!rlang::sym("sig") == "significant up") |>
+    dplyr::pull(!!rlang::sym("Feature"))
+})
+names(significant_proteins_up) <- names(de_results)
+significant_proteins_down <- lapply(names(de_results), function(disease) {
+  significant_proteins_down <- de_results[[disease]][[1]] |>
+    dplyr::mutate(sig = dplyr::case_when(
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") < -0 ~ "significant down",
+      !!rlang::sym("adj.P.Val") < 0.05 & !!rlang::sym("logFC") > 0 ~ "significant up",
+      TRUE ~ "not significant"
+    )) |>
+    dplyr::filter(!!rlang::sym("sig") == "significant down") |>
+    dplyr::pull(!!rlang::sym("Feature"))
+})
+names(significant_proteins_down) <- names(de_results)
+significant_proteins <- list("up" = significant_proteins_up, "down" = significant_proteins_down)
+
+# Prepare palettes
+pal <- palette_sample_type_short
+
+de_names <- names(significant_proteins_up)
+ordered_colors <- pal[de_names]
+frequencies_up <- sapply(significant_proteins_up, length)
+ordered_names_up <- names(sort(frequencies_up, decreasing = TRUE))
+ordered_colors_up <- ordered_colors[ordered_names_up]
+frequencies_down <- sapply(significant_proteins_down, length)
+ordered_names_down <- names(sort(frequencies_down, decreasing = TRUE))
+ordered_colors_down <- ordered_colors[ordered_names_down]
+# Create upset data and extract protein lists
+upset_up <- fromList(significant_proteins_up)
+upset_down <- fromList(significant_proteins_down)
+
+# Create upset plots
+upset_plot_up <- upset(upset_up,
+                               sets = ordered_names_up,
+                               order.by = "freq",
+                               nsets = length(ordered_names_up),
+                               sets.bar.color = ordered_colors_up)
+upset_plot_down <- upset(upset_down,
+                                 sets = ordered_names_down,
+                                 order.by = "freq",
+                                 nsets = length(ordered_names_down),
+                                 sets.bar.color = ordered_colors_down)
+```
