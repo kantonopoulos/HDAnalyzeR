@@ -2,7 +2,7 @@
 
 [![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
-[![Version](https://img.shields.io/badge/Version-0.99.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
+[![Version](https://img.shields.io/badge/Version-1.0.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/LICENSE.md)
 
 HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to simplify data analysis for biomarker discovery in disease research. It provides a set of user-friendly functions to efficiently process omics data and gain insights into disease mechanisms. With HDAnalyzeR, you can easily perform tasks like protein differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. 
@@ -34,6 +34,12 @@ devtools::install_github("kantonopoulos/HDAnalyzeR")
 options(timeout = 1200) 
 devtools::install_github("kantonopoulos/HDAnalyzeR")
 ```
+
+## App Interface
+
+HDAnalyzeR combines a [graphical user interface (GUI)](https://hdanalyzer.serve.scilifelab.se) to make it accessible to researchers with no coding experience. With this app, users can run complex analyses even on their phone or tablet. The app includes features for data and metadata uploads, exploratory data analysis visualizations, dimensionality reduction, differential expression analysis, and simple classification models. All outputs can be downloaded as .CSV or .PNG files.
+
+Check our [short video tutorial](https://youtu.be/Fxk4wfVUezM) to learn more about it!
 
 ## Usage
 
