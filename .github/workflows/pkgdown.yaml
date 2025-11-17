@@ -39,7 +39,7 @@ jobs:
 
       - name: Pin pkgdown
         run: |
-          Rscript -e "remotes::install_version('pkgdown', '2.0.7')"
+          Rscript -e "pak::pkg_install('pkgdown@2.0.7')"
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
