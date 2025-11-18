@@ -1,5 +1,4 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
@@ -16,7 +15,6 @@ permissions: read-all
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
@@ -32,14 +30,28 @@ jobs:
         with:
           use-public-rspm: true
 
+      # MUST come before installing packages
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libharfbuzz-dev \
+            libfreetype6-dev \
+            libfontconfig1-dev
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Diagnostic render of failing vignette
+        run: |
+          Rscript -e 'rmarkdown::render("vignettes/data_imputation.Rmd", quiet = FALSE)'
+
       - name: Build site
         run: |
           options(pkgdown.use_callr = FALSE)
+          options(pkgdown.use_ragg = FALSE)
           pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
