@@ -17,3 +17,4 @@ inst/doc
 inst/cheatsheet/hdanalyzer_cheat-sheet_horizontal.pdf
 inst/cheatsheet/hdanalyzer_cheat-sheet.afdesign
 Makevars
+vignettes/data_imputation.Rmd
