@@ -12,9 +12,7 @@ case_studies/data
 .DS_Store
 wide_data.rds
 docs
-inst/doc
 *.pptx
 inst/cheatsheet/hdanalyzer_cheat-sheet_horizontal.pdf
 inst/cheatsheet/hdanalyzer_cheat-sheet.afdesign
 Makevars
-vignettes/data_imputation.Rmd
