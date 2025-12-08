@@ -30,10 +30,20 @@
 #' @examples
 #' # Initialize an HDAnalyzeR object
 #' hd_initialize(example_data, example_metadata)
-hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DAid", var_name = "Assay", value_name = "NPX") {
-
-  if (!is.data.frame(dat)) stop("dat must be a data frame.")
-  if (!is.null(metadata) && !is.data.frame(metadata)) stop("metadata must be a data frame.")
+hd_initialize <- function(
+  dat,
+  metadata = NULL,
+  is_wide = FALSE,
+  sample_id = "DAid",
+  var_name = "Assay",
+  value_name = "NPX"
+) {
+  if (!is.data.frame(dat)) {
+    stop("dat must be a data frame.")
+  }
+  if (!is.null(metadata) && !is.data.frame(metadata)) {
+    stop("metadata must be a data frame.")
+  }
   if (!sample_id %in% colnames(dat)) {
     stop("Sample ID column must exist in dat.")
   }
@@ -49,18 +59,25 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
       stop("Value column must exist in dat.")
     }
 
-    wide_data <- hd_widen_data(dat, exclude = sample_id, names_from = var_name, values_from = value_name)
+    wide_data <- hd_widen_data(
+      dat,
+      exclude = sample_id,
+      names_from = var_name,
+      values_from = value_name
+    )
   } else {
     wide_data <- dat
   }
 
   check_numeric <- check_numeric_columns(wide_data)
 
-  data_object <- list(data = wide_data,
-                      metadata = metadata,
-                      sample_id = sample_id,
-                      var_name = var_name,
-                      value_name = value_name)
+  data_object <- list(
+    data = wide_data,
+    metadata = metadata,
+    sample_id = sample_id,
+    var_name = var_name,
+    value_name = value_name
+  )
 
   class(data_object) <- "HDAnalyzeR"
 
@@ -93,15 +110,15 @@ hd_initialize <- function(dat, metadata = NULL, is_wide = FALSE, sample_id = "DA
 #'
 #' @return The filtered HD object
 #' @export
-#' 
+#'
 #' @examples
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_obj <- hd_initialize(example_data, example_metadata)
 #' hd_obj
-#' 
+#'
 #' # Filter by categorical variable
 #' hd_filter(hd_obj, variable = "Sex", values = "F", flag = "k")
-#' 
+#'
 #' # Filter by continuous variable
 #' hd_filter(hd_obj, variable = "Age", values = 80, flag = ">")
 hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
@@ -111,7 +128,10 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   }
 
   # Check if variable exists in data or metadata
-  if (!(variable %in% names(hd_obj$data)) && !(variable %in% names(hd_obj$metadata))) {
+  if (
+    !(variable %in% names(hd_obj$data)) &&
+      !(variable %in% names(hd_obj$metadata))
+  ) {
     stop("Variable not found in data or metadata")
   }
 
@@ -127,52 +147,61 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   # Check if variable is categorical or continuous
   var_type <- hd_detect_vartype(var_component[[variable]], unique_threshold = 5)
   if (verbose) {
-    message("Variable", variable, "is ", var_type)
+    message("Variable ", variable, " is ", var_type)
   }
-  
-  # Filter data and metadata based on variable type and flag
+
   if (var_type == "categorical") {
     if (flag == "k") {
-      # Keep only rows where variable matches values
-      var_component <- var_component[var_component[[variable]] %in% values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
+      var_component <- var_component[
+        var_component[[variable]] %in% values,
+        ,
+        drop = FALSE
+      ]
     } else if (flag == "r") {
-      # Remove rows where variable matches values
-      var_component <- var_component[!(var_component[[variable]] %in% values), ]
-      other_component <- other_component[!(other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]]), ]
+      var_component <- var_component[
+        !(var_component[[variable]] %in% values),
+        ,
+        drop = FALSE
+      ]
     } else {
       stop("Invalid flag for categorical variable")
     }
   } else if (var_type == "continuous") {
-    if (flag == "=") {
-      # Keep only rows where variable equals values
-      var_component <- var_component[var_component[[variable]] == values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
-    } else if (flag == "<") {
-      # Keep only rows where variable is less than values
-      var_component <- var_component[var_component[[variable]] < values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
-    } else if (flag == "<=") {
-      # Keep only rows where variable is less than or equal to values
-      var_component <- var_component[var_component[[variable]] <= values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
-    } else if (flag == ">") {
-      # Keep only rows where variable is greater than values
-      var_component <- var_component[var_component[[variable]] > values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
-    } else if (flag == ">=") {
-      # Keep only rows where variable is greater than or equal to values
-      var_component <- var_component[var_component[[variable]] >= values, ]
-      other_component <- other_component[other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]], ]
-    } else if (flag == "!=") {
-      # Keep only rows where variable is not equal to values
-      var_component <- var_component[var_component[[variable]] != values, ]
-      other_component <- other_component[!(other_component[[hd_obj$sample_id]] %in% var_component[[hd_obj$sample_id]]), ]
-    } else {
+    if (!is.numeric(var_component[[variable]])) {
+      stop("Variable is not numeric for continuous filter")
+    }
+    op <- switch(
+      flag,
+      "=" = `==`,
+      "<" = `<`,
+      "<=" = `<=`,
+      ">" = `>`,
+      ">=" = `>=`,
+      "!=" = `!=`,
+      NULL
+    )
+    if (is.null(op)) {
       stop("Invalid flag for continuous variable")
     }
+    keep_idx <- op(var_component[[variable]], values)
+    var_component <- var_component[
+      which(!is.na(keep_idx) & keep_idx),
+      ,
+      drop = FALSE
+    ]
   } else {
     stop("Unsupported variable type")
+  }
+
+  sample_col <- hd_obj$sample_id
+  kept_ids <- var_component[[sample_col]]
+
+  if (!is.null(other_component)) {
+    other_component <- other_component[
+      other_component[[sample_col]] %in% kept_ids,
+      ,
+      drop = FALSE
+    ]
   }
 
   # Update the original hd_obj
@@ -227,9 +256,8 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
 #' hd_save_path("outer_directory", date = TRUE)
 #' unlink("outer_directory", recursive = TRUE)
 hd_save_path <- function(path_name, date = FALSE) {
-
   if (isTRUE(date) && !is.null(path_name)) {
-    current_date <- format(Sys.Date(), "%Y_%m_%d")  # Get the current date
+    current_date <- format(Sys.Date(), "%Y_%m_%d") # Get the current date
     path_name <- paste0(path_name, "/", current_date)
   }
 
@@ -238,11 +266,9 @@ hd_save_path <- function(path_name, date = FALSE) {
     dir.create(path_name, recursive = TRUE)
 
     # Check if the directory was created successfully
-    if (dir.exists(path_name)) {
-    } else {
+    if (dir.exists(path_name)) {} else {
       warning("Failed to create directory", path_name)
     }
-
   } else {
     message("Directory", path_name, "already exists.")
   }
@@ -271,7 +297,6 @@ hd_save_path <- function(path_name, date = FALSE) {
 #'
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
 hd_save_data <- function(dat, path_name) {
-
   dir_path <- dirname(path_name)
   file_name <- basename(path_name)
   file_ext <- sub(".*\\.", "", file_name)
@@ -279,7 +304,12 @@ hd_save_data <- function(dat, path_name) {
   valid_file_types <- c("csv", "tsv", "rds", "xlsx")
 
   if (!file_ext %in% valid_file_types) {
-    stop("Unsupported file type: ", file_ext, ". Supported file types are: ", paste(valid_file_types, collapse = ", "))
+    stop(
+      "Unsupported file type: ",
+      file_ext,
+      ". Supported file types are: ",
+      paste(valid_file_types, collapse = ", ")
+    )
   }
 
   # Create directory if it does not exist
@@ -288,7 +318,13 @@ hd_save_data <- function(dat, path_name) {
   if (file_ext == "csv") {
     utils::write.csv(dat, path_name, row.names = FALSE)
   } else if (file_ext == "tsv") {
-    utils::write.table(dat, path_name, sep = "\t", row.names = FALSE, col.names = TRUE)
+    utils::write.table(
+      dat,
+      path_name,
+      sep = "\t",
+      row.names = FALSE,
+      col.names = TRUE
+    )
   } else if (file_ext == "rds") {
     saveRDS(dat, path_name)
   } else if (file_ext == "xlsx") {
@@ -300,7 +336,6 @@ hd_save_data <- function(dat, path_name) {
   } else {
     stop("Failed to save file as", path_name)
   }
-
 }
 
 
@@ -324,19 +359,23 @@ hd_save_data <- function(dat, path_name) {
 #'
 #' unlink("my_data", recursive = TRUE)  # Clean up the created directory
 hd_import_data <- function(path_name) {
-
   # Determine file extension from file path
   file_extension <- tools::file_ext(path_name)
 
-  dat <- switch(tolower(file_extension),
-                csv = readr::read_csv(path_name),
-                tsv = readr::read_tsv(path_name),
-                txt = utils::read.table(path_name, header = TRUE, stringsAsFactors = FALSE),
-                rda = { load(path_name); get(ls()[1]) },
-                rds = readRDS(path_name),
-                xlsx = readxl::read_excel(path_name, guess_max=10000000),
-                parquet = arrow::read_parquet(path_name),
-                stop("Unsupported file type: ", file_extension))
+  dat <- switch(
+    tolower(file_extension),
+    csv = readr::read_csv(path_name),
+    tsv = readr::read_tsv(path_name),
+    txt = utils::read.table(path_name, header = TRUE, stringsAsFactors = FALSE),
+    rda = {
+      load(path_name)
+      get(ls()[1])
+    },
+    rds = readRDS(path_name),
+    xlsx = readxl::read_excel(path_name, guess_max = 10000000),
+    parquet = arrow::read_parquet(path_name),
+    stop("Unsupported file type: ", file_extension)
+  )
 
   dat <- tibble::as_tibble(dat)
 
@@ -366,7 +405,12 @@ hd_import_data <- function(path_name) {
 #'
 #' # Use Sample name instead of Sample ID and Olink IDs instead of Assay names
 #' hd_widen_data(example_data, exclude = "Sample", names_from = "OlinkID")
-hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_from = "NPX") {
+hd_widen_data <- function(
+  dat,
+  exclude = "DAid",
+  names_from = "Assay",
+  values_from = "NPX"
+) {
   suppressWarnings({
     wide_data <- dat |>
       dplyr::select(dplyr::all_of(c(exclude, names_from, values_from))) |>
@@ -401,11 +445,20 @@ hd_widen_data <- function(dat, exclude = "DAid", names_from = "Assay", values_fr
 #'                                    exclude = "Sample",
 #'                                    names_from = "OlinkID")
 #' hd_long_data(example_data_wide, exclude = "Sample", names_to = "OlinkID")
-hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = "NPX") {
+hd_long_data <- function(
+  dat,
+  exclude = "DAid",
+  names_to = "Assay",
+  values_to = "NPX"
+) {
   suppressWarnings({
     long_data <- dat |>
-      tidyr::pivot_longer(cols = -dplyr::all_of(exclude), names_to = names_to, values_to = values_to)
-    })
+      tidyr::pivot_longer(
+        cols = -dplyr::all_of(exclude),
+        names_to = names_to,
+        values_to = values_to
+      )
+  })
   return(long_data)
 }
 
@@ -443,7 +496,6 @@ hd_long_data <- function(dat, exclude = "DAid", names_to = "Assay", values_to = 
 #'
 #' sapply(example, hd_detect_vartype)
 hd_detect_vartype <- function(var, unique_threshold = 5) {
-
   if (is.factor(var) || is.character(var)) {
     return("categorical")
   } else if (is.numeric(var)) {
@@ -454,9 +506,8 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
       return("continuous")
     }
   } else {
-    return("unknown")  # For unsupported types
+    return("unknown") # For unsupported types
   }
-
 }
 
 
@@ -497,8 +548,12 @@ hd_detect_vartype <- function(var, unique_threshold = 5) {
 #' hd_bin_columns(test_data, column_types, bins = 3, round_digits = 1)
 hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
   # Ensure inputs are valid
-  if (!is.data.frame(dat)) stop("data must be a dataframe.")
-  if (length(column_types) != ncol(dat)) stop("column_types length must match the number of columns in data.")
+  if (!is.data.frame(dat)) {
+    stop("data must be a dataframe.")
+  }
+  if (length(column_types) != ncol(dat)) {
+    stop("column_types length must match the number of columns in data.")
+  }
   if (!all(column_types %in% c("categorical", "continuous"))) {
     stop("column_types must contain only 'categorical' or 'continuous'.")
   }
@@ -518,9 +573,11 @@ hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
         binned_data[[i]],
         breaks = breaks,
         include.lowest = TRUE,
-        labels = paste0(utils::head(round(breaks, round_digits), -1),
-                        "-",
-                        utils::tail(round(breaks, round_digits), -1))
+        labels = paste0(
+          utils::head(round(breaks, round_digits), -1),
+          "-",
+          utils::tail(round(breaks, round_digits), -1)
+        )
       )
     }
   }
@@ -539,7 +596,6 @@ hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
 #' @return A warning with the names of non-numeric columns if any.
 #' @keywords internal
 check_numeric_columns <- function(dat) {
-
   if (!is.data.frame(dat)) {
     stop("Input must be a data frame or tibble.")
   }
@@ -548,15 +604,21 @@ check_numeric_columns <- function(dat) {
   cols_to_check <- dat[-1]
 
   non_numeric <- NULL
-  non_numeric <- names(cols_to_check)[!sapply(cols_to_check, function(col) {
-    suppressWarnings({ # Suppress warnings during coercion
-      coerced <- as.numeric(col)
-      return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
+  non_numeric <- names(cols_to_check)[
+    !sapply(cols_to_check, function(col) {
+      suppressWarnings({
+        # Suppress warnings during coercion
+        coerced <- as.numeric(col)
+        return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
+      })
     })
-  })]
+  ]
 
   if (length(non_numeric) > 0) {
-    warning("The following columns are not numeric: ", paste(non_numeric, collapse = ", "))
+    warning(
+      "The following columns are not numeric: ",
+      paste(non_numeric, collapse = ", ")
+    )
   }
 
   invisible(non_numeric)
@@ -583,10 +645,11 @@ check_numeric_columns <- function(dat) {
 #' # Normally you should not transform Olink data as they are already log-transformed
 #' hd_object_transformed$data
 hd_log_transform <- function(dat) {
-
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -599,13 +662,15 @@ hd_log_transform <- function(dat) {
 
   # Check for negative or zero values
   if (any(wide_data[, -1] <= 0, na.rm = TRUE)) {
-    warning("Data contains non-positive values (<= 0). These will be replaced with NA during log transformation.")
+    warning(
+      "Data contains non-positive values (<= 0). These will be replaced with NA during log transformation."
+    )
   }
 
   suppressWarnings({
     wide_data[, -1] <- lapply(wide_data[, -1], function(col) {
       transformed <- log2(ifelse(col > 0, col, NA))
-      transformed[is.nan(transformed)] <- NA  # Replace NaN with NA
+      transformed[is.nan(transformed)] <- NA # Replace NaN with NA
       return(transformed)
     })
   })
