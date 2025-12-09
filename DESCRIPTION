@@ -1,6 +1,6 @@
 Package: HDAnalyzeR
 Title: Streamlining Data Analysis for Biomarker Research
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     c(
       person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", 
