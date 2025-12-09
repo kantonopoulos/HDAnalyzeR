@@ -3,14 +3,14 @@ on:
   push:
     branches: [main, master]
   pull_request:
+    branches: [main, master]
   release:
     types: [published]
   workflow_dispatch:
 
 name: pkgdown
 
-permissions:
-  contents: write
+permissions: read-all
 
 jobs:
   pkgdown:
@@ -19,6 +19,8 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -28,32 +30,36 @@ jobs:
         with:
           use-public-rspm: true
 
-      # Install system dependencies for LaTeX and common libraries
-      - name: Install system dependencies
+      # Required for html_vignette + ragg + systemfonts
+      - name: Install system libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev texlive-full
+          sudo apt-get install -y \
+            libharfbuzz-dev \
+            libfreetype6-dev \
+            libfontconfig1-dev
 
-      # Install R dependencies including pkgdown and all packages for vignettes
-      - name: Install R packages
-        run: |
-          Rscript -e 'install.packages(c("remotes", "rmarkdown", "knitr", "tinytex"))'
-          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
-          Rscript -e 'remotes::install_cran("pkgdown")'
-          Rscript -e 'remotes::install_cran("callr")'
-          Rscript -e 'tinytex::install_tinytex()'
+      # Install all R dependencies, including pkgdown and vignette packages
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+          install-cran: true
+          # Ensure quiet install to avoid log overflow
+          quiet: true
 
-      # Optional: render vignettes first to catch errors early
-      - name: Render vignettes
-        run: |
-          Rscript -e 'vignettes <- list.files("vignettes", pattern = "\\.Rmd$", full.names = TRUE); 
-                      purrr::walk(vignettes, ~ rmarkdown::render(.x, output_format = "html_document"))'
-
-      # Build pkgdown site
+      # Build the pkgdown site
       - name: Build site
         run: |
-          Rscript -e 'pkgdown::build_site(new_process = FALSE, install = FALSE)'
-      
+          options(pkgdown.use_ragg = TRUE)
+          pkgdown::build_site_github_pages(
+            new_process = FALSE,
+            install = FALSE,
+            devel = FALSE,
+            quiet = TRUE
+          )
+        shell: Rscript {0}
+
       # Deploy to GitHub Pages
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
