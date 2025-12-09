@@ -135,7 +135,7 @@ de_results <- hd_obj |>
   hd_filter(variable = "Sex", values = "F", flag = "k") |> 
   hd_de_limma(case = "BRC", control = "AML", correct = "Age") |> 
   hd_plot_volcano()
-#> VariableSexis categorical
+#> Variable Sex is categorical
 #> Filtering complete. Rows remaining:366
 
 de_results$volcano_plot
@@ -245,22 +245,22 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] HDAnalyzeR_0.99.0
+#> [1] HDAnalyzeR_1.0.0
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6       limma_3.66.0       jsonlite_2.0.0     dplyr_1.1.4       
 #>  [5] compiler_4.5.2     Rcpp_1.1.0         tidyselect_1.2.1   stringr_1.6.0     
 #>  [9] gridExtra_2.3      tidyr_1.3.1        jquerylib_0.1.4    scales_1.4.0      
-#> [13] systemfonts_1.3.1  textshaping_1.0.4  yaml_2.3.10        fastmap_1.2.0     
-#> [17] statmod_1.5.1      plyr_1.8.9         UpSetR_1.4.0       ggplot2_4.0.0     
+#> [13] systemfonts_1.3.1  textshaping_1.0.4  yaml_2.3.11        fastmap_1.2.0     
+#> [17] statmod_1.5.1      plyr_1.8.9         UpSetR_1.4.0       ggplot2_4.0.1     
 #> [21] R6_2.6.1           labeling_0.4.3     generics_0.1.4     knitr_1.50        
 #> [25] htmlwidgets_1.6.4  MASS_7.3-65        ggrepel_0.9.6      tibble_3.3.0      
 #> [29] desc_1.4.3         RColorBrewer_1.1-3 bslib_0.9.0        pillar_1.11.1     
 #> [33] rlang_1.1.6        utf8_1.2.6         stringi_1.8.7      cachem_1.1.0      
-#> [37] xfun_0.54          S7_0.2.0           fs_1.6.6           sass_0.4.10       
+#> [37] xfun_0.54          S7_0.2.1           fs_1.6.6           sass_0.4.10       
 #> [41] cli_3.6.5          pkgdown_2.2.0      withr_3.0.2        magrittr_2.0.4    
-#> [45] digest_0.6.37      grid_4.5.2         lifecycle_1.0.4    vctrs_0.6.5       
+#> [45] digest_0.6.39      grid_4.5.2         lifecycle_1.0.4    vctrs_0.6.5       
 #> [49] evaluate_1.0.5     glue_1.8.0         farver_2.1.2       ragg_1.5.0        
 #> [53] rmarkdown_2.30     purrr_1.2.0        tools_4.5.2        pkgconfig_2.0.3   
-#> [57] htmltools_0.5.8.1
+#> [57] htmltools_0.5.9
 ```

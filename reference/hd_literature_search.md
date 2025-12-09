@@ -13,8 +13,9 @@ hd_literature_search(query_list, max_results = 20, min_year = NULL)
 
 - query_list:
 
-  Named list of diseases with associated proteins. Example: list(AML =
-  c("TCL1A", "TNFRSF9"), CLL = c("CD22", "FCRL3"))
+  Named list of diseases with associated proteins. Example: list( "Acute
+  Myeloid Leukemia" = c("TCL1A", "TNFRSF9"), "Chronic Lymphocytic
+  Leukemia" = c("CD22"))
 
 - max_results:
 

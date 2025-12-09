@@ -628,7 +628,7 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] dplyr_1.1.4       HDAnalyzeR_0.99.0
+#> [1] dplyr_1.1.4      HDAnalyzeR_1.0.0
 #> 
 #> loaded via a namespace (and not attached):
 #>   [1] gridExtra_2.3       rlang_1.1.6         magrittr_2.0.4     
@@ -637,10 +637,10 @@ sessionInfo()
 #>  [10] stringr_1.6.0       tune_2.0.1          pkgconfig_2.0.3    
 #>  [13] shape_1.4.6.1       fastmap_1.2.0       ggraph_2.2.2       
 #>  [16] labeling_0.4.3      utf8_1.2.6          rmarkdown_2.30     
-#>  [19] prodlim_2025.04.28  ggbeeswarm_0.7.2    ragg_1.5.0         
+#>  [19] prodlim_2025.04.28  ggbeeswarm_0.7.3    ragg_1.5.0         
 #>  [22] UpSetR_1.4.0        purrr_1.2.0         xfun_0.54          
 #>  [25] glmnet_4.1-10       cachem_1.1.0        jsonlite_2.0.0     
-#>  [28] recipes_1.3.1       tweenr_2.0.3        vip_0.4.1          
+#>  [28] recipes_1.3.1       tweenr_2.0.3        vip_0.4.2          
 #>  [31] parallel_4.5.2      R6_2.6.1            bslib_0.9.0        
 #>  [34] rsample_1.3.1       stringi_1.8.7       RColorBrewer_1.1-3 
 #>  [37] limma_3.66.0        ranger_0.17.0       parallelly_1.45.1  
@@ -650,12 +650,12 @@ sessionInfo()
 #>  [49] zoo_1.8-14          multiROC_1.1.1      igraph_2.2.1       
 #>  [52] Matrix_1.7-4        splines_4.5.2       nnet_7.3-20        
 #>  [55] timechange_0.3.0    tidyselect_1.2.1    viridis_0.6.5      
-#>  [58] yaml_2.3.10         timeDate_4051.111   codetools_0.2-20   
+#>  [58] yaml_2.3.11         timeDate_4051.111   codetools_0.2-20   
 #>  [61] listenv_0.10.0      plyr_1.8.9          lattice_0.22-7     
-#>  [64] tibble_3.3.0        withr_3.0.2         S7_0.2.0           
-#>  [67] evaluate_1.0.5      future_1.67.0       desc_1.4.3         
+#>  [64] tibble_3.3.0        withr_3.0.2         S7_0.2.1           
+#>  [67] evaluate_1.0.5      future_1.68.0       desc_1.4.3         
 #>  [70] survival_3.8-3      polyclip_1.10-7     pillar_1.11.1      
-#>  [73] foreach_1.5.2       generics_0.1.4      ggplot2_4.0.0      
+#>  [73] foreach_1.5.2       generics_0.1.4      ggplot2_4.0.1      
 #>  [76] scales_1.4.0        globals_0.18.0      class_7.3-23       
 #>  [79] glue_1.8.0          tools_4.5.2         ggnewscale_0.5.2   
 #>  [82] data.table_1.17.8   gower_1.0.2         forcats_1.0.1      
@@ -663,11 +663,11 @@ sessionInfo()
 #>  [88] grid_4.5.2          yardstick_1.3.2     tidyr_1.3.1        
 #>  [91] ipred_0.9-15        ggforce_0.5.0       beeswarm_0.4.0     
 #>  [94] vipor_0.4.7         cli_3.6.5           DiceDesign_1.10    
-#>  [97] textshaping_1.0.4   workflows_1.3.0     parsnip_1.3.3      
+#>  [97] textshaping_1.0.4   workflows_1.3.0     parsnip_1.4.0      
 #> [100] viridisLite_0.4.2   lava_1.8.2          gtable_0.3.6       
-#> [103] GPfit_1.0-9         sass_0.4.10         digest_0.6.37      
+#> [103] GPfit_1.0-9         sass_0.4.10         digest_0.6.39      
 #> [106] ggrepel_0.9.6       htmlwidgets_1.6.4   farver_2.1.2       
-#> [109] memoise_2.0.1       htmltools_0.5.8.1   pkgdown_2.2.0      
+#> [109] memoise_2.0.1       htmltools_0.5.9     pkgdown_2.2.0      
 #> [112] lifecycle_1.0.4     hardhat_1.4.2       statmod_1.5.1      
 #> [115] MASS_7.3-65         sparsevctrs_0.3.4
 ```

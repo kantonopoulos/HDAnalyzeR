@@ -87,22 +87,11 @@ enrichment <- hd_plot_ora(enrichment)
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> Warning: Possible problem with the clustering in the treeplot. Might not have enough significant results.
 
 # Access the plots
 enrichment$dotplot
 
 enrichment$treeplot
-#> NULL
+
 enrichment$cnetplot
 ```

@@ -1,324 +1,110 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/404.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/HDAnalyzeR.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/before_using_hdanalyzer.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/classification.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/data_imputation.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/data_preprocessing.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/differential_expression.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/post_analysis.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/index.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/add_axis_variance.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/apply_palette.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/background_lists.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/balance_groups.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_col.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_row.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calculate_na_percentage.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_col_types.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_numeric_columns.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/cluster_help.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_multiclass_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_regression_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/example_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/example_metadata.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/extract_protein_list.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/fix_components_names.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/gene_to_entrezid.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/generate_title.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/get_optimal_k.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_assess_clusters.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_auto_pca.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_auto_umap.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_bin_columns.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_cluster.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_cluster_samples.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_correlate.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_de_limma.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_de_ttest.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_detect_vartype.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_filter.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_gsea.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_import_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_knn.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_median.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_missForest.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_initialize.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_literature_search.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_log_transform.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_long_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_lr.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_rf.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_rreg.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_test.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_na_search.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_normalize.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_omit_na.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_ora.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_palettes.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_pca.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_cor_heatmap.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_de_summary.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_dim.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_boxplot.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_heatmap.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_network.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_gsea.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_model_summary.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_ora.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_pca_loadings.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_pca_variance.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_regression.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_volcano.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_wgcna.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_qc_summary.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_save_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_save_path.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_show_backgrounds.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_show_palettes.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_split_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_umap.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_wgcna.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_widen_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_loadings.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_metadata_summary.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_missing_values.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_points.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_plot_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_set.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/print_summary.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_data.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_metadata.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/remove_batch_effects.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_color_hd.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_fill_hd.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/select_background.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/theme_hd.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_lr_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rf_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rreg_model.html</loc>
-  </url>
-  <url>
-    <loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/variable_imp.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/404.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/LICENSE.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/HDAnalyzeR.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/before_using_hdanalyzer.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/classification.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/data_imputation.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/data_preprocessing.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/differential_expression.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/index.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/articles/post_analysis.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/authors.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/index.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/news/index.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/add_axis_variance.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/apply_palette.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/background_lists.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/balance_groups.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_col.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_row.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calculate_na_percentage.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_col_types.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_numeric_columns.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/cluster_help.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_multiclass_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_regression_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/example_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/example_metadata.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/extract_protein_list.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/fix_components_names.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/gene_to_entrezid.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/generate_title.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/get_optimal_k.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_assess_clusters.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_auto_pca.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_auto_umap.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_bin_columns.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_cluster.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_cluster_samples.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_correlate.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_de_limma.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_de_ttest.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_detect_vartype.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_filter.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_gsea.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_import_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_knn.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_median.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_missForest.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_initialize.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_literature_search.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_log_transform.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_long_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_lr.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_rf.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_rreg.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_model_test.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_na_search.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_normalize.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_omit_na.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_ora.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_palettes.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_pca.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_cor_heatmap.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_de_summary.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_dim.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_boxplot.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_heatmap.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_feature_network.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_gsea.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_model_summary.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_ora.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_pca_loadings.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_pca_variance.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_regression.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_volcano.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_plot_wgcna.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_qc_summary.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_save_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_save_path.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_show_backgrounds.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_show_palettes.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_split_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_umap.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_wgcna.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_widen_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/index.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_loadings.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_metadata_summary.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_missing_values.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_points.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_plot_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/prepare_set.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/print_summary.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_metadata.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/remove_batch_effects.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_color_hd.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_fill_hd.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/select_background.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/theme_hd.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_lr_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rf_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rreg_model.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/variable_imp.html</loc></url>
 </urlset>
+
