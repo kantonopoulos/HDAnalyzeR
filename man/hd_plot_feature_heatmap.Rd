@@ -30,7 +30,7 @@ The summary heatmap of the combined differential expression and classification m
 \code{hd_plot_feature_heatmap} plots a summary bubble-heatmap of the combined differential
 expression and classification model results. The heatmap shows the log2 fold change
 and adjusted p-value of the differential expression results, and the scaled importance
-and sign of the classification model results. The heatmap is ordered and the selected
+of the classification model results. The heatmap is ordered and the selected
 assays are based on the specified control group. * are added to the features that pass
 the p-value threshold.
 }

@@ -13,6 +13,7 @@ variable_imp(
   y_labels = FALSE,
   title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features"),
   verbose = TRUE,
+  engine = "glmnet",
   seed = 123
 )
 }
@@ -28,6 +29,8 @@ variable_imp(
 \item{palette}{The color palette for the classes. If it is a character, it should be one of the palettes from \code{hd_palettes()}. Default is NULL.}
 
 \item{title}{Vector of title elements to include in the plot.}
+
+\item{engine}{Either glmnet, rf or lr. If glmnet and the model type is multi-class then the variable importance is calculated per class.}
 
 \item{seed}{Seed for reproducibility. Default is 123.}
 }
