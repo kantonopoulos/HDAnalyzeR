@@ -1086,21 +1086,22 @@ variable_imp <- function(dat,
     # Scale importance
     if (model_type == "multi_class") {
       features <- features |>
-        dplyr::group_by(class) |>
+        dplyr::group_by(!!rlang::sym("class")) |>
         dplyr::mutate(
           Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
-          Feature_plot = tidytext::reorder_within(!!rlang::sym("Feature"), !!rlang::sym("Importance"), !!rlang::sym("class"))
+          Feature_plot = tidytext::reorder_within(!!rlang::sym("Feature"), !!rlang::sym("Importance"), !!rlang::sym("class")),
+          Class = !!rlang::sym("class")
         ) |>
-        dplyr::ungroup()
+        dplyr::ungroup() |>
+        dplyr::select(dplyr::any_of(c("Class", "Feature", "Importance", "Sign", "Scaled_Importance", "Feature_plot")))
     } else {
       features <- features |>
         dplyr::mutate(
-          Sign = "POS",
           Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
           Feature = forcats::fct_reorder(!!rlang::sym("Feature"), !!rlang::sym("Importance"))
-        )
+        ) |>
+        dplyr::select(dplyr::any_of(c("Feature", "Importance", "Sign", "Scaled_Importance")))
     }
-    
   } else {
     features <- final |>
       workflows::extract_fit_parsnip() |>
@@ -1112,8 +1113,16 @@ variable_imp <- function(dat,
                     Variable = forcats::fct_reorder(!!rlang::sym("Variable"), !!rlang::sym("Importance"))) |>
       dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
       # Min max scaling with min = 0 always and max = 1
-      dplyr::mutate(Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))) |>
+      dplyr::mutate(
+        Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))
+      ) |>
       dplyr::rename(Feature = !!rlang::sym("Variable"))
+    
+    if (engine == "rf") {
+      features <- features |> 
+        dplyr::mutate(Sign = "POS") |>
+        dplyr::relocate(!!rlang::sym("Sign"), .after = !!rlang::sym("Importance"))
+    }
   }
 
   if (model_type == "binary_class") {
@@ -1153,7 +1162,7 @@ variable_imp <- function(dat,
     } else if (!is.null(palette)) {
       pal <- palette
     } else {
-      classes <- unique(features$class)
+      classes <- unique(features[["Class"]])
       pal <- rep("#883268", length(classes))
     }
     
@@ -1184,8 +1193,8 @@ variable_imp <- function(dat,
     var_imp_plot <- features |>
       dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
       ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Feature_plot"), y = !!rlang::sym("Scaled_Importance"))) +
-      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, class, NA))) +
-      ggplot2::facet_wrap(~ class, scales = "free_y") +
+      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, !!rlang::sym("Class"), NA))) +
+      ggplot2::facet_wrap(~ Class, scales = "free_y") +
       tidytext::scale_x_reordered() +      # cleans axis labels
       ggplot2::coord_flip() +              # horizontal bars
       ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
@@ -1196,6 +1205,14 @@ variable_imp <- function(dat,
         axis.text.x = ggplot2::element_text(hjust = 0.5),
         panel.spacing = ggplot2::unit(1, "lines")
       )
+    
+    features <- features |>
+      dplyr::select(-dplyr::any_of(c("Feature_plot"))) |>
+      dplyr::arrange(
+        !!rlang::sym("Class"),
+        dplyr::desc(!!rlang::sym("Scaled_Importance"))
+      )
+    
   } else {
     var_imp_plot <- features |>
       dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
