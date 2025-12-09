@@ -17,3 +17,5 @@
 ^index.md
 ^case_studies$
 ^vignettes$
+^docs$
+^pkgdown$

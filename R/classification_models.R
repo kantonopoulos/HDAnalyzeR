@@ -1003,13 +1003,18 @@ generate_title <- function(features,
 
   if ("features" %in% title) {
     title_parts <- c(title_parts, paste0('Features = ',
-                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") > 0)),
+                                         nrow(features |> 
+                                                dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |> 
+                                                dplyr::select(dplyr::any_of(c("Feature"))) |> 
+                                                dplyr::distinct()),
                                          '    '))
   }
 
   if ("top-features" %in% title) {
     title_parts <- c(title_parts, paste0('Top-features = ',
-                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 0.5)),
+                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 0.5) |> 
+                                           dplyr::select(dplyr::any_of(c("Feature"))) |> 
+                                           dplyr::distinct()),
                                          '    '))
   }
 
@@ -1034,6 +1039,7 @@ generate_title <- function(features,
 #' @param mixture The mixture parameter for the elastic net. If NULL it will be tuned. Default is NULL.
 #' @param palette The color palette for the classes. If it is a character, it should be one of the palettes from `hd_palettes()`. Default is NULL.
 #' @param title Vector of title elements to include in the plot.
+#' @param engine Either glmnet, rf or lr. If glmnet and the model type is multi-class then the variable importance is calculated per class.
 #' @param seed Seed for reproducibility. Default is 123.
 #'
 #' @return A model object containing the features and the feature importance plot.
@@ -1051,6 +1057,7 @@ variable_imp <- function(dat,
                                    "features",
                                    "top-features"),
                          verbose = TRUE,
+                         engine = 'glmnet',
                          seed = 123) {
 
   if (verbose){
@@ -1062,19 +1069,61 @@ variable_imp <- function(dat,
   metrics <- dat[["metrics"]]
   mixture <- dat[["mixture"]]
   model_type <- dat[["model_type"]]
-
-  features <- final |>
-    workflows::extract_fit_parsnip() |>
-    vip::vi() |>
-    # Clip negatives to zero to avoid negative importance in Random Forest permutation testing
-    dplyr::mutate(Importance = dplyr::if_else(!!rlang::sym("Importance") < 0,
-                                              0,
-                                              !!rlang::sym("Importance")),
-                  Variable = forcats::fct_reorder(Variable, !!rlang::sym("Importance"))) |>
-    dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
-    # Min max scaling with min = 0 always and max = 1
-    dplyr::mutate(Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))) |>
-    dplyr::rename(Feature = !!rlang::sym("Variable"))
+  
+  if (engine == 'glmnet') {
+    features <- final |>
+        workflows::extract_fit_parsnip() |>
+        broom::tidy() |>
+        dplyr::filter(!!rlang::sym("term") != "(Intercept)") |>
+        dplyr::select(-dplyr::any_of(c("penalty"))) |>
+        dplyr::mutate(
+          Sign = ifelse(!!rlang::sym("estimate") > 0, "POS", "NEG"),
+          Feature = !!rlang::sym("term"),
+          Importance = abs(!!rlang::sym("estimate"))
+        ) |>
+        dplyr::arrange(dplyr::desc(!!rlang::sym("Importance")))
+    
+    # Scale importance
+    if (model_type == "multi_class") {
+      features <- features |>
+        dplyr::group_by(!!rlang::sym("class")) |>
+        dplyr::mutate(
+          Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
+          Feature_plot = tidytext::reorder_within(!!rlang::sym("Feature"), !!rlang::sym("Importance"), !!rlang::sym("class")),
+          Class = !!rlang::sym("class")
+        ) |>
+        dplyr::ungroup() |>
+        dplyr::select(dplyr::any_of(c("Class", "Feature", "Importance", "Sign", "Scaled_Importance", "Feature_plot")))
+    } else {
+      features <- features |>
+        dplyr::mutate(
+          Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
+          Feature = forcats::fct_reorder(!!rlang::sym("Feature"), !!rlang::sym("Importance"))
+        ) |>
+        dplyr::select(dplyr::any_of(c("Feature", "Importance", "Sign", "Scaled_Importance")))
+    }
+  } else {
+    features <- final |>
+      workflows::extract_fit_parsnip() |>
+      vip::vi() |>
+      # Clip negatives to zero to avoid negative importance in Random Forest permutation testing
+      dplyr::mutate(Importance = dplyr::if_else(!!rlang::sym("Importance") < 0,
+                                                0,
+                                                !!rlang::sym("Importance")),
+                    Variable = forcats::fct_reorder(!!rlang::sym("Variable"), !!rlang::sym("Importance"))) |>
+      dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
+      # Min max scaling with min = 0 always and max = 1
+      dplyr::mutate(
+        Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))
+      ) |>
+      dplyr::rename(Feature = !!rlang::sym("Variable"))
+    
+    if (engine == "rf") {
+      features <- features |> 
+        dplyr::mutate(Sign = "POS") |>
+        dplyr::relocate(!!rlang::sym("Sign"), .after = !!rlang::sym("Importance"))
+    }
+  }
 
   if (model_type == "binary_class") {
 
@@ -1096,6 +1145,27 @@ variable_imp <- function(dat,
       pal <- c("#883268")
     }
 
+  } else if (model_type == "multi_class" && engine == "glmnet") {
+    
+    title_text <- generate_title(features = features,
+                                 accuracy = as.numeric(metrics[["accuracy"]]),
+                                 sensitivity = as.numeric(metrics[["sensitivity"]]),
+                                 specificity = as.numeric(metrics[["specificity"]]),
+                                 auc = NULL,
+                                 mixture = mixture,
+                                 title = title)
+    
+    pals <- hd_palettes()
+    if (!is.null(palette) && is.null(names(palette))) {
+      pal <- pals[palette]
+      pal <- unlist(pals[[palette]])
+    } else if (!is.null(palette)) {
+      pal <- palette
+    } else {
+      classes <- unique(features[["Class"]])
+      pal <- rep("#883268", length(classes))
+    }
+    
   } else if (model_type == "multi_class") {
 
     title_text <- generate_title(features = features,
@@ -1118,18 +1188,44 @@ variable_imp <- function(dat,
     pal <- c("#883268")
     case <- "case"
   }
-
-  var_imp_plot <- features |>
-    dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
-    ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
-    ggplot2::labs(y = NULL) +
-    ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
-    ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
-    ggplot2::ggtitle(label = title_text) +
-    ggplot2::xlab('Importance') +
-    ggplot2::ylab('Features') +
-    theme_hd()
+  
+  if (model_type == "multi_class" && engine == "glmnet") {
+    var_imp_plot <- features |>
+      dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
+      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Feature_plot"), y = !!rlang::sym("Scaled_Importance"))) +
+      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, !!rlang::sym("Class"), NA))) +
+      ggplot2::facet_wrap(~ Class, scales = "free_y") +
+      tidytext::scale_x_reordered() +      # cleans axis labels
+      ggplot2::coord_flip() +              # horizontal bars
+      ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
+      ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,1)) +
+      ggplot2::labs(x = "Feature", y = "Importance", title = title_text) +
+      theme_hd(angled = 90) +
+      ggplot2::theme(
+        axis.text.x = ggplot2::element_text(hjust = 0.5),
+        panel.spacing = ggplot2::unit(1, "lines")
+      )
+    
+    features <- features |>
+      dplyr::select(-dplyr::any_of(c("Feature_plot"))) |>
+      dplyr::arrange(
+        !!rlang::sym("Class"),
+        dplyr::desc(!!rlang::sym("Scaled_Importance"))
+      )
+    
+  } else {
+    var_imp_plot <- features |>
+      dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
+      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
+      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
+      ggplot2::labs(y = NULL) +
+      ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
+      ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
+      ggplot2::ggtitle(label = title_text) +
+      ggplot2::xlab('Importance') +
+      ggplot2::ylab('Features') +
+      theme_hd() 
+  }
 
   if (isFALSE(y_labels)) {
     var_imp_plot <- var_imp_plot +
@@ -1297,6 +1393,7 @@ hd_model_rreg <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'glmnet',
                         seed = seed)
 
   } else if (dat[["model_type"]] == "multi_class") {
@@ -1315,6 +1412,7 @@ hd_model_rreg <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'glmnet',
                         seed = seed)
 
   } else {
@@ -1333,6 +1431,7 @@ hd_model_rreg <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'glmnet',
                         seed = seed)
 
   }
@@ -1478,6 +1577,7 @@ hd_model_rf <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'rf',
                         seed = seed)
   } else if (dat[["model_type"]] == "multi_class") {
     dat <- evaluate_multiclass_model(dat = dat,
@@ -1494,6 +1594,7 @@ hd_model_rf <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'rf',
                         seed = seed)
   } else {
     dat <- evaluate_regression_model(dat = dat,
@@ -1510,6 +1611,7 @@ hd_model_rf <- function(dat,
                         y_labels = plot_y_labels,
                         title = plot_title,
                         verbose = verbose,
+                        engine = 'rf',
                         seed = seed)
   }
 
@@ -1641,6 +1743,7 @@ hd_model_lr <- function(dat,
                       y_labels = plot_y_labels,
                       title = plot_title,
                       verbose = verbose,
+                      engine = 'lr',
                       seed = seed)
 
   if (dat[["features"]] |> nrow() < 3) {
