@@ -320,7 +320,7 @@ hd_plot_regression <- function(dat,
 #' `hd_plot_feature_heatmap` plots a summary bubble-heatmap of the combined differential
 #' expression and classification model results. The heatmap shows the log2 fold change
 #' and adjusted p-value of the differential expression results, and the scaled importance
-#' of the classification model results. The heatmap is ordered and the selected
+#' and sign of the classification model results. The heatmap is ordered and the selected
 #' assays are based on the specified control group. * are added to the features that pass
 #' the p-value threshold.
 #'
@@ -414,7 +414,8 @@ hd_plot_feature_heatmap <- function(de_results,
     res_model <- model_results[[i]][["features"]] |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>
       dplyr::select(!!rlang::sym("Feature"),
-                    !!rlang::sym("Scaled_Importance"))
+                    !!rlang::sym("Scaled_Importance"),
+                    !!rlang::sym("Sign"))
 
     res_combined <- res_de |>
       dplyr::left_join(res_model, by = c("Feature")) |>
@@ -433,10 +434,11 @@ hd_plot_feature_heatmap <- function(de_results,
     ) |>
     ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Feature"), y = !!rlang::sym("control_group"))) +
     ggplot2::geom_tile(ggplot2::aes(fill = !!rlang::sym("logFC")), color = "white") +
-    ggplot2::geom_point(ggplot2::aes(size = !!rlang::sym("Scaled_Importance"))) +
+    ggplot2::geom_point(ggplot2::aes(size = !!rlang::sym("Scaled_Importance"), color = !!rlang::sym("Sign"))) +
     ggplot2::geom_point(ggplot2::aes(size = !!rlang::sym("Scaled_Importance")), shape = 1, colour = "black") +
     ggplot2::geom_text(ggplot2::aes(label = ifelse(!!rlang::sym("adj.P.Val") < pval_lim, "*", "")), color = "black", size = 3) +
     ggplot2::scale_fill_gradient2(low = "#317EC2", mid = "white", high = "#C03830", midpoint = 0, name = "Log2 FC") +
+    ggplot2::scale_color_manual(values = c("NEG" = "#317EC2", "POS" = "#C03830"), name = "Sign", na.translate = FALSE) +
     ggplot2::scale_size(name = "Importance") +
     ggplot2::labs(x = "Feature", y = "Control Group") +
     ggplot2::theme_minimal() +

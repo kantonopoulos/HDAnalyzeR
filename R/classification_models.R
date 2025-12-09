@@ -1077,6 +1077,7 @@ variable_imp <- function(dat,
         dplyr::filter(!!rlang::sym("term") != "(Intercept)") |>
         dplyr::select(-dplyr::any_of(c("penalty"))) |>
         dplyr::mutate(
+          Sign = ifelse(!!rlang::sym("estimate") > 0, "POS", "NEG"),
           Feature = !!rlang::sym("term"),
           Importance = abs(!!rlang::sym("estimate"))
         ) |>
@@ -1093,8 +1094,11 @@ variable_imp <- function(dat,
         dplyr::ungroup()
     } else {
       features <- features |>
-        dplyr::mutate(Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))) |> 
-        dplyr::mutate(Feature = forcats::fct_reorder(!!rlang::sym("Feature"), !!rlang::sym("Importance")))
+        dplyr::mutate(
+          Sign = "POS",
+          Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
+          Feature = forcats::fct_reorder(!!rlang::sym("Feature"), !!rlang::sym("Importance"))
+        )
     }
     
   } else {
