@@ -1,5 +1,4 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
@@ -8,20 +7,18 @@ on:
     types: [published]
   workflow_dispatch:
 
-name: pkgdown.yaml
+name: pkgdown
 
-permissions: read-all
+permissions:
+  contents: write
 
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -31,15 +28,34 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
+      # Install system dependencies for LaTeX and common libraries
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev texlive-full
 
+      # Install R dependencies including pkgdown and all packages for vignettes
+      - name: Install R packages
+        run: |
+          install.packages(c("remotes", "rmarkdown", "knitr", "tinytex"))
+          remotes::install_deps(dependencies = TRUE)
+          # Ensure latest pkgdown and callr
+          remotes::install_cran("pkgdown")
+          remotes::install_cran("callr")
+          tinytex::install_tinytex()
+
+      # Optional: render vignettes first to catch errors early
+      - name: Render vignettes
+        run: |
+          Rscript -e 'vignettes <- list.files("vignettes", pattern = "\\.Rmd$", full.names = TRUE); 
+                      purrr::walk(vignettes, ~ rmarkdown::render(.x, output_format = "html_document"))'
+
+      # Build pkgdown site
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
-
+        run: |
+          Rscript -e 'pkgdown::build_site(new_process = FALSE, install = FALSE)'
+      
+      # Deploy to GitHub Pages
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
