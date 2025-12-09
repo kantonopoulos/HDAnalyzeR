@@ -37,12 +37,11 @@ jobs:
       # Install R dependencies including pkgdown and all packages for vignettes
       - name: Install R packages
         run: |
-          install.packages(c("remotes", "rmarkdown", "knitr", "tinytex"))
-          remotes::install_deps(dependencies = TRUE)
-          # Ensure latest pkgdown and callr
-          remotes::install_cran("pkgdown")
-          remotes::install_cran("callr")
-          tinytex::install_tinytex()
+          Rscript -e 'install.packages(c("remotes", "rmarkdown", "knitr", "tinytex"))'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+          Rscript -e 'remotes::install_cran("pkgdown")'
+          Rscript -e 'remotes::install_cran("callr")'
+          Rscript -e 'tinytex::install_tinytex()'
 
       # Optional: render vignettes first to catch errors early
       - name: Render vignettes
