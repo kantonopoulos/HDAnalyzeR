@@ -51,7 +51,10 @@ jobs:
       - name: Install renv
         run: Rscript -e 'install.packages("renv")'
 
-      - name: Restore R environment with renv
+      - name: Fix renv ordering issue (install dependencies before dependents)
+        run: echo "RENV_CONFIG_INSTALL_STAGED=false" >> $GITHUB_ENV
+      
+      - name: Restore environment
         run: Rscript -e 'renv::restore(prompt = FALSE)'
 
       - name: Build pkgdown site (local environment)
