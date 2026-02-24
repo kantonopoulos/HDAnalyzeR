@@ -7,22 +7,30 @@
 #'
 #' @return A list containing the gene list and the background with ENTREZID.
 #' @keywords internal
-gene_to_entrezid <- function(gene_list, background = NULL){
+gene_to_entrezid <- function(gene_list, background = NULL) {
   # From gene name to ENTREZID
-  gene_conversion <- clusterProfiler::bitr(gene_list,
-                                           fromType = "SYMBOL",
-                                           toType = "ENTREZID",
-                                           OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+  gene_conversion <- clusterProfiler::bitr(
+    gene_list,
+    fromType = "SYMBOL",
+    toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db::org.Hs.eg.db
+  )
 
-  gene_list <- gene_conversion |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
+  gene_list <- gene_conversion |>
+    dplyr::pull(!!rlang::sym("ENTREZID")) |>
+    unique()
 
   if (!is.null(background)) {
-    background <- clusterProfiler::bitr(background,
-                                        fromType = "SYMBOL",
-                                        toType = "ENTREZID",
-                                        OrgDb = org.Hs.eg.db::org.Hs.eg.db)
+    background <- clusterProfiler::bitr(
+      background,
+      fromType = "SYMBOL",
+      toType = "ENTREZID",
+      OrgDb = org.Hs.eg.db::org.Hs.eg.db
+    )
 
-    background <- background |> dplyr::pull(!!rlang::sym("ENTREZID")) |> unique()
+    background <- background |>
+      dplyr::pull(!!rlang::sym("ENTREZID")) |>
+      unique()
   }
 
   return(list("gene_list" = gene_list, "background" = background))
@@ -80,23 +88,29 @@ gene_to_entrezid <- function(gene_list, background = NULL){
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
-hd_ora <- function(gene_list,
-                   database = c("GO", "Reactome", "KEGG"),
-                   ontology = c("BP", "CC", "MF", "ALL"),
-                   background = NULL,
-                   pval_lim = 0.05) {
+hd_ora <- function(
+  gene_list,
+  database = c("GO", "Reactome", "KEGG"),
+  ontology = c("BP", "CC", "MF", "ALL"),
+  background = NULL,
+  pval_lim = 0.05
+) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
   if (is.null(background)) {
-    message("No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA).")
+    message(
+      "No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA)."
+    )
   } else {
     background <- select_background(background)
   }
 
   # Ensure 'clusterProfiler' package is loaded
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop("The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler').")
+    stop(
+      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
+    )
   }
 
   conversion <- gene_to_entrezid(gene_list, background)
@@ -104,52 +118,63 @@ hd_ora <- function(gene_list,
   background <- conversion[["background"]]
 
   if (database == "KEGG") {
-
     # Perform KEGG enrichment analysis
-    enrichment <- clusterProfiler::enrichKEGG(gene = gene_list,
-                                              organism = "hsa",
-                                              keyType = "ncbi-geneid",
-                                              pvalueCutoff = pval_lim,
-                                              qvalueCutoff = 1,
-                                              universe = background)
-
+    enrichment <- clusterProfiler::enrichKEGG(
+      gene = gene_list,
+      organism = "hsa",
+      keyType = "ncbi-geneid",
+      pvalueCutoff = pval_lim,
+      qvalueCutoff = 1,
+      universe = background
+    )
   } else if (database == "GO") {
-
     # Ensure 'org.Hs.eg.db' package is loaded
     if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+      stop(
+        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
+      )
     }
 
     # Perform GO enrichment analysis
-    enrichment <- clusterProfiler::enrichGO(gene = gene_list,
-                                            OrgDb = org.Hs.eg.db::org.Hs.eg.db,
-                                            ont = ontology,
-                                            pvalueCutoff = pval_lim,
-                                            qvalueCutoff = 1,
-                                            universe = background)
-
+    enrichment <- clusterProfiler::enrichGO(
+      gene = gene_list,
+      OrgDb = org.Hs.eg.db::org.Hs.eg.db,
+      ont = ontology,
+      pvalueCutoff = pval_lim,
+      qvalueCutoff = 1,
+      universe = background
+    )
   } else if (database == "Reactome") {
-
     # Ensure 'ReactomePA' package is loaded
     if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop("The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA').")
+      stop(
+        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
+      )
     }
 
     # Perform Reactome enrichment analysis
-    enrichment <- ReactomePA::enrichPathway(gene = gene_list,
-                                            organism = "human",
-                                            pvalueCutoff = pval_lim,
-                                            qvalueCutoff = 1,
-                                            universe = background)
-
-
+    enrichment <- ReactomePA::enrichPathway(
+      gene = gene_list,
+      organism = "human",
+      pvalueCutoff = pval_lim,
+      qvalueCutoff = 1,
+      universe = background
+    )
   }
 
-  if (is.null(enrichment) || is.na(any(enrichment@result[["p.adjust"]])) || !any(enrichment@result[["p.adjust"]] < pval_lim)) {
+  if (
+    is.null(enrichment) ||
+      is.na(any(enrichment@result[["p.adjust"]])) ||
+      !any(enrichment@result[["p.adjust"]] < pval_lim)
+  ) {
     stop("No significant terms found.")
   }
 
-  enrichment <- list("gene_list" = gene_list, "background" = background, "enrichment" = enrichment)
+  enrichment <- list(
+    "gene_list" = gene_list,
+    "background" = background,
+    "enrichment" = enrichment
+  )
   class(enrichment) <- "hd_enrichment"
 
   if (is.null(background)) {
@@ -200,7 +225,6 @@ hd_ora <- function(gene_list,
 #' enrichment$treeplot
 #' enrichment$cnetplot
 hd_plot_ora <- function(enrichment, seed = 123) {
-
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
@@ -211,28 +235,52 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   # Ensure 'enrichplot' package is loaded
   tree_plot <- NULL
   if (!requireNamespace("enrichplot", quietly = TRUE)) {
-    stop("The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot').")
+    stop(
+      "The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot')."
+    )
   }
-  tryCatch({
-    tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
-    tree_plot <- enrichplot::treeplot(tree_plot_data)
-  }, error = function(e) {
-    warning("Possible problem with the clustering in the treeplot. Might not have enough significant results.")
-  })
+  tryCatch(
+    {
+      tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
+      tree_plot <- enrichplot::treeplot(tree_plot_data)
+    },
+    error = function(e) {
+      warning(
+        "Possible problem with the clustering in the treeplot. Might not have enough significant results."
+      )
+    }
+  )
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
-                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
-                                           color.params = list(edge = TRUE))
+    cnet_plot <- clusterProfiler::cnetplot(
+      enrichment[["enrichment"]],
+      showCategory = 5,
+      colorEdge = TRUE,
+      cex_category = 1,
+      cex_gene = 0.8,
+      cex_label_category = 0.8,
+      cex_label_gene = 0.5,
+      node_label = "all"
+    )
   } else {
-    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
-                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
-                                           color.params = list(edge = TRUE))
+    enrichment_transformed <- clusterProfiler::setReadable(
+      enrichment[["enrichment"]],
+      OrgDb = org.Hs.eg.db::org.Hs.eg.db
+    )
+    cnet_plot <- clusterProfiler::cnetplot(
+      enrichment_transformed,
+      showCategory = 5,
+      colorEdge = TRUE,
+      cex_category = 1,
+      cex_gene = 0.8,
+      cex_label_category = 0.8,
+      cex_label_gene = 0.5,
+      node_label = "all"
+    )
   }
 
   enrichment[["dotplot"]] <- dot_plot
-  if (!is.null(tree_plot)){
+  if (!is.null(tree_plot)) {
     enrichment[["treeplot"]] <- tree_plot
   }
   enrichment[["cnetplot"]] <- cnet_plot
@@ -285,12 +333,13 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #'
 #' # Access the results
 #' head(enrichment$enrichment@result)
-hd_gsea <- function(de_results,
-                    database = c("GO", "Reactome", "KEGG"),
-                    ontology = c("BP", "CC", "MF", "ALL"),
-                    ranked_by = "logFC",
-                    pval_lim = 0.05) {
-
+hd_gsea <- function(
+  de_results,
+  database = c("GO", "Reactome", "KEGG"),
+  ontology = c("BP", "CC", "MF", "ALL"),
+  ranked_by = "logFC",
+  pval_lim = 0.05
+) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
 
@@ -300,20 +349,27 @@ hd_gsea <- function(de_results,
 
   # Prepare sorted_protein_list
   if (ranked_by == "logFC") {
-    gene_list <- stats::setNames(de_results[["logFC"]],
-                                 de_results[["Feature"]])
+    gene_list <- stats::setNames(de_results[["logFC"]], de_results[["Feature"]])
   } else if (ranked_by == "both") {
     de_results <- de_results |>
-      dplyr::mutate(both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val")))
-    gene_list <- stats::setNames(de_results[["adj.P.Val"]],
-                                 de_results[["Feature"]])
+      dplyr::mutate(
+        both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val"))
+      )
+    gene_list <- stats::setNames(
+      de_results[["adj.P.Val"]],
+      de_results[["Feature"]]
+    )
   } else {
     if (ranked_by %in% colnames(de_results)) {
       message("The ranking will be done based on the", ranked_by, "variable.")
-      gene_list <- stats::setNames(de_results[[ranked_by]],
-                                   de_results[["Feature"]])
+      gene_list <- stats::setNames(
+        de_results[[ranked_by]],
+        de_results[["Feature"]]
+      )
     } else {
-      stop("The ranking variable provided is not valid. Please provide a valid variable.")
+      stop(
+        "The ranking variable provided is not valid. Please provide a valid variable."
+      )
     }
   }
   sorted_gene_list <- sort(gene_list, decreasing = TRUE)
@@ -323,54 +379,60 @@ hd_gsea <- function(de_results,
   }
   # Ensure 'clusterProfiler' package is loaded
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop("The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler').")
+    stop(
+      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
+    )
   }
 
   conversion <- gene_to_entrezid(names(sorted_gene_list), NULL)
   gene_list <- stats::setNames(sorted_gene_list, conversion[["gene_list"]])
   # Removed unmapped genes
   gene_list <- gene_list[!is.na(names(gene_list))]
-  
+
   if (database == "KEGG") {
-
     # Perform GSEA for KEGG
-    enrichment <- clusterProfiler::gseKEGG(geneList = gene_list,
-                                           organism = "hsa",
-                                           pvalueCutoff = pval_lim,
-                                           pAdjustMethod = "BH",
-                                           minGSSize = 10,
-                                           maxGSSize = 500)
-
+    enrichment <- clusterProfiler::gseKEGG(
+      geneList = gene_list,
+      organism = "hsa",
+      pvalueCutoff = pval_lim,
+      pAdjustMethod = "BH",
+      minGSSize = 10,
+      maxGSSize = 500
+    )
   } else if (database == "GO") {
-
     # Ensure 'org.Hs.eg.db' package is loaded
     if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop("The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db').")
+      stop(
+        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
+      )
     }
 
     # Perform GSEA for GO
-    enrichment <- clusterProfiler::gseGO(geneList = gene_list,
-                                         OrgDb = org.Hs.eg.db::org.Hs.eg.db,
-                                         ont = ontology,
-                                         pvalueCutoff = pval_lim,
-                                         pAdjustMethod = "BH",
-                                         minGSSize = 10,
-                                         maxGSSize = 500)
-
+    enrichment <- clusterProfiler::gseGO(
+      geneList = gene_list,
+      OrgDb = org.Hs.eg.db::org.Hs.eg.db,
+      ont = ontology,
+      pvalueCutoff = pval_lim,
+      pAdjustMethod = "BH",
+      minGSSize = 10,
+      maxGSSize = 500
+    )
   } else if (database == "Reactome") {
-
     # Ensure 'ReactomePA' package is loaded
     if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop("The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA').")
+      stop(
+        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
+      )
     }
 
     # Perform GSEA for Reactome
-    enrichment <- ReactomePA::gsePathway(gene_list,
-                                         organism = "human",
-                                         pvalueCutoff = pval_lim,
-                                         pAdjustMethod = "BH",
-                                         verbose = FALSE)
-
+    enrichment <- ReactomePA::gsePathway(
+      gene_list,
+      organism = "human",
+      pvalueCutoff = pval_lim,
+      pAdjustMethod = "BH",
+      verbose = FALSE
+    )
   }
 
   if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
@@ -426,29 +488,50 @@ hd_gsea <- function(de_results,
 #' enrichment$cnetplot
 #' enrichment$ridgeplot
 hd_plot_gsea <- function(enrichment, seed = 123) {
-
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
 
   # Visualize results
-  dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]], split=".sign") +
-    ggplot2::facet_grid(.~.sign)
+  dot_plot <- clusterProfiler::dotplot(
+    enrichment[["enrichment"]],
+    split = ".sign"
+  ) +
+    ggplot2::facet_grid(. ~ .sign)
 
-  gseaplot <- clusterProfiler::gseaplot(enrichment[["enrichment"]],
-                                        by = "all",
-                                        title = enrichment[["enrichment"]]@result[["Description"]][1],
-                                        geneSetID = 1)
+  gseaplot <- clusterProfiler::gseaplot(
+    enrichment[["enrichment"]],
+    by = "all",
+    title = enrichment[["enrichment"]]@result[["Description"]][1],
+    geneSetID = 1
+  )
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(enrichment[["enrichment"]],
-                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
-                                           color.params = list(edge = TRUE))
+    cnet_plot <- clusterProfiler::cnetplot(
+      enrichment[["enrichment"]],
+      showCategory = 5,
+      colorEdge = TRUE,
+      cex_category = 1,
+      cex_gene = 0.8,
+      cex_label_category = 0.8,
+      cex_label_gene = 0.5,
+      node_label = "all"
+    )
   } else {
-    enrichment_transformed <- clusterProfiler::setReadable(enrichment[["enrichment"]], OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-    cnet_plot <- clusterProfiler::cnetplot(enrichment_transformed,
-                                           cex.params = list(gene_label = 0.5, gene_node = 0.8),
-                                           color.params = list(edge = TRUE))
+    enrichment_transformed <- clusterProfiler::setReadable(
+      enrichment[["enrichment"]],
+      OrgDb = org.Hs.eg.db::org.Hs.eg.db
+    )
+    cnet_plot <- clusterProfiler::cnetplot(
+      enrichment_transformed,
+      showCategory = 5,
+      colorEdge = TRUE,
+      cex_category = 1,
+      cex_gene = 0.8,
+      cex_label_category = 0.8,
+      cex_label_gene = 0.5,
+      node_label = "all"
+    )
   }
 
   ridgeplot <- clusterProfiler::ridgeplot(enrichment[["enrichment"]]) +
