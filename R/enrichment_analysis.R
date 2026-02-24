@@ -252,14 +252,9 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   )
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(
+    cnet_plot <- enrichplot::cnetplot(
       enrichment[["enrichment"]],
       showCategory = 5,
-      colorEdge = TRUE,
-      cex_category = 1,
-      cex_gene = 0.8,
-      cex_label_category = 0.8,
-      cex_label_gene = 0.5,
       node_label = "all"
     )
   } else {
@@ -267,14 +262,9 @@ hd_plot_ora <- function(enrichment, seed = 123) {
       enrichment[["enrichment"]],
       OrgDb = org.Hs.eg.db::org.Hs.eg.db
     )
-    cnet_plot <- clusterProfiler::cnetplot(
+    cnet_plot <- enrichplot::cnetplot(
       enrichment_transformed,
       showCategory = 5,
-      colorEdge = TRUE,
-      cex_category = 1,
-      cex_gene = 0.8,
-      cex_label_category = 0.8,
-      cex_label_gene = 0.5,
       node_label = "all"
     )
   }
@@ -507,14 +497,9 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
   )
 
   if (grepl("hsa", utils::head(enrichment[["enrichment"]]@result[["ID"]], 1))) {
-    cnet_plot <- clusterProfiler::cnetplot(
+    cnet_plot <- enrichplot::cnetplot(
       enrichment[["enrichment"]],
       showCategory = 5,
-      colorEdge = TRUE,
-      cex_category = 1,
-      cex_gene = 0.8,
-      cex_label_category = 0.8,
-      cex_label_gene = 0.5,
       node_label = "all"
     )
   } else {
@@ -522,14 +507,9 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
       enrichment[["enrichment"]],
       OrgDb = org.Hs.eg.db::org.Hs.eg.db
     )
-    cnet_plot <- clusterProfiler::cnetplot(
+    cnet_plot <- enrichplot::cnetplot(
       enrichment_transformed,
       showCategory = 5,
-      colorEdge = TRUE,
-      cex_category = 1,
-      cex_gene = 0.8,
-      cex_label_category = 0.8,
-      cex_label_gene = 0.5,
       node_label = "all"
     )
   }
