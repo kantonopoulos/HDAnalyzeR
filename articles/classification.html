@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,13 +204,13 @@ progress of the model in shake of clarity for this vignette.</p>
 <span><span class="co">#&gt;          0 15  0</span></span>
 <span><span class="co">#&gt;          1  9 10</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="700"></p>
 <p>We can change several parameters in the <code><a href="../reference/hd_model_rreg.html">hd_model_rreg()</a></code>
 function. For example, we can change the number of cross-validation
 folds, the number of grid points for the hyperparameter optimization, or
@@ -333,7 +333,7 @@ visualize protein features.</p>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
 <span>                        type <span class="op">=</span> <span class="st">"case_vs_control"</span>,</span>
 <span>                        points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/hd_plot_feature_boxplot.html">hd_plot_feature_boxplot</a></span><span class="op">(</span><span class="va">hd_obj</span>, </span>
@@ -341,7 +341,7 @@ visualize protein features.</p>
 <span>                        case <span class="op">=</span> <span class="st">"AML"</span>, </span>
 <span>                        palette <span class="op">=</span> <span class="st">"cancers12"</span>, </span>
 <span>                        type <span class="op">=</span> <span class="st">"case_vs_all"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="multi-classification-model">Multi-classification Model<a class="anchor" aria-label="anchor" href="#multi-classification-model"></a>
@@ -382,13 +382,13 @@ regression!</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">probability_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-8-3.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="regression-instead-of-classification">Regression instead of Classification<a class="anchor" aria-label="anchor" href="#regression-instead-of-classification"></a>
@@ -439,10 +439,10 @@ argument by changing the metrics from “accuracy”, “sensitivity”,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">comparison_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">feat_imp_plot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-9-2.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="test-the-model-on-new-data">Test the Model on new Data<a class="anchor" aria-label="anchor" href="#test-the-model-on-new-data"></a>
@@ -520,10 +520,10 @@ this. Let’s see an example with the AML model.</p>
 <span><span class="co">#&gt;          0 88  2</span></span>
 <span><span class="co">#&gt;          1 21  7</span></span>
 <span><span class="va">model_res</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_res</span><span class="op">$</span><span class="va">test_roc_curve</span>  <span class="co"># Results from the validation set</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-10-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-10-2.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="summarizing-results-from-multiple-binary-models">Summarizing Results from Multiple Binary Models<a class="anchor" aria-label="anchor" href="#summarizing-results-from-multiple-binary-models"></a>
@@ -559,13 +559,13 @@ function.</p>
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">metrics_barplot</span></span>
 <span><span class="co">#&gt; Ignoring unknown labels:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">colour</span> : <span style="color: #0000BB;">"Metric"</span></span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-2.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_summary_res</span><span class="op">$</span><span class="va">upset_plot_features</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-13-3.png" class="r-plt" alt="" width="700"></p>
 <p>In case we have one case and multiple controls we can use the
 <code><a href="../reference/hd_plot_feature_heatmap.html">hd_plot_feature_heatmap()</a></code> function to visualize the protein
 features in a heatmap. This function is useful as we can easily see if
@@ -600,7 +600,7 @@ results of the same comparisons.</p>
 <span>                                             <span class="st">"Blood"</span> <span class="op">=</span> <span class="va">model_blood</span>, </span>
 <span>                                             <span class="st">"All"</span> <span class="op">=</span> <span class="va">model_all</span><span class="op">)</span>, </span>
 <span>                        order_by <span class="op">=</span> <span class="st">"CLL"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="700"></p>
 <p>Finally, we can use the <code><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network()</a></code>
 function to visualize the protein features in a network. This function
 is useful as we can easily see the connections between the features and
@@ -621,17 +621,17 @@ the same 3 models from before.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">#&gt;   Feature  Importance Sign  Scaled_Importance Class</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ANGPT1        1.31  NEG               1     AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ADGRG1        1.02  POS               0.779 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> AMY2A         0.848 POS               0.648 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ADAMTS16      0.788 NEG               0.602 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ADA           0.769 POS               0.587 AML  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ADAM8         0.721 NEG               0.551 AML</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ANGPT1        0.313 NEG               1     AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ADGRG1        0.245 POS               0.780 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ADA           0.185 POS               0.589 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> AMIGO2        0.170 NEG               0.542 AML  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ADAMTS16      0.261 NEG               1     GLIOM</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ANGPTL7       0.203 POS               0.779 GLIOM</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/hd_plot_feature_network.html">hd_plot_feature_network</a></span><span class="op">(</span><span class="va">feature_panel</span>,</span>
 <span>                        plot_color <span class="op">=</span> <span class="st">"Scaled_Importance"</span>,</span>
 <span>                        class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="classification_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="700"></p>
+<p><img src="classification_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
@@ -661,48 +661,49 @@ its functions.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] dplyr_1.1.4      HDAnalyzeR_1.0.0</span></span>
+<span><span class="co">#&gt; [1] glmnet_4.1-10    Matrix_1.7-4     dplyr_1.2.0      HDAnalyzeR_1.0.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;   [1] gridExtra_2.3       rlang_1.1.6         magrittr_2.0.4     </span></span>
-<span><span class="co">#&gt;   [4] furrr_0.3.1         tailor_0.1.0        compiler_4.5.2     </span></span>
-<span><span class="co">#&gt;   [7] systemfonts_1.3.1   vctrs_0.6.5         lhs_1.2.0          </span></span>
-<span><span class="co">#&gt;  [10] stringr_1.6.0       tune_2.0.1          pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt;  [13] shape_1.4.6.1       fastmap_1.2.0       ggraph_2.2.2       </span></span>
-<span><span class="co">#&gt;  [16] labeling_0.4.3      utf8_1.2.6          rmarkdown_2.30     </span></span>
-<span><span class="co">#&gt;  [19] prodlim_2025.04.28  ggbeeswarm_0.7.3    ragg_1.5.0         </span></span>
-<span><span class="co">#&gt;  [22] UpSetR_1.4.0        purrr_1.2.0         xfun_0.54          </span></span>
-<span><span class="co">#&gt;  [25] glmnet_4.1-10       cachem_1.1.0        jsonlite_2.0.0     </span></span>
-<span><span class="co">#&gt;  [28] recipes_1.3.1       tweenr_2.0.3        vip_0.4.2          </span></span>
-<span><span class="co">#&gt;  [31] parallel_4.5.2      R6_2.6.1            bslib_0.9.0        </span></span>
-<span><span class="co">#&gt;  [34] rsample_1.3.1       stringi_1.8.7       RColorBrewer_1.1-3 </span></span>
-<span><span class="co">#&gt;  [37] limma_3.66.0        ranger_0.17.0       parallelly_1.45.1  </span></span>
-<span><span class="co">#&gt;  [40] boot_1.3-32         rpart_4.1.24        lubridate_1.9.4    </span></span>
-<span><span class="co">#&gt;  [43] jquerylib_0.1.4     Rcpp_1.1.0          dials_1.4.2        </span></span>
-<span><span class="co">#&gt;  [46] iterators_1.0.14    knitr_1.50          future.apply_1.20.0</span></span>
-<span><span class="co">#&gt;  [49] zoo_1.8-14          multiROC_1.1.1      igraph_2.2.1       </span></span>
-<span><span class="co">#&gt;  [52] Matrix_1.7-4        splines_4.5.2       nnet_7.3-20        </span></span>
-<span><span class="co">#&gt;  [55] timechange_0.3.0    tidyselect_1.2.1    viridis_0.6.5      </span></span>
-<span><span class="co">#&gt;  [58] yaml_2.3.11         timeDate_4051.111   codetools_0.2-20   </span></span>
-<span><span class="co">#&gt;  [61] listenv_0.10.0      plyr_1.8.9          lattice_0.22-7     </span></span>
-<span><span class="co">#&gt;  [64] tibble_3.3.0        withr_3.0.2         S7_0.2.1           </span></span>
-<span><span class="co">#&gt;  [67] evaluate_1.0.5      future_1.68.0       desc_1.4.3         </span></span>
-<span><span class="co">#&gt;  [70] survival_3.8-3      polyclip_1.10-7     pillar_1.11.1      </span></span>
-<span><span class="co">#&gt;  [73] foreach_1.5.2       generics_0.1.4      ggplot2_4.0.1      </span></span>
-<span><span class="co">#&gt;  [76] scales_1.4.0        globals_0.18.0      class_7.3-23       </span></span>
-<span><span class="co">#&gt;  [79] glue_1.8.0          tools_4.5.2         ggnewscale_0.5.2   </span></span>
-<span><span class="co">#&gt;  [82] data.table_1.17.8   gower_1.0.2         forcats_1.0.1      </span></span>
-<span><span class="co">#&gt;  [85] graphlayouts_1.2.2  fs_1.6.6            tidygraph_1.3.1    </span></span>
-<span><span class="co">#&gt;  [88] grid_4.5.2          yardstick_1.3.2     tidyr_1.3.1        </span></span>
-<span><span class="co">#&gt;  [91] ipred_0.9-15        ggforce_0.5.0       beeswarm_0.4.0     </span></span>
-<span><span class="co">#&gt;  [94] vipor_0.4.7         cli_3.6.5           DiceDesign_1.10    </span></span>
-<span><span class="co">#&gt;  [97] textshaping_1.0.4   workflows_1.3.0     parsnip_1.4.0      </span></span>
-<span><span class="co">#&gt; [100] viridisLite_0.4.2   lava_1.8.2          gtable_0.3.6       </span></span>
-<span><span class="co">#&gt; [103] GPfit_1.0-9         sass_0.4.10         digest_0.6.39      </span></span>
-<span><span class="co">#&gt; [106] ggrepel_0.9.6       htmlwidgets_1.6.4   farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [109] memoise_2.0.1       htmltools_0.5.9     pkgdown_2.2.0      </span></span>
-<span><span class="co">#&gt; [112] lifecycle_1.0.4     hardhat_1.4.2       statmod_1.5.1      </span></span>
-<span><span class="co">#&gt; [115] MASS_7.3-65         sparsevctrs_0.3.4</span></span></code></pre></div>
+<span><span class="co">#&gt;   [1] gridExtra_2.3       rlang_1.1.7         magrittr_2.0.4     </span></span>
+<span><span class="co">#&gt;   [4] tidytext_0.4.3      furrr_0.3.1         tailor_0.1.0       </span></span>
+<span><span class="co">#&gt;   [7] compiler_4.5.2      systemfonts_1.3.1   vctrs_0.7.1        </span></span>
+<span><span class="co">#&gt;  [10] lhs_1.2.0           stringr_1.6.0       tune_2.0.1         </span></span>
+<span><span class="co">#&gt;  [13] pkgconfig_2.0.3     shape_1.4.6.1       fastmap_1.2.0      </span></span>
+<span><span class="co">#&gt;  [16] backports_1.5.0     ggraph_2.2.2        labeling_0.4.3     </span></span>
+<span><span class="co">#&gt;  [19] utf8_1.2.6          rmarkdown_2.30      prodlim_2025.04.28 </span></span>
+<span><span class="co">#&gt;  [22] ggbeeswarm_0.7.3    UpSetR_1.4.0        ragg_1.5.0         </span></span>
+<span><span class="co">#&gt;  [25] purrr_1.2.1         xfun_0.56           cachem_1.1.0       </span></span>
+<span><span class="co">#&gt;  [28] jsonlite_2.0.0      recipes_1.3.1       SnowballC_0.7.1    </span></span>
+<span><span class="co">#&gt;  [31] tweenr_2.0.3        vip_0.4.5           broom_1.0.12       </span></span>
+<span><span class="co">#&gt;  [34] parallel_4.5.2      R6_2.6.1            bslib_0.10.0       </span></span>
+<span><span class="co">#&gt;  [37] rsample_1.3.2       stringi_1.8.7       RColorBrewer_1.1-3 </span></span>
+<span><span class="co">#&gt;  [40] limma_3.66.0        ranger_0.18.0       parallelly_1.46.1  </span></span>
+<span><span class="co">#&gt;  [43] boot_1.3-32         rpart_4.1.24        lubridate_1.9.5    </span></span>
+<span><span class="co">#&gt;  [46] jquerylib_0.1.4     Rcpp_1.1.1          dials_1.4.2        </span></span>
+<span><span class="co">#&gt;  [49] iterators_1.0.14    knitr_1.51          future.apply_1.20.2</span></span>
+<span><span class="co">#&gt;  [52] zoo_1.8-15          multiROC_1.1.1      igraph_2.2.2       </span></span>
+<span><span class="co">#&gt;  [55] splines_4.5.2       nnet_7.3-20         timechange_0.4.0   </span></span>
+<span><span class="co">#&gt;  [58] tidyselect_1.2.1    viridis_0.6.5       yaml_2.3.12        </span></span>
+<span><span class="co">#&gt;  [61] timeDate_4052.112   codetools_0.2-20    listenv_0.10.0     </span></span>
+<span><span class="co">#&gt;  [64] plyr_1.8.9          lattice_0.22-7      tibble_3.3.1       </span></span>
+<span><span class="co">#&gt;  [67] withr_3.0.2         S7_0.2.1            evaluate_1.0.5     </span></span>
+<span><span class="co">#&gt;  [70] future_1.69.0       desc_1.4.3          survival_3.8-3     </span></span>
+<span><span class="co">#&gt;  [73] polyclip_1.10-7     pillar_1.11.1       janeaustenr_1.0.0  </span></span>
+<span><span class="co">#&gt;  [76] foreach_1.5.2       generics_0.1.4      ggplot2_4.0.2      </span></span>
+<span><span class="co">#&gt;  [79] scales_1.4.0        globals_0.19.0      class_7.3-23       </span></span>
+<span><span class="co">#&gt;  [82] glue_1.8.0          tools_4.5.2         ggnewscale_0.5.2   </span></span>
+<span><span class="co">#&gt;  [85] tokenizers_0.3.0    data.table_1.18.2.1 gower_1.0.2        </span></span>
+<span><span class="co">#&gt;  [88] forcats_1.0.1       graphlayouts_1.2.3  fs_1.6.6           </span></span>
+<span><span class="co">#&gt;  [91] tidygraph_1.3.1     grid_4.5.2          yardstick_1.3.2    </span></span>
+<span><span class="co">#&gt;  [94] tidyr_1.3.2         ipred_0.9-15        ggforce_0.5.0      </span></span>
+<span><span class="co">#&gt;  [97] beeswarm_0.4.0      vipor_0.4.7         cli_3.6.5          </span></span>
+<span><span class="co">#&gt; [100] DiceDesign_1.10     textshaping_1.0.4   workflows_1.3.0    </span></span>
+<span><span class="co">#&gt; [103] parsnip_1.4.1       viridisLite_0.4.3   lava_1.8.2         </span></span>
+<span><span class="co">#&gt; [106] gtable_0.3.6        GPfit_1.0-9         sass_0.4.10        </span></span>
+<span><span class="co">#&gt; [109] digest_0.6.39       ggrepel_0.9.6       htmlwidgets_1.6.4  </span></span>
+<span><span class="co">#&gt; [112] farver_2.1.2        memoise_2.0.1       htmltools_0.5.9    </span></span>
+<span><span class="co">#&gt; [115] pkgdown_2.2.0       lifecycle_1.0.5     hardhat_1.4.2      </span></span>
+<span><span class="co">#&gt; [118] statmod_1.5.1       MASS_7.3-65         sparsevctrs_0.3.6</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

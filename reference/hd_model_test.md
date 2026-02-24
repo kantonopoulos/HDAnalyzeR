@@ -235,16 +235,16 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 #> # A tibble: 100 × 4
 #>    Feature Importance Sign  Scaled_Importance
 #>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ALPP         1.17  NEG               1    
-#>  2 ACAN         0.979 NEG               0.838
-#>  3 ADGRE5       0.856 NEG               0.733
-#>  4 ARTN         0.703 POS               0.601
-#>  5 AMBN         0.621 NEG               0.532
-#>  6 ACOX1        0.604 POS               0.517
-#>  7 AMIGO2       0.599 NEG               0.513
-#>  8 ADA          0.574 POS               0.492
-#>  9 APEX1        0.557 POS               0.477
-#> 10 ANGPT1       0.545 NEG               0.466
+#>  1 ALPP       0.242   NEG              1     
+#>  2 ACAN       0.163   NEG              0.674 
+#>  3 ADA        0.127   POS              0.525 
+#>  4 ANGPT1     0.0971  NEG              0.402 
+#>  5 ARTN       0.0866  POS              0.358 
+#>  6 ANGPT2     0.0533  POS              0.221 
+#>  7 APOM       0.0508  NEG              0.210 
+#>  8 APEX1      0.0439  POS              0.182 
+#>  9 AMIGO2     0.0133  NEG              0.0549
+#> 10 ACOX1      0.00773 POS              0.0320
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -408,16 +408,16 @@ hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", ca
 #> # A tibble: 100 × 4
 #>    Feature  Importance Sign  Scaled_Importance
 #>    <fct>         <dbl> <chr>             <dbl>
-#>  1 ARSB           3.65 NEG               1    
-#>  2 ACY1           3.28 NEG               0.901
-#>  3 AREG           3.04 POS               0.833
-#>  4 ATP6AP2        2.64 NEG               0.725
-#>  5 ATOX1          2.23 NEG               0.611
-#>  6 AGXT           2.21 NEG               0.607
-#>  7 ARHGEF12       2.21 NEG               0.607
-#>  8 ALDH1A1        2.19 POS               0.601
-#>  9 ALCAM          2.11 POS               0.578
-#> 10 APP            1.93 POS               0.530
+#>  1 ARSB           3.62 NEG               1    
+#>  2 ACY1           3.28 NEG               0.905
+#>  3 AREG           3.03 POS               0.836
+#>  4 ATP6AP2        2.64 NEG               0.728
+#>  5 ATOX1          2.22 NEG               0.613
+#>  6 AGXT           2.20 NEG               0.606
+#>  7 ARHGEF12       2.19 NEG               0.604
+#>  8 ALDH1A1        2.18 POS               0.602
+#>  9 ALCAM          2.10 POS               0.581
+#> 10 APP            1.93 POS               0.533
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot

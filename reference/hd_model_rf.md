@@ -241,19 +241,19 @@ hd_model_rf(hd_split,
 
 #> 
 #> $features
-#> # A tibble: 100 × 3
-#>    Feature Importance Scaled_Importance
-#>    <fct>        <dbl>             <dbl>
-#>  1 APBB1IP    0.0502             1     
-#>  2 ADA        0.0364             0.725 
-#>  3 AZU1       0.0162             0.322 
-#>  4 ADGRG1     0.0140             0.279 
-#>  5 APEX1      0.0124             0.246 
-#>  6 ANGPT1     0.0108             0.214 
-#>  7 ANXA3      0.00608            0.121 
-#>  8 ABL1       0.00342            0.0681
-#>  9 ANGPT2     0.00295            0.0587
-#> 10 AIF1       0.00283            0.0564
+#> # A tibble: 100 × 4
+#>    Feature Importance Sign  Scaled_Importance
+#>    <fct>        <dbl> <chr>             <dbl>
+#>  1 APBB1IP    0.0502  POS              1     
+#>  2 ADA        0.0364  POS              0.725 
+#>  3 AZU1       0.0162  POS              0.322 
+#>  4 ADGRG1     0.0140  POS              0.279 
+#>  5 APEX1      0.0124  POS              0.246 
+#>  6 ANGPT1     0.0108  POS              0.214 
+#>  7 ANXA3      0.00608 POS              0.121 
+#>  8 ABL1       0.00342 POS              0.0681
+#>  9 ANGPT2     0.00295 POS              0.0587
+#> 10 AIF1       0.00283 POS              0.0564
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -401,19 +401,19 @@ hd_model_rf(hd_split,
 
 #> 
 #> $features
-#> # A tibble: 100 × 3
-#>    Feature  Importance Scaled_Importance
-#>    <fct>         <dbl>             <dbl>
-#>  1 APEX1       0.0177              1    
-#>  2 ARID4B      0.00908             0.514
-#>  3 ARTN        0.00719             0.407
-#>  4 ADA         0.00589             0.333
-#>  5 AZU1        0.00565             0.320
-#>  6 ALPP        0.00468             0.265
-#>  7 AHCY        0.00374             0.212
-#>  8 ARHGAP25    0.00293             0.166
-#>  9 ADGRG2      0.00263             0.149
-#> 10 ADGRE5      0.00252             0.143
+#> # A tibble: 100 × 4
+#>    Feature  Importance Sign  Scaled_Importance
+#>    <fct>         <dbl> <chr>             <dbl>
+#>  1 APEX1       0.0177  POS               1    
+#>  2 ARID4B      0.00908 POS               0.514
+#>  3 ARTN        0.00719 POS               0.407
+#>  4 ADA         0.00589 POS               0.333
+#>  5 AZU1        0.00565 POS               0.320
+#>  6 ALPP        0.00468 POS               0.265
+#>  7 AHCY        0.00374 POS               0.212
+#>  8 ARHGAP25    0.00293 POS               0.166
+#>  9 ADGRG2      0.00263 POS               0.149
+#> 10 ADGRE5      0.00252 POS               0.143
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -524,19 +524,19 @@ hd_model_rf(hd_split,
 
 #> 
 #> $features
-#> # A tibble: 100 × 3
-#>    Feature Importance Scaled_Importance
-#>    <fct>        <dbl>             <dbl>
-#>  1 ALCAM        1.78              1    
-#>  2 ADAMTS8      1.21              0.680
-#>  3 ADAM15       1.14              0.641
-#>  4 ADM          0.948             0.532
-#>  5 AREG         0.843             0.473
-#>  6 ARID4B       0.770             0.432
-#>  7 ADAM23       0.692             0.388
-#>  8 AOC3         0.605             0.339
-#>  9 ALDH3A1      0.597             0.335
-#> 10 APEX1        0.558             0.313
+#> # A tibble: 100 × 4
+#>    Feature Importance Sign  Scaled_Importance
+#>    <fct>        <dbl> <chr>             <dbl>
+#>  1 ALCAM        1.78  POS               1    
+#>  2 ADAMTS8      1.21  POS               0.680
+#>  3 ADAM15       1.14  POS               0.641
+#>  4 ADM          0.948 POS               0.532
+#>  5 AREG         0.843 POS               0.473
+#>  6 ARID4B       0.770 POS               0.432
+#>  7 ADAM23       0.692 POS               0.388
+#>  8 AOC3         0.605 POS               0.339
+#>  9 ALDH3A1      0.597 POS               0.335
+#> 10 APEX1        0.558 POS               0.313
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot

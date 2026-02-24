@@ -46,6 +46,14 @@ res <- hd_literature_search(queries, max_results = 2, min_year = 2015)
 #> |----+----+----+----| 100%
 #> |
 #> ...................|
+#> 
+#> Retrieving records 
+#> .
+#> 
+#> Parsing record information
+#> |----+----+----+----| 100%
+#> |
+#> ...................|
 head(res, 1)
 #>                  Disease Protein     PMID
 #> 1 Acute Myeloid Leukemia   TCL1A 41200167

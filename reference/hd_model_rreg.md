@@ -152,6 +152,7 @@ hd_model_rreg(hd_split,
               palette = "cancers12",
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
+#> Loaded glmnet 4.1-10
 #> $train_data
 #> # A tibble: 76 × 102
 #>    DAid    Disease AARSD1   ABL1  ACAA1   ACAN    ACE2  ACOX1    ACP5    ACP6
@@ -255,18 +256,18 @@ hd_model_rreg(hd_split,
 #> 
 #> $features
 #> # A tibble: 100 × 4
-#>    Feature  Importance Sign  Scaled_Importance
-#>    <fct>         <dbl> <chr>             <dbl>
-#>  1 ANGPT1        1.31  NEG               1    
-#>  2 ADGRG1        1.02  POS               0.779
-#>  3 AMY2A         0.848 POS               0.648
-#>  4 ADAMTS16      0.788 NEG               0.602
-#>  5 ADA           0.769 POS               0.587
-#>  6 ADAM8         0.721 NEG               0.551
-#>  7 AHCY          0.712 POS               0.544
-#>  8 AMIGO2        0.703 NEG               0.537
-#>  9 ANGPTL2       0.596 POS               0.456
-#> 10 AMFR          0.509 POS               0.389
+#>    Feature Importance Sign  Scaled_Importance
+#>    <fct>        <dbl> <chr>             <dbl>
+#>  1 ANGPT1      0.313  NEG               1    
+#>  2 ADGRG1      0.245  POS               0.780
+#>  3 ADA         0.185  POS               0.589
+#>  4 AMIGO2      0.170  NEG               0.542
+#>  5 APBB1IP     0.152  POS               0.484
+#>  6 APEX1       0.137  POS               0.437
+#>  7 ANGPT2      0.137  POS               0.436
+#>  8 ABL1        0.124  POS               0.394
+#>  9 AZU1        0.112  POS               0.356
+#> 10 AHCY        0.0963 POS               0.307
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -413,20 +414,20 @@ hd_model_rreg(hd_split,
 #> [1] 0.220185
 #> 
 #> $features
-#> # A tibble: 100 × 4
-#>    Feature  Importance Sign  Scaled_Importance
-#>    <fct>         <dbl> <chr>             <dbl>
-#>  1 AHCY           2.96 POS               1    
-#>  2 ANGPT1         2.61 NEG               0.883
-#>  3 AK1            2.06 NEG               0.695
-#>  4 APEX1          1.97 POS               0.666
-#>  5 ADAM8          1.92 NEG               0.648
-#>  6 ARTN           1.76 POS               0.594
-#>  7 ARID4B         1.61 NEG               0.545
-#>  8 ADAMTS16       1.47 NEG               0.497
-#>  9 ALPP           1.43 NEG               0.483
-#> 10 ADGRG1         1.32 POS               0.447
-#> # ℹ 90 more rows
+#> # A tibble: 1,200 × 5
+#>    Class Feature  Importance Sign  Scaled_Importance
+#>    <chr> <chr>         <dbl> <chr>             <dbl>
+#>  1 AML   AHCY           2.96 POS               1    
+#>  2 AML   ANGPT1         2.61 NEG               0.883
+#>  3 AML   AK1            2.06 NEG               0.695
+#>  4 AML   APEX1          1.97 POS               0.666
+#>  5 AML   ADAM8          1.92 NEG               0.648
+#>  6 AML   ARTN           1.76 POS               0.594
+#>  7 AML   ARID4B         1.61 NEG               0.545
+#>  8 AML   ADAMTS16       1.47 NEG               0.497
+#>  9 AML   ALPP           1.43 NEG               0.483
+#> 10 AML   ADGRG1         1.32 POS               0.447
+#> # ℹ 1,190 more rows
 #> 
 #> $feat_imp_plot
 
@@ -450,110 +451,5 @@ hd_model_rreg(hd_split,
                              "mixture"),
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
-#> $train_data
-#> # A tibble: 438 × 102
-#>    DAid      Age AARSD1       ABL1   ACAA1   ACAN  ACE2   ACOX1   ACP5     ACP6
-#>    <chr>   <dbl>  <dbl>      <dbl>   <dbl>  <dbl> <dbl>   <dbl>  <dbl>    <dbl>
-#>  1 DA00011    54   3.48  4.96       3.50   -0.338 4.48   1.26    2.18   1.62   
-#>  2 DA00015    47   3.31  1.90      NA      -0.926 0.408  0.687   1.03   0.612  
-#>  3 DA00017    44   1.46  0.832     -2.73   -0.371 2.27   0.0234  0.144  0.826  
-#>  4 DA00023    42   2.92 -0.0000706  0.602   1.59  0.198  1.61    0.283  2.35   
-#>  5 DA00024    46   1.92  0.257      0.0587  1.44  1.29   0.503   0.463  1.01   
-#>  6 DA00026    44   4.92  1.89       0.560   0.558 2.39   0.455   0.743 -0.955  
-#>  7 DA00036    54   1.54  1.07      -1.49   -0.171 0.553 -0.144  -0.240  0.00582
-#>  8 DA00037    54   3.65  3.30       0.748   0.571 1.20   1.30    2.09   0.717  
-#>  9 DA00049    40   4.48  4.56       4.86    0.230 2.24   2.97    2.60  -1.11   
-#> 10 DA00062    48   2.67  0.540      1.97    0.363 0.455  1.77    0.624  1.12   
-#> # ℹ 428 more rows
-#> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
-#> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
-#> #   ADAMTS15 <dbl>, ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>,
-#> #   ADGRE2 <dbl>, ADGRE5 <dbl>, ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>,
-#> #   ADM <dbl>, AGER <dbl>, AGR2 <dbl>, AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>,
-#> #   AGXT <dbl>, AHCY <dbl>, AHSP <dbl>, AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, …
-#> 
-#> $test_data
-#> # A tibble: 148 × 102
-#>    DAid    Age AARSD1  ABL1  ACAA1    ACAN    ACE2   ACOX1    ACP5    ACP6 ACTA2
-#>    <chr> <dbl>  <dbl> <dbl>  <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <dbl>
-#>  1 DA00…    42   3.39 2.76   1.71   0.0333  1.76   -0.919   1.54    2.15   2.81 
-#>  2 DA00…    69   1.42 1.25  -0.816 -0.459   0.826  -0.902   0.647   1.30   0.798
-#>  3 DA00…    54   3.41 3.38   1.69  NA       1.52   NA       0.841   0.582  1.70 
-#>  4 DA00…    57   5.01 5.05   0.128  0.401  -0.933  -0.584   0.0265  1.16   2.73 
-#>  5 DA00…    86   6.83 1.18  -1.74  -0.156   1.53   -0.721   0.620   0.527  0.772
-#>  6 DA00…    48   1.83 1.21  -0.912 -1.04   -0.0918 -0.304   1.69    0.0920 2.04 
-#>  7 DA00…    78   4.31 0.710 -1.44  -0.218  -0.469  -0.361  -0.0714 -1.30   2.86 
-#>  8 DA00…    75   2.62 2.48   0.537 -0.215   1.82    0.290   1.27    1.11   0.206
-#>  9 DA00…    65   1.80 1.70   2.77  -1.04    1.33   -0.0247  1.02    0.112  2.58 
-#> 10 DA00…    67   6.28 6.57   1.62   0.650   0.392   0.113   1.09    1.07   2.07 
-#> # ℹ 138 more rows
-#> # ℹ 91 more variables: ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>, ADA2 <dbl>,
-#> #   ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>, ADAMTS15 <dbl>,
-#> #   ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>, ADGRE2 <dbl>, ADGRE5 <dbl>,
-#> #   ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>, ADM <dbl>, AGER <dbl>, AGR2 <dbl>,
-#> #   AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>, AGXT <dbl>, AHCY <dbl>, AHSP <dbl>,
-#> #   AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, AKR1B1 <dbl>, AKR1C4 <dbl>, …
-#> 
-#> $model_type
-#> [1] "regression"
-#> 
-#> $final_workflow
-#> ══ Workflow ════════════════════════════════════════════════════════════════════
-#> Preprocessor: Recipe
-#> Model: linear_reg()
-#> 
-#> ── Preprocessor ────────────────────────────────────────────────────────────────
-#> 5 Recipe Steps
-#> 
-#> • step_dummy()
-#> • step_nzv()
-#> • step_normalize()
-#> • step_corr()
-#> • step_impute_knn()
-#> 
-#> ── Model ───────────────────────────────────────────────────────────────────────
-#> Linear Regression Model Specification (regression)
-#> 
-#> Main Arguments:
-#>   penalty = 0.49228286213658
-#>   mixture = 0.869285719160689
-#> 
-#> Computational engine: glmnet 
-#> 
-#> 
-#> $metrics
-#> $metrics$rmse
-#> [1] 15.30525
-#> 
-#> $metrics$rsq
-#> [1] 0.008168707
-#> 
-#> 
-#> $comparison_plot
-
-#> 
-#> $mixture
-#> [1] 0.8692857
-#> 
-#> $features
-#> # A tibble: 100 × 4
-#>    Feature Importance Sign  Scaled_Importance
-#>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ARID4B        2.50 POS               1    
-#>  2 ACY1          2.20 NEG               0.880
-#>  3 ALCAM         2.19 POS               0.878
-#>  4 ANGPT2        2.08 NEG               0.834
-#>  5 AGXT          2.08 NEG               0.833
-#>  6 AKT3          1.84 NEG               0.737
-#>  7 ADAM15        1.77 POS               0.707
-#>  8 AHSP          1.75 NEG               0.702
-#>  9 AMY2A         1.69 NEG               0.678
-#> 10 ANXA4         1.65 POS               0.661
-#> # ℹ 90 more rows
-#> 
-#> $feat_imp_plot
-
-#> 
-#> attr(,"class")
-#> [1] "hd_model"
+#> Error in stopifnot(!is.null(i)): reached elapsed time limit
 ```

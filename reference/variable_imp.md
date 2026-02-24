@@ -16,6 +16,7 @@ variable_imp(
   y_labels = FALSE,
   title = c("accuracy", "sensitivity", "specificity", "auc", "features", "top-features"),
   verbose = TRUE,
+  engine = "glmnet",
   seed = 123
 )
 ```
@@ -50,6 +51,11 @@ variable_imp(
 - title:
 
   Vector of title elements to include in the plot.
+
+- engine:
+
+  Either glmnet, rf or lr. If glmnet and the model type is multi-class
+  then the variable importance is calculated per class.
 
 - seed:
 

@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,7 +145,7 @@ for the <code>AML</code> case against the <code>CLL</code> control.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ARTN     1.08  0.597  1.55    0.804  4.46 0.000<span style="text-decoration: underline;">022</span>7      3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span>  2.22 AML    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ANGPT1  -<span style="color: #BB0000;">1.71</span> -<span style="color: #BB0000;">2.47</span>  -<span style="color: #BB0000;">0.948</span>   0.992 -<span style="color: #BB0000;">4.45</span> 0.000<span style="text-decoration: underline;">023</span>0      3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span>  2.21 AML</span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="700"></p>
 <p>We are able to state more control groups if we want to. We can also
 change the correction for the variables as well as both the p-value and
 logFC significance thresholds.</p>
@@ -157,7 +157,7 @@ logFC significance thresholds.</p>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>pval_lim <span class="op">=</span> <span class="fl">0.01</span>, logfc_lim  <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <p>If we do not set a control group, the function will compare the case
 group against all other groups.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -165,7 +165,7 @@ group against all other groups.</p>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="customizing-the-volcano-plot">Customizing the Volcano Plot<a class="anchor" aria-label="anchor" href="#customizing-the-volcano-plot"></a>
@@ -182,7 +182,7 @@ in the plot.</p>
 <span>                  top_down_prot <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="running-differential-expression-analysis-with-t-test">Running Differential Expression Analysis with t-test<a class="anchor" aria-label="anchor" href="#running-differential-expression-analysis-with-t-test"></a>
@@ -197,7 +197,7 @@ it cannot correct for other variables like <code>Sex</code> and
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="the-case-of-sex-specific-diseases">The case of Sex-specific Diseases<a class="anchor" aria-label="anchor" href="#the-case-of-sex-specific-diseases"></a>
@@ -216,7 +216,7 @@ correct for sex, as there will be only one sex “F” (female).</p>
 <span><span class="co">#&gt; Filtering complete. Rows remaining:366</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="running-de-against-other-variables">Running DE against other Variables<a class="anchor" aria-label="anchor" href="#running-de-against-other-variables"></a>
@@ -232,7 +232,7 @@ argument.</p>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"Sex Comparison"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="continuous-variables">Continuous Variables<a class="anchor" aria-label="anchor" href="#continuous-variables"></a>
@@ -247,7 +247,7 @@ categorical and other continuous variables. In this case, no
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>report_nproteins <span class="op">=</span> <span class="cn">FALSE</span>, title <span class="op">=</span> <span class="st">"DE against Age"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">de_results</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -272,13 +272,13 @@ expression analysis for 4 different cases (1 vs 3).</p>
 <span>                                     class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">de_barplot</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">upset_plot_up</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_summary_res</span><span class="op">$</span><span class="va">upset_plot_down</span></span></code></pre></div>
-<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-3.png" class="r-plt" width="700"></p>
+<p><img src="differential_expression_files/figure-html/unnamed-chunk-11-3.png" class="r-plt" alt="" width="700"></p>
 <blockquote>
 <p>📓 Remember that these data are a dummy-dataset with artificial data
 and the results in this guide should not be interpreted as real results.
@@ -308,23 +308,23 @@ its functions.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] HDAnalyzeR_1.0.0</span></span>
+<span><span class="co">#&gt; [1] HDAnalyzeR_1.0.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.6       limma_3.66.0       jsonlite_2.0.0     dplyr_1.1.4       </span></span>
-<span><span class="co">#&gt;  [5] compiler_4.5.2     Rcpp_1.1.0         tidyselect_1.2.1   stringr_1.6.0     </span></span>
-<span><span class="co">#&gt;  [9] gridExtra_2.3      tidyr_1.3.1        jquerylib_0.1.4    scales_1.4.0      </span></span>
-<span><span class="co">#&gt; [13] systemfonts_1.3.1  textshaping_1.0.4  yaml_2.3.11        fastmap_1.2.0     </span></span>
-<span><span class="co">#&gt; [17] statmod_1.5.1      plyr_1.8.9         UpSetR_1.4.0       ggplot2_4.0.1     </span></span>
-<span><span class="co">#&gt; [21] R6_2.6.1           labeling_0.4.3     generics_0.1.4     knitr_1.50        </span></span>
-<span><span class="co">#&gt; [25] htmlwidgets_1.6.4  MASS_7.3-65        ggrepel_0.9.6      tibble_3.3.0      </span></span>
-<span><span class="co">#&gt; [29] desc_1.4.3         RColorBrewer_1.1-3 bslib_0.9.0        pillar_1.11.1     </span></span>
-<span><span class="co">#&gt; [33] rlang_1.1.6        utf8_1.2.6         stringi_1.8.7      cachem_1.1.0      </span></span>
-<span><span class="co">#&gt; [37] xfun_0.54          S7_0.2.1           fs_1.6.6           sass_0.4.10       </span></span>
+<span><span class="co">#&gt;  [1] gtable_0.3.6       limma_3.66.0       jsonlite_2.0.0     dplyr_1.2.0       </span></span>
+<span><span class="co">#&gt;  [5] compiler_4.5.2     Rcpp_1.1.1         tidyselect_1.2.1   stringr_1.6.0     </span></span>
+<span><span class="co">#&gt;  [9] gridExtra_2.3      tidyr_1.3.2        jquerylib_0.1.4    scales_1.4.0      </span></span>
+<span><span class="co">#&gt; [13] systemfonts_1.3.1  textshaping_1.0.4  yaml_2.3.12        fastmap_1.2.0     </span></span>
+<span><span class="co">#&gt; [17] statmod_1.5.1      plyr_1.8.9         UpSetR_1.4.0       ggplot2_4.0.2     </span></span>
+<span><span class="co">#&gt; [21] R6_2.6.1           labeling_0.4.3     generics_0.1.4     knitr_1.51        </span></span>
+<span><span class="co">#&gt; [25] htmlwidgets_1.6.4  MASS_7.3-65        ggrepel_0.9.6      tibble_3.3.1      </span></span>
+<span><span class="co">#&gt; [29] desc_1.4.3         RColorBrewer_1.1-3 bslib_0.10.0       pillar_1.11.1     </span></span>
+<span><span class="co">#&gt; [33] rlang_1.1.7        utf8_1.2.6         stringi_1.8.7      cachem_1.1.0      </span></span>
+<span><span class="co">#&gt; [37] xfun_0.56          S7_0.2.1           fs_1.6.6           sass_0.4.10       </span></span>
 <span><span class="co">#&gt; [41] cli_3.6.5          pkgdown_2.2.0      withr_3.0.2        magrittr_2.0.4    </span></span>
-<span><span class="co">#&gt; [45] digest_0.6.39      grid_4.5.2         lifecycle_1.0.4    vctrs_0.6.5       </span></span>
+<span><span class="co">#&gt; [45] digest_0.6.39      grid_4.5.2         lifecycle_1.0.5    vctrs_0.7.1       </span></span>
 <span><span class="co">#&gt; [49] evaluate_1.0.5     glue_1.8.0         farver_2.1.2       ragg_1.5.0        </span></span>
-<span><span class="co">#&gt; [53] rmarkdown_2.30     purrr_1.2.0        tools_4.5.2        pkgconfig_2.0.3   </span></span>
+<span><span class="co">#&gt; [53] rmarkdown_2.30     purrr_1.2.1        tools_4.5.2        pkgconfig_2.0.3   </span></span>
 <span><span class="co">#&gt; [57] htmltools_0.5.9</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

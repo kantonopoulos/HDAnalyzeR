@@ -2,7 +2,7 @@
 
 [![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
-[![Version](https://img.shields.io/badge/Version-1.0.0-purple)](https://github.com/kantonopoulos/HDAnalyzeR)
+[![Version](https://img.shields.io/badge/Version-1.0.1-purple)](https://github.com/kantonopoulos/HDAnalyzeR)
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/LICENSE.md)
 
 HDAnalyzeR is an R package developed by the Human Disease Blood Atlas to
@@ -106,4 +106,4 @@ repository.
 ## Contact
 
 For any questions or further information, please contact us at
-<k.antono@outlook.com>.
+<konstantinos.antonopoulos@scilifelab.se>.

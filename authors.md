@@ -16,15 +16,18 @@
 Source:
 [`inst/CITATION`](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/inst/CITATION)
 
-Antonopoulos K, Bueno Alvez M, Johansson E, Edfors Arfwidsson F (2024).
-“HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics
-Analysis.” Zenodo.
-[doi:10.5281/zenodo.13786124](https://doi.org/10.5281/zenodo.13786124).
+Antonopoulos K, Johansson E, Kenrick J, Dahl L, Edfors F, Uhlén M, Bueno
+Álvez M (2026). “HDAnalyzeR: streamlining data analysis for biomarker
+research.” *Bioinformatics Advances*, **6**(1), vbag020.
+[doi:10.1093/bioadv/vbag020](https://doi.org/10.1093/bioadv/vbag020).
 
-    @Misc{,
-      title = {HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics Analysis},
-      author = {Konstantinos Antonopoulos and Maria {Bueno Alvez} and Emil Johansson and Fredrik {Edfors Arfwidsson}},
-      year = {2024},
-      howpublished = {Zenodo},
-      doi = {10.5281/zenodo.13786124},
+    @Article{,
+      title = {HDAnalyzeR: streamlining data analysis for biomarker research},
+      author = {Konstantinos Antonopoulos and Emil Johansson and Josefin Kenrick and Leo Dahl and Fredrik Edfors and Mathias Uhlén and María {Bueno Álvez}},
+      journal = {Bioinformatics Advances},
+      year = {2026},
+      volume = {6},
+      number = {1},
+      pages = {vbag020},
+      doi = {10.1093/bioadv/vbag020},
     }

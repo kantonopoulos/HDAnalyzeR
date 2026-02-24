@@ -126,34 +126,34 @@ hd_plot_model_summary(res, class_palette = "cancers12")
 #>    <chr>                    <chr>     <fct>   
 #>  1 AML&LUNGC&CLL&MYEL&GLIOM up        ACAA1   
 #>  2 AML&LUNGC&CLL&MYEL&GLIOM up        ACE2    
-#>  3 AML&LUNGC&CLL&MYEL&GLIOM up        ACTN4   
-#>  4 AML&LUNGC&CLL&MYEL&GLIOM up        ADA2    
-#>  5 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS15
-#>  6 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS8 
-#>  7 AML&LUNGC&CLL&MYEL&GLIOM up        ADGRE5  
-#>  8 AML&LUNGC&CLL&MYEL&GLIOM up        ADM     
-#>  9 AML&LUNGC&CLL&MYEL&GLIOM up        AGER    
-#> 10 AML&LUNGC&CLL&MYEL&GLIOM up        AGR2    
+#>  3 AML&LUNGC&CLL&MYEL&GLIOM up        ACOX1   
+#>  4 AML&LUNGC&CLL&MYEL&GLIOM up        ACP5    
+#>  5 AML&LUNGC&CLL&MYEL&GLIOM up        ACTN4   
+#>  6 AML&LUNGC&CLL&MYEL&GLIOM up        ACY1    
+#>  7 AML&LUNGC&CLL&MYEL&GLIOM up        ADA2    
+#>  8 AML&LUNGC&CLL&MYEL&GLIOM up        ADAM23  
+#>  9 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS13
+#> 10 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS15
 #> # ℹ 90 more rows
 #> 
 #> $features_list
 #> $features_list$`AML&LUNGC&CLL&MYEL&GLIOM`
-#>   [1] ANGPT1    ADGRG1    AMY2A     ADAMTS16  ADA       AHCY      ADAM8    
-#>   [8] AMIGO2    ANGPTL2   ALCAM     APEX1     ADH4      AMFR      AK1      
-#>  [15] ABL1      ANPEP     ATP6V1D   AARSD1    ANKRD54   APOH      ALDH1A1  
-#>  [22] AXL       APBB1IP   ADGRE2    ACP6      ATG4A     APOM      ACAN     
-#>  [29] ANXA11    AGR3      ARHGAP1   ADGRG2    ATXN10    APP       AMBN     
-#>  [36] AMBP      ACP5      AGRN      ADAM15    ADAMTS13  ARTN      ANXA5    
-#>  [43] ACTA2     ATOX1     APLP1     ARNT      ACY1      ANXA4     ANG      
-#>  [50] ATF2      AMN       ANGPT2    ALDH3A1   ANGPTL7   ANGPTL3   AKR1B1   
-#>  [57] AOC3      AGRP      AZU1      ANXA3     B4GALT1   ADCYAP1R1 AKT3     
-#>  [64] AGXT      ARSB      ATP5IF1   ARHGEF12  AKT1S1    ACOX1     ATP6V1F  
-#>  [71] ADAM23    ARHGAP25  ACAA1     ACE2      ACTN4     ADA2      ADAMTS15 
-#>  [78] ADAMTS8   ADGRE5    ADM       AGER      AGR2      AHSP      AIF1     
-#>  [85] AIFM1     AKR1C4    ALPP      AMY2B     ANGPTL1   ANGPTL4   ANXA10   
-#>  [92] AOC1      AREG      ARG1      ARID4B    ARSA      ART3      ATP5PO   
-#>  [99] ATP6AP2   AXIN1    
-#> 100 Levels: ACAA1 ACE2 ACTN4 ADA2 ADAMTS15 ADAMTS8 ADGRE5 ADM AGER AGR2 ... ANGPT1
+#>   [1] ANGPT1    ADGRG1    AMIGO2    ADAMTS16  AHCY      ADA       AMY2A    
+#>   [8] APEX1     AK1       ABL1      ADAM8     ANGPTL2   APBB1IP   ADH4     
+#>  [15] ANKRD54   AMFR      ADGRG2    APOM      ANXA11    ALCAM     ANGPT2   
+#>  [22] ALDH1A1   ADGRE2    AARSD1    AXL       ANPEP     ATP6V1D   AZU1     
+#>  [29] ACTA2     AMBP      APOH      AGR3      ACP6      ATG4A     ANG      
+#>  [36] APP       ARTN      ATXN10    ACAN      ARNT      ATP6V1F   ARHGAP1  
+#>  [43] AOC1      AMBN      AGRP      ADAM15    AGRN      AKR1B1    AMN      
+#>  [50] APLP1     ACAA1     ACE2      ACOX1     ACP5      ACTN4     ACY1     
+#>  [57] ADA2      ADAM23    ADAMTS13  ADAMTS15  ADAMTS8   ADCYAP1R1 ADGRE5   
+#>  [64] ADM       AGER      AGR2      AGXT      AHSP      AIF1      AIFM1    
+#>  [71] AKR1C4    AKT1S1    AKT3      ALDH3A1   ALPP      AMY2B     ANGPTL1  
+#>  [78] ANGPTL3   ANGPTL4   ANGPTL7   ANXA10    ANXA3     ANXA4     ANXA5    
+#>  [85] AOC3      AREG      ARG1      ARHGAP25  ARHGEF12  ARID4B    ARSA     
+#>  [92] ARSB      ART3      ATF2      ATOX1     ATP5IF1   ATP5PO    ATP6AP2  
+#>  [99] AXIN1     B4GALT1  
+#> 100 Levels: ACAA1 ACE2 ACOX1 ACP5 ACTN4 ACY1 ADA2 ADAM23 ADAMTS13 ... ANGPT1
 #> 
 #> 
 ```

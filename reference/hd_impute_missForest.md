@@ -98,7 +98,7 @@ res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50)
 #>   missForest iteration 1 in progress...done!
 #>     estimated error(s): 0.615834 
 #>     difference(s): 0.003528261 
-#>     time: 6.722 seconds
+#>     time: 6.227 seconds
 #> 
 res$data
 #> # A tibble: 586 × 101
