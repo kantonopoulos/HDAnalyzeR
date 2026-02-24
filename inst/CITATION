@@ -1,12 +1,24 @@
 bibentry(
-  bibtype  = "Misc",
-  title    = "HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics Analysis",
-  author   = c(person("Konstantinos", "Antonopoulos"),
-               person("Maria", "Bueno Alvez"),
-               person("Emil", "Johansson"),
-               person("Fredrik", "Edfors Arfwidsson")),
-  year     = 2024,
-  howpublished = "Zenodo",
-  doi      = "10.5281/zenodo.13786124",
-  header = "To use package 'HDAnalyzeR' in publications use the following Zenodo repository. The DOI is for the whole repository and links to the latest release. See the Zenodo page for the DOI of a specific version."
+  bibtype = "Article",
+  title = "HDAnalyzeR: streamlining data analysis for biomarker research",
+  author = c(
+    person("Konstantinos", "Antonopoulos"),
+    person("Emil", "Johansson"),
+    person("Josefin", "Kenrick"),
+    person("Leo", "Dahl"),
+    person("Fredrik", "Edfors"),
+    person("Mathias", "Uhlén"),
+    person("María", "Bueno Álvez")
+  ),
+  journal = "Bioinformatics Advances",
+  year = "2026",
+  volume = "6",
+  number = "1",
+  pages = "vbag020",
+  doi = "10.1093/bioadv/vbag020"
 )
+
+citFooter("This free open-source software implements academic
+research by the authors and co-workers. If you use it,
+please support the project by citing the appropriate
+journal article.")

@@ -68,7 +68,7 @@ de_results$volcano_plot
 
 ## Citation
 
-Antonopoulos, K., Bueno Alvez, M., Johansson, E., & Edfors Arfwidsson, F. (2024). HDAnalyzeR: HDA Internal Package for Streamed-line Proteomics Analysis (1.1.0). Zenodo. https://doi.org/10.5281/zenodo.13786124
+Konstantinos Antonopoulos, Emil Johansson, Josefin Kenrick, Leo Dahl, Fredrik Edfors, Mathias Uhlén, María Bueno Álvez, HDAnalyzeR: streamlining data analysis for biomarker research, Bioinformatics Advances, Volume 6, Issue 1, 2026, vbag020, https://doi.org/10.1093/bioadv/vbag020
 
 ## Issues and Support
 
@@ -76,4 +76,4 @@ If you encounter any bugs or you want to recommend new features and changes to e
 
 ## Contact
 
-For any questions or further information, please contact us at [k.antono@outlook.com](mailto:k.antono@outlook.com).
+For any questions or further information, please contact us at [konstantinos.antonopoulos@scilifelab.se](mailto:konstantinos.antonopoulos@scilifelab.se).

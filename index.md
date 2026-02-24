@@ -68,4 +68,4 @@ If you encounter any bugs or you want to recommend new features and changes to e
 
 ## Contact
 
-For any questions or further information, please contact us at [k.antono@outlook.com](mailto:k.antono@outlook.com).
+For any questions or further information, please contact us at [konstantinos.antonopoulos@scilifelab.se](mailto:konstantinos.antonopoulos@scilifelab.se).

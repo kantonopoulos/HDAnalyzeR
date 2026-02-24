@@ -80,5 +80,5 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 4.5.0)
 LazyData: true
-URL: https://kantonopoulos.github.io/HDAnalyzeR, https://github.com/kantonopoulos/HDAnalyzeR
+URL: https://kantonopoulos.github.io/HDAnalyzeR, https://github.com/kantonopoulos/HDAnalyzeR, https://kantonopoulos.github.io/HDAnalyzeR/
 BugReports: https://github.com/kantonopoulos/HDAnalyzeR/issues
