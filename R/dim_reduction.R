@@ -13,7 +13,14 @@ utils::globalVariables(c(":="))
 #'
 #' @return A tibble with the PCA results with fixed PC names.
 #' @keywords internal
-fix_components_names <- function(pca_res, components, by_sample, sample_id, var_name, type = "pca") {
+fix_components_names <- function(
+  pca_res,
+  components,
+  by_sample,
+  sample_id,
+  var_name,
+  type = "pca"
+) {
   if (type == "pca") {
     pc_names <- paste0("PC", seq_len(components))
   } else if (type == "umap") {
@@ -56,15 +63,18 @@ fix_components_names <- function(pca_res, components, by_sample, sample_id, var_
 #'
 #' # Run the PCA analysis by feature
 #' hd_pca(hd_object, components = 5, by_sample = FALSE, seed = 123)
-hd_pca <- function(dat,
-                   components = 10,
-                   by_sample = TRUE,
-                   impute = TRUE,
-                   seed = 123) {
-
+hd_pca <- function(
+  dat,
+  components = 10,
+  by_sample = TRUE,
+  impute = TRUE,
+  seed = 123
+) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -79,24 +89,29 @@ hd_pca <- function(dat,
 
   if (isFALSE(by_sample)) {
     transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
-    wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
+    wide_data <- tibble::as_tibble(cbind(
+      nms = names(transposed_data),
+      t(transposed_data)
+    )) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
   }
 
-  if (components > ncol(wide_data)-1) {
-    warning("The number of PCs to be calculated is higher than the number of features in the data.",
-            ncol(wide_data)-1,
-            "PCs will be used.")
-    components <- ncol(wide_data)-1
+  if (components > ncol(wide_data) - 1) {
+    warning(
+      "The number of PCs to be calculated is higher than the number of features in the data.",
+      ncol(wide_data) - 1,
+      "PCs will be used."
+    )
+    components <- ncol(wide_data) - 1
   }
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
 
-  pca_rec <- recipes::recipe( ~ ., data = wide_data) |>
-    recipes::update_role(1, new_role = "id")  |>
+  pca_rec <- recipes::recipe(~., data = wide_data) |>
+    recipes::update_role(1, new_role = "id") |>
     recipes::step_normalize(recipes::all_predictors())
 
   if (impute) {
@@ -109,28 +124,55 @@ hd_pca <- function(dat,
 
   # iF THERE ARE NAS STOP
   if (any(is.na(wide_data)) && impute == FALSE) {
-    stop("There are missing values in the data. Please impute them before or during the PCA analysis by setting `impute` to TRUE.")
+    stop(
+      "There are missing values in the data. Please impute them before or during the PCA analysis by setting `impute` to TRUE."
+    )
   }
   pca_prep <- recipes::prep(pca_rec)
 
-  pca_loadings <- broom::tidy(pca_prep, 3) |> dplyr::select(-!!rlang::sym("id"))
-
-  pca_variance <- broom::tidy(pca_prep, number = 3, type = "variance") |>
-    dplyr::filter(!!rlang::sym("terms") %in% c("percent variance", "cumulative percent variance")) |>
-    dplyr::filter(!!rlang::sym("component") >= 1 & !!rlang::sym("component") <= components) |>
-    tidyr::pivot_wider(names_from = !!rlang::sym("terms"), values_from = !!rlang::sym("value")) |>
-    dplyr::rename(percent_variance = !!rlang::sym("percent variance"),
-                  cumulative_percent_variance = !!rlang::sym("cumulative percent variance")) |>
+  pca_step_num <- which(sapply(pca_rec$steps, inherits, what = "step_pca"))
+  pca_loadings <- broom::tidy(pca_prep, number = pca_step_num) |>
     dplyr::select(-!!rlang::sym("id"))
 
-  pca_res <-  recipes::juice(pca_prep)
-  # Fix PC names if number of PCs is higher than 10
-  pca_res <- fix_components_names(pca_res, components, by_sample, sample_id, var_name, type = "pca")
+  pca_variance <- broom::tidy(
+    pca_prep,
+    number = pca_step_num,
+    type = "variance"
+  ) |>
+    dplyr::filter(
+      !!rlang::sym("terms") %in%
+        c("percent variance", "cumulative percent variance")
+    ) |>
+    dplyr::filter(
+      !!rlang::sym("component") >= 1 & !!rlang::sym("component") <= components
+    ) |>
+    tidyr::pivot_wider(
+      names_from = !!rlang::sym("terms"),
+      values_from = !!rlang::sym("value")
+    ) |>
+    dplyr::rename(
+      percent_variance = !!rlang::sym("percent variance"),
+      cumulative_percent_variance = !!rlang::sym("cumulative percent variance")
+    ) |>
+    dplyr::select(-!!rlang::sym("id"))
 
-  pca_object <- list("pca_res" = pca_res,
-                     "pca_loadings" = pca_loadings,
-                     "pca_variance" = pca_variance,
-                     "by_sample" = by_sample)
+  pca_res <- recipes::juice(pca_prep)
+  # Fix PC names if number of PCs is higher than 10
+  pca_res <- fix_components_names(
+    pca_res,
+    components,
+    by_sample,
+    sample_id,
+    var_name,
+    type = "pca"
+  )
+
+  pca_object <- list(
+    "pca_res" = pca_res,
+    "pca_loadings" = pca_loadings,
+    "pca_variance" = pca_variance,
+    "by_sample" = by_sample
+  )
   class(pca_object) <- "hd_pca"
 
   return(pca_object)
@@ -159,25 +201,45 @@ hd_pca <- function(dat,
 #'   hd_plot_pca_loadings()
 #'
 #' pca_object$pca_loadings_plot
-hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_features = 15) {
-
+hd_plot_pca_loadings <- function(
+  pca_object,
+  displayed_pcs = 6,
+  displayed_features = 15
+) {
   loadings_plot <- pca_object[["pca_loadings"]] |>
-    dplyr::filter(!!rlang::sym("component") %in% paste0("PC", seq_len(displayed_pcs))) |>
+    dplyr::filter(
+      !!rlang::sym("component") %in% paste0("PC", seq_len(displayed_pcs))
+    ) |>
     dplyr::group_by(!!rlang::sym("component")) |>
     dplyr::top_n(displayed_features, abs(!!rlang::sym("value"))) |>
     dplyr::ungroup() |>
-    dplyr::mutate(terms = tidytext::reorder_within(!!rlang::sym("terms"),
-                                                   abs(!!rlang::sym("value")),
-                                                   !!rlang::sym("component"))) |>
-    dplyr::mutate(positive = factor((!!rlang::sym("value") > 0), levels = c(TRUE, FALSE))) |>
-    ggplot2::ggplot(ggplot2::aes(abs(!!rlang::sym("value")), !!rlang::sym("terms"), fill = !!rlang::sym("positive"))) +
+    dplyr::mutate(
+      terms = tidytext::reorder_within(
+        !!rlang::sym("terms"),
+        abs(!!rlang::sym("value")),
+        !!rlang::sym("component")
+      )
+    ) |>
+    dplyr::mutate(
+      positive = factor((!!rlang::sym("value") > 0), levels = c(TRUE, FALSE))
+    ) |>
+    ggplot2::ggplot(ggplot2::aes(
+      abs(!!rlang::sym("value")),
+      !!rlang::sym("terms"),
+      fill = !!rlang::sym("positive")
+    )) +
     ggplot2::geom_col() +
-    ggplot2::scale_fill_manual(values = c("TRUE" = "#74B652", "FALSE" = "#653496"),
-                               labels=c("TRUE" = "Positive", "FALSE" = "Negative")) +
-    ggplot2::facet_wrap( ~ component, scales = "free_y") +
+    ggplot2::scale_fill_manual(
+      values = c("TRUE" = "#74B652", "FALSE" = "#653496"),
+      labels = c("TRUE" = "Positive", "FALSE" = "Negative")
+    ) +
+    ggplot2::facet_wrap(~component, scales = "free_y") +
     tidytext::scale_y_reordered() +
-    ggplot2::labs(x = "Absolute Value of Contribution",
-                  y = NULL, fill = "Sign") +
+    ggplot2::labs(
+      x = "Absolute Value of Contribution",
+      y = NULL,
+      fill = "Sign"
+    ) +
     theme_hd()
 
   pca_object[["pca_loadings_plot"]] <- loadings_plot
@@ -204,26 +266,45 @@ hd_plot_pca_loadings <- function(pca_object, displayed_pcs = 6, displayed_featur
 #'   hd_plot_pca_variance()
 #' pca_object$pca_variance_plot
 hd_plot_pca_variance <- function(pca_object) {
-
   variance_plot <- ggplot2::ggplot(
     pca_object[["pca_variance"]],
-    ggplot2::aes(x = factor(!!rlang::sym("component"), levels = !!rlang::sym("component")))
+    ggplot2::aes(
+      x = factor(!!rlang::sym("component"), levels = !!rlang::sym("component"))
+    )
+  ) +
+    ggplot2::geom_bar(
+      ggplot2::aes(
+        y = !!rlang::sym("percent_variance"),
+        fill = "Individual Variance"
+      ),
+      stat = "identity"
     ) +
-    ggplot2::geom_bar(ggplot2::aes(y = !!rlang::sym("percent_variance"),
-                                   fill = "Individual Variance"),
-                      stat = "identity") +
-    ggplot2::geom_line(ggplot2::aes(y = !!rlang::sym("cumulative_percent_variance"),
-                                    group = 1,
-                                    color = "Cumulative Variance")) +
-    ggplot2::geom_point(ggplot2::aes(y = !!rlang::sym("cumulative_percent_variance"),
-                                     color = "Cumulative Variance")) +
-    ggplot2::geom_text(ggplot2::aes(y = !!rlang::sym("cumulative_percent_variance"),
-                       label = paste0(round(!!rlang::sym("cumulative_percent_variance")), "%")),
-              vjust = -0.5,
-              size = 3.5) +
+    ggplot2::geom_line(ggplot2::aes(
+      y = !!rlang::sym("cumulative_percent_variance"),
+      group = 1,
+      color = "Cumulative Variance"
+    )) +
+    ggplot2::geom_point(ggplot2::aes(
+      y = !!rlang::sym("cumulative_percent_variance"),
+      color = "Cumulative Variance"
+    )) +
+    ggplot2::geom_text(
+      ggplot2::aes(
+        y = !!rlang::sym("cumulative_percent_variance"),
+        label = paste0(round(!!rlang::sym("cumulative_percent_variance")), "%")
+      ),
+      vjust = -0.5,
+      size = 3.5
+    ) +
     ggplot2::labs(x = "Components", y = "% Explained Variance") +
-    ggplot2::scale_fill_manual(name = "", values = c("Individual Variance" = "#317EC2")) +
-    ggplot2::scale_color_manual(name = "", values = c("Cumulative Variance" = "#C03830")) +
+    ggplot2::scale_fill_manual(
+      name = "",
+      values = c("Individual Variance" = "#317EC2")
+    ) +
+    ggplot2::scale_color_manual(
+      name = "",
+      values = c("Cumulative Variance" = "#C03830")
+    ) +
     theme_hd() +
     ggplot2::theme(legend.position = "top")
 
@@ -260,23 +341,31 @@ prepare_plot_data <- function(dim_object, metadata, color, x, y) {
     metadata <- metadata[["metadata"]]
     if (!is.null(color)) {
       if (is.null(metadata)) {
-        stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata to plot the points color.")
+        stop(
+          "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata to plot the points color."
+        )
       }
     }
   } else {
     sample_id <- colnames(metadata)[1]
   }
 
-  if (!is.null(color) && !color %in% colnames(metadata) && !color %in% colnames(dim_res)) {
+  if (
+    !is.null(color) &&
+      !color %in% colnames(metadata) &&
+      !color %in% colnames(dim_res)
+  ) {
     stop("The column name provided in 'color' does not exist.")
   }
 
   if (isTRUE(by_sample)) {
     if (!is.null(metadata)) {
       dim_res <- dim_res |>
-        dplyr::left_join(metadata |>
-                           dplyr::select(dplyr::any_of(c(sample_id, color))),
-                         by = sample_id)
+        dplyr::left_join(
+          metadata |>
+            dplyr::select(dplyr::any_of(c(sample_id, color))),
+          by = sample_id
+        )
     }
   }
 
@@ -300,7 +389,11 @@ plot_points <- function(dim_res, x, y, color = NULL) {
   if (!is.null(color)) {
     dim_plot <- dim_res |>
       ggplot2::ggplot(ggplot2::aes(!!rlang::sym(x), !!rlang::sym(y))) +
-      ggplot2::geom_point(ggplot2::aes(color = !!rlang::sym(color)), alpha = 0.7, size = 2) +
+      ggplot2::geom_point(
+        ggplot2::aes(color = !!rlang::sym(color)),
+        alpha = 0.7,
+        size = 2
+      ) +
       ggplot2::labs(Color = color) +
       theme_hd()
   } else {
@@ -327,9 +420,19 @@ plot_points <- function(dim_res, x, y, color = NULL) {
 plot_loadings <- function(dim_object, plot_loadings, nloadings) {
   pca_loadings <- dim_object[["pca_loadings"]]
 
-  if (nloadings > nrow(pca_loadings |> dplyr::filter(!!rlang::sym("component") == plot_loadings))) {
-    message("The number of loadings to be plotted is higher than the number of loadings available. All loadings will be plotted.")
-    nloadings <- nrow(pca_loadings |> dplyr::filter(!!rlang::sym("component") == plot_loadings))
+  if (
+    nloadings >
+      nrow(
+        pca_loadings |>
+          dplyr::filter(!!rlang::sym("component") == plot_loadings)
+      )
+  ) {
+    message(
+      "The number of loadings to be plotted is higher than the number of loadings available. All loadings will be plotted."
+    )
+    nloadings <- nrow(
+      pca_loadings |> dplyr::filter(!!rlang::sym("component") == plot_loadings)
+    )
   }
 
   pca_loadings <- pca_loadings |>
@@ -359,8 +462,11 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
   x_num <- as.numeric(sub("PC", "", x))
   y_num <- as.numeric(sub("PC", "", y))
 
-  dim_plot <- dim_plot + ggplot2::labs(x = paste0(x, " (", round(variance_vec[x_num], 1), "%)"),
-                                       y = paste0(y, " (", round(variance_vec[y_num], 1), "%)"))
+  dim_plot <- dim_plot +
+    ggplot2::labs(
+      x = paste0(x, " (", round(variance_vec[x_num], 1), "%)"),
+      y = paste0(y, " (", round(variance_vec[y_num], 1), "%)")
+    )
 
   return(dim_plot)
 }
@@ -398,16 +504,17 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #'  hd_plot_dim(hd_object, x = "UMAP1", y = "UMAP2", color = "Disease", palette = "cancers12")
 #'
 #'  umap_object$umap_plot
-hd_plot_dim <- function(dim_object,
-                        metadata,
-                        x,
-                        y,
-                        color = NULL,
-                        palette = NULL,
-                        plot_loadings = NULL,
-                        nloadings = 5,
-                        axis_variance = TRUE) {
-
+hd_plot_dim <- function(
+  dim_object,
+  metadata,
+  x,
+  y,
+  color = NULL,
+  palette = NULL,
+  plot_loadings = NULL,
+  nloadings = 5,
+  axis_variance = TRUE
+) {
   # Prepare data for plotting
   dim_res <- prepare_plot_data(dim_object, metadata, color, x, y)
 
@@ -418,17 +525,25 @@ hd_plot_dim <- function(dim_object,
   if (!is.null(plot_loadings) && inherits(dim_object, "hd_pca")) {
     pca_loadings <- plot_loadings(dim_object, plot_loadings, nloadings)
     dim_plot <- dim_plot +
-      ggplot2::geom_segment(data = pca_loadings,
-                            ggplot2::aes(x = 0,
-                                         y = 0,
-                                         xend = !!rlang::sym("value"),
-                                         yend = !!rlang::sym("value"))) +
-      ggrepel::geom_text_repel(data = pca_loadings,
-                               ggplot2::aes(x = !!rlang::sym("value"),
-                                            y = !!rlang::sym("value"),
-                                            label = !!rlang::sym("terms")),
-                               size = 3,
-                               color = "black")
+      ggplot2::geom_segment(
+        data = pca_loadings,
+        ggplot2::aes(
+          x = 0,
+          y = 0,
+          xend = !!rlang::sym("value"),
+          yend = !!rlang::sym("value")
+        )
+      ) +
+      ggrepel::geom_text_repel(
+        data = pca_loadings,
+        ggplot2::aes(
+          x = !!rlang::sym("value"),
+          y = !!rlang::sym("value"),
+          label = !!rlang::sym("terms")
+        ),
+        size = 3,
+        color = "black"
+      )
   }
 
   # Add variance labels if PCA
@@ -473,18 +588,44 @@ hd_plot_dim <- function(dim_object,
 #'
 #' # Run the PCA analysis
 #' hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE, impute = TRUE, plot_x = "PC1", plot_y = "PC2", plot_color = NULL, plot_palette = NULL) {
-
-  pca_object <- hd_pca(dat, components = components, by_sample = by_sample, impute = impute) |>
+hd_auto_pca <- function(
+  dat,
+  metadata = NULL,
+  components = 10,
+  by_sample = TRUE,
+  impute = TRUE,
+  plot_x = "PC1",
+  plot_y = "PC2",
+  plot_color = NULL,
+  plot_palette = NULL
+) {
+  pca_object <- hd_pca(
+    dat,
+    components = components,
+    by_sample = by_sample,
+    impute = impute
+  ) |>
     hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 15) |>
     hd_plot_pca_variance()
 
   if (inherits(dat, "HDAnalyzeR")) {
     pca_object <- pca_object |>
-      hd_plot_dim(dat, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+      hd_plot_dim(
+        dat,
+        x = plot_x,
+        y = plot_y,
+        color = plot_color,
+        palette = plot_palette
+      )
   } else {
     pca_object <- pca_object |>
-      hd_plot_dim(metadata, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+      hd_plot_dim(
+        metadata,
+        x = plot_x,
+        y = plot_y,
+        color = plot_color,
+        palette = plot_palette
+      )
   }
   return(pca_object)
 }
@@ -515,20 +656,25 @@ hd_auto_pca <- function(dat, metadata = NULL, components = 10, by_sample = TRUE,
 #'
 #' # Run the UMAP analysis by feature
 #' hd_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
-hd_umap <- function(dat,
-                    by_sample = TRUE,
-                    impute = TRUE,
-                    components = 2,
-                    seed = 123) {
-
+hd_umap <- function(
+  dat,
+  by_sample = TRUE,
+  impute = TRUE,
+  components = 2,
+  seed = 123
+) {
   # Ensure 'umap' package is loaded
   if (!requireNamespace("umap", quietly = TRUE)) {
-    stop("The 'umap' package is required but not installed. Please install it using install.packages('umap').")
+    stop(
+      "The 'umap' package is required but not installed. Please install it using install.packages('umap')."
+    )
   }
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -544,26 +690,31 @@ hd_umap <- function(dat,
   if (isFALSE(by_sample)) {
     var_name <- rlang::sym(var_name)
     transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
-    wide_data <- tibble::as_tibble(cbind(nms = names(transposed_data), t(transposed_data))) |>
+    wide_data <- tibble::as_tibble(cbind(
+      nms = names(transposed_data),
+      t(transposed_data)
+    )) |>
       dplyr::rename(!!var_name := !!rlang::sym("nms")) |>
       dplyr::mutate(dplyr::across(-!!var_name, as.numeric))
   }
 
-  if (components > ncol(wide_data)-2) {
-    message("The number of UMAPs to be calculated is higher than the number of features in the data.",
-            ncol(wide_data)-2,
-            "UMAPs will be used.")
-    components <- ncol(wide_data)-2
+  if (components > ncol(wide_data) - 2) {
+    message(
+      "The number of UMAPs to be calculated is higher than the number of features in the data.",
+      ncol(wide_data) - 2,
+      "UMAPs will be used."
+    )
+    components <- ncol(wide_data) - 2
   }
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
 
-  umap_rec <- recipes::recipe( ~ ., data = wide_data) |>
-    recipes::update_role(1, new_role = "id")  |>
+  umap_rec <- recipes::recipe(~., data = wide_data) |>
+    recipes::update_role(1, new_role = "id") |>
     recipes::step_normalize(recipes::all_predictors())
-  
+
   if (impute) {
     umap_rec <- umap_rec |>
       recipes::step_impute_knn(recipes::all_predictors(), neighbors = 5)
@@ -574,15 +725,24 @@ hd_umap <- function(dat,
 
   # iF THERE ARE NAS STOP
   if (any(is.na(wide_data)) && impute == FALSE) {
-    stop("There are missing values in the data. Please impute them before or during the UMAP analysis by setting `impute` to TRUE.")
+    stop(
+      "There are missing values in the data. Please impute them before or during the UMAP analysis by setting `impute` to TRUE."
+    )
   }
 
   umap_prep <- recipes::prep(umap_rec)
 
-  umap_res <-  recipes::juice(umap_prep)
+  umap_res <- recipes::juice(umap_prep)
 
   # Fix UMAPs names if number of UMAPs is higher than 10
-  umap_res <- fix_components_names(umap_res, components, by_sample, sample_id, var_name, type = "umap")
+  umap_res <- fix_components_names(
+    umap_res,
+    components,
+    by_sample,
+    sample_id,
+    var_name,
+    type = "umap"
+  )
 
   umap_object <- list("umap_res" = umap_res, "by_sample" = by_sample)
   class(umap_object) <- "hd_umap"
@@ -613,14 +773,34 @@ hd_umap <- function(dat,
 #'
 #' # Run the UMAP analysis
 #' hd_auto_umap(hd_object, plot_color = "Disease", plot_palette = "cancers12")
-hd_auto_umap <- function(dat, metadata = NULL, by_sample = TRUE, impute = TRUE, plot_x = "UMAP1", plot_y = "UMAP2", plot_color = NULL, plot_palette = NULL) {
-
+hd_auto_umap <- function(
+  dat,
+  metadata = NULL,
+  by_sample = TRUE,
+  impute = TRUE,
+  plot_x = "UMAP1",
+  plot_y = "UMAP2",
+  plot_color = NULL,
+  plot_palette = NULL
+) {
   if (inherits(dat, "HDAnalyzeR")) {
     umap_object <- hd_umap(dat, by_sample = by_sample, impute = impute) |>
-      hd_plot_dim(dat, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+      hd_plot_dim(
+        dat,
+        x = plot_x,
+        y = plot_y,
+        color = plot_color,
+        palette = plot_palette
+      )
   } else {
     umap_object <- hd_umap(dat, by_sample = by_sample, impute = impute) |>
-      hd_plot_dim(metadata, x = plot_x, y = plot_y, color = plot_color, palette = plot_palette)
+      hd_plot_dim(
+        metadata,
+        x = plot_x,
+        y = plot_y,
+        color = plot_color,
+        palette = plot_palette
+      )
   }
   return(umap_object)
 }
