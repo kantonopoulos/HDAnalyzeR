@@ -36,7 +36,7 @@ unlink("my_directory", recursive = TRUE)  # Clean up the created directory
 
 # Create a directory and an inner directory with the current date as name
 hd_save_path("my_directory", date = TRUE)
-#> [1] "my_directory/2026_02_24"
+#> [1] "my_directory/2026_02_26"
 unlink("my_directory", recursive = TRUE)
 
 # Create a directory inside another directory
@@ -55,6 +55,6 @@ unlink("outer_directory", recursive = TRUE)
 hd_save_path("outer_directory", date = FALSE)
 #> [1] "outer_directory"
 hd_save_path("outer_directory", date = TRUE)
-#> [1] "outer_directory/2026_02_24"
+#> [1] "outer_directory/2026_02_26"
 unlink("outer_directory", recursive = TRUE)
 ```

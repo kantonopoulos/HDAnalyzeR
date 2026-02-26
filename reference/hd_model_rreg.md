@@ -451,5 +451,116 @@ hd_model_rreg(hd_split,
                              "mixture"),
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
-#> Error in stopifnot(!is.null(i)): reached elapsed time limit
+#> → A | error:   Error in `step_impute_knn()`:
+#>                Caused by error in `stopifnot()`:
+#>                ! reached elapsed time limit
+#> There were issues with some computations   A: x1
+#> There were issues with some computations   A: x1
+#> 
+#> $train_data
+#> # A tibble: 438 × 102
+#>    DAid      Age AARSD1       ABL1   ACAA1   ACAN  ACE2   ACOX1   ACP5     ACP6
+#>    <chr>   <dbl>  <dbl>      <dbl>   <dbl>  <dbl> <dbl>   <dbl>  <dbl>    <dbl>
+#>  1 DA00011    54   3.48  4.96       3.50   -0.338 4.48   1.26    2.18   1.62   
+#>  2 DA00015    47   3.31  1.90      NA      -0.926 0.408  0.687   1.03   0.612  
+#>  3 DA00017    44   1.46  0.832     -2.73   -0.371 2.27   0.0234  0.144  0.826  
+#>  4 DA00023    42   2.92 -0.0000706  0.602   1.59  0.198  1.61    0.283  2.35   
+#>  5 DA00024    46   1.92  0.257      0.0587  1.44  1.29   0.503   0.463  1.01   
+#>  6 DA00026    44   4.92  1.89       0.560   0.558 2.39   0.455   0.743 -0.955  
+#>  7 DA00036    54   1.54  1.07      -1.49   -0.171 0.553 -0.144  -0.240  0.00582
+#>  8 DA00037    54   3.65  3.30       0.748   0.571 1.20   1.30    2.09   0.717  
+#>  9 DA00049    40   4.48  4.56       4.86    0.230 2.24   2.97    2.60  -1.11   
+#> 10 DA00062    48   2.67  0.540      1.97    0.363 0.455  1.77    0.624  1.12   
+#> # ℹ 428 more rows
+#> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
+#> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
+#> #   ADAMTS15 <dbl>, ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>,
+#> #   ADGRE2 <dbl>, ADGRE5 <dbl>, ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>,
+#> #   ADM <dbl>, AGER <dbl>, AGR2 <dbl>, AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>,
+#> #   AGXT <dbl>, AHCY <dbl>, AHSP <dbl>, AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, …
+#> 
+#> $test_data
+#> # A tibble: 148 × 102
+#>    DAid    Age AARSD1  ABL1  ACAA1    ACAN    ACE2   ACOX1    ACP5    ACP6 ACTA2
+#>    <chr> <dbl>  <dbl> <dbl>  <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <dbl>
+#>  1 DA00…    42   3.39 2.76   1.71   0.0333  1.76   -0.919   1.54    2.15   2.81 
+#>  2 DA00…    69   1.42 1.25  -0.816 -0.459   0.826  -0.902   0.647   1.30   0.798
+#>  3 DA00…    54   3.41 3.38   1.69  NA       1.52   NA       0.841   0.582  1.70 
+#>  4 DA00…    57   5.01 5.05   0.128  0.401  -0.933  -0.584   0.0265  1.16   2.73 
+#>  5 DA00…    86   6.83 1.18  -1.74  -0.156   1.53   -0.721   0.620   0.527  0.772
+#>  6 DA00…    48   1.83 1.21  -0.912 -1.04   -0.0918 -0.304   1.69    0.0920 2.04 
+#>  7 DA00…    78   4.31 0.710 -1.44  -0.218  -0.469  -0.361  -0.0714 -1.30   2.86 
+#>  8 DA00…    75   2.62 2.48   0.537 -0.215   1.82    0.290   1.27    1.11   0.206
+#>  9 DA00…    65   1.80 1.70   2.77  -1.04    1.33   -0.0247  1.02    0.112  2.58 
+#> 10 DA00…    67   6.28 6.57   1.62   0.650   0.392   0.113   1.09    1.07   2.07 
+#> # ℹ 138 more rows
+#> # ℹ 91 more variables: ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>, ADA2 <dbl>,
+#> #   ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>, ADAMTS15 <dbl>,
+#> #   ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>, ADGRE2 <dbl>, ADGRE5 <dbl>,
+#> #   ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>, ADM <dbl>, AGER <dbl>, AGR2 <dbl>,
+#> #   AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>, AGXT <dbl>, AHCY <dbl>, AHSP <dbl>,
+#> #   AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, AKR1B1 <dbl>, AKR1C4 <dbl>, …
+#> 
+#> $model_type
+#> [1] "regression"
+#> 
+#> $final_workflow
+#> ══ Workflow ════════════════════════════════════════════════════════════════════
+#> Preprocessor: Recipe
+#> Model: linear_reg()
+#> 
+#> ── Preprocessor ────────────────────────────────────────────────────────────────
+#> 5 Recipe Steps
+#> 
+#> • step_dummy()
+#> • step_nzv()
+#> • step_normalize()
+#> • step_corr()
+#> • step_impute_knn()
+#> 
+#> ── Model ───────────────────────────────────────────────────────────────────────
+#> Linear Regression Model Specification (regression)
+#> 
+#> Main Arguments:
+#>   penalty = 0.49228286213658
+#>   mixture = 0.869285719160689
+#> 
+#> Computational engine: glmnet 
+#> 
+#> 
+#> $metrics
+#> $metrics$rmse
+#> [1] 15.30525
+#> 
+#> $metrics$rsq
+#> [1] 0.008168707
+#> 
+#> 
+#> $comparison_plot
+
+#> 
+#> $mixture
+#> [1] 0.8692857
+#> 
+#> $features
+#> # A tibble: 100 × 4
+#>    Feature Importance Sign  Scaled_Importance
+#>    <fct>        <dbl> <chr>             <dbl>
+#>  1 ALCAM        1.43  POS               1    
+#>  2 ARID4B       1.19  POS               0.833
+#>  3 ANXA10       1.17  POS               0.821
+#>  4 ANGPT2       0.964 NEG               0.676
+#>  5 AMY2A        0.913 NEG               0.640
+#>  6 AKT3         0.903 NEG               0.633
+#>  7 AOC1         0.886 POS               0.621
+#>  8 ACY1         0.876 NEG               0.614
+#>  9 AREG         0.824 POS               0.578
+#> 10 ADM          0.756 POS               0.530
+#> # ℹ 90 more rows
+#> 
+#> $feat_imp_plot
+
+#> 
+#> attr(,"class")
+#> [1] "hd_model"
 ```

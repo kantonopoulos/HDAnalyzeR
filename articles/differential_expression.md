@@ -254,7 +254,7 @@ sessionInfo()
 #> [13] systemfonts_1.3.1  textshaping_1.0.4  yaml_2.3.12        fastmap_1.2.0     
 #> [17] statmod_1.5.1      plyr_1.8.9         UpSetR_1.4.0       ggplot2_4.0.2     
 #> [21] R6_2.6.1           labeling_0.4.3     generics_0.1.4     knitr_1.51        
-#> [25] htmlwidgets_1.6.4  MASS_7.3-65        ggrepel_0.9.6      tibble_3.3.1      
+#> [25] htmlwidgets_1.6.4  MASS_7.3-65        ggrepel_0.9.7      tibble_3.3.1      
 #> [29] desc_1.4.3         RColorBrewer_1.1-3 bslib_0.10.0       pillar_1.11.1     
 #> [33] rlang_1.1.7        utf8_1.2.6         stringi_1.8.7      cachem_1.1.0      
 #> [37] xfun_0.56          S7_0.2.1           fs_1.6.6           sass_0.4.10       
