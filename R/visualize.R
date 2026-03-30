@@ -13,17 +13,19 @@ utils::globalVariables(c("name"))
 #' @return The plot with the selected palette.
 #' @keywords internal
 apply_palette <- function(plot, palette, type = "color") {
-
   if (type == "color") {
     if (!is.null(palette)) {
       if (is.null(names(palette))) {
         if (!is.null(hd_palettes()[[palette]])) {
           plot <- plot + scale_color_hd(palette)
         } else {
-          stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
+          stop(
+            "The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette."
+          )
         }
       } else {
-        plot <- plot + ggplot2::scale_color_manual(values = palette, na.value = "grey50")
+        plot <- plot +
+          ggplot2::scale_color_manual(values = palette, na.value = "grey50")
       }
     }
   } else {
@@ -32,10 +34,13 @@ apply_palette <- function(plot, palette, type = "color") {
         if (!is.null(hd_palettes()[[palette]])) {
           plot <- plot + scale_fill_hd(palette)
         } else {
-          stop("The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette.")
+          stop(
+            "The color palette provided is not valid. Please provide one of the palettes from 'hd_palettes()' or a valid custom palette."
+          )
         }
       } else {
-        plot <- plot + ggplot2::scale_fill_manual(values = palette, na.value = "grey50")
+        plot <- plot +
+          ggplot2::scale_fill_manual(values = palette, na.value = "grey50")
       }
     }
   }
@@ -83,23 +88,26 @@ apply_palette <- function(plot, palette, type = "color") {
 #'                         type = "case_vs_control",
 #'                         palette = "cancers12",
 #'                         points = FALSE)
-hd_plot_feature_boxplot <- function(dat,
-                                    metadata = NULL,
-                                    variable = "Disease",
-                                    features,
-                                    case = NULL,
-                                    type = "case_vs_all",
-                                    points = TRUE,
-                                    x_labels = TRUE,
-                                    yaxis_title = "NPX",
-                                    palette = NULL) {
-
+hd_plot_feature_boxplot <- function(
+  dat,
+  metadata = NULL,
+  variable = "Disease",
+  features,
+  case = NULL,
+  type = "case_vs_all",
+  points = TRUE,
+  x_labels = TRUE,
+  yaxis_title = "NPX",
+  palette = NULL
+) {
   Variable <- rlang::sym(variable)
   Features <- rlang::sym("Features")
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis."
+      )
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -110,7 +118,9 @@ hd_plot_feature_boxplot <- function(dat,
   }
 
   if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    stop(
+      "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+    )
   }
 
   if (isFALSE(variable %in% colnames(metadata))) {
@@ -118,16 +128,23 @@ hd_plot_feature_boxplot <- function(dat,
   }
 
   if (any(!(features %in% colnames(wide_data)))) {
-    warning("The features", paste(features[!features %in% colnames(wide_data)], collapse = ", "),
-            "are not present in the data and will be skipped.")
+    warning(
+      "The features",
+      paste(features[!features %in% colnames(wide_data)], collapse = ", "),
+      "are not present in the data and will be skipped."
+    )
     features <- features[features %in% colnames(wide_data)]
-    if (length(features) == 0) stop("None of the features are present in the data.")
+    if (length(features) == 0) {
+      stop("None of the features are present in the data.")
+    }
   }
 
   join_data <- wide_data |>
-    dplyr::left_join(metadata |>
-                       dplyr::select(dplyr::all_of(c(sample_id, variable))),
-                     by = sample_id)
+    dplyr::left_join(
+      metadata |>
+        dplyr::select(dplyr::all_of(c(sample_id, variable))),
+      by = sample_id
+    )
 
   if (type == "case_vs_control" && !is.null(case)) {
     join_data <- join_data |>
@@ -150,26 +167,34 @@ hd_plot_feature_boxplot <- function(dat,
 
   long_data <- join_data |>
     dplyr::select(!!Variable, dplyr::all_of(features)) |>
-    tidyr::pivot_longer(cols = !dplyr::any_of(variable),
-                        names_to = "Features",
-                        values_to = yaxis_title)
+    tidyr::pivot_longer(
+      cols = !dplyr::any_of(variable),
+      names_to = "Features",
+      values_to = yaxis_title
+    )
 
   long_data[["Features"]] <- factor(long_data[["Features"]], levels = features)
   long_data[[variable]] <- factor(long_data[[variable]])
 
   # Base ggplot
   boxplot <- long_data |>
-    ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym(yaxis_title), fill = !!Variable))
+    ggplot2::ggplot(ggplot2::aes(
+      x = !!Variable,
+      y = !!rlang::sym(yaxis_title),
+      fill = !!Variable
+    ))
 
   # Add points behind boxes
   if (isTRUE(points)) {
     boxplot <- boxplot +
-      ggbeeswarm::geom_quasirandom(data = long_data,
-                                   ggplot2::aes(color = !!Variable),
-                                   alpha = 0.4,
-                                   dodge.width = 0.75,
-                                   groupOnX = TRUE,
-                                   show.legend = FALSE)
+      ggbeeswarm::geom_quasirandom(
+        data = long_data,
+        ggplot2::aes(color = !!Variable),
+        alpha = 0.4,
+        dodge.width = 0.75,
+        groupOnX = TRUE,
+        show.legend = FALSE
+      )
   }
 
   # Add semi-transparent boxplots
@@ -177,7 +202,7 @@ hd_plot_feature_boxplot <- function(dat,
     ggplot2::geom_boxplot(alpha = 0.5, outlier.shape = NA, show.legend = FALSE)
 
   # Fill handling
-  if (!is.null(case)) {
+  if (type == "case_vs_control" && !is.null(case)) {
     # Only color the case differently, rest are gray
     fill_values <- rep("gray80", length(levels(long_data[[variable]])))
     names(fill_values) <- levels(long_data[[variable]])
@@ -187,7 +212,10 @@ hd_plot_feature_boxplot <- function(dat,
       ggplot2::scale_color_manual(values = fill_values)
   } else {
     fill_values <- if (is.null(names(pal))) {
-      stats::setNames(pal[seq_len(length(levels(long_data[[variable]])))], levels(long_data[[variable]]))
+      stats::setNames(
+        pal[seq_len(length(levels(long_data[[variable]])))],
+        levels(long_data[[variable]])
+      )
     } else {
       pal
     }
@@ -200,8 +228,10 @@ hd_plot_feature_boxplot <- function(dat,
   boxplot_panel <- boxplot +
     ggplot2::theme(legend.position = 'none') +
     theme_hd() +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(angle = 90)
+    ) +
     ggplot2::facet_wrap(ggplot2::vars(!!Features), scales = "free_y")
 
   if (isFALSE(x_labels)) {
@@ -211,7 +241,6 @@ hd_plot_feature_boxplot <- function(dat,
 
   return(boxplot_panel)
 }
-
 
 
 #' Regression plot
@@ -248,17 +277,21 @@ hd_plot_feature_boxplot <- function(dat,
 #'                    x = "AARSD1",
 #'                    y = "Age",
 #'                    r_2 = FALSE)
-hd_plot_regression <- function(dat,
-                               metadata = NULL,
-                               metadata_cols = NULL,
-                               x,
-                               y,
-                               se = FALSE,
-                               line_color = "#883268",
-                               r_2 = TRUE) {
+hd_plot_regression <- function(
+  dat,
+  metadata = NULL,
+  metadata_cols = NULL,
+  x,
+  y,
+  se = FALSE,
+  line_color = "#883268",
+  r_2 = TRUE
+) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis."
+      )
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -269,15 +302,19 @@ hd_plot_regression <- function(dat,
   }
 
   if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    stop(
+      "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+    )
   }
   if (is.null(metadata_cols %in% colnames(metadata))) {
     stop("The metadata columns provided are not present in the metadata.")
   }
   join_data <- wide_data |>
-    dplyr::left_join(metadata |>
-                       dplyr::select(dplyr::all_of(c(sample_id, metadata_cols))),
-                     by = sample_id)
+    dplyr::left_join(
+      metadata |>
+        dplyr::select(dplyr::all_of(c(sample_id, metadata_cols))),
+      by = sample_id
+    )
 
   # Fit the linear model
   formula <- stats::as.formula(paste(y, "~", x))
@@ -298,15 +335,22 @@ hd_plot_regression <- function(dat,
 
   if (isTRUE(r_2)) {
     scatter <- scatter +
-      ggplot2::annotate("text",
-                        x = Inf,
-                        y = 0,
-                        label = paste("R^2 =", round(r_squared, 2), "\nP =", format.pval(round(p_val, 4))),
-                        hjust = 1.1,
-                        vjust = 0,
-                        size = 5,
-                        color = "black") +
-    theme_hd()
+      ggplot2::annotate(
+        "text",
+        x = Inf,
+        y = 0,
+        label = paste(
+          "R^2 =",
+          round(r_squared, 2),
+          "\nP =",
+          format.pval(round(p_val, 4))
+        ),
+        hjust = 1.1,
+        vjust = 0,
+        size = 5,
+        color = "black"
+      ) +
+      theme_hd()
   } else {
     scatter <- scatter + theme_hd()
   }
@@ -387,35 +431,43 @@ hd_plot_regression <- function(dat,
 #'
 #' # Create the summary heatmap
 #' hd_plot_feature_heatmap(res_de, res_model, order_by = "MYEL")
-hd_plot_feature_heatmap <- function(de_results,
-                                    model_results,
-                                    order_by,
-                                    pval_lim = 0.05,
-                                    logfc_lim = 0) {
-
+hd_plot_feature_heatmap <- function(
+  de_results,
+  model_results,
+  order_by,
+  pval_lim = 0.05,
+  logfc_lim = 0
+) {
   res_de <- de_results[[order_by]][["de_res"]] |>
-    dplyr::filter(abs(!!rlang::sym("logFC")) > logfc_lim,
-                  !!rlang::sym("adj.P.Val") < pval_lim) |>
-    dplyr::select(!!rlang::sym("Feature"),
-                  !!rlang::sym("logFC"),
-                  !!rlang::sym("adj.P.Val"))
+    dplyr::filter(
+      abs(!!rlang::sym("logFC")) > logfc_lim,
+      !!rlang::sym("adj.P.Val") < pval_lim
+    ) |>
+    dplyr::select(
+      !!rlang::sym("Feature"),
+      !!rlang::sym("logFC"),
+      !!rlang::sym("adj.P.Val")
+    )
 
   assays <- res_de[["Feature"]]
 
   res_plot <- tibble::tibble()
   for (i in seq_len(length(de_results))) {
-
     res_de <- de_results[[i]][["de_res"]] |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>
-      dplyr::select(!!rlang::sym("Feature"),
-                    !!rlang::sym("logFC"),
-                    !!rlang::sym("adj.P.Val"))
+      dplyr::select(
+        !!rlang::sym("Feature"),
+        !!rlang::sym("logFC"),
+        !!rlang::sym("adj.P.Val")
+      )
 
     res_model <- model_results[[i]][["features"]] |>
       dplyr::filter(!!rlang::sym("Feature") %in% assays) |>
-      dplyr::select(!!rlang::sym("Feature"),
-                    !!rlang::sym("Scaled_Importance"),
-                    !!rlang::sym("Sign"))
+      dplyr::select(
+        !!rlang::sym("Feature"),
+        !!rlang::sym("Scaled_Importance"),
+        !!rlang::sym("Sign")
+      )
 
     res_combined <- res_de |>
       dplyr::left_join(res_model, by = c("Feature")) |>
@@ -423,35 +475,69 @@ hd_plot_feature_heatmap <- function(de_results,
       dplyr::arrange(!!rlang::sym("logFC"))
 
     res_plot <- rbind(res_plot, res_combined)
-    }
+  }
 
   summary_heatmap <- res_plot |>
     dplyr::mutate(
-      Feature = factor(!!rlang::sym("Feature"), levels = res_plot |>
-                         dplyr::filter(!!rlang::sym("control_group") == order_by) |>
-                         dplyr::arrange(!!rlang::sym("logFC")) |>
-                         dplyr::pull(!!rlang::sym("Feature")))
+      Feature = factor(
+        !!rlang::sym("Feature"),
+        levels = res_plot |>
+          dplyr::filter(!!rlang::sym("control_group") == order_by) |>
+          dplyr::arrange(!!rlang::sym("logFC")) |>
+          dplyr::pull(!!rlang::sym("Feature"))
+      )
     ) |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Feature"), y = !!rlang::sym("control_group"))) +
-    ggplot2::geom_tile(ggplot2::aes(fill = !!rlang::sym("logFC")), color = "white") +
-    ggplot2::geom_point(ggplot2::aes(size = !!rlang::sym("Scaled_Importance"), color = !!rlang::sym("Sign"))) +
-    ggplot2::geom_point(ggplot2::aes(size = !!rlang::sym("Scaled_Importance")), shape = 1, colour = "black") +
-    ggplot2::geom_text(ggplot2::aes(label = ifelse(!!rlang::sym("adj.P.Val") < pval_lim, "*", "")), color = "black", size = 3) +
-    ggplot2::scale_fill_gradient2(low = "#317EC2", mid = "white", high = "#C03830", midpoint = 0, name = "Log2 FC") +
-    ggplot2::scale_color_manual(values = c("NEG" = "#317EC2", "POS" = "#C03830"), name = "Sign", na.translate = FALSE) +
+    ggplot2::ggplot(ggplot2::aes(
+      x = !!rlang::sym("Feature"),
+      y = !!rlang::sym("control_group")
+    )) +
+    ggplot2::geom_tile(
+      ggplot2::aes(fill = !!rlang::sym("logFC")),
+      color = "white"
+    ) +
+    ggplot2::geom_point(ggplot2::aes(
+      size = !!rlang::sym("Scaled_Importance"),
+      color = !!rlang::sym("Sign")
+    )) +
+    ggplot2::geom_point(
+      ggplot2::aes(size = !!rlang::sym("Scaled_Importance")),
+      shape = 1,
+      colour = "black"
+    ) +
+    ggplot2::geom_text(
+      ggplot2::aes(
+        label = ifelse(!!rlang::sym("adj.P.Val") < pval_lim, "*", "")
+      ),
+      color = "black",
+      size = 3
+    ) +
+    ggplot2::scale_fill_gradient2(
+      low = "#317EC2",
+      mid = "white",
+      high = "#C03830",
+      midpoint = 0,
+      name = "Log2 FC"
+    ) +
+    ggplot2::scale_color_manual(
+      values = c("NEG" = "#317EC2", "POS" = "#C03830"),
+      name = "Sign",
+      na.translate = FALSE
+    ) +
     ggplot2::scale_size(name = "Importance") +
     ggplot2::labs(x = "Feature", y = "Control Group") +
     ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1),
-                   axis.text.y = ggplot2::element_text(),
-                   axis.title.x = ggplot2::element_text(face = "bold", size = 12),
-                   axis.title.y = ggplot2::element_text(face = "bold", size = 12),
-                   panel.grid.major = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank(),
-                   legend.position = "top",
-                   legend.box = "horizontal",
-                   legend.title = ggplot2::element_text(size = 10),
-                   legend.text = ggplot2::element_text(size = 9))
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1),
+      axis.text.y = ggplot2::element_text(),
+      axis.title.x = ggplot2::element_text(face = "bold", size = 12),
+      axis.title.y = ggplot2::element_text(face = "bold", size = 12),
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      legend.position = "top",
+      legend.box = "horizontal",
+      legend.title = ggplot2::element_text(size = 10),
+      legend.text = ggplot2::element_text(size = 9)
+    )
 
   return(summary_heatmap)
 }
@@ -507,12 +593,13 @@ hd_plot_feature_heatmap <- function(de_results,
 #'                         class_palette = "cancers12",
 #'                         importance_palette = c("high" = "red4", "low" = "grey90"))
 #' }
-hd_plot_feature_network <- function(feature_panel,
-                                    plot_color = "Scaled_Importance",
-                                    class_palette = NULL,
-                                    importance_palette = NULL,
-                                    seed = 123) {
-
+hd_plot_feature_network <- function(
+  feature_panel,
+  plot_color = "Scaled_Importance",
+  class_palette = NULL,
+  importance_palette = NULL,
+  seed = 123
+) {
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
@@ -527,7 +614,10 @@ hd_plot_feature_network <- function(feature_panel,
   nodes_data <- tbl_graph |>
     tidygraph::activate(!!rlang::sym("nodes")) |>
     dplyr::mutate(
-      text_color = dplyr::case_when(!!rlang::sym("name") %in% levels ~ "white", TRUE ~ "black")
+      text_color = dplyr::case_when(
+        !!rlang::sym("name") %in% levels ~ "white",
+        TRUE ~ "black"
+      )
     )
 
   layout <- ggraph::create_layout(nodes_data, layout = "nicely")
@@ -563,7 +653,11 @@ hd_plot_feature_network <- function(feature_panel,
       data = layout |>
         dplyr::filter(!name %in% levels) |>
         dplyr::left_join(
-          feature_panel |> dplyr::select(name = !!rlang::sym("Feature"), !!rlang::sym(plot_color)),
+          feature_panel |>
+            dplyr::select(
+              name = !!rlang::sym("Feature"),
+              !!rlang::sym(plot_color)
+            ),
           by = "name"
         ),
       ggplot2::aes(fill = !!rlang::sym(plot_color)),
@@ -573,10 +667,17 @@ hd_plot_feature_network <- function(feature_panel,
       stroke = 0
     ) +
     ggplot2::scale_color_manual(values = pal[levels], guide = "none") +
-    ggplot2::scale_fill_gradient(high = high_c, low = low_c, name = plot_color) +
+    ggplot2::scale_fill_gradient(
+      high = high_c,
+      low = low_c,
+      name = plot_color
+    ) +
     ggnewscale::new_scale_color() +
     ggraph::geom_node_text(
-      ggplot2::aes(label = stringr::str_wrap(!!rlang::sym("name"), width = 10), color = !!rlang::sym("text_color")),
+      ggplot2::aes(
+        label = stringr::str_wrap(!!rlang::sym("name"), width = 10),
+        color = !!rlang::sym("text_color")
+      ),
       lineheight = 0.8,
       size = 2,
       vjust = 0
@@ -584,7 +685,9 @@ hd_plot_feature_network <- function(feature_panel,
     ggplot2::scale_color_identity() +
     ggplot2::theme_void() +
     ggplot2::coord_fixed() +
-    ggplot2::theme(legend.title = ggplot2::element_text(face = "bold", size = 10))
+    ggplot2::theme(
+      legend.title = ggplot2::element_text(face = "bold", size = 10)
+    )
 
   return(network)
 }
