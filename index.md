@@ -1,7 +1,7 @@
 # HDAnalyzeR <a href="https://kantonopoulos.github.io/HDAnalyzeR"><img src="man/figures/logo.png" align="right" height="200" alt="HDAnalyzeR website" /></a>
 
 [![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13786124.svg)](https://doi.org/10.5281/zenodo.13786124)
+[![DOI](https://img.shields.io/badge/DOI-10.1093/bioadv/vbag020-blue)](https://doi.org/10.1093/bioadv/vbag020)
 [![Version](https://img.shields.io/badge/Version-1.0.1-purple)](https://github.com/kantonopoulos/HDAnalyzeR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/kantonopoulos/HDAnalyzeR/blob/main/LICENSE.md)
 
