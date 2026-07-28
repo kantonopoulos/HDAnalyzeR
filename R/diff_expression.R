@@ -155,7 +155,10 @@ hd_de_limma <- function(dat,
   }
 
   # Extract DE results
+  coef_name <- if (variable_type == "categorical") "Diff" else variable
+  
   de_results <- limma::topTable(ebays_fit,
+                                coef = coef_name,
                                 n = nrow(ebays_fit$p.value),
                                 adjust.method = "fdr",
                                 confint = TRUE)
