@@ -1,5 +1,20 @@
 utils::globalVariables(c(":="))
 
+#' Modelling engines required at fit time
+#'
+#' `engine_packages()` exists so that the runtime requirement on the modelling
+#' engines is explicit. `glmnet` and `ranger` are never called directly: `parsnip`
+#' loads them when a workflow is fitted, which would otherwise make them look
+#' like unused dependencies.
+#'
+#' @return A named list of the engine entry points.
+#' @keywords internal
+#' @noRd
+engine_packages <- function() {
+  list(glmnet = glmnet::glmnet, ranger = ranger::ranger)
+}
+
+
 #' Split data
 #'
 #' `hd_split_data()` splits the data into training and test sets based on the ratio
@@ -32,17 +47,20 @@ utils::globalVariables(c(":="))
 #'
 #' # Split the data into training and test sets
 #' hd_split_data(hd_object, variable = "Disease")
-hd_split_data <- function(dat,
-                          metadata = NULL,
-                          variable = "Disease",
-                          metadata_cols = NULL,
-                          ratio = 0.75,
-                          seed = 123){
-
+hd_split_data <- function(
+  dat,
+  metadata = NULL,
+  variable = "Disease",
+  metadata_cols = NULL,
+  ratio = 0.75,
+  seed = 123
+) {
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis."
+      )
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -52,34 +70,41 @@ hd_split_data <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    stop(
+      "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+    )
   }
   if (isFALSE(variable %in% colnames(metadata))) {
     stop("The variable is not be present in the metadata.")
   }
 
   join_data <- wide_data |>
-    dplyr::left_join(metadata |>
-                       dplyr::select(dplyr::all_of(c(sample_id, variable, metadata_cols))),
-                     by = sample_id) |>
-    dplyr::relocate(!!Variable, .after = sample_id)
+    dplyr::left_join(
+      metadata |>
+        dplyr::select(dplyr::all_of(c(sample_id, variable, metadata_cols))),
+      by = sample_id
+    ) |>
+    dplyr::relocate(!!Variable, .after = dplyr::all_of(sample_id))
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
   if (!is.null(variable)) {
-    data_split <- rsample::initial_split(join_data, prop = ratio, strata = dplyr::any_of(variable))
+    data_split <- rsample::initial_split(
+      join_data,
+      prop = ratio,
+      strata = dplyr::any_of(variable)
+    )
   } else {
     data_split <- rsample::initial_split(join_data, prop = ratio)
   }
   train_data <- rsample::training(data_split)
   test_data <- rsample::testing(data_split)
 
-  model_object <- list("train_data" = train_data,
-                       "test_data" = test_data)
+  model_object <- list("train_data" = train_data, "test_data" = test_data)
 
   class(model_object) <- "hd_model"
 
@@ -99,11 +124,7 @@ hd_split_data <- function(dat,
 #'
 #' @return A balanced dataset.
 #' @keywords internal
-balance_groups <- function(dat,
-                           variable,
-                           case = 1,
-                           seed = 123) {
-
+balance_groups <- function(dat, variable, case = 1, seed = 123) {
   Variable <- rlang::sym(variable)
 
   if (!is.null(seed)) {
@@ -118,7 +139,7 @@ balance_groups <- function(dat,
 
   control_data <- control_data |>
     dplyr::filter(!!Variable != case) |>
-    dplyr::sample_n(size = case_sample_num, replace = TRUE)
+    dplyr::slice_sample(n = case_sample_num, replace = TRUE)
 
   group <- rbind(group, control_data)
 
@@ -138,22 +159,29 @@ balance_groups <- function(dat,
 #' @return A model object containing the train and test data.
 #' @keywords internal
 check_data <- function(dat, variable = "Disease") {
-
   if (inherits(dat, "hd_model")) {
     if (is.null(dat[["train_data"]])) {
-      stop("The 'train_data' slot of the model object is empty. Please provide the train data to train the model.")
+      stop(
+        "The 'train_data' slot of the model object is empty. Please provide the train data to train the model."
+      )
     }
     if (is.null(dat[["test_data"]])) {
-      stop("The 'test_data' slot of the model object is empty. Please provide the test data to evaluate the model.")
+      stop(
+        "The 'test_data' slot of the model object is empty. Please provide the test data to evaluate the model."
+      )
     }
     train_data <- dat[["train_data"]]
     test_data <- dat[["test_data"]]
   } else {
     if (is.null(dat[[1]])) {
-      stop("The list does not contain train data. Please provide the train data to train the model.")
+      stop(
+        "The list does not contain train data. Please provide the train data to train the model."
+      )
     }
     if (is.null(dat[[2]])) {
-      stop("The list does not contain test data. Please provide the test data to evaluate the model.")
+      stop(
+        "The list does not contain test data. Please provide the test data to evaluate the model."
+      )
     }
     train_data <- dat[[1]]
     test_data <- dat[[2]]
@@ -166,8 +194,7 @@ check_data <- function(dat, variable = "Disease") {
     stop("The variable is not be present in the test data")
   }
 
-  model_object <- list("train_data" = train_data,
-                       "test_data" = test_data)
+  model_object <- list("train_data" = train_data, "test_data" = test_data)
 
   class(model_object) <- "hd_model"
 
@@ -191,14 +218,15 @@ check_data <- function(dat, variable = "Disease") {
 #'
 #' @return A model object containing the train and test data and cross-validation sets.
 #' @keywords internal
-prepare_data <- function(dat,
-                         variable = "Disease",
-                         case,
-                         control = NULL,
-                         balance_groups = TRUE,
-                         cv_sets = 5,
-                         seed = 123) {
-
+prepare_data <- function(
+  dat,
+  variable = "Disease",
+  case,
+  control = NULL,
+  balance_groups = TRUE,
+  cv_sets = 5,
+  seed = 123
+) {
   Variable <- rlang::sym(variable)
   train_data <- dat[["train_data"]]
   test_data <- dat[["test_data"]]
@@ -209,22 +237,20 @@ prepare_data <- function(dat,
 
     train_set <- train_data
     test_set <- test_data
-
   } else {
     class_count <- length(unique(train_data[[variable]]))
     if (class_count < 2) {
-
-      stop("The variable has less than 2 classes. Please provide a variable with at least 2 classes.")
-
+      stop(
+        "The variable has less than 2 classes. Please provide a variable with at least 2 classes."
+      )
     } else if (class_count == 2 & is.null(case)) {
-
-      stop("The variable has 2 classes, but case class is not selected. Please select a case class.")
-
+      stop(
+        "The variable has 2 classes, but case class is not selected. Please select a case class."
+      )
     } else if (!is.null(case)) {
-
       dat[["model_type"]] <- "binary_class"
       # If control is NULL, set it to the unique values of the variable that are not the case
-      if (is.null(control)){
+      if (is.null(control)) {
         control <- setdiff(unique(train_data[[variable]]), case)
       }
 
@@ -233,7 +259,9 @@ prepare_data <- function(dat,
         dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
 
       if (length(unique(train_set[[variable]])) < 2) {
-        stop("The variable in train set has less than 2 classes. Please provide a variable with at least 2 classes.")
+        stop(
+          "The variable in train set has less than 2 classes. Please provide a variable with at least 2 classes."
+        )
       }
 
       if (balance_groups) {
@@ -245,11 +273,11 @@ prepare_data <- function(dat,
         dplyr::mutate(!!Variable := ifelse(!!Variable == case, 1, 0))
 
       if (length(unique(test_set[[variable]])) < 2) {
-        stop("The variable in test set has less than 2 classes. Please provide a variable with at least 2 classes.")
+        stop(
+          "The variable in test set has less than 2 classes. Please provide a variable with at least 2 classes."
+        )
       }
-
     } else {
-
       dat[["model_type"]] <- "multi_class"
 
       train_set <- train_data
@@ -260,27 +288,31 @@ prepare_data <- function(dat,
   nrows_before <- nrow(train_set)
 
   train_set <- train_set |>
-    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na))  # Remove NAs from columns in formula
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na)) # Remove NAs from columns in formula
 
   nrows_after <- nrow(train_set)
-  if (nrows_before != nrows_after){
-    warning(nrows_before - nrows_after,
-            "rows were removed from train set because they contain NAs in",
-            variable,
-            "!")
+  if (nrows_before != nrows_after) {
+    warning(
+      nrows_before - nrows_after,
+      "rows were removed from train set because they contain NAs in",
+      variable,
+      "!"
+    )
   }
 
   nrows_before <- nrow(test_set)
 
   test_set <- test_set |>
-    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na))  # Remove NAs from columns in formula
+    dplyr::filter(!dplyr::if_any(dplyr::all_of(c(variable)), is.na)) # Remove NAs from columns in formula
 
   nrows_after <- nrow(test_set)
-  if (nrows_before != nrows_after){
-    warning(nrows_before - nrows_after,
-            "rows were removed from test set because they contain NAs in",
-            variable,
-            "!")
+  if (nrows_before != nrows_after) {
+    warning(
+      nrows_before - nrows_after,
+      "rows were removed from test set because they contain NAs in",
+      variable,
+      "!"
+    )
   }
 
   if (var_type != "continuous") {
@@ -318,15 +350,16 @@ prepare_data <- function(dat,
 #'
 #' @return A model object containing the train and test data, the tuned model, and the workflow.
 #' @keywords internal
-tune_rreg_model <- function(dat,
-                            variable = "Disease",
-                            cor_threshold = 0.9,
-                            grid_size = 30,
-                            mixture = NULL,
-                            verbose = TRUE,
-                            seed = 123) {
-
-  if (verbose){
+tune_rreg_model <- function(
+  dat,
+  variable = "Disease",
+  cor_threshold = 0.9,
+  grid_size = 30,
+  mixture = NULL,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Tuning regularized regression model...")
   }
   train_set <- dat[["train_data"]]
@@ -336,41 +369,54 @@ tune_rreg_model <- function(dat,
 
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::update_role(dplyr::all_of(sample_id), new_role = "id") |>
     recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric(), -recipes::all_outcomes()) |>
     recipes::step_normalize(recipes::all_numeric(), -recipes::all_outcomes()) |>
-    recipes::step_corr(recipes::all_numeric(), -recipes::all_outcomes(), threshold = cor_threshold) |>
+    recipes::step_corr(
+      recipes::all_numeric(),
+      -recipes::all_outcomes(),
+      threshold = cor_threshold
+    ) |>
     recipes::step_impute_knn(recipes::all_numeric(), -recipes::all_outcomes())
 
   if (model_type == "binary_class") {
     if (is.null(mixture)) {
-      spec <- parsnip::logistic_reg(penalty = tune::tune(),
-                                    mixture = tune::tune()) |>
+      spec <- parsnip::logistic_reg(
+        penalty = tune::tune(),
+        mixture = tune::tune()
+      ) |>
         parsnip::set_engine("glmnet")
     } else {
-      spec <- parsnip::logistic_reg(penalty = tune::tune(),
-                                    mixture = mixture) |>
+      spec <- parsnip::logistic_reg(
+        penalty = tune::tune(),
+        mixture = mixture
+      ) |>
         parsnip::set_engine("glmnet")
     }
   } else if (model_type == "multi_class") {
     if (is.null(mixture)) {
-      spec <- parsnip::multinom_reg(penalty = tune::tune(),
-                                    mixture = tune::tune()) |>
+      spec <- parsnip::multinom_reg(
+        penalty = tune::tune(),
+        mixture = tune::tune()
+      ) |>
         parsnip::set_engine("glmnet")
     } else {
-      spec <- parsnip::multinom_reg(penalty = tune::tune(),
-                                    mixture = mixture) |>
+      spec <- parsnip::multinom_reg(
+        penalty = tune::tune(),
+        mixture = mixture
+      ) |>
         parsnip::set_engine("glmnet")
     }
   } else {
     if (is.null(mixture)) {
-      spec <- parsnip::linear_reg(penalty = tune::tune(),
-                                  mixture = tune::tune()) |>
+      spec <- parsnip::linear_reg(
+        penalty = tune::tune(),
+        mixture = tune::tune()
+      ) |>
         parsnip::set_engine("glmnet")
     } else {
-      spec <- parsnip::linear_reg(penalty = tune::tune(),
-                                  mixture = mixture) |>
+      spec <- parsnip::linear_reg(penalty = tune::tune(), mixture = mixture) |>
         parsnip::set_engine("glmnet")
     }
   }
@@ -383,23 +429,32 @@ tune_rreg_model <- function(dat,
     workflows::extract_parameter_set_dials() |>
     dials::grid_space_filling(size = grid_size, type = "latin_hypercube")
 
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
+  ctrl <- tune::control_grid(
+    save_pred = TRUE,
+    parallel_over = "everything",
+    verbose = verbose
+  )
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
   if (model_type == "regression") {
-    tune <- wf |> tune::tune_grid(train_folds,
-                                  grid = grid,
-                                  control = ctrl,
-                                  metrics = yardstick::metric_set(yardstick::rmse))
+    tune <- wf |>
+      tune::tune_grid(
+        train_folds,
+        grid = grid,
+        control = ctrl,
+        metrics = yardstick::metric_set(yardstick::rmse)
+      )
   } else {
-    tune <- wf |> tune::tune_grid(train_folds,
-                                  grid = grid,
-                                  control = ctrl,
-                                  metrics = yardstick::metric_set(yardstick::roc_auc))
+    tune <- wf |>
+      tune::tune_grid(
+        train_folds,
+        grid = grid,
+        control = ctrl,
+        metrics = yardstick::metric_set(yardstick::roc_auc)
+      )
   }
-
 
   dat[["tune"]] <- tune
   dat[["wf"]] <- wf
@@ -426,14 +481,15 @@ tune_rreg_model <- function(dat,
 #'
 #' @return A model object containing the train and test data, the tuned model, and the workflow.
 #' @keywords internal
-tune_rf_model <- function(dat,
-                          variable = "Disease",
-                          cor_threshold = 0.9,
-                          grid_size = 30,
-                          verbose = TRUE,
-                          seed = 123) {
-
-  if (verbose){
+tune_rf_model <- function(
+  dat,
+  variable = "Disease",
+  cor_threshold = 0.9,
+  grid_size = 30,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Tuning random forest model...")
   }
   train_set <- dat[["train_data"]]
@@ -443,57 +499,82 @@ tune_rf_model <- function(dat,
 
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::update_role(dplyr::all_of(sample_id), new_role = "id") |>
     recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric(), -recipes::all_outcomes()) |>
     recipes::step_normalize(recipes::all_numeric(), -recipes::all_outcomes()) |>
-    recipes::step_corr(recipes::all_numeric(), -recipes::all_outcomes(), threshold = cor_threshold) |>
+    recipes::step_corr(
+      recipes::all_numeric(),
+      -recipes::all_outcomes(),
+      threshold = cor_threshold
+    ) |>
     recipes::step_impute_knn(recipes::all_numeric(), -recipes::all_outcomes())
 
   if (model_type == "regression") {
-    spec <- parsnip::rand_forest(trees = 1000,
-                                 min_n = tune::tune(),
-                                 mtry = tune::tune()) |>
+    spec <- parsnip::rand_forest(
+      trees = 1000,
+      min_n = tune::tune(),
+      mtry = tune::tune()
+    ) |>
       parsnip::set_mode("regression") |>
       parsnip::set_engine("ranger", importance = "permutation")
   } else {
-    spec <- parsnip::rand_forest(trees = 1000,
-                                 min_n = tune::tune(),
-                                 mtry = tune::tune()) |>
+    spec <- parsnip::rand_forest(
+      trees = 1000,
+      min_n = tune::tune(),
+      mtry = tune::tune()
+    ) |>
       parsnip::set_mode("classification") |>
       parsnip::set_engine("ranger", importance = "permutation")
   }
-  prepped_recipe <- recipes::prep(rec, training = train_set)  # Prep the recipe
+  prepped_recipe <- recipes::prep(rec, training = train_set) # Prep the recipe
   baked_data <- recipes::bake(prepped_recipe, new_data = train_set)
-  remaining_predictors <- colnames(baked_data)[!colnames(baked_data) %in% c(variable, sample_id)]
+  remaining_predictors <- colnames(baked_data)[
+    !colnames(baked_data) %in% c(variable, sample_id)
+  ]
   n_remaining_predictors <- length(remaining_predictors)
 
   wf <- workflows::workflow() |>
     workflows::add_model(spec) |>
     workflows::add_recipe(rec)
 
+  # With few predictors `floor(p / 3)` can fall below `floor(sqrt(p))`, which
+  # would make the lower bound exceed the upper one.
+  mtry_lower <- max(1L, floor(sqrt(n_remaining_predictors)))
+  mtry_upper <- max(mtry_lower, floor(n_remaining_predictors / 3))
+
   grid <- dials::grid_space_filling(
     dials::min_n(),
-    dials:: mtry(range = c(floor(sqrt(n_remaining_predictors)), (floor(n_remaining_predictors/3)))),
+    dials::mtry(range = c(mtry_lower, mtry_upper)),
     size = grid_size,
     type = "latin_hypercube"
   )
 
-  ctrl <- tune::control_grid(save_pred = TRUE, parallel_over = "everything", verbose = verbose)
+  ctrl <- tune::control_grid(
+    save_pred = TRUE,
+    parallel_over = "everything",
+    verbose = verbose
+  )
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
   if (model_type == "regression") {
-    tune <- wf |> tune::tune_grid(train_folds,
-                                  grid = grid,
-                                  control = ctrl,
-                                  metrics = yardstick::metric_set(yardstick::rmse))
+    tune <- wf |>
+      tune::tune_grid(
+        train_folds,
+        grid = grid,
+        control = ctrl,
+        metrics = yardstick::metric_set(yardstick::rmse)
+      )
   } else {
-    tune <- wf |> tune::tune_grid(train_folds,
-                                  grid = grid,
-                                  control = ctrl,
-                                  metrics = yardstick::metric_set(yardstick::roc_auc))
+    tune <- wf |>
+      tune::tune_grid(
+        train_folds,
+        grid = grid,
+        control = ctrl,
+        metrics = yardstick::metric_set(yardstick::roc_auc)
+      )
   }
 
   dat[["tune"]] <- tune
@@ -520,13 +601,14 @@ tune_rf_model <- function(dat,
 #'
 #' @return A model object containing the train and test data, the tuned model, and the workflow.
 #' @keywords internal
-tune_lr_model <- function(dat,
-                          variable = "Disease",
-                          cor_threshold = 0.9,
-                          verbose = TRUE,
-                          seed = 123) {
-
-  if (verbose){
+tune_lr_model <- function(
+  dat,
+  variable = "Disease",
+  cor_threshold = 0.9,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Tuning logistic regression model...")
   }
   train_set <- dat[["train_data"]]
@@ -536,7 +618,7 @@ tune_lr_model <- function(dat,
 
   formula <- stats::as.formula(paste(variable, "~ ."))
   rec <- recipes::recipe(formula, data = train_set) |>
-    recipes::update_role(sample_id, new_role = "id") |>
+    recipes::update_role(dplyr::all_of(sample_id), new_role = "id") |>
     recipes::step_dummy(recipes::all_nominal_predictors()) |>
     recipes::step_nzv(recipes::all_numeric()) |>
     recipes::step_normalize(recipes::all_numeric()) |>
@@ -573,15 +655,16 @@ tune_lr_model <- function(dat,
 #'
 #' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
 #' @keywords internal
-evaluate_model <- function(dat,
-                           variable = "Disease",
-                           case,
-                           mixture = NULL,
-                           palette = NULL,
-                           verbose= TRUE,
-                           seed = 123) {
-
-  if (verbose){
+evaluate_model <- function(
+  dat,
+  variable = "Disease",
+  case,
+  mixture = NULL,
+  palette = NULL,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Evaluating the model...")
   }
   Variable <- rlang::sym(variable)
@@ -591,7 +674,6 @@ evaluate_model <- function(dat,
   wf <- dat[["wf"]]
 
   if (!is.null(tune)) {
-
     best <- tune |>
       tune::select_best(metric = "roc_auc") |>
       dplyr::select(-dplyr::all_of(c(".config")))
@@ -601,11 +683,8 @@ evaluate_model <- function(dat,
     }
 
     final_wf <- tune::finalize_workflow(wf, best)
-
   } else {
-
     final_wf <- wf
-
   }
 
   if (!is.null(seed)) {
@@ -616,17 +695,30 @@ evaluate_model <- function(dat,
 
   splits <- rsample::make_splits(train_set, test_set)
 
-  preds <- tune::last_fit(final_wf,
-                          splits,
-                          metrics = yardstick::metric_set(yardstick::roc_auc))
+  preds <- tune::last_fit(
+    final_wf,
+    splits,
+    metrics = yardstick::metric_set(yardstick::roc_auc)
+  )
 
   res <- stats::predict(final, new_data = test_set)
 
   res <- dplyr::bind_cols(res, test_set |> dplyr::select(!!Variable))
 
-  accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
-  sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
-  specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  accuracy <- res |>
+    yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+  sensitivity <- res |>
+    yardstick::sensitivity(
+      !!Variable,
+      !!rlang::sym(".pred_class"),
+      event_level = "second"
+    )
+  specificity <- res |>
+    yardstick::specificity(
+      !!Variable,
+      !!rlang::sym(".pred_class"),
+      event_level = "second"
+    )
   auc <- preds |> tune::collect_metrics()
   cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
@@ -648,14 +740,27 @@ evaluate_model <- function(dat,
 
   prob_plot <- stats::predict(final, new_data = test_set, type = "prob") |>
     dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
-    dplyr::mutate(!!Variable := dplyr::if_else(!!Variable == 1, case, "Control")) |>
-    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym(".pred_1"))) +
+    dplyr::mutate(
+      !!Variable := dplyr::if_else(!!Variable == 1, case, "Control")
+    ) |>
+    ggplot2::ggplot(ggplot2::aes(
+      x = factor(!!Variable),
+      y = !!rlang::sym(".pred_1")
+    )) +
     ggplot2::geom_violin() +
-    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::stat_summary(
+      fun = stats::median,
+      geom = "crossbar",
+      width = 0.8,
+      color = "black"
+    ) +
     ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::scale_color_manual(values = pal1) +
     theme_hd() +
-    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::theme(
+      legend.position = "none",
+      axis.text.x = ggplot2::element_text(angle = 90)
+    ) +
     ggplot2::labs(x = ggplot2::element_blank(), y = paste(case, "Probability"))
 
   roc <- preds |>
@@ -669,11 +774,13 @@ evaluate_model <- function(dat,
 
   dat[["final_workflow"]] <- final_wf
   dat[["final"]] <- final
-  dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
-                           "sensitivity" = sensitivity$.estimate,
-                           "specificity" = specificity$.estimate,
-                           "auc" = auc$.estimate,
-                           "confusion_matrix" = cm)
+  dat[["metrics"]] <- list(
+    "accuracy" = accuracy$.estimate,
+    "sensitivity" = sensitivity$.estimate,
+    "specificity" = specificity$.estimate,
+    "auc" = auc$.estimate,
+    "confusion_matrix" = cm
+  )
   dat[["roc_curve"]] <- roc
   dat[["probability_plot"]] <- prob_plot
   dat[["mixture"]] <- mixture
@@ -700,15 +807,16 @@ evaluate_model <- function(dat,
 #'
 #' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
 #' @keywords internal
-evaluate_regression_model <- function(dat,
-                                      variable = "Age",
-                                      case,
-                                      mixture = NULL,
-                                      palette = NULL,
-                                      verbose= TRUE,
-                                      seed = 123) {
-
-  if (verbose){
+evaluate_regression_model <- function(
+  dat,
+  variable = "Age",
+  case,
+  mixture = NULL,
+  palette = NULL,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Evaluating the model...")
   }
   Variable <- rlang::sym(variable)
@@ -718,7 +826,6 @@ evaluate_regression_model <- function(dat,
   wf <- dat[["wf"]]
 
   if (!is.null(tune)) {
-
     best <- tune |>
       tune::select_best(metric = "rmse") |>
       dplyr::select(-dplyr::all_of(c(".config")))
@@ -728,11 +835,8 @@ evaluate_regression_model <- function(dat,
     }
 
     final_wf <- tune::finalize_workflow(wf, best)
-
   } else {
-
     final_wf <- wf
-
   }
 
   if (!is.null(seed)) {
@@ -743,9 +847,11 @@ evaluate_regression_model <- function(dat,
 
   splits <- rsample::make_splits(train_set, test_set)
 
-  preds <- tune::last_fit(final_wf,
-                          splits,
-                          metrics = yardstick::metric_set(yardstick::rmse))
+  preds <- tune::last_fit(
+    final_wf,
+    splits,
+    metrics = yardstick::metric_set(yardstick::rmse)
+  )
 
   res <- stats::predict(final, new_data = test_set)
   res <- dplyr::bind_cols(res, test_set |> dplyr::select(!!Variable))
@@ -756,20 +862,141 @@ evaluate_regression_model <- function(dat,
   scatter_plot <- res |>
     ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym(".pred"))) +
     ggplot2::geom_point() +
-    ggplot2::geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+    ggplot2::geom_abline(
+      intercept = 0,
+      slope = 1,
+      color = "black",
+      linetype = "dashed"
+    ) +
     ggplot2::labs(x = "Observed", y = "Predicted") +
     theme_hd()
 
   dat[["final_workflow"]] <- final_wf
   dat[["final"]] <- final
-  dat[["metrics"]] <- list("rmse" = rmse$.estimate,
-                           "rsq" = rsq$.estimate)
+  dat[["metrics"]] <- list("rmse" = rmse$.estimate, "rsq" = rsq$.estimate)
   dat[["comparison_plot"]] <- scatter_plot
   dat[["mixture"]] <- mixture
   dat[["tune"]] <- NULL
   dat[["wf"]] <- NULL
 
   return(dat)
+}
+
+
+#' One-vs-rest ROC AUC for a multiclass model
+#'
+#' `multiclass_auc()` computes the one-vs-rest ROC AUC of every class, together
+#' with the macro and micro averages.
+#'
+#' @param truth A vector with the observed classes.
+#' @param prob_predictions A tibble of predicted class probabilities as returned by
+#' `predict(type = "prob")`, i.e. one `.pred_<class>` column per class.
+#'
+#' @return A named numeric vector with one AUC per class, plus `macro` and `micro`.
+#' @details
+#' Each class is scored against all remaining classes pooled together. `macro` is
+#' the unweighted mean of the per-class AUCs and `micro` is the AUC obtained by
+#' pooling every one-vs-rest decision into a single binary problem.
+#' @keywords internal
+multiclass_auc <- function(truth, prob_predictions) {
+  probabilities <- prob_predictions |>
+    dplyr::rename_with(\(nms) sub("^\\.pred_", "", nms))
+  classes <- colnames(probabilities)
+  truth <- as.character(truth)
+
+  if (!all(truth %in% classes)) {
+    stop(
+      "The observed classes do not match the predicted probability columns.",
+      call. = FALSE
+    )
+  }
+
+  as_binary <- function(observed, case) {
+    factor(
+      ifelse(observed == case, "event", "non_event"),
+      levels = c("event", "non_event")
+    )
+  }
+
+  per_class <- vapply(
+    classes,
+    function(case) {
+      yardstick::roc_auc_vec(
+        as_binary(truth, case),
+        probabilities[[case]],
+        event_level = "first"
+      )
+    },
+    numeric(1)
+  )
+
+  pooled_truth <- as_binary(
+    rep(truth, times = length(classes)),
+    rep(classes, each = length(truth))
+  )
+  pooled_prob <- unlist(probabilities[classes], use.names = FALSE)
+  micro <- yardstick::roc_auc_vec(
+    pooled_truth,
+    pooled_prob,
+    event_level = "first"
+  )
+
+  c(per_class, macro = mean(per_class), micro = micro)
+}
+
+
+#' Extract model-specific variable importance
+#'
+#' `model_importance()` extracts the variable importance scores from a fitted
+#' workflow for the engines used by the package.
+#'
+#' @param fit A fitted `workflow` or `model_fit` object.
+#'
+#' @return A tibble with a `Variable` and an `Importance` column, plus a `Sign`
+#' column for the (generalized) linear models.
+#' @details
+#' For `ranger` fits the permutation importance recorded at fit time is returned.
+#' For `glm` and `lm` fits the importance is the absolute t- or z-statistic of each
+#' coefficient and the sign is taken from the coefficient estimate, matching the
+#' convention used elsewhere in the package.
+#' @keywords internal
+model_importance <- function(fit) {
+  engine_fit <- workflows::extract_fit_engine(fit)
+
+  if (inherits(engine_fit, "ranger")) {
+    scores <- engine_fit[["variable.importance"]]
+    if (is.null(scores)) {
+      stop(
+        "The random forest was fitted without variable importance scores.",
+        call. = FALSE
+      )
+    }
+    return(tibble::tibble(
+      Variable = names(scores),
+      Importance = unname(scores)
+    ))
+  }
+
+  if (inherits(engine_fit, "lm")) {
+    # `glm` inherits from `lm`, so this branch covers both engines
+    coefs <- stats::coef(summary(engine_fit))
+    if (attr(stats::terms(engine_fit), "intercept") == 1) {
+      coefs <- coefs[-1L, , drop = FALSE]
+    }
+    stat_col <- grep("^(t|z) value$", colnames(coefs))
+    return(tibble::tibble(
+      Variable = rownames(coefs),
+      Importance = unname(abs(coefs[, stat_col])),
+      Sign = ifelse(sign(coefs[, "Estimate"]) == 1, "POS", "NEG")
+    ))
+  }
+
+  stop(
+    "Variable importance is not available for a model of class ",
+    paste(class(engine_fit), collapse = "/"),
+    ".",
+    call. = FALSE
+  )
 }
 
 
@@ -788,14 +1015,15 @@ evaluate_regression_model <- function(dat,
 #'
 #' @return A model object containing the train and test data, the final model, the metrics, the ROC curve, and the mixture parameter.
 #' @keywords internal
-evaluate_multiclass_model <- function(dat,
-                                      variable = "Disease",
-                                      mixture = NULL,
-                                      palette = NULL,
-                                      verbose= TRUE,
-                                      seed = 123) {
-
-  if (verbose){
+evaluate_multiclass_model <- function(
+  dat,
+  variable = "Disease",
+  mixture = NULL,
+  palette = NULL,
+  verbose = TRUE,
+  seed = 123
+) {
+  if (verbose) {
     message("Evaluating the model...")
   }
   Variable <- rlang::sym(variable)
@@ -803,10 +1031,8 @@ evaluate_multiclass_model <- function(dat,
   test_set <- dat[["test_data"]]
   tune <- dat[["tune"]]
   wf <- dat[["wf"]]
-  sample_id <- colnames(train_set)[1]
 
-  if (!is.null(tune)){
-
+  if (!is.null(tune)) {
     best <- tune |>
       tune::select_best(metric = "roc_auc") |>
       dplyr::select(-dplyr::all_of(c(".config")))
@@ -816,11 +1042,8 @@ evaluate_multiclass_model <- function(dat,
     }
 
     final_wf <- tune::finalize_workflow(wf, best)
-
   } else {
-
     final_wf <- wf
-
   }
 
   if (!is.null(seed)) {
@@ -831,11 +1054,17 @@ evaluate_multiclass_model <- function(dat,
 
   splits <- rsample::make_splits(train_set, test_set)
 
-  preds <- tune::last_fit(final_wf,
-                          splits,
-                          metrics = yardstick::metric_set(yardstick::roc_auc))
+  preds <- tune::last_fit(
+    final_wf,
+    splits,
+    metrics = yardstick::metric_set(yardstick::roc_auc)
+  )
 
-  class_predictions <- stats::predict(final, new_data = test_set, type = "class")
+  class_predictions <- stats::predict(
+    final,
+    new_data = test_set,
+    type = "class"
+  )
   prob_predictions <- stats::predict(final, new_data = test_set, type = "prob")
 
   if (is.null(names(palette)) && !is.null(palette)) {
@@ -848,38 +1077,74 @@ evaluate_multiclass_model <- function(dat,
   }
   prob_plot <- prob_predictions |>
     dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
-    tidyr::pivot_longer(cols = tidyselect::starts_with(".pred_"),
-                        names_to = "class",
-                        values_to = "probability") |>
+    tidyr::pivot_longer(
+      cols = dplyr::starts_with(".pred_"),
+      names_to = "class",
+      values_to = "probability"
+    ) |>
     dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
     dplyr::filter(class == !!Variable) |>
     dplyr::select(-class) |>
-    ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym("probability"))) +
+    ggplot2::ggplot(ggplot2::aes(
+      x = factor(!!Variable),
+      y = !!rlang::sym("probability")
+    )) +
     ggplot2::geom_violin() +
-    ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+    ggplot2::stat_summary(
+      fun = stats::median,
+      geom = "crossbar",
+      width = 0.8,
+      color = "black"
+    ) +
     ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
     ggplot2::scale_color_manual(values = pal) +
     theme_hd() +
-    ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggplot2::theme(
+      legend.position = "none",
+      axis.text.x = ggplot2::element_text(angle = 90)
+    ) +
     ggplot2::labs(x = ggplot2::element_blank(), y = paste("Class Probability"))
 
-  res <- dplyr::bind_cols(test_set |> dplyr::select(!!Variable),
-                          class_predictions,
-                          prob_predictions)
+  res <- dplyr::bind_cols(
+    test_set |> dplyr::select(!!Variable),
+    class_predictions,
+    prob_predictions
+  )
 
-  accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
-  sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
-  specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+  accuracy <- res |>
+    yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+  sensitivity <- res |>
+    yardstick::sensitivity(
+      !!Variable,
+      !!rlang::sym(".pred_class"),
+      event_level = "second"
+    )
+  specificity <- res |>
+    yardstick::specificity(
+      !!Variable,
+      !!rlang::sym(".pred_class"),
+      event_level = "second"
+    )
   cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
-  pred_cols <- grep("^\\.pred_", names(res |> dplyr::select(-!!rlang::sym(".pred_class"))), value = TRUE)
+  pred_cols <- grep(
+    "^\\.pred_",
+    names(res |> dplyr::select(-!!rlang::sym(".pred_class"))),
+    value = TRUE
+  )
 
-  roc_data <- yardstick::roc_curve(res, truth = !!Variable, !!!rlang::syms(pred_cols))
+  roc_data <- yardstick::roc_curve(
+    res,
+    truth = !!Variable,
+    !!!rlang::syms(pred_cols)
+  )
 
   roc <- roc_data |>
-    ggplot2::ggplot(ggplot2::aes(x = 1 - !!rlang::sym("specificity"),
-                                 y = !!rlang::sym("sensitivity"),
-                                 color = !!rlang::sym(".level"))) +
+    ggplot2::ggplot(ggplot2::aes(
+      x = 1 - !!rlang::sym("specificity"),
+      y = !!rlang::sym("sensitivity"),
+      color = !!rlang::sym(".level")
+    )) +
     ggplot2::geom_path(linewidth = 1) +
     ggplot2::geom_abline(lty = 3) +
     ggplot2::coord_equal() +
@@ -891,46 +1156,27 @@ evaluate_multiclass_model <- function(dat,
   }
   roc <- apply_palette(roc, palette) +
     theme_hd() +
-    ggplot2::theme(legend.position = "none",
-                   axis.text.x = ggplot2::element_text(angle = 90))
+    ggplot2::theme(
+      legend.position = "none",
+      axis.text.x = ggplot2::element_text(angle = 90)
+    )
 
-  # ROC AUC for each class
-  final_predictions <- prob_predictions |>
-    dplyr::mutate(ID = test_set[[1]]) |>
-    dplyr::relocate(!!rlang::sym("ID"))
-
-  df <- test_set |>
-    dplyr::select(!!rlang::sym(sample_id), !!Variable) |>
-    dplyr::mutate(value = 1) |>
-    tidyr::spread(!!Variable, !!rlang::sym("value"), fill= 0)
-
-  true_dat <- df |>
-    purrr::set_names(paste(names(df), "_true", sep = "")) |>
-    dplyr::rename(ID = !!rlang::sym(paste0(sample_id, "_true")))
-
-  dat_prob <- final_predictions |>
-    dplyr::rename_all(~stringr::str_replace_all(.,".pred_",""))
-
-  prob_data <- dat_prob |>
-    purrr::set_names(paste(names(dat_prob), "_pred_glmnet", sep = ""))|>
-    dplyr::rename(ID = !!rlang::sym("ID_pred_glmnet"))
-
-  final_df <- true_dat |>
-    dplyr::left_join(prob_data, by = "ID") |>
-    dplyr::select(-dplyr::all_of(c("ID"))) |>
-    as.data.frame()
-
-  suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
-  auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
-                        AUC = unlist(auc[["AUC"]][["glmnet"]]))
+  # One-vs-rest ROC AUC for each class, plus the macro and micro averages
+  auc_scores <- multiclass_auc(test_set[[variable]], prob_predictions)
+  auc <- tibble::tibble(
+    !!Variable := names(auc_scores),
+    AUC = unname(auc_scores)
+  )
 
   dat[["final_workflow"]] <- final_wf
   dat[["final"]] <- final
-  dat[["metrics"]] <- list("accuracy" = accuracy$.estimate,
-                           "sensitivity" = sensitivity$.estimate,
-                           "specificity" = specificity$.estimate,
-                           "auc" = auc,
-                           "confusion_matrix" = cm)
+  dat[["metrics"]] <- list(
+    "accuracy" = accuracy$.estimate,
+    "sensitivity" = sensitivity$.estimate,
+    "specificity" = specificity$.estimate,
+    "auc" = auc,
+    "confusion_matrix" = cm
+  )
   dat[["roc_curve"]] <- roc
   dat[["probability_plot"]] <- prob_plot
   dat[["mixture"]] <- mixture
@@ -955,34 +1201,46 @@ evaluate_multiclass_model <- function(dat,
 #'
 #' @return The plot subtitle as character vector.
 #' @keywords internal
-generate_title <- function(features,
-                           accuracy = NULL,
-                           sensitivity = NULL,
-                           specificity = NULL,
-                           auc = NULL,
-                           rmse = NULL,
-                           rsq = NULL,
-                           mixture = NULL,
-                           title = c("accuracy",
-                                     "sensitivity",
-                                     "specificity",
-                                     "auc",
-                                     "features",
-                                     "top-features",
-                                     "mixture")) {
-
+generate_title <- function(
+  features,
+  accuracy = NULL,
+  sensitivity = NULL,
+  specificity = NULL,
+  auc = NULL,
+  rmse = NULL,
+  rsq = NULL,
+  mixture = NULL,
+  title = c(
+    "accuracy",
+    "sensitivity",
+    "specificity",
+    "auc",
+    "features",
+    "top-features",
+    "mixture"
+  )
+) {
   title_parts <- c()
 
   if ("accuracy" %in% title) {
-    title_parts <- c(title_parts, paste0('Accuracy = ', round(accuracy, 2), '    '))
+    title_parts <- c(
+      title_parts,
+      paste0('Accuracy = ', round(accuracy, 2), '    ')
+    )
   }
 
   if ("sensitivity" %in% title) {
-    title_parts <- c(title_parts, paste0('Sensitivity = ', round(sensitivity, 2), '    '))
+    title_parts <- c(
+      title_parts,
+      paste0('Sensitivity = ', round(sensitivity, 2), '    ')
+    )
   }
 
   if ("specificity" %in% title) {
-    title_parts <- c(title_parts, paste0('Specificity = ', round(specificity, 2), '    '))
+    title_parts <- c(
+      title_parts,
+      paste0('Specificity = ', round(specificity, 2), '    ')
+    )
   }
 
   if ("auc" %in% title & !is.null(auc)) {
@@ -1002,24 +1260,42 @@ generate_title <- function(features,
   }
 
   if ("features" %in% title) {
-    title_parts <- c(title_parts, paste0('Features = ',
-                                         nrow(features |> 
-                                                dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |> 
-                                                dplyr::select(dplyr::any_of(c("Feature"))) |> 
-                                                dplyr::distinct()),
-                                         '    '))
+    title_parts <- c(
+      title_parts,
+      paste0(
+        'Features = ',
+        nrow(
+          features |>
+            dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
+            dplyr::select(dplyr::any_of(c("Feature"))) |>
+            dplyr::distinct()
+        ),
+        '    '
+      )
+    )
   }
 
   if ("top-features" %in% title) {
-    title_parts <- c(title_parts, paste0('Top-features = ',
-                                         nrow(features |> dplyr::filter(!!rlang::sym("Scaled_Importance") >= 0.5) |> 
-                                           dplyr::select(dplyr::any_of(c("Feature"))) |> 
-                                           dplyr::distinct()),
-                                         '    '))
+    title_parts <- c(
+      title_parts,
+      paste0(
+        'Top-features = ',
+        nrow(
+          features |>
+            dplyr::filter(!!rlang::sym("Scaled_Importance") >= 0.5) |>
+            dplyr::select(dplyr::any_of(c("Feature"))) |>
+            dplyr::distinct()
+        ),
+        '    '
+      )
+    )
   }
 
   if ("mixture" %in% title & !is.null(mixture)) {
-    title_parts <- c(title_parts, paste0('Lasso/Ridge ratio = ', round(mixture, 2), '    '))
+    title_parts <- c(
+      title_parts,
+      paste0('Lasso/Ridge ratio = ', round(mixture, 2), '    ')
+    )
   }
 
   title <- paste(title_parts, collapse = '')
@@ -1044,23 +1320,26 @@ generate_title <- function(features,
 #'
 #' @return A model object containing the features and the feature importance plot.
 #' @keywords internal
-variable_imp <- function(dat,
-                         variable = "Disease",
-                         case,
-                         mixture = NULL,
-                         palette = NULL,
-                         y_labels = FALSE,
-                         title = c("accuracy",
-                                   "sensitivity",
-                                   "specificity",
-                                   "auc",
-                                   "features",
-                                   "top-features"),
-                         verbose = TRUE,
-                         engine = 'glmnet',
-                         seed = 123) {
-
-  if (verbose){
+variable_imp <- function(
+  dat,
+  variable = "Disease",
+  case,
+  mixture = NULL,
+  palette = NULL,
+  y_labels = FALSE,
+  title = c(
+    "accuracy",
+    "sensitivity",
+    "specificity",
+    "auc",
+    "features",
+    "top-features"
+  ),
+  verbose = TRUE,
+  engine = 'glmnet',
+  seed = 123
+) {
+  if (verbose) {
     message("Generating visualizations...")
   }
 
@@ -1069,71 +1348,103 @@ variable_imp <- function(dat,
   metrics <- dat[["metrics"]]
   mixture <- dat[["mixture"]]
   model_type <- dat[["model_type"]]
-  
+
   if (engine == 'glmnet') {
     features <- final |>
-        workflows::extract_fit_parsnip() |>
-        broom::tidy() |>
-        dplyr::filter(!!rlang::sym("term") != "(Intercept)") |>
-        dplyr::select(-dplyr::any_of(c("penalty"))) |>
-        dplyr::mutate(
-          Sign = ifelse(!!rlang::sym("estimate") > 0, "POS", "NEG"),
-          Feature = !!rlang::sym("term"),
-          Importance = abs(!!rlang::sym("estimate"))
-        ) |>
-        dplyr::arrange(dplyr::desc(!!rlang::sym("Importance")))
-    
+      workflows::extract_fit_parsnip() |>
+      broom::tidy() |>
+      dplyr::filter(!!rlang::sym("term") != "(Intercept)") |>
+      dplyr::select(-dplyr::any_of(c("penalty"))) |>
+      dplyr::mutate(
+        Sign = ifelse(!!rlang::sym("estimate") > 0, "POS", "NEG"),
+        Feature = !!rlang::sym("term"),
+        Importance = abs(!!rlang::sym("estimate"))
+      ) |>
+      dplyr::arrange(dplyr::desc(!!rlang::sym("Importance")))
+
     # Scale importance
     if (model_type == "multi_class") {
       features <- features |>
         dplyr::group_by(!!rlang::sym("class")) |>
         dplyr::mutate(
-          Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
-          Feature_plot = tidytext::reorder_within(!!rlang::sym("Feature"), !!rlang::sym("Importance"), !!rlang::sym("class")),
+          Scaled_Importance = !!rlang::sym("Importance") /
+            max(!!rlang::sym("Importance")),
+          Feature_plot = tidytext::reorder_within(
+            !!rlang::sym("Feature"),
+            !!rlang::sym("Importance"),
+            !!rlang::sym("class")
+          ),
           Class = !!rlang::sym("class")
         ) |>
         dplyr::ungroup() |>
-        dplyr::select(dplyr::any_of(c("Class", "Feature", "Importance", "Sign", "Scaled_Importance", "Feature_plot")))
+        dplyr::select(dplyr::any_of(c(
+          "Class",
+          "Feature",
+          "Importance",
+          "Sign",
+          "Scaled_Importance",
+          "Feature_plot"
+        )))
     } else {
       features <- features |>
         dplyr::mutate(
-          Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance")),
-          Feature = forcats::fct_reorder(!!rlang::sym("Feature"), !!rlang::sym("Importance"))
+          Scaled_Importance = !!rlang::sym("Importance") /
+            max(!!rlang::sym("Importance")),
+          Feature = forcats::fct_reorder(
+            !!rlang::sym("Feature"),
+            !!rlang::sym("Importance")
+          )
         ) |>
-        dplyr::select(dplyr::any_of(c("Feature", "Importance", "Sign", "Scaled_Importance")))
+        dplyr::select(dplyr::any_of(c(
+          "Feature",
+          "Importance",
+          "Sign",
+          "Scaled_Importance"
+        )))
     }
   } else {
     features <- final |>
-      workflows::extract_fit_parsnip() |>
-      vip::vi() |>
+      model_importance() |>
       # Clip negatives to zero to avoid negative importance in Random Forest permutation testing
-      dplyr::mutate(Importance = dplyr::if_else(!!rlang::sym("Importance") < 0,
-                                                0,
-                                                !!rlang::sym("Importance")),
-                    Variable = forcats::fct_reorder(!!rlang::sym("Variable"), !!rlang::sym("Importance"))) |>
+      dplyr::mutate(
+        Importance = dplyr::if_else(
+          !!rlang::sym("Importance") < 0,
+          0,
+          !!rlang::sym("Importance")
+        ),
+        Variable = forcats::fct_reorder(
+          !!rlang::sym("Variable"),
+          !!rlang::sym("Importance")
+        )
+      ) |>
       dplyr::arrange(dplyr::desc(!!rlang::sym("Importance"))) |>
       # Min max scaling with min = 0 always and max = 1
       dplyr::mutate(
-        Scaled_Importance = !!rlang::sym("Importance") / max(!!rlang::sym("Importance"))
+        Scaled_Importance = !!rlang::sym("Importance") /
+          max(!!rlang::sym("Importance"))
       ) |>
       dplyr::rename(Feature = !!rlang::sym("Variable"))
-    
+
     if (engine == "rf") {
-      features <- features |> 
+      features <- features |>
         dplyr::mutate(Sign = "POS") |>
-        dplyr::relocate(!!rlang::sym("Sign"), .after = !!rlang::sym("Importance"))
+        dplyr::relocate(
+          !!rlang::sym("Sign"),
+          .after = !!rlang::sym("Importance")
+        )
     }
   }
 
   if (model_type == "binary_class") {
-
-    title_text <- generate_title(features = features,
-                                 accuracy = metrics[["accuracy"]],
-                                 sensitivity = metrics[["sensitivity"]],
-                                 specificity = metrics[["specificity"]],
-                                 auc = metrics[["auc"]],
-                                 mixture = mixture,
-                                 title = title)
+    title_text <- generate_title(
+      features = features,
+      accuracy = metrics[["accuracy"]],
+      sensitivity = metrics[["sensitivity"]],
+      specificity = metrics[["specificity"]],
+      auc = metrics[["auc"]],
+      mixture = mixture,
+      title = title
+    )
 
     pals <- hd_palettes()
     if (!is.null(palette) && is.null(names(palette))) {
@@ -1144,17 +1455,17 @@ variable_imp <- function(dat,
     } else {
       pal <- c("#883268")
     }
-
   } else if (model_type == "multi_class" && engine == "glmnet") {
-    
-    title_text <- generate_title(features = features,
-                                 accuracy = as.numeric(metrics[["accuracy"]]),
-                                 sensitivity = as.numeric(metrics[["sensitivity"]]),
-                                 specificity = as.numeric(metrics[["specificity"]]),
-                                 auc = NULL,
-                                 mixture = mixture,
-                                 title = title)
-    
+    title_text <- generate_title(
+      features = features,
+      accuracy = as.numeric(metrics[["accuracy"]]),
+      sensitivity = as.numeric(metrics[["sensitivity"]]),
+      specificity = as.numeric(metrics[["specificity"]]),
+      auc = NULL,
+      mixture = mixture,
+      title = title
+    )
+
     pals <- hd_palettes()
     if (!is.null(palette) && is.null(names(palette))) {
       pal <- pals[palette]
@@ -1165,78 +1476,94 @@ variable_imp <- function(dat,
       classes <- unique(features[["Class"]])
       pal <- rep("#883268", length(classes))
     }
-    
   } else if (model_type == "multi_class") {
-
-    title_text <- generate_title(features = features,
-                                 accuracy = as.numeric(metrics[["accuracy"]]),
-                                 sensitivity = as.numeric(metrics[["sensitivity"]]),
-                                 specificity = as.numeric(metrics[["specificity"]]),
-                                 auc = NULL,
-                                 mixture = mixture,
-                                 title = title)
+    title_text <- generate_title(
+      features = features,
+      accuracy = as.numeric(metrics[["accuracy"]]),
+      sensitivity = as.numeric(metrics[["sensitivity"]]),
+      specificity = as.numeric(metrics[["specificity"]]),
+      auc = NULL,
+      mixture = mixture,
+      title = title
+    )
 
     pal <- c("#883268")
     case <- "case"
   } else {
-    title_text <- generate_title(features = features,
-                                 rmse = as.numeric(metrics[["rmse"]]),
-                                 rsq = as.numeric(metrics[["rsq"]]),
-                                 mixture = mixture,
-                                 title = title)
+    title_text <- generate_title(
+      features = features,
+      rmse = as.numeric(metrics[["rmse"]]),
+      rsq = as.numeric(metrics[["rsq"]]),
+      mixture = mixture,
+      title = title
+    )
 
     pal <- c("#883268")
     case <- "case"
   }
-  
+
   if (model_type == "multi_class" && engine == "glmnet") {
     var_imp_plot <- features |>
       dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
-      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Feature_plot"), y = !!rlang::sym("Scaled_Importance"))) +
-      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, !!rlang::sym("Class"), NA))) +
-      ggplot2::facet_wrap(~ Class, scales = "free_y") +
-      tidytext::scale_x_reordered() +      # cleans axis labels
-      ggplot2::coord_flip() +              # horizontal bars
+      ggplot2::ggplot(ggplot2::aes(
+        x = !!rlang::sym("Feature_plot"),
+        y = !!rlang::sym("Scaled_Importance")
+      )) +
+      ggplot2::geom_col(ggplot2::aes(
+        fill = ifelse(
+          !!rlang::sym("Scaled_Importance") > 0.5,
+          !!rlang::sym("Class"),
+          NA
+        )
+      )) +
+      ggplot2::facet_wrap(~Class, scales = "free_y") +
+      tidytext::scale_x_reordered() + # cleans axis labels
+      ggplot2::coord_flip() + # horizontal bars
       ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
-      ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0,1)) +
+      ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
       ggplot2::labs(x = "Feature", y = "Importance", title = title_text) +
       theme_hd(angled = 90) +
       ggplot2::theme(
         axis.text.x = ggplot2::element_text(hjust = 0.5),
         panel.spacing = ggplot2::unit(1, "lines")
       )
-    
+
     features <- features |>
       dplyr::select(-dplyr::any_of(c("Feature_plot"))) |>
       dplyr::arrange(
         !!rlang::sym("Class"),
         dplyr::desc(!!rlang::sym("Scaled_Importance"))
       )
-    
   } else {
     var_imp_plot <- features |>
       dplyr::filter(!!rlang::sym("Scaled_Importance") > 0) |>
-      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Scaled_Importance"), y = !!rlang::sym("Feature"))) +
-      ggplot2::geom_col(ggplot2::aes(fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA))) +
+      ggplot2::ggplot(ggplot2::aes(
+        x = !!rlang::sym("Scaled_Importance"),
+        y = !!rlang::sym("Feature")
+      )) +
+      ggplot2::geom_col(ggplot2::aes(
+        fill = ifelse(!!rlang::sym("Scaled_Importance") > 0.5, case, NA)
+      )) +
       ggplot2::labs(y = NULL) +
-      ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) +  # Keep x-axis tick labels at 0 and 1
+      ggplot2::scale_x_continuous(breaks = c(0, 1), expand = c(0, 0)) + # Keep x-axis tick labels at 0 and 1
       ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
       ggplot2::ggtitle(label = title_text) +
       ggplot2::xlab('Importance') +
       ggplot2::ylab('Features') +
-      theme_hd() 
+      theme_hd()
   }
 
   if (isFALSE(y_labels)) {
     var_imp_plot <- var_imp_plot +
-      ggplot2::theme(legend.position = "none",
-                     axis.text.y = ggplot2::element_blank(),
-                     axis.ticks.y = ggplot2::element_blank())
+      ggplot2::theme(
+        legend.position = "none",
+        axis.text.y = ggplot2::element_blank(),
+        axis.ticks.y = ggplot2::element_blank()
+      )
   } else {
     var_imp_plot <- var_imp_plot +
       ggplot2::theme(legend.position = "none")
   }
-
 
   dat[["features"]] <- features
   dat[["feat_imp_plot"]] <- var_imp_plot
@@ -1330,115 +1657,134 @@ variable_imp <- function(dat,
 #'                              "features",
 #'                              "mixture"),
 #'               verbose = FALSE)
-hd_model_rreg <- function(dat,
-                          variable = "Disease",
-                          case,
-                          control = NULL,
-                          balance_groups = TRUE,
-                          cor_threshold = 0.9,
-                          grid_size = 30,
-                          cv_sets = 5,
-                          mixture = NULL,
-                          palette = NULL,
-                          plot_y_labels = FALSE,
-                          verbose = TRUE,
-                          plot_title = c("accuracy",
-                                         "sensitivity",
-                                         "specificity",
-                                         "auc",
-                                         "features",
-                                         "top-features",
-                                         "mixture"),
-                          seed = 123) {
-
+hd_model_rreg <- function(
+  dat,
+  variable = "Disease",
+  case,
+  control = NULL,
+  balance_groups = TRUE,
+  cor_threshold = 0.9,
+  grid_size = 30,
+  cv_sets = 5,
+  mixture = NULL,
+  palette = NULL,
+  plot_y_labels = FALSE,
+  verbose = TRUE,
+  plot_title = c(
+    "accuracy",
+    "sensitivity",
+    "specificity",
+    "auc",
+    "features",
+    "top-features",
+    "mixture"
+  ),
+  seed = 123
+) {
   dat <- check_data(dat = dat, variable = variable)
 
   if (dat[["train_data"]] |> ncol() <= 3) {
-    stop("The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_model_lr()` in case it is a classification problem. If it is a regression problem, consider using `hd_plot_regression()` directly.")
+    stop(
+      "The number of predictors is less than 2. Please provide a dataset with at least 2 predictors or use `hd_model_lr()` in case it is a classification problem. If it is a regression problem, consider using `hd_plot_regression()` directly."
+    )
   }
 
   if (balance_groups) {
-    message("The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.")
+    message(
+      "The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`."
+    )
   }
 
-  dat <- prepare_data(dat = dat,
-                      variable = variable,
-                      case = case,
-                      control = control,
-                      balance_groups = balance_groups,
-                      cv_sets = cv_sets,
-                      seed = seed)
-  dat <- tune_rreg_model(dat = dat,
-                         variable = variable,
-                         cor_threshold = cor_threshold,
-                         grid_size = grid_size,
-                         mixture = mixture,
-                         verbose = verbose,
-                         seed = seed)
+  dat <- prepare_data(
+    dat = dat,
+    variable = variable,
+    case = case,
+    control = control,
+    balance_groups = balance_groups,
+    cv_sets = cv_sets,
+    seed = seed
+  )
+  dat <- tune_rreg_model(
+    dat = dat,
+    variable = variable,
+    cor_threshold = cor_threshold,
+    grid_size = grid_size,
+    mixture = mixture,
+    verbose = verbose,
+    seed = seed
+  )
 
   if (dat[["model_type"]] == "binary_class") {
-
-    dat <- evaluate_model(dat = dat,
-                          variable = variable,
-                          case = case,
-                          mixture = mixture,
-                          palette = palette,
-                          verbose = verbose,
-                          seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = case,
-                        mixture = mixture,
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'glmnet',
-                        seed = seed)
-
+    dat <- evaluate_model(
+      dat = dat,
+      variable = variable,
+      case = case,
+      mixture = mixture,
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = case,
+      mixture = mixture,
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'glmnet',
+      seed = seed
+    )
   } else if (dat[["model_type"]] == "multi_class") {
-
-    dat <- evaluate_multiclass_model(dat = dat,
-                                     variable = variable,
-                                     mixture = mixture,
-                                     palette = palette,
-                                     verbose = verbose,
-                                     seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = NULL,
-                        mixture = mixture,
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'glmnet',
-                        seed = seed)
-
+    dat <- evaluate_multiclass_model(
+      dat = dat,
+      variable = variable,
+      mixture = mixture,
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = NULL,
+      mixture = mixture,
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'glmnet',
+      seed = seed
+    )
   } else {
-
-    dat <- evaluate_regression_model(dat = dat,
-                                     variable = variable,
-                                     mixture = mixture,
-                                     palette = palette,
-                                     verbose = verbose,
-                                     seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = NULL,
-                        mixture = mixture,
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'glmnet',
-                        seed = seed)
-
+    dat <- evaluate_regression_model(
+      dat = dat,
+      variable = variable,
+      mixture = mixture,
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = NULL,
+      mixture = mixture,
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'glmnet',
+      seed = seed
+    )
   }
 
   if (dat[["features"]] |> nrow() < 3) {
     dat[["feat_imp_plot"]] <- NULL
-    message("Feature importance plot is not generated as the number of features is less than 5.")
+    message(
+      "Feature importance plot is not generated as the number of features is less than 5."
+    )
   }
 
   return(dat)
@@ -1522,102 +1868,125 @@ hd_model_rreg <- function(dat,
 #'                            "rsq",
 #'                            "features"),
 #'             verbose = FALSE)
-hd_model_rf <- function(dat,
-                        variable = "Disease",
-                        case,
-                        control = NULL,
-                        balance_groups = TRUE,
-                        cor_threshold = 0.9,
-                        grid_size = 30,
-                        cv_sets = 5,
-                        palette = NULL,
-                        plot_y_labels = FALSE,
-                        verbose = TRUE,
-                        plot_title = c("accuracy",
-                                       "sensitivity",
-                                       "specificity",
-                                       "auc",
-                                       "features",
-                                       "top-features"),
-                        seed = 123) {
-
+hd_model_rf <- function(
+  dat,
+  variable = "Disease",
+  case,
+  control = NULL,
+  balance_groups = TRUE,
+  cor_threshold = 0.9,
+  grid_size = 30,
+  cv_sets = 5,
+  palette = NULL,
+  plot_y_labels = FALSE,
+  verbose = TRUE,
+  plot_title = c(
+    "accuracy",
+    "sensitivity",
+    "specificity",
+    "auc",
+    "features",
+    "top-features"
+  ),
+  seed = 123
+) {
   dat <- check_data(dat = dat, variable = variable)
 
   if (balance_groups) {
-    message("The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.")
+    message(
+      "The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`."
+    )
   }
 
-  dat <- prepare_data(dat = dat,
-                      variable = variable,
-                      case = case,
-                      control = control,
-                      balance_groups = balance_groups,
-                      cv_sets = cv_sets,
-                      seed = seed)
-  dat <- tune_rf_model(dat = dat,
-                       variable = variable,
-                       cor_threshold = cor_threshold,
-                       grid_size = grid_size,
-                       verbose = verbose,
-                       seed = seed)
+  dat <- prepare_data(
+    dat = dat,
+    variable = variable,
+    case = case,
+    control = control,
+    balance_groups = balance_groups,
+    cv_sets = cv_sets,
+    seed = seed
+  )
+  dat <- tune_rf_model(
+    dat = dat,
+    variable = variable,
+    cor_threshold = cor_threshold,
+    grid_size = grid_size,
+    verbose = verbose,
+    seed = seed
+  )
 
   if (dat[["model_type"]] == "binary_class") {
-    dat <- evaluate_model(dat = dat,
-                          variable = variable,
-                          case = case,
-                          mixture = "None",
-                          palette = palette,
-                          verbose = verbose,
-                          seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = case,
-                        mixture = "None",
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'rf',
-                        seed = seed)
+    dat <- evaluate_model(
+      dat = dat,
+      variable = variable,
+      case = case,
+      mixture = "None",
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = case,
+      mixture = "None",
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'rf',
+      seed = seed
+    )
   } else if (dat[["model_type"]] == "multi_class") {
-    dat <- evaluate_multiclass_model(dat = dat,
-                                     variable = variable,
-                                     mixture = "None",
-                                     palette = palette,
-                                     verbose = verbose,
-                                     seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = NULL,
-                        mixture = "None",
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'rf',
-                        seed = seed)
+    dat <- evaluate_multiclass_model(
+      dat = dat,
+      variable = variable,
+      mixture = "None",
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = NULL,
+      mixture = "None",
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'rf',
+      seed = seed
+    )
   } else {
-    dat <- evaluate_regression_model(dat = dat,
-                                     variable = variable,
-                                     mixture = "None",
-                                     palette = palette,
-                                     verbose = verbose,
-                                     seed = seed)
-    dat <- variable_imp(dat = dat,
-                        variable = variable,
-                        case = NULL,
-                        mixture = "None",
-                        palette = palette,
-                        y_labels = plot_y_labels,
-                        title = plot_title,
-                        verbose = verbose,
-                        engine = 'rf',
-                        seed = seed)
+    dat <- evaluate_regression_model(
+      dat = dat,
+      variable = variable,
+      mixture = "None",
+      palette = palette,
+      verbose = verbose,
+      seed = seed
+    )
+    dat <- variable_imp(
+      dat = dat,
+      variable = variable,
+      case = NULL,
+      mixture = "None",
+      palette = palette,
+      y_labels = plot_y_labels,
+      title = plot_title,
+      verbose = verbose,
+      engine = 'rf',
+      seed = seed
+    )
   }
 
   if (dat[["features"]] |> nrow() < 3) {
     dat[["feat_imp_plot"]] <- NULL
-    message("Feature importance plot is not generated as the number of features is less than 5.")
+    message(
+      "Feature importance plot is not generated as the number of features is less than 5."
+    )
   }
 
   dat[["mixture"]] <- NULL
@@ -1685,70 +2054,86 @@ hd_model_rf <- function(dat,
 #'             variable = "Disease",
 #'             case = "AML",
 #'             palette = "cancers12")
-hd_model_lr <- function(dat,
-                        variable = "Disease",
-                        case,
-                        control = NULL,
-                        balance_groups = TRUE,
-                        cor_threshold = 0.9,
-                        palette = NULL,
-                        plot_y_labels = TRUE,
-                        verbose = TRUE,
-                        plot_title = c("accuracy",
-                                       "sensitivity",
-                                       "specificity",
-                                       "auc",
-                                       "features",
-                                       "top-features"),
-                        seed = 123) {
-
+hd_model_lr <- function(
+  dat,
+  variable = "Disease",
+  case,
+  control = NULL,
+  balance_groups = TRUE,
+  cor_threshold = 0.9,
+  palette = NULL,
+  plot_y_labels = TRUE,
+  verbose = TRUE,
+  plot_title = c(
+    "accuracy",
+    "sensitivity",
+    "specificity",
+    "auc",
+    "features",
+    "top-features"
+  ),
+  seed = 123
+) {
   dat <- check_data(dat = dat, variable = variable)
 
   if (balance_groups) {
-    message("The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.")
+    message(
+      "The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`."
+    )
   }
 
-  dat <- prepare_data(dat = dat,
-                      variable = variable,
-                      case = case,
-                      control = control,
-                      balance_groups = balance_groups,
-                      cv_sets = 2,
-                      seed = seed)
+  dat <- prepare_data(
+    dat = dat,
+    variable = variable,
+    case = case,
+    control = control,
+    balance_groups = balance_groups,
+    cv_sets = 2,
+    seed = seed
+  )
 
   if (dat[["model_type"]] == "multi_class") {
-    stop("Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_model_rreg()`.")
+    stop(
+      "Logistic regression model is not supported for multiclass classification. Please provide a `case` argument or use `hd_model_rreg()`."
+    )
   }
 
-  dat <- tune_lr_model(dat = dat,
-                       variable = variable,
-                       cor_threshold = cor_threshold,
-                       verbose = verbose,
-                       seed = seed)
+  dat <- tune_lr_model(
+    dat = dat,
+    variable = variable,
+    cor_threshold = cor_threshold,
+    verbose = verbose,
+    seed = seed
+  )
 
+  dat <- evaluate_model(
+    dat = dat,
+    variable = variable,
+    case = case,
+    mixture = "None",
+    palette = palette,
+    verbose = verbose,
+    seed = seed
+  )
 
-  dat <- evaluate_model(dat = dat,
-                        variable = variable,
-                        case = case,
-                        mixture = "None",
-                        palette = palette,
-                        verbose = verbose,
-                        seed = seed)
-
-  dat <- variable_imp(dat = dat,
-                      variable = variable,
-                      case = case,
-                      mixture = "None",
-                      palette = palette,
-                      y_labels = plot_y_labels,
-                      title = plot_title,
-                      verbose = verbose,
-                      engine = 'lr',
-                      seed = seed)
+  dat <- variable_imp(
+    dat = dat,
+    variable = variable,
+    case = case,
+    mixture = "None",
+    palette = palette,
+    y_labels = plot_y_labels,
+    title = plot_title,
+    verbose = verbose,
+    engine = 'lr',
+    seed = seed
+  )
 
   if (dat[["features"]] |> nrow() < 3) {
     dat[["feat_imp_plot"]] <- NULL
-    message("Feature importance plot is not generated as the number of features is less than 5.")
+    message(
+      "Feature importance plot is not generated as the number of features is less than 5."
+    )
   }
 
   dat[["mixture"]] <- NULL
@@ -1767,30 +2152,34 @@ hd_model_lr <- function(dat,
 #'
 #' @return The prepared data.
 #' @keywords internal
-prepare_set <- function(dat, variable, metadata_cols = NULL){
-
+prepare_set <- function(dat, variable, metadata_cols = NULL) {
   Variable <- rlang::sym(variable)
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the DE analysis."
+      )
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
     sample_id <- dat[["sample_id"]]
 
     if (is.null(metadata)) {
-      stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+      stop(
+        "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+      )
     }
     if (isFALSE(variable %in% colnames(metadata))) {
       stop("The variable is not be present in the metadata.")
     }
 
     join_data <- wide_data |>
-      dplyr::left_join(metadata |>
-                         dplyr::select(dplyr::all_of(c(sample_id, variable, metadata_cols))),
-                       by = sample_id) |>
-      dplyr::relocate(!!Variable, .after = sample_id)
-
+      dplyr::left_join(
+        metadata |>
+          dplyr::select(dplyr::all_of(c(sample_id, variable, metadata_cols))),
+        by = sample_id
+      ) |>
+      dplyr::relocate(!!Variable, .after = dplyr::all_of(sample_id))
   } else {
     join_data <- dat
   }
@@ -1874,48 +2263,63 @@ prepare_set <- function(dat, variable, metadata_cols = NULL){
 #'
 #' # Run the model evaluation pipeline
 #' hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)
-hd_model_test <- function(model_object,
-                          train_set,
-                          test_set,
-                          variable = "Disease",
-                          metadata_cols = NULL,
-                          case,
-                          control = NULL,
-                          balance_groups = TRUE,
-                          palette = NULL,
-                          seed = 123){
-
+hd_model_test <- function(
+  model_object,
+  train_set,
+  test_set,
+  variable = "Disease",
+  metadata_cols = NULL,
+  case,
+  control = NULL,
+  balance_groups = TRUE,
+  palette = NULL,
+  seed = 123
+) {
   Variable <- rlang::sym(variable)
-  if (inherits(model_object, "hd_model")){
+  if (inherits(model_object, "hd_model")) {
     final_wf <- model_object[["final_workflow"]]
     model_type <- model_object[["model_type"]]
   } else {
     stop("The model object should be an `hd_model` object.")
   }
 
-  train_set <- prepare_set(dat = train_set, variable = variable, metadata_cols = metadata_cols)
-  test_set <- prepare_set(dat = test_set, variable = variable, metadata_cols = metadata_cols)
+  train_set <- prepare_set(
+    dat = train_set,
+    variable = variable,
+    metadata_cols = metadata_cols
+  )
+  test_set <- prepare_set(
+    dat = test_set,
+    variable = variable,
+    metadata_cols = metadata_cols
+  )
 
   if (model_type == "regression") {
     dat <- list(train_set, test_set)
   } else {
-    dat <- list(train_set |> dplyr::mutate(!!Variable := as.factor(!!Variable)),
-                test_set |> dplyr::mutate(!!Variable := as.factor(!!Variable)))
+    dat <- list(
+      train_set |> dplyr::mutate(!!Variable := as.factor(!!Variable)),
+      test_set |> dplyr::mutate(!!Variable := as.factor(!!Variable))
+    )
   }
 
   dat <- check_data(dat = dat, variable = variable)
 
   if (balance_groups) {
-    message("The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.")
+    message(
+      "The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`."
+    )
   }
 
-  dat <- prepare_data(dat = dat,
-                      variable = variable,
-                      case = case,
-                      control = control,
-                      balance_groups = balance_groups,
-                      cv_sets = 2,
-                      seed = seed)
+  dat <- prepare_data(
+    dat = dat,
+    variable = variable,
+    case = case,
+    control = control,
+    balance_groups = balance_groups,
+    cv_sets = 2,
+    seed = seed
+  )
 
   train_set <- dat[["train_data"]]
   test_set <- dat[["test_data"]]
@@ -1931,13 +2335,17 @@ hd_model_test <- function(model_object,
   model_object[["validation_data"]] <- test_set
 
   if (model_type == "regression") {
-    preds <- tune::last_fit(final_wf,
-                            splits,
-                            metrics = yardstick::metric_set(yardstick::rmse))
+    preds <- tune::last_fit(
+      final_wf,
+      splits,
+      metrics = yardstick::metric_set(yardstick::rmse)
+    )
   } else {
-    preds <- tune::last_fit(final_wf,
-                            splits,
-                            metrics = yardstick::metric_set(yardstick::roc_auc))
+    preds <- tune::last_fit(
+      final_wf,
+      splits,
+      metrics = yardstick::metric_set(yardstick::roc_auc)
+    )
   }
 
   res <- stats::predict(final, new_data = test_set)
@@ -1945,30 +2353,44 @@ hd_model_test <- function(model_object,
   res <- dplyr::bind_cols(res, test_set |> dplyr::select(!!Variable))
 
   if (model_type == "regression") {
-
     rmse <- res |> yardstick::rmse(!!Variable, !!rlang::sym(".pred"))
     rsq <- res |> yardstick::rsq(!!Variable, !!rlang::sym(".pred"))
 
     scatter_plot <- res |>
       ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!rlang::sym(".pred"))) +
       ggplot2::geom_point() +
-      ggplot2::geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+      ggplot2::geom_abline(
+        intercept = 0,
+        slope = 1,
+        color = "black",
+        linetype = "dashed"
+      ) +
       ggplot2::labs(x = "Observed", y = "Predicted") +
       theme_hd()
 
-    model_object[["test_metrics"]] <- list("rmse" = rmse$.estimate,
-                                           "rsq" = rsq$.estimate)
+    model_object[["test_metrics"]] <- list(
+      "rmse" = rmse$.estimate,
+      "rsq" = rsq$.estimate
+    )
     model_object[["test_comparison_plot"]] <- scatter_plot
-
   } else {
-
-    accuracy <- res |> yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
-    sensitivity <- res |> yardstick::sensitivity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
-    specificity <- res |> yardstick::specificity(!!Variable, !!rlang::sym(".pred_class"), event_level = "second")
+    accuracy <- res |>
+      yardstick::accuracy(!!Variable, !!rlang::sym(".pred_class"))
+    sensitivity <- res |>
+      yardstick::sensitivity(
+        !!Variable,
+        !!rlang::sym(".pred_class"),
+        event_level = "second"
+      )
+    specificity <- res |>
+      yardstick::specificity(
+        !!Variable,
+        !!rlang::sym(".pred_class"),
+        event_level = "second"
+      )
     cm <- res |> yardstick::conf_mat(!!Variable, !!rlang::sym(".pred_class"))
 
     if (model_type == "binary_class") {
-
       auc <- preds |> tune::collect_metrics()
 
       if (is.null(names(palette)) && !is.null(palette)) {
@@ -1989,15 +2411,31 @@ hd_model_test <- function(model_object,
 
       prob_plot <- stats::predict(final, new_data = test_set, type = "prob") |>
         dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
-        dplyr::mutate(!!Variable := dplyr::if_else(!!Variable == 1, case, "Control")) |>
-        ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym(".pred_1"))) +
+        dplyr::mutate(
+          !!Variable := dplyr::if_else(!!Variable == 1, case, "Control")
+        ) |>
+        ggplot2::ggplot(ggplot2::aes(
+          x = factor(!!Variable),
+          y = !!rlang::sym(".pred_1")
+        )) +
         ggplot2::geom_violin() +
-        ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+        ggplot2::stat_summary(
+          fun = stats::median,
+          geom = "crossbar",
+          width = 0.8,
+          color = "black"
+        ) +
         ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
         ggplot2::scale_color_manual(values = pal1) +
         theme_hd() +
-        ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
-        ggplot2::labs(x = ggplot2::element_blank(), y = paste(case, "Probability"))
+        ggplot2::theme(
+          legend.position = "none",
+          axis.text.x = ggplot2::element_text(angle = 90)
+        ) +
+        ggplot2::labs(
+          x = ggplot2::element_blank(),
+          y = paste(case, "Probability")
+        )
 
       roc <- preds |>
         tune::collect_predictions(summarize = FALSE) |>
@@ -2008,16 +2446,24 @@ hd_model_test <- function(model_object,
         ggplot2::coord_equal() +
         theme_hd()
 
-      model_object[["test_metrics"]] <- list("accuracy" = accuracy$.estimate,
-                                             "sensitivity" = sensitivity$.estimate,
-                                             "specificity" = specificity$.estimate,
-                                             "auc" = auc$.estimate,
-                                             "confusion_matrix" = cm)
-
+      model_object[["test_metrics"]] <- list(
+        "accuracy" = accuracy$.estimate,
+        "sensitivity" = sensitivity$.estimate,
+        "specificity" = specificity$.estimate,
+        "auc" = auc$.estimate,
+        "confusion_matrix" = cm
+      )
     } else {
-
-      class_predictions <- stats::predict(final, new_data = test_set, type = "class")
-      prob_predictions <- stats::predict(final, new_data = test_set, type = "prob")
+      class_predictions <- stats::predict(
+        final,
+        new_data = test_set,
+        type = "class"
+      )
+      prob_predictions <- stats::predict(
+        final,
+        new_data = test_set,
+        type = "prob"
+      )
 
       if (is.null(names(palette)) && !is.null(palette)) {
         pal <- unlist(hd_palettes()[[palette]])
@@ -2030,33 +2476,61 @@ hd_model_test <- function(model_object,
 
       prob_plot <- prob_predictions |>
         dplyr::bind_cols(test_set |> dplyr::select(!!Variable)) |>
-        tidyr::pivot_longer(cols = tidyselect::starts_with(".pred_"),
-                            names_to = "class",
-                            values_to = "probability") |>
+        tidyr::pivot_longer(
+          cols = dplyr::starts_with(".pred_"),
+          names_to = "class",
+          values_to = "probability"
+        ) |>
         dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
         dplyr::filter(class == !!Variable) |>
         dplyr::select(-class) |>
-        ggplot2::ggplot(ggplot2::aes(x = factor(!!Variable), y = !!rlang::sym("probability"))) +
+        ggplot2::ggplot(ggplot2::aes(
+          x = factor(!!Variable),
+          y = !!rlang::sym("probability")
+        )) +
         ggplot2::geom_violin() +
-        ggplot2::stat_summary(fun = stats::median, geom = "crossbar", width = 0.8, color = "black") +
+        ggplot2::stat_summary(
+          fun = stats::median,
+          geom = "crossbar",
+          width = 0.8,
+          color = "black"
+        ) +
         ggplot2::geom_jitter(ggplot2::aes(color = !!Variable), width = 0.1) +
         ggplot2::scale_color_manual(values = pal) +
         theme_hd() +
-        ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90)) +
-        ggplot2::labs(x = ggplot2::element_blank(), y = paste("Class Probability"))
+        ggplot2::theme(
+          legend.position = "none",
+          axis.text.x = ggplot2::element_text(angle = 90)
+        ) +
+        ggplot2::labs(
+          x = ggplot2::element_blank(),
+          y = paste("Class Probability")
+        )
 
-      res <- dplyr::bind_cols(test_set |> dplyr::select(!!Variable),
-                              class_predictions,
-                              prob_predictions)
+      res <- dplyr::bind_cols(
+        test_set |> dplyr::select(!!Variable),
+        class_predictions,
+        prob_predictions
+      )
 
-      pred_cols <- grep("^\\.pred_", names(res |> dplyr::select(-!!rlang::sym(".pred_class"))), value = TRUE)
+      pred_cols <- grep(
+        "^\\.pred_",
+        names(res |> dplyr::select(-!!rlang::sym(".pred_class"))),
+        value = TRUE
+      )
 
-      roc_data <- yardstick::roc_curve(res, truth = !!Variable, !!!rlang::syms(pred_cols))
+      roc_data <- yardstick::roc_curve(
+        res,
+        truth = !!Variable,
+        !!!rlang::syms(pred_cols)
+      )
 
       roc <- roc_data |>
-        ggplot2::ggplot(ggplot2::aes(x = 1 - !!rlang::sym("specificity"),
-                                     y = !!rlang::sym("sensitivity"),
-                                     color = !!rlang::sym(".level"))) +
+        ggplot2::ggplot(ggplot2::aes(
+          x = 1 - !!rlang::sym("specificity"),
+          y = !!rlang::sym("sensitivity"),
+          color = !!rlang::sym(".level")
+        )) +
         ggplot2::geom_path(linewidth = 1) +
         ggplot2::geom_abline(lty = 3) +
         ggplot2::coord_equal() +
@@ -2068,47 +2542,25 @@ hd_model_test <- function(model_object,
       }
       roc <- apply_palette(roc, palette) +
         theme_hd() +
-        ggplot2::theme(legend.position = "none",
-                       axis.text.x = ggplot2::element_text(angle = 90))
+        ggplot2::theme(
+          legend.position = "none",
+          axis.text.x = ggplot2::element_text(angle = 90)
+        )
 
-      # ROC AUC for each class
-      final_predictions <- prob_predictions |>
-        dplyr::mutate(ID = test_set[[1]]) |>
-        dplyr::relocate(!!rlang::sym("ID"))
+      # One-vs-rest ROC AUC for each class, plus the macro and micro averages
+      auc_scores <- multiclass_auc(test_set[[variable]], prob_predictions)
+      auc <- tibble::tibble(
+        !!Variable := names(auc_scores),
+        AUC = unname(auc_scores)
+      )
 
-      sample_id <- names(train_set[1])
-
-      df <- test_set |>
-        dplyr::select(!!rlang::sym(sample_id), !!Variable) |>
-        dplyr::mutate(value = 1) |>
-        tidyr::spread(!!Variable, !!rlang::sym("value"), fill= 0)
-
-      true_dat <- df |>
-        purrr::set_names(paste(names(df), "_true", sep = "")) |>
-        dplyr::rename(ID = !!rlang::sym(paste0(sample_id, "_true")))
-
-      dat_prob <- final_predictions |>
-        dplyr::rename_all(~stringr::str_replace_all(.,".pred_",""))
-
-      prob_data <- dat_prob |>
-        purrr::set_names(paste(names(dat_prob), "_pred_glmnet", sep = ""))|>
-        dplyr::rename(ID = !!rlang::sym("ID_pred_glmnet"))
-
-      final_df <- true_dat |>
-        dplyr::left_join(prob_data, by = "ID") |>
-        dplyr::select(-dplyr::all_of(c("ID"))) |>
-        as.data.frame()
-
-      suppressWarnings({auc <- multiROC::multi_roc(final_df, force_diag = TRUE)})
-      auc <- tibble::tibble(!!Variable := names(auc[["AUC"]][["glmnet"]]),
-                            AUC = unlist(auc[["AUC"]][["glmnet"]]))
-
-      model_object[["test_metrics"]] <- list("accuracy" = accuracy$.estimate,
-                                             "sensitivity" = sensitivity$.estimate,
-                                             "specificity" = specificity$.estimate,
-                                             "auc" = auc,
-                                             "confusion_matrix" = cm)
-
+      model_object[["test_metrics"]] <- list(
+        "accuracy" = accuracy$.estimate,
+        "sensitivity" = sensitivity$.estimate,
+        "specificity" = specificity$.estimate,
+        "auc" = auc,
+        "confusion_matrix" = cm
+      )
     }
 
     model_object[["test_roc_curve"]] <- roc
@@ -2116,7 +2568,6 @@ hd_model_test <- function(model_object,
   }
 
   return(model_object)
-
 }
 
 
@@ -2186,13 +2637,13 @@ hd_model_test <- function(model_object,
 #'
 #' # Plot summary visualizations
 #' hd_plot_model_summary(res, class_palette = "cancers12")
-hd_plot_model_summary <- function(model_results,
-                                  importance = 0.5,
-                                  class_palette = NULL,
-                                  upset_top_features = FALSE) {
-
+hd_plot_model_summary <- function(
+  model_results,
+  importance = 0.5,
+  class_palette = NULL,
+  upset_top_features = FALSE
+) {
   barplot_data <- lapply(names(model_results), function(case) {
-
     features <- model_results[[case]][["features"]] |>
       dplyr::mutate(Category = case) |>
       dplyr::select(!!rlang::sym("Category"), !!rlang::sym("Feature")) |>
@@ -2218,25 +2669,32 @@ hd_plot_model_summary <- function(model_results,
   barplot_data <- do.call(rbind, barplot_data)
 
   features_barplot <- barplot_data |>
-    ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
-                                 y = !!rlang::sym("Count"),
-                                 fill = !!rlang::sym("Type"))) +
+    ggplot2::ggplot(ggplot2::aes(
+      x = !!rlang::sym("Category"),
+      y = !!rlang::sym("Count"),
+      fill = !!rlang::sym("Type")
+    )) +
     ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
     ggplot2::labs(x = "", y = "Number of protein", fill = "Feature type") +
     theme_hd(angled = 90) +
-    ggplot2::theme(legend.position = "top",
-                   legend.title = ggplot2::element_text(face = "bold")) +
-    ggplot2::scale_fill_manual(values = c("all-features" = "pink",
-                                          "top-features" = "midnightblue"))
+    ggplot2::theme(
+      legend.position = "top",
+      legend.title = ggplot2::element_text(face = "bold")
+    ) +
+    ggplot2::scale_fill_manual(
+      values = c("all-features" = "pink", "top-features" = "midnightblue")
+    )
 
   metrics_data <- lapply(names(model_results), function(case) {
     if ("auc" %in% names(model_results[[case]][["metrics"]])) {
       metrics <- tibble::tibble(
         metric = c("Accuracy", "Sensitivity", "Specificity", "AUC"),
-        value = c(model_results[[case]][["metrics"]][["accuracy"]],
-                  model_results[[case]][["metrics"]][["sensitivity"]],
-                  model_results[[case]][["metrics"]][["specificity"]],
-                  model_results[[case]][["metrics"]][["auc"]])
+        value = c(
+          model_results[[case]][["metrics"]][["accuracy"]],
+          model_results[[case]][["metrics"]][["sensitivity"]],
+          model_results[[case]][["metrics"]][["specificity"]],
+          model_results[[case]][["metrics"]][["auc"]]
+        )
       ) |>
         dplyr::mutate(Category = case)
     } else {
@@ -2250,25 +2708,38 @@ hd_plot_model_summary <- function(model_results,
     metrics_data <- do.call(rbind, metrics_data)
 
     metrics_barplot <- metrics_data |>
-      ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("Category"),
-                                   y = !!rlang::sym("value"),
-                                   fill = !!rlang::sym("metric"))) +
-      ggplot2::geom_bar(stat = "identity", position = "dodge", colour = "black") +
-      ggplot2::labs(x = "", y = "Value", color = "Metric") +
+      ggplot2::ggplot(ggplot2::aes(
+        x = !!rlang::sym("Category"),
+        y = !!rlang::sym("value"),
+        fill = !!rlang::sym("metric")
+      )) +
+      ggplot2::geom_bar(
+        stat = "identity",
+        position = "dodge",
+        colour = "black"
+      ) +
+      ggplot2::labs(x = "", y = "Value", fill = "Metric") +
       theme_hd(angled = 90) +
-      ggplot2::theme(legend.position = "top",
-                     legend.title = ggplot2::element_text(face = "bold")) +
-      ggplot2::scale_fill_manual(values = c("Accuracy" = "#2b2d42",
-                                            "Sensitivity" = "#8d99ae",
-                                            "Specificity" = "#edf2f4",
-                                            "AUC" = "#ef233c"))
+      ggplot2::theme(
+        legend.position = "top",
+        legend.title = ggplot2::element_text(face = "bold")
+      ) +
+      ggplot2::scale_fill_manual(
+        values = c(
+          "Accuracy" = "#2b2d42",
+          "Sensitivity" = "#8d99ae",
+          "Specificity" = "#edf2f4",
+          "AUC" = "#ef233c"
+        )
+      )
   } else {
     metrics_barplot <- NULL
-    warning("Classification metrics are not available for any model and will not be plotted.")
+    warning(
+      "Classification metrics are not available for any model and will not be plotted."
+    )
   }
 
   upset_features <- lapply(names(model_results), function(case) {
-
     if (upset_top_features == TRUE) {
       upset_features <- model_results[[case]][["features"]] |>
         dplyr::filter(!!rlang::sym("Scaled_Importance") >= importance) |>
@@ -2277,7 +2748,6 @@ hd_plot_model_summary <- function(model_results,
       upset_features <- model_results[[case]][["features"]] |>
         dplyr::pull(!!rlang::sym("Feature"))
     }
-
   })
   names(upset_features) <- names(model_results)
 
@@ -2296,18 +2766,19 @@ hd_plot_model_summary <- function(model_results,
   ordered_feature_names <- names(sort(frequencies, decreasing = TRUE))
   ordered_colors <- ordered_colors[ordered_feature_names]
 
-  upset <- UpSetR::fromList(upset_features)
-  features <- extract_protein_list(upset, upset_features)
+  features <- extract_protein_list(upset_features)
 
-  upset_plot_features <- UpSetR::upset(upset,
-                                       sets = ordered_feature_names,
-                                       order.by = "freq",
-                                       nsets = length(ordered_feature_names),
-                                       sets.bar.color = ordered_colors)
+  upset_plot_features <- build_upset_plot(
+    upset_features,
+    ordered_feature_names,
+    ordered_colors
+  )
 
-  return(list("features_barplot" = features_barplot,
-              "metrics_barplot" = metrics_barplot,
-              "upset_plot_features" = upset_plot_features,
-              "features_df" = features$proteins_df,
-              "features_list" = features$proteins_list))
+  return(list(
+    "features_barplot" = features_barplot,
+    "metrics_barplot" = metrics_barplot,
+    "upset_plot_features" = upset_plot_features,
+    "features_df" = features$proteins_df,
+    "features_list" = features$proteins_list
+  ))
 }

@@ -10,7 +10,9 @@
 #' @keywords internal
 check_col_types <- function(dat, unique_threshold = 5) {
   # Get the classes of all columns
-  col_classes <- lapply(dat, function(column) hd_detect_vartype(column, unique_threshold = unique_threshold))
+  col_classes <- lapply(dat, function(column) {
+    hd_detect_vartype(column, unique_threshold = unique_threshold)
+  })
 
   # Summarize the counts of each class
   class_summary <- table(unlist(col_classes))
@@ -28,11 +30,19 @@ check_col_types <- function(dat, unique_threshold = 5) {
 #' @return A tibble with the column names and the percentage of NAs in each column.
 #' @keywords internal
 calc_na_percentage_col <- function(dat) {
-
   na_percentage <- dat |>
-    dplyr::summarise_all(~ round(sum(is.na(.)) / dplyr::n() * 100, 1)) |>
-    tidyr::gather(key = "column", value = "na_percentage") |>
-    dplyr::filter(!!rlang::sym("na_percentage") > 0) |>  # Filter out columns with no NAs
+    dplyr::summarise(
+      dplyr::across(
+        dplyr::everything(),
+        \(column) round(sum(is.na(column)) / dplyr::n() * 100, 1)
+      )
+    ) |>
+    tidyr::pivot_longer(
+      cols = dplyr::everything(),
+      names_to = "column",
+      values_to = "na_percentage"
+    ) |>
+    dplyr::filter(!!rlang::sym("na_percentage") > 0) |> # Filter out columns with no NAs
     dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage")))
 
   return(na_percentage)
@@ -50,10 +60,14 @@ calc_na_percentage_col <- function(dat) {
 #' @return A tibble with the DAids and the percentage of NAs in each row.
 #' @keywords internal
 calc_na_percentage_row <- function(dat, sample_id) {
-
   na_percentage <- dat |>
     dplyr::rowwise() |>
-    dplyr::mutate(na_percentage = round(sum(is.na(dplyr::across(dplyr::everything())))/ncol(dat) * 100, 1)) |>
+    dplyr::mutate(
+      na_percentage = round(
+        sum(is.na(dplyr::across(dplyr::everything()))) / ncol(dat) * 100,
+        1
+      )
+    ) |>
     dplyr::ungroup() |>
     dplyr::filter(!!rlang::sym("na_percentage") > 0) |>
     dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage"))) |>
@@ -79,37 +93,75 @@ calc_na_percentage_row <- function(dat, sample_id) {
 #' @param cor_results A tibble with the filtered protein pairs and their correlation values.
 #' @param cor_threshold The reporting protein-protein correlation threshold.
 #'
-#' @return Prints the summary, returs NULL
+#' @param max_rows The number of rows to show for each table. Default is 10.
+#'
+#' @return Prints the summary, returns NULL
 #' @keywords internal
-print_summary <- function(sample_n,
-                          var_n,
-                          class_summary,
-                          na_percentage_col,
-                          na_percentage_row = NULL,
-                          cor_results = NULL,
-                          cor_threshold = 0.8) {
-
+print_summary <- function(
+  sample_n,
+  var_n,
+  class_summary,
+  na_percentage_col,
+  na_percentage_row = NULL,
+  cor_results = NULL,
+  cor_threshold = 0.8,
+  max_rows = 10
+) {
   message("Summary:")
-  message("Note: In case of long output, only the first 10 rows are shown. To see the rest display the object with view()")
+  message(
+    "Note: In case of long output, only the first ",
+    max_rows,
+    " rows are shown. To see the rest display the object with view()"
+  )
   message("Number of samples: ", sample_n)
   message("Number of variables: ", var_n)
   message("--------------------------------------")
   for (class_name in names(class_summary)) {
-    message(class_name, ":", class_summary[class_name])
+    message(class_name, ": ", class_summary[[class_name]])
   }
   message("--------------------------------------")
   message("NA percentage in each column:")
-  message(na_percentage_col)
+  message_table(na_percentage_col, max_rows)
   message("--------------------------------------")
   if (!is.null(na_percentage_row)) {
     message("NA percentage in each row:")
-    message(na_percentage_row)
+    message_table(na_percentage_row, max_rows)
     message("--------------------------------------")
   }
   if (!is.null(cor_results)) {
     message("Protein-protein correlations above ", cor_threshold, ":")
-    message(cor_results)
+    message_table(cor_results, max_rows)
     message("--------------------------------------")
+  }
+
+  invisible(NULL)
+}
+
+
+#' Print a table as a message
+#'
+#' `message_table()` renders a tibble the way it would be printed at the console.
+#' Passing a data frame straight to `message()` deparses it into source code
+#' instead, which is unreadable.
+#'
+#' @param dat The table to print.
+#' @param max_rows The number of rows to show. Default is 10.
+#'
+#' @return `invisible(NULL)`, called for the side effect.
+#' @keywords internal
+message_table <- function(dat, max_rows = 10) {
+  if (is.null(dat) || nrow(dat) == 0) {
+    message("None.")
+    return(invisible(NULL))
+  }
+
+  # `print(n = )` is a tibble method, so normalise plain data frames first
+  shown <- tibble::as_tibble(utils::head(dat, max_rows))
+  rendered <- utils::capture.output(print(shown, n = max_rows))
+  message(paste(rendered, collapse = "\n"))
+
+  if (nrow(dat) > max_rows) {
+    message("... and ", nrow(dat) - max_rows, " more rows.")
   }
 
   invisible(NULL)
@@ -126,7 +178,6 @@ print_summary <- function(sample_n,
 #' @return A histogram of the missing value distribution.
 #' @keywords internal
 plot_missing_values <- function(missing_values, yaxis_name) {
-
   na_histogram <- missing_values |>
     ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("na_percentage"))) +
     ggplot2::geom_histogram() +
@@ -150,45 +201,65 @@ plot_missing_values <- function(missing_values, yaxis_name) {
 #'
 #' @return A list containing plots and sample counts.
 #' @keywords internal
-plot_metadata_summary <- function(metadata, sample_id, variable, palette = NULL, unique_threshold = 5) {
-
-  col_classes <- lapply(metadata |> dplyr::select(-rlang::sym(sample_id)),
-                        function(column) hd_detect_vartype(column, unique_threshold = unique_threshold))
+plot_metadata_summary <- function(
+  metadata,
+  sample_id,
+  variable,
+  palette = NULL,
+  unique_threshold = 5
+) {
+  col_classes <- lapply(
+    metadata |> dplyr::select(-rlang::sym(sample_id)),
+    function(column) {
+      hd_detect_vartype(column, unique_threshold = unique_threshold)
+    }
+  )
 
   plot_list <- list()
   for (col in names(col_classes)) {
     Variable <- rlang::sym(col)
     Class_var <- rlang::sym(variable)
-    if (col_classes[[col]] == "continuous"){
+    if (col_classes[[col]] == "continuous") {
       dist_plot <- metadata |>
-        ggplot2::ggplot(ggplot2::aes(x = !!Variable, y = !!Class_var, fill = !!Class_var)) +
+        ggplot2::ggplot(ggplot2::aes(
+          x = !!Variable,
+          y = !!Class_var,
+          fill = !!Class_var
+        )) +
         ggridges::geom_density_ridges(alpha = 0.7, scale = 0.9) +
         ggplot2::labs(x = col, y = variable) +
         theme_hd() +
         ggplot2::theme(legend.position = "none")
 
-      if (!is.null(palette[[variable]])){
-        dist_plot <- apply_palette(dist_plot, palette[[variable]], type = "fill")
+      if (!is.null(palette[[variable]])) {
+        dist_plot <- apply_palette(
+          dist_plot,
+          palette[[variable]],
+          type = "fill"
+        )
       }
 
       plot_list[[col]] <- dist_plot
     }
 
-    if (col_classes[[col]] == "categorical"){
-
+    if (col_classes[[col]] == "categorical") {
       barplot <- metadata |>
         dplyr::count(!!Class_var, !!Variable) |>
-        ggplot2::ggplot(ggplot2::aes(x = !!rlang::sym("n"), y = !!Class_var, fill = !!Variable)) +
+        ggplot2::ggplot(ggplot2::aes(
+          x = !!rlang::sym("n"),
+          y = !!Class_var,
+          fill = !!Variable
+        )) +
         ggplot2::geom_bar(stat = "identity", position = "stack") +
         ggplot2::labs(x = "Number of samples", y = variable) +
         theme_hd() +
         ggplot2::theme()
 
-      if (!is.null(palette[[col]])){
+      if (!is.null(palette[[col]])) {
         barplot <- apply_palette(barplot, palette[[col]], type = "fill")
       }
 
-      if (col != variable){
+      if (col != variable) {
         plot_list[[col]] <- barplot
       }
     }
@@ -215,8 +286,14 @@ plot_metadata_summary <- function(metadata, sample_id, variable, palette = NULL,
 #'
 #' @return A list containing the qc summery of data
 #' @keywords internal
-qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_threshold = 0.8, cor_method = "pearson", verbose = TRUE) {
-
+qc_summary_data <- function(
+  wide_data,
+  sample_id,
+  unique_threshold = 5,
+  cor_threshold = 0.8,
+  cor_method = "pearson",
+  verbose = TRUE
+) {
   wide_data <- wide_data |>
     dplyr::select(rlang::sym(sample_id), dplyr::where(is.numeric))
   sample_n <- nrow(wide_data)
@@ -226,30 +303,36 @@ qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_thre
   na_col_dist <- plot_missing_values(na_percentage_col, "Number of Features")
   na_percentage_row <- calc_na_percentage_row(wide_data, sample_id)
   na_row_dist <- plot_missing_values(na_percentage_row, "Number of Samples")
-  cor <- hd_plot_cor_heatmap(wide_data |> dplyr::select(-rlang::sym(sample_id)),
-                             threshold = cor_threshold,
-                             method = cor_method)
+  cor <- hd_plot_cor_heatmap(
+    wide_data |> dplyr::select(-rlang::sym(sample_id)),
+    threshold = cor_threshold,
+    method = cor_method
+  )
   cor_matrix <- cor[["cor_matrix"]]
   cor_results <- cor[["cor_results"]]
   p <- cor[["cor_heatmap"]]
 
   if (isTRUE(verbose)) {
-    print_summary(sample_n,
-                  protein_n,
-                  class_summary,
-                  na_percentage_col,
-                  na_percentage_row,
-                  cor_results,
-                  cor_threshold)
+    print_summary(
+      sample_n,
+      protein_n,
+      class_summary,
+      na_percentage_col,
+      na_percentage_row,
+      cor_results,
+      cor_threshold
+    )
   }
 
-  return(list("na_percentage_col" = na_percentage_col,
-              "na_col_hist" = na_col_dist,
-              "na_percentage_row" = na_percentage_row,
-              "na_row_hist" = na_row_dist,
-              "cor_matrix" = cor_matrix,
-              "cor_results" = cor_results,
-              "cor_heatmap" = p))
+  return(list(
+    "na_percentage_col" = na_percentage_col,
+    "na_col_hist" = na_col_dist,
+    "na_percentage_row" = na_percentage_row,
+    "na_row_hist" = na_row_dist,
+    "cor_matrix" = cor_matrix,
+    "cor_results" = cor_results,
+    "cor_heatmap" = p
+  ))
 }
 
 
@@ -268,26 +351,52 @@ qc_summary_data <- function(wide_data, sample_id, unique_threshold = 5, cor_thre
 #'
 #' @return A list of the qc summary of data
 #' @keywords internal
-qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, unique_threshold = 5, verbose = TRUE) {
-
+qc_summary_metadata <- function(
+  metadata,
+  sample_id,
+  variable,
+  palette = NULL,
+  unique_threshold = 5,
+  verbose = TRUE
+) {
   sample_n <- nrow(metadata)
   var_n <- ncol(metadata)
   class_summary <- check_col_types(metadata)
   na_percentage_col <- calc_na_percentage_col(metadata)
-  na_col_dist <- plot_missing_values(na_percentage_col, "Number of Metadata Variables")
+  na_col_dist <- plot_missing_values(
+    na_percentage_col,
+    "Number of Metadata Variables"
+  )
   na_percentage_row <- calc_na_percentage_row(metadata, sample_id)
-  na_row_dist <- plot_missing_values(na_percentage_row, "Number of Metadata Samples")
+  na_row_dist <- plot_missing_values(
+    na_percentage_row,
+    "Number of Metadata Samples"
+  )
 
   if (isTRUE(verbose)) {
-    print_summary(sample_n, var_n, class_summary, na_percentage_col, na_percentage_row)
+    print_summary(
+      sample_n,
+      var_n,
+      class_summary,
+      na_percentage_col,
+      na_percentage_row
+    )
   }
 
-  metadata_plot <- plot_metadata_summary(metadata, sample_id, variable, palette, unique_threshold)
+  metadata_plot <- plot_metadata_summary(
+    metadata,
+    sample_id,
+    variable,
+    palette,
+    unique_threshold
+  )
 
-  na_list <- list("na_percentage_col" = na_percentage_col,
-                  "na_col_hist" = na_col_dist,
-                  "na_percentage_row" = na_percentage_row,
-                  "na_row_hist" = na_row_dist)
+  na_list <- list(
+    "na_percentage_col" = na_percentage_col,
+    "na_col_hist" = na_col_dist,
+    "na_percentage_row" = na_percentage_row,
+    "na_row_hist" = na_row_dist
+  )
 
   res_list <- c(na_list, metadata_plot)
 
@@ -340,17 +449,21 @@ qc_summary_metadata <- function(metadata, sample_id, variable, palette = NULL, u
 #' qc_res$metadata_summary$Stage
 #' qc_res$metadata_summary$Grade
 #' qc_res$metadata_summary$Cohort
-hd_qc_summary <- function(dat,
-                          metadata = NULL,
-                          variable,
-                          palette = NULL,
-                          unique_threshold = 5,
-                          cor_threshold = 0.8,
-                          cor_method = "pearson",
-                          verbose = TRUE) {
+hd_qc_summary <- function(
+  dat,
+  metadata = NULL,
+  variable,
+  palette = NULL,
+  unique_threshold = 5,
+  cor_threshold = 0.8,
+  cor_method = "pearson",
+  verbose = TRUE
+) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data to run the PCA analysis."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -358,18 +471,36 @@ hd_qc_summary <- function(dat,
   } else {
     wide_data <- dat
     sample_id <- colnames(dat)[1]
-    var_name <- "Features"
   }
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    stop(
+      "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+    )
   }
 
-  data_summary <- qc_summary_data(wide_data, sample_id, unique_threshold, cor_threshold, cor_method, verbose)
-  metadata_summary <- qc_summary_metadata(metadata, sample_id, variable, palette, unique_threshold, verbose)
+  data_summary <- qc_summary_data(
+    wide_data,
+    sample_id,
+    unique_threshold,
+    cor_threshold,
+    cor_method,
+    verbose
+  )
+  metadata_summary <- qc_summary_metadata(
+    metadata,
+    sample_id,
+    variable,
+    palette,
+    unique_threshold,
+    verbose
+  )
 
-  qc_object <- list("data_summary" = data_summary, "metadata_summary" = metadata_summary)
+  qc_object <- list(
+    "data_summary" = data_summary,
+    "metadata_summary" = metadata_summary
+  )
   class(qc_object) <- "hd_qc"
 
   return(qc_object)

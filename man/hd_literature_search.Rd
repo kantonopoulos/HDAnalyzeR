@@ -21,6 +21,9 @@ A dataframe with columns: Disease, Protein, PMID, Title, and Abstract
 \code{hd_literature_search()} fetches PubMed articles for disease-protein biomarker associations.
 }
 \examples{
+# This example queries PubMed over the network, so it is not run
+# automatically: NCBI throttles unauthenticated clients.
+\donttest{
 queries <- list(
   "Acute Myeloid Leukemia" = c("TCL1A", "TNFRSF9"),
   "Chronic Lymphocytic Leukemia" = c("CD22")
@@ -28,4 +31,5 @@ queries <- list(
 
 res <- hd_literature_search(queries, max_results = 2, min_year = 2015)
 head(res, 1)
+}
 }

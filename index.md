@@ -1,4 +1,4 @@
-# HDAnalyzeR <a href="https://kantonopoulos.github.io/HDAnalyzeR"><img src="man/figures/logo.png" align="right" height="200" alt="HDAnalyzeR website" /></a>
+# HDAnalyzeR <a href="https://kantonopoulos.github.io/HDAnalyzeR/"><img src="man/figures/logo.png" align="right" height="200" alt="HDAnalyzeR website" /></a>
 
 [![R-CMD-check](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kantonopoulos/HDAnalyzeR/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://img.shields.io/badge/DOI-10.1093/bioadv/vbag020-blue)](https://doi.org/10.1093/bioadv/vbag020)
@@ -33,6 +33,23 @@ devtools::install_github("kantonopoulos/HDAnalyzeR")
 # Install HDAnalyzeR development version
 options(timeout = 1200) 
 devtools::install_github("kantonopoulos/HDAnalyzeR")
+```
+
+### Optional features
+
+The core installation is deliberately light. A few functions rely on packages
+that are only pulled in when you need them, and each one tells you exactly what
+to install if it is missing:
+
+``` r
+# UMAP, random-forest imputation, clustering, co-expression networks,
+# PubMed search and the extra file formats
+install.packages(c("arrow", "cluster", "easyPubMed", "embed", "fpc",
+                   "missForest", "ppsr", "readxl", "WGCNA", "writexl"))
+
+# Enrichment analysis (hd_ora, hd_gsea and their plots)
+install.packages("BiocManager")
+BiocManager::install(c("clusterProfiler", "enrichplot", "org.Hs.eg.db", "ReactomePA"))
 ```
 
 ## App Interface

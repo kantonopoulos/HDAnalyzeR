@@ -85,7 +85,7 @@ hd_pca <- function(
     var_name <- "Features"
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (isFALSE(by_sample)) {
     transposed_data <- wide_data |> tibble::column_to_rownames(var = sample_id)
@@ -131,7 +131,12 @@ hd_pca <- function(
   pca_prep <- recipes::prep(pca_rec)
 
   pca_step_num <- which(sapply(pca_rec$steps, inherits, what = "step_pca"))
+  # `tidy()` reports the loadings of every component `prcomp()` produced, not
+  # only the ones that were asked for, so trim them to match `pca_res`.
   pca_loadings <- broom::tidy(pca_prep, number = pca_step_num) |>
+    dplyr::filter(
+      !!rlang::sym("component") %in% paste0("PC", seq_len(components))
+    ) |>
     dplyr::select(-!!rlang::sym("id"))
 
   pca_variance <- broom::tidy(
@@ -211,7 +216,7 @@ hd_plot_pca_loadings <- function(
       !!rlang::sym("component") %in% paste0("PC", seq_len(displayed_pcs))
     ) |>
     dplyr::group_by(!!rlang::sym("component")) |>
-    dplyr::top_n(displayed_features, abs(!!rlang::sym("value"))) |>
+    dplyr::slice_max(abs(!!rlang::sym("value")), n = displayed_features) |>
     dplyr::ungroup() |>
     dplyr::mutate(
       terms = tidytext::reorder_within(
@@ -394,7 +399,7 @@ plot_points <- function(dim_res, x, y, color = NULL) {
         alpha = 0.7,
         size = 2
       ) +
-      ggplot2::labs(Color = color) +
+      ggplot2::labs(color = color) +
       theme_hd()
   } else {
     dim_plot <- dim_res |>
@@ -412,35 +417,51 @@ plot_points <- function(dim_res, x, y, color = NULL) {
 #' `plot_loadings()` prepares the PCA loadings to be plotted on the 2D plane.
 #'
 #' @param dim_object A PCA object containing the PCA loadings. Created by `hd_pca()`.
-#' @param plot_loadings The component to be plotted. Default is NULL.
+#' @param plot_loadings The component whose strongest features should be drawn.
 #' @param nloadings The number of loadings to be plotted. Default is 5.
+#' @param x The component on the x-axis.
+#' @param y The component on the y-axis.
 #'
-#' @return A tibble with the PCA loadings to be plotted.
+#' @return A tibble with one row per selected feature and one column per plotted
+#' component, so that each arrow can be drawn from the origin to its `(x, y)`
+#' loading.
 #' @keywords internal
-plot_loadings <- function(dim_object, plot_loadings, nloadings) {
+plot_loadings <- function(dim_object, plot_loadings, nloadings, x, y) {
   pca_loadings <- dim_object[["pca_loadings"]]
 
-  if (
-    nloadings >
-      nrow(
-        pca_loadings |>
-          dplyr::filter(!!rlang::sym("component") == plot_loadings)
-      )
-  ) {
-    message(
-      "The number of loadings to be plotted is higher than the number of loadings available. All loadings will be plotted."
-    )
-    nloadings <- nrow(
-      pca_loadings |> dplyr::filter(!!rlang::sym("component") == plot_loadings)
+  ranking <- pca_loadings |>
+    dplyr::filter(!!rlang::sym("component") == plot_loadings)
+
+  if (nrow(ranking) == 0) {
+    stop(
+      "No loadings are available for component '", plot_loadings, "'.",
+      call. = FALSE
     )
   }
 
-  pca_loadings <- pca_loadings |>
-    dplyr::filter(!!rlang::sym("component") == plot_loadings) |>
-    dplyr::arrange(dplyr::desc(abs(!!rlang::sym("value")))) |>
-    utils::head(nloadings)
+  if (nloadings > nrow(ranking)) {
+    message(
+      "The number of loadings to be plotted is higher than the number of loadings available. All loadings will be plotted."
+    )
+    nloadings <- nrow(ranking)
+  }
 
-  return(pca_loadings)
+  top_terms <- ranking |>
+    dplyr::arrange(dplyr::desc(abs(!!rlang::sym("value")))) |>
+    utils::head(nloadings) |>
+    dplyr::pull(!!rlang::sym("terms"))
+
+  # One column per plotted component, so the arrow tip can use the x-component
+  # loading for x and the y-component loading for y.
+  pca_loadings |>
+    dplyr::filter(
+      !!rlang::sym("terms") %in% top_terms,
+      !!rlang::sym("component") %in% c(x, y)
+    ) |>
+    tidyr::pivot_wider(
+      names_from = !!rlang::sym("component"),
+      values_from = !!rlang::sym("value")
+    )
 }
 
 
@@ -523,24 +544,27 @@ hd_plot_dim <- function(
 
   # Add loadings if PCA
   if (!is.null(plot_loadings) && inherits(dim_object, "hd_pca")) {
-    pca_loadings <- plot_loadings(dim_object, plot_loadings, nloadings)
+    loadings_data <- plot_loadings(dim_object, plot_loadings, nloadings, x, y)
     dim_plot <- dim_plot +
       ggplot2::geom_segment(
-        data = pca_loadings,
+        data = loadings_data,
         ggplot2::aes(
           x = 0,
           y = 0,
-          xend = !!rlang::sym("value"),
-          yend = !!rlang::sym("value")
-        )
+          xend = !!rlang::sym(x),
+          yend = !!rlang::sym(y)
+        ),
+        inherit.aes = FALSE,
+        arrow = ggplot2::arrow(length = ggplot2::unit(0.02, "npc"))
       ) +
       ggrepel::geom_text_repel(
-        data = pca_loadings,
+        data = loadings_data,
         ggplot2::aes(
-          x = !!rlang::sym("value"),
-          y = !!rlang::sym("value"),
+          x = !!rlang::sym(x),
+          y = !!rlang::sym(y),
           label = !!rlang::sym("terms")
         ),
+        inherit.aes = FALSE,
         size = 3,
         color = "black"
       )
@@ -663,12 +687,8 @@ hd_umap <- function(
   components = 2,
   seed = 123
 ) {
-  # Ensure 'umap' package is loaded
-  if (!requireNamespace("umap", quietly = TRUE)) {
-    stop(
-      "The 'umap' package is required but not installed. Please install it using install.packages('umap')."
-    )
-  }
+  # `embed::step_umap()` is the engine behind the UMAP recipe step
+  check_installed("embed", "run a UMAP analysis")
 
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
@@ -685,7 +705,7 @@ hd_umap <- function(
     var_name <- "Features"
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (isFALSE(by_sample)) {
     var_name <- rlang::sym(var_name)

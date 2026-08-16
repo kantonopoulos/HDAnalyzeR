@@ -64,7 +64,7 @@ hd_de_limma <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (is.null(metadata)) {
     stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
@@ -132,9 +132,12 @@ hd_de_limma <- function(dat,
 
   design <- stats::model.matrix(stats::as.formula(formula), data = join_data)
   if (variable_type == "categorical") {
-    cols <- c("control", "case", correct)
-    cols <- cols[!is.null(cols)]
-    colnames(design) <- paste(cols)
+    # `~0 + as.factor(variable)` puts one column per level first, in sorted
+    # order, so "0_Control" comes before "1_Case". Every remaining column belongs
+    # to a covariate and a single covariate can contribute several columns, so
+    # only the first two may be renamed.
+    colnames(design)[1:2] <- c("control", "case")
+    colnames(design) <- make.names(colnames(design), unique = TRUE)
     contrast <- limma::makeContrasts(Diff = case - control, levels = design)
   }
 
@@ -237,7 +240,7 @@ hd_de_ttest <- function(dat,
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (is.null(metadata)) {
     stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
@@ -274,10 +277,8 @@ hd_de_ttest <- function(dat,
             "!")
   }
 
-  de_res <- matrix(nrow=0, ncol=7)
-  colnames(de_res) <- c("Feature", "logFC", "CI.L", "CI.R", "t", "P.Value", variable)
-
-  # Run statistical test for each assay
+  # Run statistical test for each assay. Building a tibble per assay keeps every
+  # statistic numeric; binding character vectors would coerce the whole table.
   de_res_list <- lapply(names(wide_data[-1]), function(assay) {
     case_group <- join_data |>
       dplyr::filter(!!Variable == case) |>
@@ -287,27 +288,28 @@ hd_de_ttest <- function(dat,
       dplyr::filter(!!Variable %in% control) |>
       dplyr::pull(!!rlang::sym(assay))
 
-
     test_res <- stats::t.test(case_group, control_group)
-
-    t.val <- test_res[["statistic"]]
-    p.val <- test_res[["p.value"]]
     conf_int <- test_res[["conf.int"]]
-    difference <- mean(case_group, na.rm = TRUE) - mean(control_group, na.rm = TRUE)
 
-    de_res <- rbind(de_res, c(assay, difference, round(conf_int[1], 2), round(conf_int[2], 2), round(t.val, 2), p.val, case))
+    tibble::tibble(
+      Feature = assay,
+      logFC = mean(case_group, na.rm = TRUE) - mean(control_group, na.rm = TRUE),
+      CI.L = round(conf_int[[1]], 2),
+      CI.R = round(conf_int[[2]], 2),
+      t = round(unname(test_res[["statistic"]]), 2),
+      P.Value = test_res[["p.value"]],
+      !!Variable := case
+    )
   })
 
-  combined_de_res <- do.call(rbind, de_res_list)
-  combined_de_res <- as.data.frame(combined_de_res) |>
-    dplyr::mutate(P.Value = as.numeric(!!rlang::sym("P.Value")),
-                  logFC = as.numeric(!!rlang::sym("logFC")))
-  combined_de_res[["adj.P.Val"]] <- stats::p.adjust(combined_de_res$P.Value, method = "fdr")
-  de_res <- combined_de_res |>
+  de_res <- dplyr::bind_rows(de_res_list) |>
+    dplyr::mutate(
+      adj.P.Val = stats::p.adjust(!!rlang::sym("P.Value"), method = "fdr")
+    ) |>
     dplyr::arrange(!!rlang::sym("adj.P.Val")) |>
     dplyr::relocate(!!Variable, .after = !!rlang::sym("adj.P.Val"))
 
-  de_res <- list("de_res" = tibble::as_tibble(de_res))
+  de_res <- list("de_res" = de_res)
   class(de_res) <- "hd_de"
 
   return(de_res)
@@ -442,44 +444,90 @@ hd_plot_volcano <- function(de_object,
 #' It creates a list with the proteins for each combination of diseases.
 #' It also creates a tibble with the proteins for each combination of diseases.
 #'
-#' @param upset_data A tibble with the upset data.
-#' @param proteins A list with the protein lists for each disease.
+#' @param proteins A named list with the protein vector of each disease.
+#' @param direction The regulation direction to record in the `up/down` column,
+#' or `NA` when the features are not directional. Default is `NA_character_`.
 #'
 #' @return A list with the following elements:
 #'  - proteins_list: A list with the proteins for each combination of diseases.
-#'  - proteins_df: A tibble with the proteins for each combination of diseases.
+#'  - proteins_df: A tibble attributing each protein to the exact set of diseases
+#'    it was found in.
+#' @details
+#' The combinations are derived from the protein lists directly rather than from
+#' an `UpSetR` membership matrix, which degenerates into a named vector as soon as
+#' a single disease is summarised.
 #' @keywords internal
-extract_protein_list <- function(upset_data, proteins) {
-  combinations <- as.data.frame(upset_data)
-  proteins_list <- list()
+extract_protein_list <- function(proteins, direction = NA_character_) {
+  proteins <- lapply(proteins, unique)
+  all_features <- unique(unlist(proteins, use.names = FALSE))
 
-  for (i in seq_len(nrow(combinations))) {
-    combo <- combinations[i, ]
-    set_names <- names(combo)[combo == 1]
-    set_name <- paste(set_names, collapse = "&")
-    protein_set <- Reduce(intersect, proteins[set_names])
-    proteins_list[[set_name]] <- protein_set
+  empty_df <- tibble::tibble(
+    "Shared_in" = character(),
+    "up/down" = character(),
+    "Feature" = character()
+  )
+  if (length(all_features) == 0) {
+    return(list("proteins_list" = list(), "proteins_df" = empty_df))
   }
 
-  proteins_df <- do.call(rbind, lapply(names(proteins_list), function(set_name) {
-    tibble::tibble(
-      "Shared_in" = set_name,
-      "up/down" = ifelse(grepl("down", deparse(substitute(proteins_list))), "down", "up"),
-      "Feature" = unique(unlist(proteins_list[[set_name]]))
-    )
-  }))
+  # The exact set of diseases each protein was found in
+  membership <- vapply(
+    all_features,
+    function(feature) {
+      found_in <- vapply(proteins, function(set) feature %in% set, logical(1))
+      paste(names(proteins)[found_in], collapse = "&")
+    },
+    character(1),
+    USE.NAMES = FALSE
+  )
 
-  proteins_df <- proteins_df |>
-    dplyr::mutate(Priority = stringr::str_count(!!rlang::sym("Shared_in"), "&"))
+  proteins_df <- tibble::tibble(
+    "Shared_in" = membership,
+    "up/down" = direction,
+    "Feature" = all_features
+  ) |>
+    dplyr::arrange(!!rlang::sym("Feature"))
 
-  proteins_df <- proteins_df |>
-    dplyr::arrange(!!rlang::sym("Feature"), dplyr::desc(!!rlang::sym("Priority"))) |>
-    dplyr::group_by(!!rlang::sym("Feature")) |>
-    dplyr::slice(1) |>
-    dplyr::ungroup() |>
-    dplyr::select(-!!rlang::sym("Priority"))
+  # For every observed combination, the proteins shared by all of its diseases
+  combinations <- unique(membership)
+  proteins_list <- lapply(combinations, function(combination) {
+    Reduce(intersect, proteins[strsplit(combination, "&", fixed = TRUE)[[1]]])
+  })
+  names(proteins_list) <- combinations
 
   return(list("proteins_list" = proteins_list, "proteins_df" = proteins_df))
+}
+
+
+#' Build an UpSet plot when there is something to intersect
+#'
+#' `build_upset_plot()` wraps `UpSetR::upset()` so that degenerate inputs give a
+#' clear message instead of a cryptic error from deep inside `UpSetR`.
+#'
+#' @param feature_sets A named list of feature vectors, one per group.
+#' @param ordered_names The group names in the order they should be drawn.
+#' @param ordered_colors The bar colour for each group, named by group.
+#'
+#' @return An UpSet plot, or `NULL` when fewer than two groups have features.
+#' @keywords internal
+build_upset_plot <- function(feature_sets, ordered_names, ordered_colors) {
+  populated <- ordered_names[lengths(feature_sets[ordered_names]) > 0]
+
+  if (length(populated) < 2) {
+    message(
+      "An UpSet plot needs at least two groups with features; ",
+      "only ", length(populated), " available, so it will not be generated."
+    )
+    return(NULL)
+  }
+
+  UpSetR::upset(
+    UpSetR::fromList(feature_sets[populated]),
+    sets = populated,
+    order.by = "freq",
+    nsets = length(populated),
+    sets.bar.color = ordered_colors[populated]
+  )
 }
 
 
@@ -602,24 +650,17 @@ hd_plot_de_summary <- function(de_results,
   ordered_names_down <- names(sort(frequencies_down, decreasing = TRUE))
   ordered_colors_down <- ordered_colors[ordered_names_down]
 
-  # Create upset data and extract protein lists
-  upset_up <- UpSetR::fromList(significant_proteins_up)
-  upset_down <- UpSetR::fromList(significant_proteins_down)
-  proteins_up <- extract_protein_list(upset_up, significant_proteins_up)
-  proteins_down <- extract_protein_list(upset_down, significant_proteins_down)
+  # Extract protein lists
+  proteins_up <- extract_protein_list(significant_proteins_up, "up")
+  proteins_down <- extract_protein_list(significant_proteins_down, "down")
 
   # Create upset plots
-  upset_plot_up <- UpSetR::upset(upset_up,
-                                 sets = ordered_names_up,
-                                 order.by = "freq",
-                                 nsets = length(ordered_names_up),
-                                 sets.bar.color = ordered_colors_up)
-
-  upset_plot_down <- UpSetR::upset(upset_down,
-                                   sets = ordered_names_down,
-                                   order.by = "freq",
-                                   nsets = length(ordered_names_down),
-                                   sets.bar.color = ordered_colors_down)
+  upset_plot_up <- build_upset_plot(
+    significant_proteins_up, ordered_names_up, ordered_colors_up
+  )
+  upset_plot_down <- build_upset_plot(
+    significant_proteins_down, ordered_names_down, ordered_colors_down
+  )
 
   return(list("de_barplot" = de_barplot,
               "upset_plot_up" = upset_plot_up,

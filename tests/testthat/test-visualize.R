@@ -1,143 +1,202 @@
-# Test apply_palette -----------------------------------------------------------
-hd_object <- hd_initialize(example_data, example_metadata)
+# hd_plot_feature_boxplot -----------------------------------------------------
 
-# Unit test for apply_palette function
-test_that("apply_palette correctly applies palettes to plots", {
+test_that("hd_plot_feature_boxplot() draws one panel per requested feature", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  p <- hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = c("f1", "f3")
+  )
 
-  # Create a basic ggplot
-  p <- hd_object[["data"]] |>
-    dplyr::left_join(hd_object[["metadata"]], by = "DAid") |>
-    ggplot2::ggplot(ggplot2::aes(x = ADA, y = Age)) +
-    ggplot2::geom_point(ggplot2::aes(color = factor(Disease)))
-
-  # Test 1: Apply a valid predefined palette from hd_palettes()
-  result <- apply_palette(p, "cancers12", type = "color")
-  expect_true("gg" %in% class(result))
-
-  # Test 2: Apply a valid custom palette
-  custom_palette <- c("AML" = "purple", "CLL" = "orange", "MYEL" = "pink")
-  result <- apply_palette(p, custom_palette, type = "color")
-  expect_true("gg" %in% class(result))
-
-  # Test 3: Invalid palette name should stop the function with an error
-  expect_error(apply_palette(p, "invalid_palette", type = "color"))
+  expect_renderable_ggplot(p)
+  panels <- unique(ggplot2::ggplot_build(p)$layout$layout$Features)
+  expect_setequal(as.character(panels), c("f1", "f3"))
 })
 
+test_that("hd_plot_feature_boxplot() collapses controls when asked", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  p <- hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = "f1",
+    case = "A", type = "case_vs_control"
+  )
 
-# Test hd_plot_feature_boxplot -------------------------------------------------
-test_that("hd_plot_feature_boxplot correctly generates boxplots", {
-
-  hd_object <- hd_initialize(example_data, example_metadata)
-
-  # Boxplots for AARSD1 and ABL1 in AML vs all other classes
-  boxplot <- hd_plot_feature_boxplot(hd_object,
-                                     variable = "Disease",
-                                     features = c("AARSD1", "ABL1"),
-                                     case = "AML",
-                                     palette = "cancers12")
-
-  expect_true("gg" %in% class(boxplot))
-
-  expect_warning(boxplot <- hd_plot_feature_boxplot(hd_object,
-                                                    variable = "Disease",
-                                                    features = c("AARSD1", "Male_x"),
-                                                    case = "AML",
-                                                    palette = "cancers12"))
+  expect_renderable_ggplot(p)
+  groups <- levels(ggplot2::ggplot_build(p)$plot$data$Disease)
+  expect_setequal(groups, c("A", "Control"))
 })
 
-
-# Test hd_plot_regression ------------------------------------------------------
-test_that("hd_plot_regression correctly generates regression plots", {
-
-  hd_object <- hd_initialize(example_data, example_metadata)
-
-  # Scatter plot for AARSD1 and ABL1
-  p <- hd_plot_regression(hd_object,
-                          x = "AARSD1",
-                          y = "ABL1",
-                          se = TRUE,
-                          line_color = "red3")
-
-  expect_true("gg" %in% class(p))
-
-  p <- hd_plot_regression(hd_object,
-                          x = "AARSD1",
-                          y = "Age",
-                          metadata_cols = "Age",
-                          se = FALSE,
-                          line_color = "red3")
-
-  expect_true("gg" %in% class(p))
-
-})
-
-# Test hd_plot_feature_heatmap -------------------------------------------------
-test_that("hd_plot_feature_heatmap correctly generates heatmaps", {
-  de_results <- list(
-    "MYEL" = list(
-      "de_res" = tibble::tibble(
-        Feature = c("feature1", "feature2", "feature3"),
-        logFC = c(1.5, -2.3, 0.5),
-        adj.P.Val = c(0.01, 0.04, 0.03)
-      )
+test_that("hd_plot_feature_boxplot() needs a case for case_vs_control", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  expect_error(
+    hd_plot_feature_boxplot(
+      hd_obj, variable = "Disease", features = "f1", type = "case_vs_control"
     ),
-    "LUNGC" = list(
-      "de_res" = tibble::tibble(
-        Feature = c("feature1", "feature2", "feature4"),
-        logFC = c(2.5, -1.1, 1.2),
-        adj.P.Val = c(0.02, 0.03, 0.05)
-      )
-    )
+    "Please provide the case class"
   )
+})
 
-  # Create mock model results
-  model_results <- list(
-    "MYEL" = list(
-      "features" = tibble::tibble(
-        Feature = c("feature1", "feature2", "feature3"),
-        Scaled_Importance = c(0.8, 0.9, 0.7),
-        Sign = c("POS", "NEG", "POS")
-      )
+test_that("hd_plot_feature_boxplot() skips unknown features but keeps the rest", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  expect_warning(
+    p <- hd_plot_feature_boxplot(
+      hd_obj, variable = "Disease", features = c("f1", "nope")
     ),
-    "LUNGC" = list(
-      "features" = tibble::tibble(
-        Feature = c("feature1", "feature2", "feature4"),
-        Scaled_Importance = c(0.9, 0.8, 0.6),
-        Sign = c("NEG", "POS", "NEG")
-      )
-    )
+    "not present in the data"
   )
+  expect_renderable_ggplot(p)
+})
 
-  # Test with default parameters
-  result <- hd_plot_feature_heatmap(
-    de_results = de_results,
-    model_results = model_results,
-    order_by = "MYEL"
+test_that("hd_plot_feature_boxplot() errors when no feature exists", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  expect_error(
+    suppressWarnings(hd_plot_feature_boxplot(
+      hd_obj, variable = "Disease", features = "nope"
+    )),
+    "None of the features are present"
   )
+})
 
-  expect_true("gg" %in% class(result))
+test_that("hd_plot_feature_boxplot() accepts a named palette", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  p <- hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = "f1",
+    palette = c(A = "red", B = "blue")
+  )
+  expect_renderable_ggplot(p)
+})
+
+test_that("hd_plot_feature_boxplot() needs metadata", {
+  expect_error(
+    hd_plot_feature_boxplot(tiny_wide(), variable = "Disease", features = "f1"),
+    "'metadata' argument or slot .* is empty"
+  )
+})
+
+test_that("hd_plot_feature_boxplot() can add or drop the points and labels", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+
+  with_points <- hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = "f1", points = TRUE
+  )
+  without_points <- hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = "f1", points = FALSE
+  )
+  expect_gt(length(with_points$layers), length(without_points$layers))
+
+  expect_renderable_ggplot(hd_plot_feature_boxplot(
+    hd_obj, variable = "Disease", features = "f1", x_labels = FALSE
+  ))
 })
 
 
-# Test hd_plot_feature_network -------------------------------------------------
-test_that("hd_plot_feature_network correctly generates network plots", {
-  de_results_aml <- hd_de_limma(hd_object, case = "AML")
-  de_results_lungc <- hd_de_limma(hd_object, case = "LUNGC")
-  de_results_cll <- hd_de_limma(hd_object, case = "CLL")
+# hd_plot_regression ----------------------------------------------------------
 
-  feature_panel <- de_results_aml[["de_res"]] |>
-    dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
-    dplyr::mutate(Class = "AML") |>
-    dplyr::bind_rows(de_results_cll[["de_res"]] |>
-                       dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
-                       dplyr::mutate(Class = "CLL"),
-                     de_results_lungc[["de_res"]] |>
-                       dplyr::filter(adj.P.Val < 0.05 & abs(logFC) > 1) |>
-                       dplyr::mutate(Class = "LUNGC"))
+# f1 and f3 in `tiny_wide()` are perfectly collinear, which makes `lm()` warn
+# about a perfect fit, so the regression tests use their own noisy data.
+regression_object <- function() {
+  withr::local_seed(2)
+  n <- 20
+  dat <- tibble::tibble(
+    DAid = sprintf("S%02d", seq_len(n)),
+    f1 = stats::rnorm(n),
+    f3 = stats::rnorm(n)
+  )
+  dat$f3 <- dat$f1 * 0.6 + dat$f3
+  meta <- tibble::tibble(DAid = dat$DAid, Age = seq(20, 80, length.out = n))
+  hd_initialize(dat, meta, is_wide = TRUE)
+}
 
-  p <- hd_plot_feature_network(feature_panel,
-                          plot_color = "logFC",
-                          class_palette = "cancers12")
+test_that("hd_plot_regression() draws a scatter plot with a fitted line", {
+  p <- hd_plot_regression(regression_object(), x = "f1", y = "f3")
 
-  expect_true("gg" %in% class(p))
+  expect_renderable_ggplot(p)
+  geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_true("GeomPoint" %in% geoms)
+  expect_true("GeomSmooth" %in% geoms)
+})
+
+test_that("hd_plot_regression() can plot against a metadata variable", {
+  p <- hd_plot_regression(regression_object(), metadata_cols = "Age", x = "f1", y = "Age")
+
+  expect_renderable_ggplot(p)
+  expect_equal(rlang::as_name(p$mapping$y), "Age")
+})
+
+test_that("hd_plot_regression() can drop the R-squared annotation", {
+  hd_obj <- regression_object()
+
+  with_r2 <- hd_plot_regression(hd_obj, x = "f1", y = "f3", r_2 = TRUE)
+  without_r2 <- hd_plot_regression(hd_obj, x = "f1", y = "f3", r_2 = FALSE)
+  expect_gt(length(with_r2$layers), length(without_r2$layers))
+})
+
+test_that("hd_plot_regression() needs metadata", {
+  expect_error(
+    hd_plot_regression(tiny_wide(), x = "f1", y = "f3"),
+    "'metadata' argument or slot .* is empty"
+  )
+})
+
+
+# hd_plot_feature_heatmap -----------------------------------------------------
+
+test_that("hd_plot_feature_heatmap() combines DE and model results", {
+  sd <- signal_data(n_per_group = 40)
+  hd_obj <- hd_initialize(sd$data, sd$metadata, is_wide = TRUE)
+
+  de <- quietly(hd_de_limma(hd_obj, variable = "Disease", case = "case"))
+  split <- hd_split_data(hd_obj, variable = "Disease")
+  model <- quietly(hd_model_rreg(
+    split, variable = "Disease", case = "case",
+    grid_size = 2, cv_sets = 2, verbose = FALSE
+  ))
+
+  p <- hd_plot_feature_heatmap(
+    list(ctrl = de), list(ctrl = model), order_by = "ctrl"
+  )
+
+  expect_renderable_ggplot(p)
+  expect_equal(p$labels$x, "Feature")
+  expect_equal(p$labels$y, "Control Group")
+})
+
+
+# hd_plot_feature_network -----------------------------------------------------
+
+test_that("hd_plot_feature_network() draws a network of features and classes", {
+  panel <- tibble::tibble(
+    Feature = c("f1", "f2", "f3", "f1"),
+    Class = c("A", "A", "B", "B"),
+    Scaled_Importance = c(1, 0.5, 0.8, 0.3)
+  )
+  p <- hd_plot_feature_network(panel)
+
+  expect_s3_class(p, "ggplot")
+  expect_no_error(ggplot2::ggplot_build(p))
+})
+
+test_that("hd_plot_feature_network() honours the colour arguments", {
+  panel <- tibble::tibble(
+    Feature = c("f1", "f2", "f3"),
+    Class = c("A", "A", "B"),
+    logFC = c(2, -1, 3)
+  )
+  p <- hd_plot_feature_network(
+    panel,
+    plot_color = "logFC",
+    class_palette = c(A = "red", B = "blue"),
+    importance_palette = c(high = "grey20", low = "grey90")
+  )
+
+  expect_s3_class(p, "ggplot")
+  expect_no_error(ggplot2::ggplot_build(p))
+})
+
+test_that("hd_plot_feature_network() is reproducible for a given seed", {
+  panel <- tibble::tibble(
+    Feature = c("f1", "f2", "f3"),
+    Class = c("A", "A", "B"),
+    Scaled_Importance = c(1, 0.5, 0.8)
+  )
+  a <- ggplot2::ggplot_build(hd_plot_feature_network(panel, seed = 3))$data[[1]]
+  b <- ggplot2::ggplot_build(hd_plot_feature_network(panel, seed = 3))$data[[1]]
+  expect_equal(a, b)
 })

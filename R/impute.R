@@ -57,16 +57,20 @@ calculate_na_percentage <- function(dat) {
 #'                        annotation_vars = c("Disease", "Sex"),
 #'                        palette = palette)
 #' na_res$na_heatmap
-hd_na_search <- function(dat,
-                         metadata = NULL,
-                         annotation_vars = NULL,
-                         palette = NULL,
-                         x_labels = FALSE,
-                         y_labels = FALSE) {
+hd_na_search <- function(
+  dat,
+  metadata = NULL,
+  annotation_vars = NULL,
+  palette = NULL,
+  x_labels = FALSE,
+  y_labels = FALSE
+) {
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data."
+      )
     }
     wide_data <- dat[["data"]]
     metadata <- dat[["metadata"]]
@@ -80,41 +84,63 @@ hd_na_search <- function(dat,
     value_name <- "Values"
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   if (is.null(metadata)) {
-    stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+    stop(
+      "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+    )
   }
   if (!all(annotation_vars %in% colnames(metadata))) {
     message("Some category columns provided do not exist in the dataset.")
   }
 
-  annotation_vars_type <- sapply(metadata |>
-                                   dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
-                                 hd_detect_vartype)
-  metadata <- hd_bin_columns(metadata |>
-                               dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
-                             annotation_vars_type)
+  annotation_vars_type <- sapply(
+    metadata |>
+      dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+    hd_detect_vartype
+  )
+  metadata <- hd_bin_columns(
+    metadata |>
+      dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+    annotation_vars_type
+  )
 
   long_data <- wide_data |>
-    tidyr::pivot_longer(cols = -dplyr::all_of(sample_id),
-                        names_to = var_name,
-                        values_to = value_name,
-                        values_drop_na = FALSE)
+    tidyr::pivot_longer(
+      cols = -dplyr::all_of(sample_id),
+      names_to = var_name,
+      values_to = value_name,
+      values_drop_na = FALSE
+    )
 
   join_data <- long_data |>
     dplyr::select(dplyr::all_of(c(sample_id, var_name, value_name))) |>
-    dplyr::left_join(metadata |>
-                       dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
-                     by = sample_id)
+    dplyr::left_join(
+      metadata |>
+        dplyr::select(dplyr::any_of(c(annotation_vars, sample_id))),
+      by = sample_id
+    )
 
   # Calculate NA percentages
   na_data <- join_data |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(annotation_vars, var_name)))) |>
-    dplyr::mutate(NA_percentage = mean(is.na(!!rlang::sym(value_name))) * 100) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(
+      annotation_vars,
+      var_name
+    )))) |>
+    dplyr::mutate(
+      NA_percentage = mean(is.na(!!rlang::sym(value_name))) * 100
+    ) |>
     dplyr::ungroup() |>
-    dplyr::mutate(Categories = paste(!!!rlang::syms(annotation_vars), sep = "_")) |>
-    dplyr::select(dplyr::any_of(c(annotation_vars, "Categories", var_name, "NA_percentage"))) |>
+    dplyr::mutate(
+      Categories = paste(!!!rlang::syms(annotation_vars), sep = "_")
+    ) |>
+    dplyr::select(dplyr::any_of(c(
+      annotation_vars,
+      "Categories",
+      var_name,
+      "NA_percentage"
+    ))) |>
     unique()
 
   if (max(na_data[["NA_percentage"]]) == 0) {
@@ -141,19 +167,22 @@ hd_na_search <- function(dat,
   }
 
   na_heatmap <- ggplotify::as.ggplot(
-    tidyheatmaps::tidyheatmap(na_data,
-                              rows = !!rlang::sym("Categories"),
-                              columns = !!rlang::sym(var_name),
-                              values = !!rlang::sym("NA_percentage"),
-                              annotation_row = annotation_vars,
-                              annotation_colors = palette,
-                              cluster_rows = TRUE,
-                              cluster_cols = TRUE,
-                              show_selected_row_labels = x_labs,
-                              show_selected_col_labels = y_labs,
-                              treeheight_row = 20,
-                              treeheight_col = 20,
-                              silent = TRUE))
+    tidyheatmaps::tidyheatmap(
+      na_data,
+      rows = !!rlang::sym("Categories"),
+      columns = !!rlang::sym(var_name),
+      values = !!rlang::sym("NA_percentage"),
+      annotation_row = annotation_vars,
+      annotation_colors = palette,
+      cluster_rows = TRUE,
+      cluster_cols = TRUE,
+      show_selected_row_labels = x_labs,
+      show_selected_col_labels = y_labs,
+      treeheight_row = 20,
+      treeheight_col = 20,
+      silent = TRUE
+    )
+  )
 
   return(list("na_data" = na_data, "na_heatmap" = na_heatmap))
 }
@@ -183,12 +212,13 @@ hd_na_search <- function(dat,
 #' # Data after removing missing values in specific columns
 #' res <- hd_omit_na(hd_object, columns = "AARSD1")
 #' res$data
-hd_omit_na <- function(dat, columns = NULL){
-
+hd_omit_na <- function(dat, columns = NULL) {
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data."
+      )
     }
     wide_data <- dat[["data"]]
   } else {
@@ -200,9 +230,13 @@ hd_omit_na <- function(dat, columns = NULL){
   } else {
     missing_columns <- setdiff(columns, colnames(wide_data))
     if (length(missing_columns) > 0) {
-       stop("The following columns are not in the dataset: ", paste(missing_columns, collapse = ", "))
+      stop(
+        "The following columns are not in the dataset: ",
+        paste(missing_columns, collapse = ", ")
+      )
     }
-    imputed_data <- wide_data[!rowSums(is.na(wide_data[columns])), ]
+    complete_rows <- stats::complete.cases(wide_data[, columns, drop = FALSE])
+    imputed_data <- wide_data[complete_rows, ]
   }
 
   if (inherits(dat, "HDAnalyzeR")) {
@@ -236,11 +270,12 @@ hd_omit_na <- function(dat, columns = NULL){
 #' res <- hd_impute_median(hd_object)
 #' res$data
 hd_impute_median <- function(dat, verbose = TRUE) {
-
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -249,7 +284,7 @@ hd_impute_median <- function(dat, verbose = TRUE) {
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))
@@ -257,10 +292,11 @@ hd_impute_median <- function(dat, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    message(na_percentages)
+    message("Missing values before imputation:")
+    message_table(na_percentages)
   }
 
-  recipe <- recipes::recipe(~ ., data = data_in) |>
+  recipe <- recipes::recipe(~., data = data_in) |>
     recipes::step_impute_median(recipes::all_predictors())
 
   imputed_data <- recipe |>
@@ -304,11 +340,12 @@ hd_impute_median <- function(dat, verbose = TRUE) {
 #' res <- hd_impute_knn(hd_object, k = 3)
 #' res$data
 hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
-
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -317,7 +354,7 @@ hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))
@@ -325,13 +362,14 @@ hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    message(na_percentages)
+    message("Missing values before imputation:")
+    message_table(na_percentages)
   }
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
-  recipe <- recipes::recipe(~ ., data = data_in) |>
+  recipe <- recipes::recipe(~., data = data_in) |>
     recipes::step_impute_knn(recipes::all_predictors(), neighbors = k)
 
   imputed_data <- recipe |>
@@ -389,12 +427,22 @@ hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
 #' registerDoParallel(cl)  # Register the cluster
 #' res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
 #' }
-hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "no", seed = 123, verbose = TRUE) {
+hd_impute_missForest <- function(
+  dat,
+  maxiter = 10,
+  ntree = 100,
+  parallelize = "no",
+  seed = 123,
+  verbose = TRUE
+) {
+  check_installed("missForest", "impute with random forests")
 
   # Prepare data
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
-      stop("The 'data' slot of the HDAnalyzeR object is empty. Please provide the data.")
+      stop(
+        "The 'data' slot of the HDAnalyzeR object is empty. Please provide the data."
+      )
     }
     wide_data <- dat[["data"]]
     sample_id <- dat[["sample_id"]]
@@ -403,7 +451,7 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   data_in <- wide_data |>
     dplyr::select(-dplyr::any_of(sample_id))
@@ -411,18 +459,21 @@ hd_impute_missForest <- function(dat, maxiter = 10, ntree = 100, parallelize = "
   if (isTRUE(verbose)) {
     na_percentages <- calculate_na_percentage(data_in) |>
       dplyr::filter(!!rlang::sym("NA_percentage") > 0)
-    message(na_percentages)
+    message("Missing values before imputation:")
+    message_table(na_percentages)
   }
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
-  data_in <- as.data.frame(data_in)  # Convert to data frame for missForest
-  imputed_data <- missForest::missForest(data_in,
-                                         maxiter = maxiter,
-                                         ntree = ntree,
-                                         verbose = verbose,
-                                         parallelize = parallelize)$ximp
+  data_in <- as.data.frame(data_in) # Convert to data frame for missForest
+  imputed_data <- missForest::missForest(
+    data_in,
+    maxiter = maxiter,
+    ntree = ntree,
+    verbose = verbose,
+    parallelize = parallelize
+  )$ximp
   imputed_data <- tibble::as_tibble(imputed_data)
 
   cols <- wide_data |>

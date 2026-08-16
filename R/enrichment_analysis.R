@@ -106,12 +106,8 @@ hd_ora <- function(
     background <- select_background(background)
   }
 
-  # Ensure 'clusterProfiler' package is loaded
-  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop(
-      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
-    )
-  }
+  check_installed("clusterProfiler", "run an over-representation analysis")
+  check_installed("org.Hs.eg.db", "map gene symbols to ENTREZ identifiers")
 
   conversion <- gene_to_entrezid(gene_list, background)
   gene_list <- conversion[["gene_list"]]
@@ -128,13 +124,6 @@ hd_ora <- function(
       universe = background
     )
   } else if (database == "GO") {
-    # Ensure 'org.Hs.eg.db' package is loaded
-    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop(
-        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
-      )
-    }
-
     # Perform GO enrichment analysis
     enrichment <- clusterProfiler::enrichGO(
       gene = gene_list,
@@ -145,12 +134,7 @@ hd_ora <- function(
       universe = background
     )
   } else if (database == "Reactome") {
-    # Ensure 'ReactomePA' package is loaded
-    if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop(
-        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
-      )
-    }
+    check_installed("ReactomePA", "query the Reactome database")
 
     # Perform Reactome enrichment analysis
     enrichment <- ReactomePA::enrichPathway(
@@ -225,6 +209,10 @@ hd_ora <- function(
 #' enrichment$treeplot
 #' enrichment$cnetplot
 hd_plot_ora <- function(enrichment, seed = 123) {
+  check_installed("clusterProfiler", "plot an over-representation analysis")
+  check_installed("enrichplot", "plot an over-representation analysis")
+  check_installed("org.Hs.eg.db", "map ENTREZ identifiers back to gene symbols")
+
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
@@ -232,13 +220,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   # Visualize results
   dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]])
 
-  # Ensure 'enrichplot' package is loaded
   tree_plot <- NULL
-  if (!requireNamespace("enrichplot", quietly = TRUE)) {
-    stop(
-      "The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot')."
-    )
-  }
   tryCatch(
     {
       tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
@@ -276,6 +258,68 @@ hd_plot_ora <- function(enrichment, seed = 123) {
   enrichment[["cnetplot"]] <- cnet_plot
 
   return(enrichment)
+}
+
+
+#' Rank differential expression results for GSEA
+#'
+#' `rank_features()` turns a table of differential expression results into the
+#' named, decreasing vector that GSEA expects.
+#'
+#' @param de_results A tibble of differential expression results with at least a
+#' `Feature` column.
+#' @param ranked_by The column to rank by, `"logFC"`, or `"both"` for the product
+#' of the log fold change and `-log(adj.P.Val)`.
+#'
+#' @return A named numeric vector sorted in decreasing order.
+#' @keywords internal
+rank_features <- function(de_results, ranked_by = "logFC") {
+  if (ranked_by == "logFC") {
+    values <- de_results[["logFC"]]
+  } else if (ranked_by == "both") {
+    values <- de_results[["logFC"]] * -log(de_results[["adj.P.Val"]])
+  } else if (ranked_by %in% colnames(de_results)) {
+    message("The ranking will be done based on the ", ranked_by, " variable.")
+    values <- de_results[[ranked_by]]
+  } else {
+    stop(
+      "The ranking variable provided is not valid. Please provide a valid variable.",
+      call. = FALSE
+    )
+  }
+
+  sort(stats::setNames(values, de_results[["Feature"]]), decreasing = TRUE)
+}
+
+
+#' Rename a ranked gene list from gene symbols to ENTREZ identifiers
+#'
+#' `rename_ranking_to_entrezid()` keeps each score attached to its own gene.
+#'
+#' @param ranked_genes A named numeric vector, named by gene symbol.
+#'
+#' @return The same scores, named by ENTREZ identifier and sorted decreasingly.
+#' @details
+#' The symbol to identifier mapping drops genes it cannot resolve and can return
+#' several identifiers for one symbol, so the scores have to be matched by name.
+#' Renaming the vector positionally would silently attach each score to the wrong
+#' gene as soon as a single symbol failed to map.
+#' @keywords internal
+rename_ranking_to_entrezid <- function(ranked_genes) {
+  conversion <- clusterProfiler::bitr(
+    names(ranked_genes),
+    fromType = "SYMBOL",
+    toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db::org.Hs.eg.db
+  )
+
+  mapped <- stats::setNames(
+    unname(ranked_genes[conversion[["SYMBOL"]]]),
+    conversion[["ENTREZID"]]
+  )
+  mapped <- mapped[!is.na(names(mapped)) & !duplicated(names(mapped))]
+
+  sort(mapped, decreasing = TRUE)
 }
 
 
@@ -337,47 +381,15 @@ hd_gsea <- function(
     de_results <- de_results$de_res
   }
 
-  # Prepare sorted_protein_list
-  if (ranked_by == "logFC") {
-    gene_list <- stats::setNames(de_results[["logFC"]], de_results[["Feature"]])
-  } else if (ranked_by == "both") {
-    de_results <- de_results |>
-      dplyr::mutate(
-        both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val"))
-      )
-    gene_list <- stats::setNames(
-      de_results[["adj.P.Val"]],
-      de_results[["Feature"]]
-    )
-  } else {
-    if (ranked_by %in% colnames(de_results)) {
-      message("The ranking will be done based on the", ranked_by, "variable.")
-      gene_list <- stats::setNames(
-        de_results[[ranked_by]],
-        de_results[["Feature"]]
-      )
-    } else {
-      stop(
-        "The ranking variable provided is not valid. Please provide a valid variable."
-      )
-    }
-  }
-  sorted_gene_list <- sort(gene_list, decreasing = TRUE)
+  sorted_gene_list <- rank_features(de_results, ranked_by)
 
   if (length(sorted_gene_list) == 0) {
     stop("Gene list could not be sorted. Please check the input data.")
   }
-  # Ensure 'clusterProfiler' package is loaded
-  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop(
-      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
-    )
-  }
+  check_installed("clusterProfiler", "run a gene set enrichment analysis")
+  check_installed("org.Hs.eg.db", "map gene symbols to ENTREZ identifiers")
 
-  conversion <- gene_to_entrezid(names(sorted_gene_list), NULL)
-  gene_list <- stats::setNames(sorted_gene_list, conversion[["gene_list"]])
-  # Removed unmapped genes
-  gene_list <- gene_list[!is.na(names(gene_list))]
+  gene_list <- rename_ranking_to_entrezid(sorted_gene_list)
 
   if (database == "KEGG") {
     # Perform GSEA for KEGG
@@ -390,13 +402,6 @@ hd_gsea <- function(
       maxGSSize = 500
     )
   } else if (database == "GO") {
-    # Ensure 'org.Hs.eg.db' package is loaded
-    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop(
-        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
-      )
-    }
-
     # Perform GSEA for GO
     enrichment <- clusterProfiler::gseGO(
       geneList = gene_list,
@@ -408,12 +413,7 @@ hd_gsea <- function(
       maxGSSize = 500
     )
   } else if (database == "Reactome") {
-    # Ensure 'ReactomePA' package is loaded
-    if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop(
-        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
-      )
-    }
+    check_installed("ReactomePA", "query the Reactome database")
 
     # Perform GSEA for Reactome
     enrichment <- ReactomePA::gsePathway(
@@ -478,6 +478,10 @@ hd_gsea <- function(
 #' enrichment$cnetplot
 #' enrichment$ridgeplot
 hd_plot_gsea <- function(enrichment, seed = 123) {
+  check_installed("clusterProfiler", "plot a gene set enrichment analysis")
+  check_installed("enrichplot", "plot a gene set enrichment analysis")
+  check_installed("org.Hs.eg.db", "map ENTREZ identifiers back to gene symbols")
+
   if (!is.null(seed)) {
     withr::local_seed(seed)
   }
