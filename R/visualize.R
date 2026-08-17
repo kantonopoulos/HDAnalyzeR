@@ -162,7 +162,7 @@ hd_plot_feature_boxplot <- function(
   } else if (!is.null(case) && is.null(palette)) {
     pal <- '#883268'
   } else {
-    pal <- scales::hue_pal()(length(unique(metadata[[variable]])))
+    pal <- hue_pal(length(unique(metadata[[variable]])))
   }
 
   long_data <- join_data |>
@@ -675,7 +675,7 @@ hd_plot_feature_network <- function(
     ggnewscale::new_scale_color() +
     ggraph::geom_node_text(
       ggplot2::aes(
-        label = stringr::str_wrap(!!rlang::sym("name"), width = 10),
+        label = str_wrap(!!rlang::sym("name"), width = 10),
         color = !!rlang::sym("text_color")
       ),
       lineheight = 0.8,

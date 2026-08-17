@@ -322,7 +322,10 @@ hd_save_data <- function(dat, path_name) {
       path_name,
       sep = "\t",
       row.names = FALSE,
-      col.names = TRUE
+      col.names = TRUE,
+      # `write.table()` defaults to escaping an embedded quote as \", which no
+      # reader here parses back. Double it instead, the way `write.csv()` does.
+      qmethod = "double"
     )
   } else if (file_ext == "rds") {
     saveRDS(dat, path_name)
@@ -364,8 +367,8 @@ hd_import_data <- function(path_name) {
 
   dat <- switch(
     tolower(file_extension),
-    csv = readr::read_csv(path_name),
-    tsv = readr::read_tsv(path_name),
+    csv = read_delimited(path_name, sep = ","),
+    tsv = read_delimited(path_name, sep = "\t"),
     txt = utils::read.table(path_name, header = TRUE, stringsAsFactors = FALSE),
     rda = {
       # `load()` returns the names it restored; picking `ls()[1]` instead would

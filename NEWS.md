@@ -18,8 +18,9 @@ test suite uncovered.
   - Variable importance for the random forest and logistic regression engines is
     read directly from the fitted model and matches `vip::vi()` exactly.
 
-- **Many packages moved from `Imports` to `Suggests`.** The package now installs
-  with 34 hard dependencies instead of 54. `arrow`, `cluster`, `clusterProfiler`,
+- **Many packages moved from `Imports` to `Suggests`.** Together with the
+  removals below the package now installs with 28 hard dependencies instead of
+  54. `arrow`, `cluster`, `clusterProfiler`,
   `easyPubMed`, `embed`, `enrichplot`, `fpc`, `missForest`, `ppsr`, `readxl`,
   `WGCNA` and `writexl` are only needed by the specific functions that use them,
   and those functions now raise a clear error naming the package and the exact
@@ -38,6 +39,32 @@ test suite uncovered.
   `uwot`. The check for `umap` in `hd_umap()` has been replaced with a check for
   `embed`. `knitr`, `patchwork` and `viridis` moved from `Imports` to `Suggests`;
   they are only used by the vignettes.
+
+- **`broom`, `forcats`, `readr`, `scales`, `stringr` and `tidytext` have been
+  dropped.** Each was pulled in for one or two small functions, which are now
+  implemented in `R/compat.R` or taken from a package that was already a hard
+  dependency. Together with their own dependencies this removes 15 packages from
+  a clean install (`backports`, `bit`, `bit64`, `broom`, `clipr`, `crayon`,
+  `forcats`, `hms`, `janeaustenr`, `progress`, `readr`, `SnowballC`, `tidytext`,
+  `tokenizers`, `vroom`), taking the install closure from 147 to 132 packages.
+  There is no user-visible change in behaviour:
+  - `broom::tidy()` was only ever dispatching to methods registered by `parsnip`
+    and `recipes`, both already imported, so the calls now go through those.
+  - `readr::read_csv()`/`read_tsv()` in `hd_import_data()` are replaced with
+    `utils::read.table()`, configured to keep readr's semantics: feature names
+    such as `IL-6` are not mangled, blank fields read as `NA`, and whole numbers
+    read as double rather than integer.
+  - `forcats::fct_reorder()`, `tidytext::reorder_within()`,
+    `tidytext::scale_x_reordered()`, `tidytext::scale_y_reordered()` and
+    `stringr::str_wrap()` have base-R equivalents that produce identical output.
+  - `scales::hue_pal()` is replaced with `grDevices::hcl()`. The palettes are
+    identical up to 15 colours; beyond that one channel of one colour can differ
+    by 1/255 because `scales` rounds via `farver`.
+
+- `rlang` and `withr` stay in `Imports` even though only `rlang::sym()`/`syms()`
+  and `withr::local_seed()` are used. Both remain in the install closure via
+  `dplyr` and `ggplot2` regardless, so replacing them would churn hundreds of
+  call sites without removing a single package.
 
 - `glmnet` and `ranger` stay in `Imports`. They are the engines `hd_model_rreg()`
   and `hd_model_rf()` fit through, so the package cannot work without them even
@@ -137,6 +164,10 @@ test suite uncovered.
 - `hd_import_data()` returned one of the function's own local variables instead
   of the stored object when reading `.rda` files, because it used `ls()[1]`. It
   uses the names returned by `load()` now.
+- `hd_save_data()` corrupted values containing a double-quote when writing TSV.
+  `utils::write.table()` defaults to escaping an embedded quote as `\"`, which
+  no reader parses back, so `he said "hi"` reimported as `he said \hi\`. Quotes
+  are doubled now, the way `utils::write.csv()` already did for CSV.
 - `hd_qc_summary()`, `hd_impute_median()`, `hd_impute_knn()` and
   `hd_impute_missForest()` printed tables as deparsed R code
   (`c("f2", "f1")c(1, 1)`). Tables are rendered the way they print at the console,
@@ -214,12 +245,24 @@ computed differs.
   while macOS and Ubuntu passed. Each of those topics now carries an
   `@examplesIf requireNamespace(...)` guard, so the examples run where the
   package is available and are skipped where it is not.
-- The pkgdown workflow reports the runner's memory and disk, and re-renders the
-  articles in-process if the site build fails. pkgdown renders each article in a
-  `callr` subprocess; when that subprocess dies without writing to stderr, its
-  error formatter fails with `subscript out of bounds` in
-  `wrap_rmarkdown_error()` and the real cause never reaches the log. The
-  re-render step surfaces the actual error and only runs on failure.
+- **The pkgdown workflow survives, and reports, a crash in the article
+  subprocess.** pkgdown renders each article with `callr::r_safe()` and polls the
+  subprocess every 200 ms until it exits. The site build died twice while polling
+  the render of `classification.Rmd`, the longest article, inside processx's own
+  internals — `chain_call()` on one run, `assert_that()` on the next. pkgdown
+  cannot format that condition because it carries no `$stderr`, so it reported
+  `subscript out of bounds` from `wrap_rmarkdown_error()` and the real cause
+  never reached the log. This is not in the package: every article renders
+  cleanly in-process on the same runner, which has around 14 GB of memory and
+  79 GB of disk free. The workflow now:
+  - installs the newest `callr` and `processx` rather than whichever version is
+    cached, since that is where the crash happens;
+  - builds with `quiet = FALSE`, so the subprocess output is streamed into the
+    log and a genuine article error stays readable;
+  - retries once with `clean = FALSE, lazy = TRUE` on failure, which resumes from
+    the articles that already rendered instead of starting over;
+  - reports the runner's memory and disk, and re-renders every article
+    in-process, both only when the build fails.
 - Added build and check artefacts (`*.Rcheck/`, `*.tar.gz`, `Rplots.pdf`) to
   `.gitignore`.
 

@@ -40,35 +40,33 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      # `build_articles()` renders each article in a callr subprocess and polls
+      # it every 200 ms. That poll loop has now died three times on
+      # `classification.Rmd`, the longest article, at a different chunk each
+      # time. pkgdown cannot report the real cause, because
+      # `wrap_rmarkdown_error()` does `strsplit(cnd$stderr, ...)[[1]]` and the
+      # condition has no `$stderr`, so the log only ever shows `subscript out of
+      # bounds` from the formatter itself.
+      #
+      # Rendering every article in this process instead removes the subprocess,
+      # the poll loop and that error formatter in one go: all seven articles
+      # render cleanly in a single R session on this same runner. pkgdown
+      # already supports it -- `build_rmarkdown_article()` skips callr when
+      # `new_process` is FALSE -- but nothing exposes the argument: the site
+      # build reaches it through `build_articles()`, which walks over
+      # `build_article()` without passing `new_process`, and `build_article()`
+      # then hands its own default down. So `build_article()` is the one place
+      # where changing the default actually takes effect. If a render does fail
+      # now, the error and its traceback reach the log intact.
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
-
-      # pkgdown renders every article in a callr subprocess. When that
-      # subprocess dies without writing to stderr (killed, out of memory, or
-      # crashed in a compiled dependency), pkgdown's own error formatter fails
-      # with `subscript out of bounds` in wrap_rmarkdown_error() and the real
-      # cause never reaches the log. The two enrichment articles peak at around
-      # 3 GB each because clusterProfiler loads the whole GO database, so a
-      # memory problem is worth ruling in or out explicitly.
-      - name: Runner resources
-        if: always()
         run: |
-          free -h || true
-          df -h . || true
+          render_in_process <- pkgdown::build_article
+          formals(render_in_process)$new_process <- FALSE
+          assignInNamespace("build_article", render_in_process, ns = "pkgdown")
 
-      # Re-render in this process, where the error and its traceback survive.
-      # Only on failure, so a healthy build pays nothing for it.
-      - name: Re-render articles to surface the real error
-        if: failure()
-        run: |
-          for (rmd in list.files("vignettes", pattern = "[.]Rmd$", full.names = TRUE)) {
-            cat("\n==== ", rmd, " ====\n", sep = "")
-            elapsed <- system.time(
-              rmarkdown::render(rmd, output_dir = tempdir(), quiet = TRUE)
-            )[["elapsed"]]
-            cat("rendered in ", round(elapsed), "s\n", sep = "")
-          }
+          pkgdown::build_site_github_pages(
+            new_process = FALSE, install = FALSE, quiet = FALSE
+          )
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
