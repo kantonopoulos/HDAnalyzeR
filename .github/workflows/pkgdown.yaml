@@ -37,73 +37,36 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          # callr and processx are named explicitly because the site build has
-          # been failing inside their subprocess management, not in this
-          # package: pick up their newest release rather than a cached one.
-          extra-packages: any::pkgdown, any::callr, any::processx, local::.
+          extra-packages: any::pkgdown, local::.
           needs: website
 
-      # pkgdown renders every article in a callr subprocess and polls its output
-      # pipes every 200 ms until it exits. Twice in a row the build has died
-      # while polling the render of `classification.Rmd`, the longest article, in
-      # processx's own error-decoration helpers (`chain_call()` once,
-      # `assert_that()` the next time). pkgdown then cannot format that
-      # condition, because it has no `$stderr`, and reports `subscript out of
-      # bounds` from `wrap_rmarkdown_error()` instead of the real cause.
+      # `build_articles()` renders each article in a callr subprocess and polls
+      # it every 200 ms. That poll loop has now died three times on
+      # `classification.Rmd`, the longest article, at a different chunk each
+      # time. pkgdown cannot report the real cause, because
+      # `wrap_rmarkdown_error()` does `strsplit(cnd$stderr, ...)[[1]]` and the
+      # condition has no `$stderr`, so the log only ever shows `subscript out of
+      # bounds` from the formatter itself.
       #
-      # Every article renders cleanly in this same runner in-process, and the
-      # runner has ~14 GB of memory free, so this is not the package's code and
-      # not a resource limit. Two things help: `quiet = FALSE` streams the
-      # subprocess output into the log so the child's real progress is visible,
-      # and the retry resumes rather than starting over.
+      # Rendering every article in this process instead removes the subprocess,
+      # the poll loop and that error formatter in one go: all seven articles
+      # render cleanly in a single R session on this same runner. pkgdown
+      # already supports it -- `build_rmarkdown_article()` skips callr when
+      # `new_process` is FALSE -- but nothing exposes the argument: the site
+      # build reaches it through `build_articles()`, which walks over
+      # `build_article()` without passing `new_process`, and `build_article()`
+      # then hands its own default down. So `build_article()` is the one place
+      # where changing the default actually takes effect. If a render does fail
+      # now, the error and its traceback reach the log intact.
       - name: Build site
         run: |
-          build <- function(...) {
-            pkgdown::build_site_github_pages(
-              new_process = FALSE, install = FALSE, quiet = FALSE, ...
-            )
-          }
+          render_in_process <- pkgdown::build_article
+          formals(render_in_process)$new_process <- FALSE
+          assignInNamespace("build_article", render_in_process, ns = "pkgdown")
 
-          built <- tryCatch(
-            {
-              build()
-              TRUE
-            },
-            error = function(cnd) {
-              message("First attempt failed: ", conditionMessage(cnd))
-              FALSE
-            }
+          pkgdown::build_site_github_pages(
+            new_process = FALSE, install = FALSE, quiet = FALSE
           )
-
-          if (!built) {
-            # `lazy = TRUE` skips the articles whose HTML is newer than their
-            # Rmd, and `clean = FALSE` keeps them, so the retry picks up where
-            # the crash left off instead of re-rendering everything.
-            message("Retrying, resuming from the articles that already built.")
-            build(clean = FALSE, lazy = TRUE)
-          }
-        shell: Rscript {0}
-
-      - name: Runner resources
-        if: always()
-        run: |
-          free -h || true
-          df -h . || true
-
-      # Re-render in this process, where the error and its traceback survive.
-      # Only on failure, so a healthy build pays nothing for it.
-      - name: Re-render articles to surface the real error
-        if: failure()
-        run: |
-          articles <- list.files("vignettes", pattern = "[.]Rmd$", full.names = TRUE)
-          cat("found ", length(articles), " articles\n", sep = "")
-          for (rmd in articles) {
-            cat("\n==== ", rmd, " ====\n", sep = "")
-            elapsed <- system.time(
-              rmarkdown::render(rmd, output_dir = tempdir(), quiet = TRUE)
-            )[["elapsed"]]
-            cat("rendered in ", round(elapsed), "s\n", sep = "")
-          }
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
