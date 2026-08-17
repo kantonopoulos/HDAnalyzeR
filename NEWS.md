@@ -214,12 +214,24 @@ computed differs.
   while macOS and Ubuntu passed. Each of those topics now carries an
   `@examplesIf requireNamespace(...)` guard, so the examples run where the
   package is available and are skipped where it is not.
-- The pkgdown workflow reports the runner's memory and disk, and re-renders the
-  articles in-process if the site build fails. pkgdown renders each article in a
-  `callr` subprocess; when that subprocess dies without writing to stderr, its
-  error formatter fails with `subscript out of bounds` in
-  `wrap_rmarkdown_error()` and the real cause never reaches the log. The
-  re-render step surfaces the actual error and only runs on failure.
+- **The pkgdown workflow survives, and reports, a crash in the article
+  subprocess.** pkgdown renders each article with `callr::r_safe()` and polls the
+  subprocess every 200 ms until it exits. The site build died twice while polling
+  the render of `classification.Rmd`, the longest article, inside processx's own
+  internals — `chain_call()` on one run, `assert_that()` on the next. pkgdown
+  cannot format that condition because it carries no `$stderr`, so it reported
+  `subscript out of bounds` from `wrap_rmarkdown_error()` and the real cause
+  never reached the log. This is not in the package: every article renders
+  cleanly in-process on the same runner, which has around 14 GB of memory and
+  79 GB of disk free. The workflow now:
+  - installs the newest `callr` and `processx` rather than whichever version is
+    cached, since that is where the crash happens;
+  - builds with `quiet = FALSE`, so the subprocess output is streamed into the
+    log and a genuine article error stays readable;
+  - retries once with `clean = FALSE, lazy = TRUE` on failure, which resumes from
+    the articles that already rendered instead of starting over;
+  - reports the runner's memory and disk, and re-renders every article
+    in-process, both only when the build fails.
 - Added build and check artefacts (`*.Rcheck/`, `*.tar.gz`, `Rplots.pdf`) to
   `.gitignore`.
 
