@@ -30,6 +30,10 @@ A list containing the results of the ORA.
 \code{hd_ora()} performs over-representation analysis (ORA) using the clusterProfiler package.
 }
 \details{
+When nothing passes the significance threshold the function warns and returns
+the (empty) enrichment object instead of stopping, so that a null result does
+not abort a longer pipeline.
+
 To perform the ORA, \code{clusterProfiler} package is used.
 The \code{qvalueCutoff} is set to 1 by default to prioritize filtering by adjusted
 p-values (p.adjust). This simplifies the workflow by ensuring a single, clear

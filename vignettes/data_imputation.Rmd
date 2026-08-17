@@ -2,7 +2,7 @@
 title: "Data Imputation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{data_imputation}
+  %\VignetteIndexEntry{Data Imputation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

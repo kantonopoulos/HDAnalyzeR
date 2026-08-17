@@ -28,24 +28,29 @@ check_col_types <- function(dat, unique_threshold = 5) {
 #' @param dat The input dataset.
 #'
 #' @return A tibble with the column names and the percentage of NAs in each column.
+#' @details
+#' The counts are taken one column at a time rather than through a wide
+#' `across()` summary, which keeps the memory footprint flat on datasets with
+#' tens of thousands of features.
 #' @keywords internal
 calc_na_percentage_col <- function(dat) {
-  na_percentage <- dat |>
-    dplyr::summarise(
-      dplyr::across(
-        dplyr::everything(),
-        \(column) round(sum(is.na(column)) / dplyr::n() * 100, 1)
-      )
-    ) |>
-    tidyr::pivot_longer(
-      cols = dplyr::everything(),
-      names_to = "column",
-      values_to = "na_percentage"
-    ) |>
-    dplyr::filter(!!rlang::sym("na_percentage") > 0) |> # Filter out columns with no NAs
-    dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage")))
+  n_rows <- nrow(dat)
 
-  return(na_percentage)
+  na_counts <- vapply(dat, function(column) sum(is.na(column)), numeric(1))
+
+  if (n_rows == 0) {
+    na_percentage <- rep(0, length(na_counts))
+  } else {
+    na_percentage <- round(na_counts / n_rows * 100, 1)
+  }
+
+  keep <- which(na_percentage > 0) # Filter out columns with no NAs
+  keep <- keep[order(na_percentage[keep], decreasing = TRUE)]
+
+  tibble::tibble(
+    column = names(dat)[keep],
+    na_percentage = unname(na_percentage[keep])
+  )
 }
 
 
@@ -56,24 +61,46 @@ calc_na_percentage_col <- function(dat) {
 #'
 #' @param dat The input dataset.
 #' @param sample_id The name of the column containing the sample IDs.
+#' @param chunk_size The number of columns to scan at a time. Default is 500.
 #'
 #' @return A tibble with the DAids and the percentage of NAs in each row.
+#' @details
+#' The counts are accumulated with `rowSums()` over blocks of columns instead of
+#' `rowwise()`, which evaluates once per row and becomes the dominant cost on
+#' datasets with thousands of samples and features. Chunking keeps the temporary
+#' logical matrix small regardless of how many features there are.
 #' @keywords internal
-calc_na_percentage_row <- function(dat, sample_id) {
-  na_percentage <- dat |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      na_percentage = round(
-        sum(is.na(dplyr::across(dplyr::everything()))) / ncol(dat) * 100,
-        1
-      )
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::filter(!!rlang::sym("na_percentage") > 0) |>
-    dplyr::arrange(dplyr::desc(!!rlang::sym("na_percentage"))) |>
-    dplyr::select(dplyr::any_of(c(sample_id, "na_percentage")))
+calc_na_percentage_row <- function(dat, sample_id, chunk_size = 500) {
+  n_cols <- ncol(dat)
 
-  return(na_percentage)
+  if (n_cols == 0 || nrow(dat) == 0) {
+    na_percentage <- numeric(0)
+    keep <- integer(0)
+  } else {
+    na_counts <- numeric(nrow(dat))
+    for (start in seq(1, n_cols, by = chunk_size)) {
+      cols <- seq(start, min(start + chunk_size - 1, n_cols))
+      na_counts <- na_counts + rowSums(is.na(dat[cols]))
+    }
+
+    na_percentage <- round(na_counts / n_cols * 100, 1)
+
+    keep <- which(na_percentage > 0)
+    keep <- keep[order(na_percentage[keep], decreasing = TRUE)]
+  }
+
+  if (sample_id %in% names(dat)) {
+    res <- tibble::tibble(
+      dat[[sample_id]][keep],
+      na_percentage[keep],
+      .name_repair = "minimal"
+    )
+    names(res) <- c(sample_id, "na_percentage")
+  } else {
+    res <- tibble::tibble(na_percentage = na_percentage[keep])
+  }
+
+  res
 }
 
 
@@ -282,6 +309,7 @@ plot_metadata_summary <- function(
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #' @param cor_threshold The threshold to consider a protein-protein correlation as high. Default is 0.8.
 #' @param cor_method The method to calculate the correlation. Default is "pearson".
+#' @param max_heatmap_features The largest number of features to draw a correlation heatmap for. Default is 1000.
 #' @param verbose Whether to print the summary. Default is TRUE.
 #'
 #' @return A list containing the qc summery of data
@@ -292,6 +320,7 @@ qc_summary_data <- function(
   unique_threshold = 5,
   cor_threshold = 0.8,
   cor_method = "pearson",
+  max_heatmap_features = 1000,
   verbose = TRUE
 ) {
   wide_data <- wide_data |>
@@ -303,10 +332,20 @@ qc_summary_data <- function(
   na_col_dist <- plot_missing_values(na_percentage_col, "Number of Features")
   na_percentage_row <- calc_na_percentage_row(wide_data, sample_id)
   na_row_dist <- plot_missing_values(na_percentage_row, "Number of Samples")
+
+  if (isTRUE(verbose) && protein_n > 2000) {
+    message(
+      "Correlating ",
+      protein_n - 1,
+      " features. This is quadratic in the number of features and may take several minutes."
+    )
+  }
+
   cor <- hd_plot_cor_heatmap(
     wide_data |> dplyr::select(-rlang::sym(sample_id)),
     threshold = cor_threshold,
-    method = cor_method
+    method = cor_method,
+    max_heatmap_features = max_heatmap_features
   )
   cor_matrix <- cor[["cor_matrix"]]
   cor_results <- cor[["cor_results"]]
@@ -417,6 +456,7 @@ qc_summary_metadata <- function(
 #' @param unique_threshold The threshold to consider a numeric variable as categorical. Default is 5.
 #' @param cor_threshold The threshold to consider a protein-protein correlation as high. Default is 0.8.
 #' @param cor_method The method to calculate the correlation. Default is "pearson". Other options are "spearman" and "kendall".
+#' @param max_heatmap_features The largest number of features to draw a correlation heatmap for. Default is 1000. Above this the correlation matrix and the reported pairs are still returned, but the heatmap is skipped, since clustering that many features is prohibitively slow and the plot is unreadable.
 #' @param verbose Whether to print the summary. Default is TRUE.
 #'
 #' @return A list containing the qc summary of data and metadata.
@@ -457,6 +497,7 @@ hd_qc_summary <- function(
   unique_threshold = 5,
   cor_threshold = 0.8,
   cor_method = "pearson",
+  max_heatmap_features = 1000,
   verbose = TRUE
 ) {
   if (inherits(dat, "HDAnalyzeR")) {
@@ -486,6 +527,7 @@ hd_qc_summary <- function(
     unique_threshold,
     cor_threshold,
     cor_method,
+    max_heatmap_features,
     verbose
   )
   metadata_summary <- qc_summary_metadata(

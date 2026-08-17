@@ -97,6 +97,23 @@ test suite uncovered.
 - `hd_gsea()` renamed the ranked gene vector to ENTREZ identifiers by position.
   Because symbol mapping drops unmappable genes, every score after the first
   failure was attached to the wrong gene. Scores are now matched by symbol.
+- **`hd_gsea()` is reproducible.** GSEA p-values come from a permutation test, so
+  every call returned a slightly different set of enriched terms. A new `seed`
+  argument (123 by default, `NULL` to opt out) fixes the random number generator
+  for the duration of the call.
+- **`hd_ora()` and `hd_gsea()` no longer stop when nothing is enriched.** They
+  warn and return the empty enrichment object instead. A null result is a
+  legitimate outcome, and aborting on it broke the vignettes and the examples in
+  CI whenever the permutation test or a Bioconductor annotation update happened
+  to push everything above the threshold. `hd_plot_ora()` and `hd_plot_gsea()`
+  warn and return their input unchanged in that case, rather than failing inside
+  `clusterProfiler`.
+- `hd_ora()` tested for missing adjusted p-values with `is.na(any(p.adjust))`,
+  which coerces the numbers to logicals and never detects anything. An all-`NA`
+  column now reports that nothing was enriched instead of failing with `missing
+  value where TRUE/FALSE needed`.
+- The returned `hd_enrichment` object carries the `pval_lim` it was built with,
+  so the plotting functions know which terms were considered significant.
 
 ### Co-expression networks
 
@@ -129,6 +146,37 @@ test suite uncovered.
 - `hd_normalize()` left `scaled:center` and `scaled:scale` attributes on every
   column of the returned tibble.
 
+## Performance
+
+`hd_qc_summary()` ran out of memory on large datasets (10,000 features,
+5,000 samples). The results are unchanged on every input; only the way they are
+computed differs.
+
+- **The correlation heatmap is capped.** `hd_plot_cor_heatmap()` and
+  `hd_qc_summary()` gained `max_heatmap_features` (default 1000). Above the
+  limit the correlation matrix and the reported pairs are still returned, but
+  `cor_heatmap` is `NULL` and a warning explains why. Clustering 10,000 features
+  needs a 400 MB distance matrix and hours of `hclust`, for a plot with 100
+  million unreadable cells.
+- **The high-correlation pairs are read straight off the matrix.** The pairs used
+  to be found by reshaping the whole correlation matrix to long format first,
+  which is one row per entry: 100 million rows before any filtering, several GB.
+  The new `cor_pairs_above()` scans blocks of columns and keeps only what exceeds
+  the threshold, in the same order as before.
+- **`calc_na_percentage_row()` no longer uses `rowwise()`**, which evaluated once
+  per sample. Counting with `rowSums()` over blocks of columns is roughly 2000
+  times faster on a 1,000 × 3,000 dataset (21 s to 0.01 s) and uses a bounded
+  amount of memory.
+- **`calc_na_percentage_col()`** counts a column at a time instead of building a
+  one-row, 10,000-column summary and pivoting it.
+- **`hd_correlate()`** substitutes `use = "everything"` for
+  `"pairwise.complete.obs"` when the input has no missing values. The two are
+  equivalent in that case, and the pairwise code path is about three times slower
+  because it compares every pair of columns separately.
+- **`check_numeric_columns()`** no longer coerces already-numeric columns with
+  `as.numeric()`, which allocated a copy of every column of the dataset.
+- `hd_qc_summary()` now says up front when a correlation is going to take a while.
+
 ## Continuous integration
 
 - Fixed `.Rbuildignore`: the patterns for `inst/extdata`, `inst/cheatsheet` and
@@ -149,6 +197,14 @@ test suite uncovered.
 - The `hd_literature_search()` example queried PubMed live during
   `R CMD check`, so a throttled request could stall the examples step on every
   platform. It is wrapped in `\donttest{}` now.
+- The `hd_gsea()` examples and the `post_analysis` vignette failed the examples
+  and pkgdown steps with `No significant terms found`. GSEA is a permutation
+  test, so whether anything cleared the threshold varied between machines and
+  between runs. `hd_gsea()` is seeded and no longer treats an empty result as an
+  error (see *Enrichment* above).
+- Every vignette declared a `\VignetteIndexEntry{}` that did not match its YAML
+  title, so each build printed a warning about it. The index entries now carry
+  the real titles.
 - Added build and check artefacts (`*.Rcheck/`, `*.tar.gz`, `Rplots.pdf`) to
   `.gitignore`.
 

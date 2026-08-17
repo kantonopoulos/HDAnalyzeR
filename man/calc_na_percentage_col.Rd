@@ -16,4 +16,9 @@ A tibble with the column names and the percentage of NAs in each column.
 \code{calc_na_percentage_col()} calculates the percentage of NAs in each column of the input dataset.
 It filters out the columns with 0\% missing data and returns the rest in descending order.
 }
+\details{
+The counts are taken one column at a time rather than through a wide
+\code{across()} summary, which keeps the memory footprint flat on datasets with
+tens of thousands of features.
+}
 \keyword{internal}

@@ -24,6 +24,11 @@ A correlation matrix.
 \details{
 You can read more about the method for computing covariances in the presence of missing values
 and the coefficient that is calculated in the documentation of the \code{cor()} function in the \code{stats} package.
+
+When the input contains no missing values, \code{"pairwise.complete.obs"} is
+silently replaced by \code{"everything"}. The two are equivalent in that case, but
+the pairwise code path compares every pair of columns separately and is
+several times slower on datasets with thousands of features.
 }
 \examples{
 # Correlate features in a dataset (column wise)

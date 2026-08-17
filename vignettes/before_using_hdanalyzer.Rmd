@@ -2,7 +2,7 @@
 title: "Data Preparation for HDAnalyzeR: What You Need Before Using the Package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{before_using_hdanalyzer}
+  %\VignetteIndexEntry{Data Preparation for HDAnalyzeR: What You Need Before Using the Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

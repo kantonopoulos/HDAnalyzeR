@@ -2,7 +2,7 @@
 title: "Post Analysis: Pathway Enrichment"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{post_analysis}
+  %\VignetteIndexEntry{Post Analysis: Pathway Enrichment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -80,6 +80,8 @@ enrichment_plots$cnetplot
 We can also run a Gene Set Enrichment Analysis (GSEA) using the `hd_gsea()` and `hd_plot_gsea` functions. The `hd_plot_gsea()` function will plot the results.
 
 > ⚠️ In this case, the function requires strictly differential expression results, so a ranked list of proteins is derived based on the `ranked_by` argument.
+
+> 📓 GSEA p-values come from a permutation test, so two runs on the same data do not give exactly the same numbers. `hd_gsea()` fixes the random number generator with its `seed` argument (123 by default) so that a run is reproducible. If nothing passes `pval_lim`, the function warns and returns an empty result instead of stopping.
 
 ```{r, message = FALSE, warning = FALSE}
 enrichment <- hd_gsea(de_res, database = "GO", ontology = "BP", pval_lim = 0.55)

@@ -9,7 +9,8 @@ hd_gsea(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   ranked_by = "logFC",
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  seed = 123
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ hd_gsea(
 \item{ranked_by}{The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (\code{de_results} argument).}
 
 \item{pval_lim}{The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.}
+
+\item{seed}{Seed for reproducibility. Default is 123. Set to NULL to leave the random number generator untouched.}
 }
 \value{
 A list containing the results of the GSEA.
@@ -30,6 +33,14 @@ A list containing the results of the GSEA.
 \code{hd_gsea()} performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
 }
 \details{
+GSEA p-values come from a permutation test, so repeated runs on the same data
+return slightly different results. \code{seed} fixes the random number generator for
+the duration of the call to make a run reproducible.
+
+When nothing passes the significance threshold the function warns and returns
+the (empty) enrichment object instead of stopping, so that a null result does
+not abort a longer pipeline.
+
 To perform the GSEA, \code{clusterProfiler} package is used. For more information, please
 refer to the \code{clusterProfiler} documentation.
 

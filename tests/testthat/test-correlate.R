@@ -81,3 +81,75 @@ test_that("hd_plot_cor_heatmap() returns no pairs when nothing is correlated", {
 
   expect_equal(nrow(res$cor_results), 0)
 })
+
+test_that("hd_plot_cor_heatmap() skips the heatmap past the feature limit", {
+  withr::local_seed(4)
+  dat <- tibble::as_tibble(
+    matrix(stats::rnorm(200), ncol = 4, dimnames = list(NULL, letters[1:4]))
+  )
+
+  expect_warning(
+    res <- hd_plot_cor_heatmap(dat, threshold = 0.5, max_heatmap_features = 3),
+    "Skipping the correlation heatmap"
+  )
+
+  # the expensive plot is dropped, everything else is still computed
+  expect_null(res$cor_heatmap)
+  expect_equal(dim(res$cor_matrix), c(4L, 4L))
+  expect_s3_class(res, "hd_corr")
+})
+
+
+# cor_pairs_above -------------------------------------------------------------
+
+test_that("cor_pairs_above() matches the long-format filter it replaced", {
+  withr::local_seed(5)
+  dat <- matrix(stats::rnorm(600), ncol = 12)
+  colnames(dat) <- paste0("f", seq_len(12))
+  cor_matrix <- hd_correlate(dat)
+
+  long_way <- as.data.frame(as.table(cor_matrix), stringsAsFactors = FALSE) |>
+    dplyr::filter(!!rlang::sym("Var1") != !!rlang::sym("Var2")) |>
+    dplyr::filter(abs(!!rlang::sym("Freq")) > 0.2) |>
+    dplyr::arrange(dplyr::desc(!!rlang::sym("Freq")))
+
+  res <- cor_pairs_above(cor_matrix, 0.2)
+
+  expect_equal(res$Protein1, long_way$Var1)
+  expect_equal(res$Protein2, long_way$Var2)
+  expect_equal(res$Correlation, long_way$Freq)
+})
+
+test_that("cor_pairs_above() is unaffected by the chunk size", {
+  withr::local_seed(6)
+  dat <- matrix(stats::rnorm(600), ncol = 12)
+  colnames(dat) <- paste0("f", seq_len(12))
+  cor_matrix <- hd_correlate(dat)
+
+  expect_equal(
+    cor_pairs_above(cor_matrix, 0.2, chunk_size = 5),
+    cor_pairs_above(cor_matrix, 0.2, chunk_size = 1000)
+  )
+})
+
+test_that("cor_pairs_above() returns an empty tibble when nothing qualifies", {
+  cor_matrix <- hd_correlate(
+    tibble::tibble(a = c(1, 2, 3, 4, 5), b = c(5, 1, 4, 2, 3))
+  )
+  res <- cor_pairs_above(cor_matrix, 0.99)
+
+  expect_equal(nrow(res), 0)
+  expect_named(res, c("Protein1", "Protein2", "Correlation"))
+})
+
+test_that("cor_pairs_above() ignores NA correlations", {
+  cor_matrix <- matrix(
+    c(1, NA, 0.9, NA, 1, NA, 0.9, NA, 1),
+    nrow = 3,
+    dimnames = list(letters[1:3], letters[1:3])
+  )
+  res <- cor_pairs_above(cor_matrix, 0.5)
+
+  expect_equal(nrow(res), 2)
+  expect_setequal(paste(res$Protein1, res$Protein2), c("a c", "c a"))
+})

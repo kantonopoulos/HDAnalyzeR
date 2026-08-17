@@ -670,13 +670,21 @@ check_numeric_columns <- function(dat) {
 
   non_numeric <- NULL
   non_numeric <- names(cols_to_check)[
-    !sapply(cols_to_check, function(col) {
-      suppressWarnings({
-        # Suppress warnings during coercion
-        coerced <- as.numeric(col)
-        return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
-      })
-    })
+    !vapply(
+      cols_to_check,
+      function(col) {
+        # Already-numeric columns need no coercion, which is the whole cost here
+        if (is.numeric(col)) {
+          return(TRUE)
+        }
+        suppressWarnings({
+          # Suppress warnings during coercion
+          coerced <- as.numeric(col)
+          !any(is.na(coerced) & !is.na(col)) # TRUE if valid numeric after coercion
+        })
+      },
+      logical(1)
+    )
   ]
 
   if (length(non_numeric) > 0) {

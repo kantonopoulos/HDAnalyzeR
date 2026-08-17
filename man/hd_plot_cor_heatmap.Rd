@@ -11,7 +11,8 @@ hd_plot_cor_heatmap(
   method = "pearson",
   threshold = 0.8,
   cluster_rows = TRUE,
-  cluster_cols = TRUE
+  cluster_cols = TRUE,
+  max_heatmap_features = 1000
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Default is "pearson". Other options are "kendall" or "spearman".}
 \item{cluster_rows}{Whether to cluster the rows. Default is TRUE.}
 
 \item{cluster_cols}{Whether to cluster the columns. Default is TRUE.}
+
+\item{max_heatmap_features}{The largest number of features to draw a heatmap for. Default is 1000. Above this the correlation matrix and the reported pairs are still returned, but the heatmap is skipped.}
 }
 \value{
 A list with the correlation matrix, the filtered pairs and their correlation values, and the heatmap.
@@ -40,6 +43,14 @@ A list with the correlation matrix, the filtered pairs and their correlation val
 It creates a heatmap of the correlation matrix. This matrix is created via \code{hd_correlate()}.
 It also filters the feature pairs with correlation values above the threshold and
 returns them in a tibble.
+}
+\details{
+Drawing the heatmap requires hierarchical clustering of every feature and a
+cell per feature pair, both of which grow quadratically. Past a few thousand
+features the plot stops being readable long before it stops being computable,
+so \code{max_heatmap_features} caps it: beyond that the correlation matrix and the
+reported pairs are returned as usual and \code{cor_heatmap} is \code{NULL}. Raise the
+limit to force the plot, or subset the data to the features of interest.
 }
 \examples{
 # Prepare data

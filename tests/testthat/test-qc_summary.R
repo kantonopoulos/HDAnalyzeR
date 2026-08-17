@@ -96,3 +96,58 @@ test_that("the printed summary labels the column type counts", {
 
   expect_match(output, "continuous: [0-9]+")
 })
+
+
+# calc_na_percentage_col / calc_na_percentage_row ------------------------------
+
+test_that("calc_na_percentage_col() sorts by missingness and drops complete columns", {
+  dat <- tibble::tibble(
+    DAid = paste0("S", 1:4),
+    a = c(NA, NA, NA, 1),
+    b = c(NA, 2, 3, 4),
+    c = c(1, 2, 3, 4)
+  )
+  res <- calc_na_percentage_col(dat)
+
+  expect_equal(res$column, c("a", "b"))
+  expect_equal(res$na_percentage, c(75, 25))
+})
+
+test_that("calc_na_percentage_row() counts across every column, sample id included", {
+  dat <- tibble::tibble(
+    DAid = paste0("S", 1:4),
+    a = c(NA, NA, 1, 1),
+    b = c(NA, 2, 3, 4)
+  )
+  res <- calc_na_percentage_row(dat, "DAid")
+
+  # three columns in total, so two NAs is 66.7% and one is 33.3%
+  expect_equal(res$DAid, c("S1", "S2"))
+  expect_equal(res$na_percentage, c(66.7, 33.3))
+})
+
+test_that("calc_na_percentage_row() gives the same answer for any chunk size", {
+  withr::local_seed(11)
+  values <- matrix(stats::rnorm(300), ncol = 15)
+  values[sample(length(values), 30)] <- NA
+  dat <- dplyr::bind_cols(
+    tibble::tibble(DAid = paste0("S", 1:20)),
+    tibble::as_tibble(values, .name_repair = "unique")
+  )
+
+  expect_equal(
+    calc_na_percentage_row(dat, "DAid", chunk_size = 2),
+    calc_na_percentage_row(dat, "DAid", chunk_size = 1000)
+  )
+})
+
+test_that("the missing value helpers cope with complete and empty inputs", {
+  complete <- tibble::tibble(DAid = c("S1", "S2"), a = c(1, 2))
+  expect_equal(nrow(calc_na_percentage_col(complete)), 0)
+  expect_equal(nrow(calc_na_percentage_row(complete, "DAid")), 0)
+
+  empty <- complete[0, ]
+  expect_equal(nrow(calc_na_percentage_col(empty)), 0)
+  expect_equal(nrow(calc_na_percentage_row(empty, "DAid")), 0)
+  expect_named(calc_na_percentage_row(empty, "DAid"), c("DAid", "na_percentage"))
+})

@@ -1,3 +1,16 @@
+# A stand-in for a clusterProfiler result: only the `result` slot is read
+methods::setClass(
+  "hdFakeEnrichment",
+  representation = methods::representation(result = "data.frame")
+)
+
+fake_enrichment <- function(p_adjust) {
+  methods::new(
+    "hdFakeEnrichment",
+    result = data.frame(ID = paste0("term", seq_along(p_adjust)), p.adjust = p_adjust)
+  )
+}
+
 de_table <- function() {
   tibble::tibble(
     Feature = c("TP53", "EGFR", "BRCA1", "MYC"),
@@ -124,15 +137,57 @@ test_that("hd_ora() runs an over-representation analysis", {
   expect_gt(nrow(enrichment$enrichment@result), 0)
 })
 
-test_that("hd_ora() errors clearly when nothing is enriched", {
+test_that("hd_ora() warns and returns an empty result when nothing is enriched", {
   skip_on_cran()
   skip_if_not_installed("clusterProfiler")
   skip_if_not_installed("org.Hs.eg.db")
 
-  expect_error(
-    quietly(hd_ora(c("TP53", "EGFR"), database = "GO", ontology = "BP", pval_lim = 1e-12)),
-    "No significant terms found"
+  suppressMessages(
+    expect_warning(
+      enrichment <- hd_ora(
+        c("TP53", "EGFR"),
+        database = "GO", ontology = "BP", pval_lim = 1e-12
+      ),
+      "No significant terms found"
+    )
   )
+
+  # a null result must not abort the pipeline
+  expect_s3_class(enrichment, "hd_enrichment")
+})
+
+test_that("hd_plot_ora() warns instead of failing on an empty result", {
+  skip_on_cran()
+  skip_if_not_installed("clusterProfiler")
+  skip_if_not_installed("org.Hs.eg.db")
+  skip_if_not_installed("enrichplot")
+
+  suppressMessages(suppressWarnings(
+    enrichment <- hd_ora(
+      c("TP53", "EGFR"),
+      database = "GO", ontology = "BP", pval_lim = 1e-12
+    )
+  ))
+
+  expect_warning(plots <- hd_plot_ora(enrichment), "nothing to plot")
+  expect_null(plots$dotplot)
+})
+
+
+# enrichment_is_empty ---------------------------------------------------------
+
+test_that("enrichment_is_empty() treats all-NA adjusted p-values as empty", {
+  fake <- fake_enrichment(c(NA_real_, NA_real_))
+
+  # `any()` on an all-NA column returns NA, which used to abort the caller
+  expect_true(enrichment_is_empty(fake, 0.05))
+  expect_true(enrichment_is_empty(NULL, 0.05))
+})
+
+test_that("enrichment_is_empty() keeps a result with one significant term", {
+  fake <- fake_enrichment(c(NA_real_, 0.01))
+
+  expect_false(enrichment_is_empty(fake, 0.05))
 })
 
 test_that("hd_ora() validates the database and ontology arguments", {

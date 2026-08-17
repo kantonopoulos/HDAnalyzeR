@@ -320,3 +320,26 @@ test_that("check_installed() explains what the package was needed for", {
     "required to do something useful"
   )
 })
+
+test_that("hd_filter() keeps and removes complementary sets of samples", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+
+  kept <- quietly(hd_filter(hd_obj, "Disease", "A", "k"))
+  removed <- quietly(hd_filter(hd_obj, "Disease", "A", "r"))
+
+  # "k" and "r" once returned the same rows because the companion component
+  # was filtered with an inverted condition
+  expect_false(identical(kept$data, removed$data))
+  expect_false(identical(kept$metadata, removed$metadata))
+  expect_equal(
+    sort(c(kept$data$DAid, removed$data$DAid)),
+    sort(hd_obj$data$DAid)
+  )
+  expect_length(intersect(kept$data$DAid, removed$data$DAid), 0)
+
+  # the two components must stay aligned on the same samples
+  expect_equal(kept$data$DAid, kept$metadata$DAid)
+  expect_equal(removed$data$DAid, removed$metadata$DAid)
+  expect_true(all(kept$metadata$Disease == "A"))
+  expect_false(any(removed$metadata$Disease == "A"))
+})

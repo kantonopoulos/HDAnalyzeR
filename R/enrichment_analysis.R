@@ -36,6 +36,52 @@ gene_to_entrezid <- function(gene_list, background = NULL) {
   return(list("gene_list" = gene_list, "background" = background))
 }
 
+#' Check whether an enrichment run returned anything significant
+#'
+#' `enrichment_is_empty()` reports whether a `clusterProfiler` result object is
+#' missing, has no rows, or has no term below the significance threshold.
+#'
+#' @param enrichment A `clusterProfiler` enrichment object, or `NULL`.
+#' @param pval_lim The adjusted p-value threshold used for the run.
+#'
+#' @return `TRUE` when there is nothing worth reporting, `FALSE` otherwise.
+#' @details
+#' The adjusted p-values can contain `NA`s, so the comparison has to drop them
+#' explicitly. Without `na.rm`, an all-`NA` column makes `any()` return `NA` and
+#' the surrounding `if()` fails with a missing-value error instead of reporting
+#' that nothing was enriched.
+#' @keywords internal
+enrichment_is_empty <- function(enrichment, pval_lim) {
+  if (is.null(enrichment)) {
+    return(TRUE)
+  }
+
+  result <- enrichment@result
+  if (is.null(result) || nrow(result) == 0) {
+    return(TRUE)
+  }
+
+  !any(result[["p.adjust"]] < pval_lim, na.rm = TRUE)
+}
+
+
+#' Warn that an enrichment run found nothing
+#'
+#' @param analysis The name of the analysis, used in the message.
+#'
+#' @return `invisible(NULL)`, called for the side effect.
+#' @keywords internal
+warn_no_terms <- function(analysis) {
+  warning(
+    "No significant terms found in the ",
+    analysis,
+    ". The returned object contains the (empty) enrichment result, so no plots can be produced. Consider relaxing `pval_lim` or using a larger gene list.",
+    call. = FALSE
+  )
+  invisible(NULL)
+}
+
+
 #' Over-representation analysis
 #'
 #' `hd_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
@@ -49,6 +95,10 @@ gene_to_entrezid <- function(gene_list, background = NULL) {
 #' @return A list containing the results of the ORA.
 #'
 #' @details
+#' When nothing passes the significance threshold the function warns and returns
+#' the (empty) enrichment object instead of stopping, so that a null result does
+#' not abort a longer pipeline.
+#'
 #' To perform the ORA, `clusterProfiler` package is used.
 #' The `qvalueCutoff` is set to 1 by default to prioritize filtering by adjusted
 #' p-values (p.adjust). This simplifies the workflow by ensuring a single, clear
@@ -146,18 +196,15 @@ hd_ora <- function(
     )
   }
 
-  if (
-    is.null(enrichment) ||
-      is.na(any(enrichment@result[["p.adjust"]])) ||
-      !any(enrichment@result[["p.adjust"]] < pval_lim)
-  ) {
-    stop("No significant terms found.")
+  if (enrichment_is_empty(enrichment, pval_lim)) {
+    warn_no_terms("over-representation analysis")
   }
 
   enrichment <- list(
     "gene_list" = gene_list,
     "background" = background,
-    "enrichment" = enrichment
+    "enrichment" = enrichment,
+    "pval_lim" = pval_lim
   )
   class(enrichment) <- "hd_enrichment"
 
@@ -215,6 +262,19 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
+  }
+
+  pval_lim <- enrichment[["pval_lim"]]
+  if (is.null(pval_lim)) {
+    pval_lim <- Inf
+  }
+
+  if (enrichment_is_empty(enrichment[["enrichment"]], pval_lim)) {
+    warning(
+      "No term passed the significance threshold, so there is nothing to plot.",
+      call. = FALSE
+    )
+    return(enrichment)
   }
 
   # Visualize results
@@ -332,9 +392,18 @@ rename_ranking_to_entrezid <- function(ranked_genes) {
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
 #' @param ranked_by The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
+#' @param seed Seed for reproducibility. Default is 123. Set to NULL to leave the random number generator untouched.
 #'
 #' @return A list containing the results of the GSEA.
 #' @details
+#' GSEA p-values come from a permutation test, so repeated runs on the same data
+#' return slightly different results. `seed` fixes the random number generator for
+#' the duration of the call to make a run reproducible.
+#'
+#' When nothing passes the significance threshold the function warns and returns
+#' the (empty) enrichment object instead of stopping, so that a null result does
+#' not abort a longer pipeline.
+#'
 #' To perform the GSEA, `clusterProfiler` package is used. For more information, please
 #' refer to the `clusterProfiler` documentation.
 #'
@@ -372,10 +441,15 @@ hd_gsea <- function(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   ranked_by = "logFC",
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  seed = 123
 ) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
+
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   if (inherits(de_results, "hd_de")) {
     de_results <- de_results$de_res
@@ -425,11 +499,15 @@ hd_gsea <- function(
     )
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
-    stop("No significant terms found.")
+  if (enrichment_is_empty(enrichment, pval_lim)) {
+    warn_no_terms("gene set enrichment analysis")
   }
 
-  enrichment <- list("gene_list" = gene_list, "enrichment" = enrichment)
+  enrichment <- list(
+    "gene_list" = gene_list,
+    "enrichment" = enrichment,
+    "pval_lim" = pval_lim
+  )
   class(enrichment) <- "hd_enrichment"
 
   return(enrichment)
@@ -484,6 +562,19 @@ hd_plot_gsea <- function(enrichment, seed = 123) {
 
   if (!is.null(seed)) {
     withr::local_seed(seed)
+  }
+
+  pval_lim <- enrichment[["pval_lim"]]
+  if (is.null(pval_lim)) {
+    pval_lim <- Inf
+  }
+
+  if (enrichment_is_empty(enrichment[["enrichment"]], pval_lim)) {
+    warning(
+      "No term passed the significance threshold, so there is nothing to plot.",
+      call. = FALSE
+    )
+    return(enrichment)
   }
 
   # Visualize results

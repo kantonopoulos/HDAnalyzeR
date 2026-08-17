@@ -10,6 +10,7 @@ qc_summary_data(
   unique_threshold = 5,
   cor_threshold = 0.8,
   cor_method = "pearson",
+  max_heatmap_features = 1000,
   verbose = TRUE
 )
 }
@@ -23,6 +24,8 @@ qc_summary_data(
 \item{cor_threshold}{The threshold to consider a protein-protein correlation as high. Default is 0.8.}
 
 \item{cor_method}{The method to calculate the correlation. Default is "pearson".}
+
+\item{max_heatmap_features}{The largest number of features to draw a correlation heatmap for. Default is 1000.}
 
 \item{verbose}{Whether to print the summary. Default is TRUE.}
 }
