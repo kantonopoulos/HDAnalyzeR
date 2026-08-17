@@ -17,7 +17,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("WGCNA", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -146,7 +146,7 @@ hd_wgcna <- function(dat, power = NULL) {
 #' @returns The input object enriched with the plots.
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("WGCNA", quietly = TRUE) && requireNamespace("ppsr", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'

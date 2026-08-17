@@ -25,6 +25,7 @@ If you get the "grid.Call(C_convert, x, as.integer(whatfrom), as.integer(whatto)
 Viewport has zero dimension(s)" warning or error, try to increase the RStudio's viewer window size.
 }
 \examples{
+\dontshow{if (requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("enrichplot", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -47,4 +48,5 @@ enrichment$dotplot
 enrichment$gseaplot
 enrichment$cnetplot
 enrichment$ridgeplot
+\dontshow{\}) # examplesIf}
 }

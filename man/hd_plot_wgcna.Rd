@@ -25,6 +25,7 @@ eigengene (MEs) adjacency, heatmaps of predictive power score (PPS) between MEs 
 metadata and the dendrogram of all genes.
 }
 \examples{
+\dontshow{if (requireNamespace("WGCNA", quietly = TRUE) && requireNamespace("ppsr", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -44,4 +45,5 @@ wgcna_res$me_pps_heatmap
 wgcna_res$var_pps_heatmap
 wgcna_res$me_cor_heatmap
 wgcna_res$dendrogram
+\dontshow{\}) # examplesIf}
 }

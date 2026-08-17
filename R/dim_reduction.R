@@ -434,7 +434,9 @@ plot_loadings <- function(dim_object, plot_loadings, nloadings, x, y) {
 
   if (nrow(ranking) == 0) {
     stop(
-      "No loadings are available for component '", plot_loadings, "'.",
+      "No loadings are available for component '",
+      plot_loadings,
+      "'.",
       call. = FALSE
     )
   }
@@ -510,7 +512,7 @@ add_axis_variance <- function(dim_object, dim_plot, x, y) {
 #' @return A ggplot object
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("embed", quietly = TRUE)
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -671,7 +673,7 @@ hd_auto_pca <- function(
 #' @return A list with the UMAP results.
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("embed", quietly = TRUE)
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'

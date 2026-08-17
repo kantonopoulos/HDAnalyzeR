@@ -231,7 +231,7 @@ hd_cluster <- function(
 #' @returns A list with the cluster assignment.
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("cluster", quietly = TRUE)
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -344,7 +344,7 @@ hd_cluster_samples <- function(
 #' @returns A list with the updated cluster assignment and the stability assessment.
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("cluster", quietly = TRUE) && requireNamespace("fpc", quietly = TRUE)
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'

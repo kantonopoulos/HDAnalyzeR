@@ -41,6 +41,7 @@ and register a cluster before running the function. An example of how to paralle
 imputation is provided in the examples section.
 }
 \examples{
+\dontshow{if (requireNamespace("missForest", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 hd_object$data
@@ -56,4 +57,5 @@ cl <- makeCluster(4)  # Create a cluster with 4 cores
 registerDoParallel(cl)  # Register the cluster
 res <- hd_impute_missForest(hd_object, maxiter = 1, ntree = 50, parallelize = "forests")
 }
+\dontshow{\}) # examplesIf}
 }

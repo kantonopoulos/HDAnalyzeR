@@ -411,7 +411,7 @@ hd_impute_knn <- function(dat, k = 5, seed = 123, verbose = TRUE) {
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("missForest", quietly = TRUE)
 #' # Create the HDAnalyzeR object providing the data and metadata
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #' hd_object$data

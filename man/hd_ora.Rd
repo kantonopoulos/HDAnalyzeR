@@ -49,6 +49,7 @@ If you want to learn more about ORA, please refer to the following publications:
 }
 }
 \examples{
+\dontshow{if (requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -74,4 +75,5 @@ enrichment <- hd_ora(sig_up_proteins_aml,
 
 # Access the results
 head(enrichment$enrichment@result)
+\dontshow{\}) # examplesIf}
 }

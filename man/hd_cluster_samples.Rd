@@ -45,6 +45,7 @@ number of clusters using the gap statistic. If the data contain missing values, 
 function imputes them using the k-nearest neighbors algorithm (k = 5).
 }
 \examples{
+\dontshow{if (requireNamespace("cluster", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -59,4 +60,5 @@ clustering <- hd_cluster_samples(hd_object, k = 7)
 
 # Access the results
 head(clustering[["cluster_res"]])
+\dontshow{\}) # examplesIf}
 }

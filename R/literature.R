@@ -10,7 +10,7 @@
 #' @return A dataframe with columns: Disease, Protein, PMID, Title, and Abstract
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("easyPubMed", quietly = TRUE)
 #' # This example queries PubMed over the network, so it is not run
 #' # automatically: NCBI throttles unauthenticated clients.
 #' \donttest{

@@ -112,7 +112,7 @@ warn_no_terms <- function(analysis) {
 #' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -233,7 +233,7 @@ hd_ora <- function(
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("enrichplot", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -412,7 +412,7 @@ rename_ranking_to_entrezid <- function(ranked_genes) {
 #' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -532,7 +532,7 @@ hd_gsea <- function(
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("enrichplot", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'

@@ -21,6 +21,7 @@ A dataframe with columns: Disease, Protein, PMID, Title, and Abstract
 \code{hd_literature_search()} fetches PubMed articles for disease-protein biomarker associations.
 }
 \examples{
+\dontshow{if (requireNamespace("easyPubMed", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # This example queries PubMed over the network, so it is not run
 # automatically: NCBI throttles unauthenticated clients.
 \donttest{
@@ -32,4 +33,5 @@ queries <- list(
 res <- hd_literature_search(queries, max_results = 2, min_year = 2015)
 head(res, 1)
 }
+\dontshow{\}) # examplesIf}
 }

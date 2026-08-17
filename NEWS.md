@@ -205,6 +205,21 @@ computed differs.
 - Every vignette declared a `\VignetteIndexEntry{}` that did not match its YAML
   title, so each build printed a warning about it. The index entries now carry
   the real titles.
+- **Examples that need a `Suggests` package are now conditional.** Twelve help
+  topics ran examples that call into `clusterProfiler`, `org.Hs.eg.db`,
+  `enrichplot`, `WGCNA`, `ppsr`, `missForest`, `cluster`, `fpc`, `embed` or
+  `easyPubMed` unconditionally. Suggested packages are best-effort on CI — the
+  Windows runner had no usable `clusterProfiler`, and `R CMD check` then failed
+  with `The 'clusterProfiler' package is required ... but is not installed`
+  while macOS and Ubuntu passed. Each of those topics now carries an
+  `@examplesIf requireNamespace(...)` guard, so the examples run where the
+  package is available and are skipped where it is not.
+- The pkgdown workflow reports the runner's memory and disk, and re-renders the
+  articles in-process if the site build fails. pkgdown renders each article in a
+  `callr` subprocess; when that subprocess dies without writing to stderr, its
+  error formatter fails with `subscript out of bounds` in
+  `wrap_rmarkdown_error()` and the real cause never reaches the log. The
+  re-render step surfaces the actual error and only runs on failure.
 - Added build and check artefacts (`*.Rcheck/`, `*.tar.gz`, `Rplots.pdf`) to
   `.gitignore`.
 
