@@ -10,6 +10,7 @@ package from data loading to biomarker identification. Let’s get started
 by loading the package!
 
 ``` r
+
 library(HDAnalyzeR)
 ```
 
@@ -22,6 +23,7 @@ the documentation for the
 function, you can run:
 
 ``` r
+
 ?hd_initialize
 ```
 
@@ -39,32 +41,32 @@ of cancer blood plasma samples.
 First, we load the package’s `example_data` and `example_metadata`.
 
 ``` r
+
 head(example_data)
-#>      DAid    Sample  OlinkID UniProt  Assay           Panel        NPX
-#> 1 DA00001 AML_syn_1 OID21311  Q9BTE6 AARSD1        Oncology  3.3903461
-#> 2 DA00001 AML_syn_1 OID21280  P00519   ABL1        Oncology  2.7588517
-#> 3 DA00001 AML_syn_1 OID21269  P09110  ACAA1        Oncology  1.7070090
-#> 4 DA00001 AML_syn_1 OID20159  P16112   ACAN Cardiometabolic  0.0332709
-#> 5 DA00001 AML_syn_1 OID20105  Q9BYF1   ACE2 Cardiometabolic  1.7553590
-#> 6 DA00001 AML_syn_1 OID20124  Q15067  ACOX1 Cardiometabolic -0.9192835
-#>   Assay_Warning QC_Warning PlateID
-#> 1          PASS       PASS  Run001
-#> 2          PASS       PASS  Run001
-#> 3          PASS       PASS  Run001
-#> 4          PASS       PASS  Run001
-#> 5          PASS       PASS  Run001
-#> 6          PASS       PASS  Run001
+#> # A tibble: 6 × 10
+#>   DAid    Sample    OlinkID UniProt Assay Panel     NPX Assay_Warning QC_Warning
+#>   <chr>   <chr>     <chr>   <chr>   <chr> <chr>   <dbl> <chr>         <chr>     
+#> 1 DA00001 AML_syn_1 OID213… Q9BTE6  AARS… Onco…  3.39   PASS          PASS      
+#> 2 DA00001 AML_syn_1 OID212… P00519  ABL1  Onco…  2.76   PASS          PASS      
+#> 3 DA00001 AML_syn_1 OID212… P09110  ACAA1 Onco…  1.71   PASS          PASS      
+#> 4 DA00001 AML_syn_1 OID201… P16112  ACAN  Card…  0.0333 PASS          PASS      
+#> 5 DA00001 AML_syn_1 OID201… Q9BYF1  ACE2  Card…  1.76   PASS          PASS      
+#> 6 DA00001 AML_syn_1 OID201… Q15067  ACOX1 Card… -0.919  PASS          PASS      
+#> # ℹ 1 more variable: PlateID <chr>
 ```
 
 ``` r
+
 head(example_metadata)
-#>      DAid    Sample Disease   Stage Grade Sex Age  BMI Cohort
-#> 1 DA00001 AML_syn_1     AML       2  <NA>   F  42 22.7   UCAN
-#> 2 DA00002 AML_syn_2     AML Unknown  <NA>   M  69 33.1   UCAN
-#> 3 DA00003 AML_syn_3     AML       2  <NA>   F  61 26.2   UCAN
-#> 4 DA00004 AML_syn_4     AML Unknown  <NA>   M  54 28.1   UCAN
-#> 5 DA00005 AML_syn_5     AML       2  <NA>   F  57 21.4   UCAN
-#> 6 DA00006 AML_syn_6     AML Unknown  <NA>   M  86 33.9   UCAN
+#> # A tibble: 6 × 9
+#>   DAid    Sample    Disease Stage   Grade Sex     Age   BMI Cohort
+#>   <chr>   <chr>     <chr>   <chr>   <chr> <chr> <dbl> <dbl> <chr> 
+#> 1 DA00001 AML_syn_1 AML     2       <NA>  F        42  22.7 UCAN  
+#> 2 DA00002 AML_syn_2 AML     Unknown <NA>  M        69  33.1 UCAN  
+#> 3 DA00003 AML_syn_3 AML     2       <NA>  F        61  26.2 UCAN  
+#> 4 DA00004 AML_syn_4 AML     Unknown <NA>  M        54  28.1 UCAN  
+#> 5 DA00005 AML_syn_5 AML     2       <NA>  F        57  21.4 UCAN  
+#> 6 DA00006 AML_syn_6 AML     Unknown <NA>  M        86  33.9 UCAN
 ```
 
 We will initialize the HDAnalyzeR object with the data and metadata. The
@@ -75,6 +77,7 @@ in order to correctly load and widen the data. In this case, the data is
 in long format, so we set `is_wide = FALSE`.
 
 ``` r
+
 hd_obj <- hd_initialize(dat = example_data, 
                         metadata = example_metadata, 
                         is_wide = FALSE, 
@@ -84,6 +87,7 @@ hd_obj <- hd_initialize(dat = example_data,
 ```
 
 ``` r
+
 # See the data transformed into a wide format!
 head(hd_obj$data)
 #> # A tibble: 6 × 101
@@ -139,6 +143,7 @@ create summary visualizations for the metadata variables like “Sex” and
 Let’s run the QC summary and take a look at some results!
 
 ``` r
+
 qc_data <- hd_qc_summary(hd_obj, 
                          variable = "Disease", 
                          palette = list(Disease = "cancers12", Sex = "sex"), 
@@ -152,18 +157,21 @@ qc_data$data_summary$na_col_hist
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-7-1.png)
 
 ``` r
+
 qc_data$data_summary$cor_heatmap
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-7-2.png)
 
 ``` r
+
 qc_data$metadata_summary$Sex
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-7-3.png)
 
 ``` r
+
 qc_data$metadata_summary$Age
 #> Picking joint bandwidth of 6.06
 ```
@@ -178,6 +186,7 @@ neighbors (KNN) with 5 neighbors via
 [`hd_impute_knn()`](https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_impute_knn.md).
 
 ``` r
+
 hd_obj <- hd_impute_knn(hd_obj, k = 5, verbose = FALSE)
 head(hd_obj$data)
 #> # A tibble: 6 × 101
@@ -208,6 +217,7 @@ and UMAP, including scaling the data and coloring the plots by metadata
 variables.
 
 ``` r
+
 pca_res <- hd_auto_pca(hd_obj, 
                        components = 10, 
                        plot_color = "Disease", 
@@ -224,19 +234,19 @@ head(pca_res$pca_res)
 #> 5 DA00… -5.04  -3.69    0.820 -5.73  -0.697 -3.87  -1.01   1.96  -0.970  -1.12  
 #> 6 DA00…  0.429  0.0714 -1.86  -7.80   0.809 -2.89  -0.733  0.381 -0.617   1.32
 pca_res$pca_plot
-#> Ignoring unknown labels:
-#> • Color : "Disease"
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png)
 
 ``` r
+
 pca_res$pca_loadings_plot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-9-2.png)
 
 ``` r
+
 pca_res$pca_variance_plot
 ```
 
@@ -246,6 +256,7 @@ Let’s color UMAP by Sex instead of Disease to see if there are any sex
 related differences.
 
 ``` r
+
 umap_res <- hd_auto_umap(hd_obj, 
                          plot_color = "Sex", 
                          plot_palette = "sex")
@@ -261,8 +272,6 @@ head(umap_res$umap_res)
 #> 5 DA00005  2.55 -0.620
 #> 6 DA00006 -1.32  1.29
 umap_res$umap_plot
-#> Ignoring unknown labels:
-#> • Color : "Sex"
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-10-1.png)
@@ -283,6 +292,7 @@ to visualize the results. We will present only the results for Acute
 Myeloid Leukemia (AML).
 
 ``` r
+
 de_res_aml <- hd_de_limma(hd_obj,
                           variable = "Disease",
                           case = "AML",
@@ -305,6 +315,7 @@ de_res_aml$volcano_plot
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
+
 de_res_crc <- hd_de_limma(hd_obj,
                           variable = "Disease",
                           case = "CRC",
@@ -312,6 +323,7 @@ de_res_crc <- hd_de_limma(hd_obj,
 ```
 
 ``` r
+
 de_res_lungc <- hd_de_limma(hd_obj,
                             variable = "Disease",
                             case = "LUNGC",
@@ -324,6 +336,7 @@ In order to use this function we need to store all the results in a
 list.
 
 ``` r
+
 de_res <- list("AML" = de_res_aml, 
                "CRC" = de_res_crc, 
                "LUNGC" = de_res_lungc)
@@ -332,18 +345,21 @@ de_summary <- hd_plot_de_summary(de_res, class_palette = "cancers12")
 ```
 
 ``` r
+
 de_summary$de_barplot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
+
 de_summary$upset_plot_up
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-15-2.png)
 
 ``` r
+
 de_summary$upset_plot_down
 ```
 
@@ -365,6 +381,7 @@ Once again, we will run the analysis 3 times but we will present only
 the results for AML.
 
 ``` r
+
 hd_split <- hd_split_data(hd_obj, variable = "Disease")
 
 lasso_res_aml <- hd_model_rreg(hd_split, 
@@ -377,40 +394,43 @@ lasso_res_aml <- hd_model_rreg(hd_split,
 
 lasso_res_aml$metrics
 #> $accuracy
-#> [1] 0.7959184
+#> [1] 0.8435374
 #> 
 #> $sensitivity
-#> [1] 0.9166667
+#> [1] 0.8333333
 #> 
 #> $specificity
-#> [1] 0.7851852
+#> [1] 0.8444444
 #> 
 #> $auc
-#> [1] 0.9351852
+#> [1] 0.9277778
 #> 
 #> $confusion_matrix
 #>           Truth
 #> Prediction   0   1
-#>          0 106   1
-#>          1  29  11
+#>          0 114   2
+#>          1  21  10
 lasso_res_aml$roc_curve
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
+
 lasso_res_aml$probability_plot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-16-2.png)
 
 ``` r
+
 lasso_res_aml$feat_imp_plot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-16-3.png)
 
 ``` r
+
 lasso_res_crc <- hd_model_rreg(hd_split, 
                                variable = "Disease",
                                case = "CRC",
@@ -421,6 +441,7 @@ lasso_res_crc <- hd_model_rreg(hd_split,
 ```
 
 ``` r
+
 lasso_res_lungc <- hd_model_rreg(hd_split, 
                                  variable = "Disease",
                                  case = "LUNGC",
@@ -436,6 +457,7 @@ In order to use this function we need to store the results in a list as
 before.
 
 ``` r
+
 lasso_res <- list("AML" = lasso_res_aml, 
                   "CRC" = lasso_res_crc, 
                   "LUNGC" = lasso_res_lungc)
@@ -444,20 +466,21 @@ features_summary <- hd_plot_model_summary(lasso_res, class_palette = "cancers12"
 ```
 
 ``` r
+
 features_summary$metrics_barplot
-#> Ignoring unknown labels:
-#> • colour : "Metric"
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
+
 features_summary$features_barplot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-20-2.png)
 
 ``` r
+
 features_summary$upset_plot_features
 ```
 
@@ -477,6 +500,7 @@ and
 to perform the analysis and visualize its results.
 
 ``` r
+
 # Extract the proteins identified by both DE and Lasso
 de_proteins <- de_res_aml$de_res |> 
   dplyr::filter(adj.P.Val < 0.05) |> 
@@ -501,12 +525,14 @@ enrichment_plots$dotplot
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-21-1.png)
 
 ``` r
+
 enrichment_plots$treeplot
 ```
 
 ![](HDAnalyzeR_files/figure-html/unnamed-chunk-21-2.png)
 
 ``` r
+
 enrichment_plots$cnetplot
 ```
 
@@ -518,10 +544,11 @@ enrichment_plots$cnetplot
 > package and its functions.
 
 ``` r
+
 sessionInfo()
-#> R version 4.5.2 (2025-10-31)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.3 LTS
+#> Running under: Ubuntu 24.04.4 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -540,66 +567,78 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] glmnet_4.1-10    Matrix_1.7-4     HDAnalyzeR_1.0.1
+#> [1] viridis_0.6.5     viridisLite_0.4.3 patchwork_1.3.2   ggplot2_4.0.3    
+#> [5] dplyr_1.2.1       glmnet_5.0        Matrix_1.7-5      HDAnalyzeR_1.1.0 
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] RcppAnnoy_0.0.23        splines_4.5.2           ggplotify_0.1.3        
-#>   [4] tibble_3.3.1            R.oo_1.27.1             polyclip_1.10-7        
-#>   [7] hardhat_1.4.2           rpart_4.1.24            sparsevctrs_0.3.6      
-#>  [10] lifecycle_1.0.5         globals_0.19.0          lattice_0.22-7         
-#>  [13] MASS_7.3-65             backports_1.5.0         SnowballC_0.7.1        
-#>  [16] magrittr_2.0.4          limma_3.66.0            sass_0.4.10            
-#>  [19] rmarkdown_2.30          jquerylib_0.1.4         yaml_2.3.12            
-#>  [22] ggtangle_0.1.1          askpass_1.2.1           reticulate_1.45.0      
-#>  [25] cowplot_1.2.0           DBI_1.3.0               RColorBrewer_1.1-3     
-#>  [28] lubridate_1.9.5         purrr_1.2.1             R.utils_2.13.0         
-#>  [31] BiocGenerics_0.56.0     yulab.utils_0.2.4       nnet_7.3-20            
-#>  [34] tweenr_2.0.3            rappdirs_0.3.4          ipred_0.9-15           
-#>  [37] gdtools_0.5.0           lava_1.8.2              IRanges_2.44.0         
-#>  [40] embed_1.2.2             S4Vectors_0.48.0        enrichplot_1.30.4      
-#>  [43] ggrepel_0.9.7           tokenizers_0.3.0        listenv_0.10.0         
-#>  [46] tidytree_0.4.7          pheatmap_1.0.13         umap_0.2.10.0          
-#>  [49] RSpectra_0.16-2         parallelly_1.46.1       pkgdown_2.2.0          
-#>  [52] codetools_0.2-20        ggforce_0.5.0           DOSE_4.4.0             
-#>  [55] tidyselect_1.2.1        shape_1.4.6.1           aplot_0.2.9            
-#>  [58] farver_2.1.2            stats4_4.5.2            Seqinfo_1.0.0          
-#>  [61] jsonlite_2.0.0          ggridges_0.5.7          survival_3.8-3         
-#>  [64] iterators_1.0.14        systemfonts_1.3.1       foreach_1.5.2          
-#>  [67] tools_4.5.2             ggnewscale_0.5.2        treeio_1.34.0          
-#>  [70] ragg_1.5.0              Rcpp_1.1.1              glue_1.8.0             
-#>  [73] prodlim_2025.04.28      gridExtra_2.3           xfun_0.56              
-#>  [76] qvalue_2.42.0           tidyheatmaps_0.2.1      dplyr_1.2.0            
-#>  [79] withr_3.0.2             fastmap_1.2.0           openssl_2.3.4          
-#>  [82] digest_0.6.39           timechange_0.4.0        R6_2.6.1               
-#>  [85] gridGraphics_0.5-1      textshaping_1.0.4       GO.db_3.22.0           
-#>  [88] RSQLite_2.4.6           R.methodsS3_1.8.2       UpSetR_1.4.0           
-#>  [91] utf8_1.2.6              tidyr_1.3.2             generics_0.1.4         
-#>  [94] fontLiberation_0.1.0    data.table_1.18.2.1     recipes_1.3.1          
-#>  [97] class_7.3-23            httr_1.4.8              htmlwidgets_1.6.4      
-#> [100] scatterpie_0.2.6        uwot_0.2.4              pkgconfig_2.0.3        
-#> [103] gtable_0.3.6            parsnip_1.4.1           timeDate_4052.112      
-#> [106] dials_1.4.2             blob_1.3.0              GPfit_1.0-9            
-#> [109] S7_0.2.1                workflows_1.3.0         XVector_0.50.0         
-#> [112] furrr_0.3.1             clusterProfiler_4.18.4  janeaustenr_1.0.0      
-#> [115] htmltools_0.5.9         fontBitstreamVera_0.1.1 fgsea_1.36.2           
-#> [118] scales_1.4.0            Biobase_2.70.0          png_0.1-8              
-#> [121] gower_1.0.2             ggfun_0.2.0             knitr_1.51             
-#> [124] reshape2_1.4.5          nlme_3.1-168            org.Hs.eg.db_3.22.0    
-#> [127] cachem_1.1.0            stringr_1.6.0           rsample_1.3.2          
-#> [130] parallel_4.5.2          AnnotationDbi_1.72.0    desc_1.4.3             
-#> [133] pillar_1.11.1           grid_4.5.2              vctrs_0.7.1            
-#> [136] tune_2.0.1              tidydr_0.0.6            cluster_2.1.8.1        
-#> [139] lhs_1.2.0               yardstick_1.3.2         evaluate_1.0.5         
-#> [142] cli_3.6.5               compiler_4.5.2          rlang_1.1.7            
-#> [145] crayon_1.5.3            tidytext_0.4.3          future.apply_1.20.2    
-#> [148] labeling_0.4.3          plyr_1.8.9              forcats_1.0.1          
-#> [151] fs_1.6.6                ggiraph_0.9.6           stringi_1.8.7          
-#> [154] BiocParallel_1.44.0     Biostrings_2.78.0       lazyeval_0.2.2         
-#> [157] fontquiver_0.2.1        GOSemSim_2.36.0         patchwork_1.3.2        
-#> [160] bit64_4.6.0-1           future_1.69.0           ggplot2_4.0.2          
-#> [163] KEGGREST_1.50.0         statmod_1.5.1           tailor_0.1.0           
-#> [166] igraph_2.2.2            broom_1.0.12            memoise_2.0.1          
-#> [169] bslib_0.10.0            ggtree_4.0.4            fastmatch_1.1-8        
-#> [172] bit_4.6.0               gson_0.1.0              ape_5.8-1              
-#> [175] DiceDesign_1.10
+#>   [1] matrixStats_1.5.0       fs_2.1.0                enrichplot_1.32.0      
+#>   [4] fontawesome_0.5.3       lubridate_1.9.5         sparsevctrs_0.3.6      
+#>   [7] DiceDesign_1.10         httr_1.4.8              RColorBrewer_1.1-3     
+#>  [10] doParallel_1.0.17       prabclus_2.3-5          dynamicTreeCut_1.63-1  
+#>  [13] backports_1.5.1         tools_4.6.1             doRNG_1.8.6.3          
+#>  [16] utf8_1.2.6              R6_2.6.1                mgcv_1.9-4             
+#>  [19] lazyeval_0.2.3          uwot_0.2.4              yardstick_1.4.0        
+#>  [22] withr_3.0.3             gridExtra_2.3.1         downlit_0.4.5          
+#>  [25] preprocessCore_1.74.0   WGCNA_1.74              cli_3.6.6              
+#>  [28] Biobase_2.72.0          textshaping_1.0.5       scatterpie_0.2.6       
+#>  [31] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
+#>  [34] S7_0.2.2                robustbase_0.99-7       randomForest_4.7-1.2   
+#>  [37] ggridges_0.5.7          tune_2.1.0              askpass_1.2.1          
+#>  [40] pkgdown_2.2.1           systemfonts_1.3.2       yulab.utils_0.2.4      
+#>  [43] foreign_0.8-91          gson_0.2.1              DOSE_4.6.0             
+#>  [46] parallelly_1.48.0       itertools_0.1-3         limma_3.68.5           
+#>  [49] impute_1.86.0           rstudioapi_0.19.0       RSQLite_3.53.3         
+#>  [52] shape_1.4.6.1           generics_0.1.4          gridGraphics_0.5-1     
+#>  [55] GO.db_3.23.1            ggbeeswarm_0.7.3        fansi_1.0.7            
+#>  [58] S4Vectors_0.50.1        lifecycle_1.0.5         whisker_0.4.1          
+#>  [61] yaml_2.3.12             recipes_1.3.3           qvalue_2.44.0          
+#>  [64] grid_4.6.1              blob_1.3.0              crayon_1.5.3           
+#>  [67] ggtangle_0.1.2          lattice_0.22-9          KEGGREST_1.52.2        
+#>  [70] pillar_1.11.1           knitr_1.51              fpc_2.2-14             
+#>  [73] future.apply_1.20.2     codetools_0.2-20        glue_1.8.1             
+#>  [76] ggiraph_0.9.6           rsample_1.3.2           ggfun_0.2.1            
+#>  [79] fontLiberation_0.1.0    data.table_1.18.4       vctrs_0.7.3            
+#>  [82] png_0.1-9               treeio_1.36.1           Rdpack_2.6.6           
+#>  [85] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           
+#>  [88] gower_1.0.2             xfun_0.60               rbibutils_2.4.1        
+#>  [91] prodlim_2026.03.11      tidygraph_1.3.1         Seqinfo_1.2.0          
+#>  [94] survival_3.8-6          timeDate_4052.112       aisdk_1.4.12           
+#>  [97] pheatmap_1.0.13         iterators_1.0.14        hardhat_1.4.3          
+#> [100] lava_1.9.2              statmod_1.5.2           ipred_0.9-15           
+#> [103] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            
+#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        UpSetR_1.4.1           
+#> [109] bslib_0.12.0            vipor_0.4.7             otel_0.2.0             
+#> [112] rpart_4.1.27            colorspace_2.1-3        Hmisc_5.2-6            
+#> [115] BiocGenerics_0.58.1     DBI_1.3.0               nnet_7.3-20            
+#> [118] ppsr_0.0.5              tidyselect_1.2.1        processx_3.9.0         
+#> [121] bit_4.6.0               compiler_4.6.1          curl_7.1.0             
+#> [124] httr2_1.3.0             htmlTable_2.5.0         xml2_1.6.0             
+#> [127] desc_1.4.3              fontBitstreamVera_0.1.1 checkmate_2.3.4        
+#> [130] scales_1.4.0            DEoptimR_1.2-0          callr_3.8.0            
+#> [133] rappdirs_0.3.4          stringr_1.6.0           digest_0.6.39          
+#> [136] rmarkdown_2.31          XVector_0.52.0          base64enc_0.1-6        
+#> [139] htmltools_0.5.9         pkgconfig_2.0.3         fastmap_1.2.0          
+#> [142] rlang_1.3.0             htmlwidgets_1.6.4       farver_2.1.2           
+#> [145] jquerylib_0.1.4         jsonlite_2.0.0          mclust_6.1.3           
+#> [148] GOSemSim_2.38.3         magrittr_2.0.5          Formula_1.2-6          
+#> [151] modeltools_0.2-24       ggplotify_0.1.3         tailor_0.1.0           
+#> [154] Rcpp_1.1.2              ape_5.8-1               ggnewscale_0.5.2       
+#> [157] gdtools_0.5.1           furrr_0.4.0             stringi_1.8.9          
+#> [160] ggraph_2.2.2            MASS_7.3-65             plyr_1.8.9             
+#> [163] org.Hs.eg.db_3.23.1     embed_1.2.2             flexmix_2.3-20         
+#> [166] tidyheatmaps_0.2.1      parallel_4.6.1          listenv_1.0.0          
+#> [169] ggrepel_0.9.8           graphlayouts_1.2.5      Biostrings_2.80.1      
+#> [172] splines_4.6.1           ps_1.9.3                fastcluster_1.3.0      
+#> [175] igraph_2.3.3            ranger_0.18.0           enrichit_0.2.1         
+#> [178] dials_1.4.4             rngtools_1.5.2          reshape2_1.4.5         
+#> [181] parsnip_1.6.0           stats4_4.6.1            evaluate_1.0.5         
+#> [184] foreach_1.5.2           missForest_1.6.1        tweenr_2.0.3           
+#> [187] tidyr_1.3.2             openssl_2.4.2           purrr_1.2.2            
+#> [190] polyclip_1.10-7         future_1.75.0           ggforce_0.5.0          
+#> [193] easyPubMed_3.1.6        RSpectra_0.16-2         tidytree_0.4.8         
+#> [196] tidydr_0.0.6            class_7.3-23            ragg_1.5.2             
+#> [199] tibble_3.3.1            clusterProfiler_4.20.0  aplot_0.3.1            
+#> [202] beeswarm_0.4.0          memoise_2.0.1           AnnotationDbi_1.74.0   
+#> [205] IRanges_2.46.0          cluster_2.1.8.2         workflows_1.3.0        
+#> [208] timechange_0.4.0        globals_0.19.1
 ```

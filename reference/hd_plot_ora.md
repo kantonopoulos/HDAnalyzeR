@@ -51,26 +51,10 @@ sig_up_proteins_aml <- de_results$de_res |>
 enrichment <- hd_ora(sig_up_proteins_aml, database = "GO", ontology = "BP")
 #> No background gene list provided. For meaningful enrichment results, it is recommended to specify a relevant background list of genes (e.g., the full proteome or a set of genes that could be impacted in your experiment). The absence of a background may lead to misleading results in the over-representation analysis (ORA).
 #> 'select()' returned 1:1 mapping between keys and columns
-#> Warning: coercing argument of type 'double' to logical
 
 # Plot the results
 enrichment <- hd_plot_ora(enrichment)
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
-#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
+#> Warning: showCategory (30) is larger than available items (24). Using 24
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
 #> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.

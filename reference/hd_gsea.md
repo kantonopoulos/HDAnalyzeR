@@ -11,7 +11,8 @@ hd_gsea(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   ranked_by = "logFC",
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  seed = 123
 )
 ```
 
@@ -49,11 +50,24 @@ hd_gsea(
   The p-value threshold to consider a term as significant in the
   enrichment analysis. Default is 0.05.
 
+- seed:
+
+  Seed for reproducibility. Default is 123. Set to NULL to leave the
+  random number generator untouched.
+
 ## Value
 
 A list containing the results of the GSEA.
 
 ## Details
+
+GSEA p-values come from a permutation test, so repeated runs on the same
+data return slightly different results. `seed` fixes the random number
+generator for the duration of the call to make a run reproducible.
+
+When nothing passes the significance threshold the function warns and
+returns the (empty) enrichment object instead of stopping, so that a
+null result does not abort a longer pipeline.
 
 To perform the GSEA, `clusterProfiler` package is used. For more
 information, please refer to the `clusterProfiler` documentation.
@@ -83,14 +97,7 @@ hd_gsea(de_results,
         ontology = "BP",
         ranked_by = "logFC",
         pval_lim = 0.9)
-#> 
-#> 
 #> 'select()' returned 1:1 mapping between keys and columns
-#> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).
-#> preparing geneSet collections...
-#> GSEA analysis...
-#> leading edge analysis...
-#> done...
 #> $gene_list
 #>          328          566          100         9289        54518         9048 
 #>  1.559583713  1.532943471  1.462382647  1.231859388  1.173013982  0.828793582 
@@ -136,24 +143,28 @@ hd_gsea(de_results,
 #> #...@keytype      ENTREZID 
 #> #...@geneList     Named num [1:100] 1.56 1.53 1.46 1.23 1.17 ...
 #>  - attr(*, "names")= chr [1:100] "328" "566" "100" "9289" ...
-#> #...nPerm     
-#> #...pvalues adjusted by 'BH' with cutoff <0.9 
-#> #...233 enriched terms found
-#> 'data.frame':    233 obs. of  11 variables:
-#>  $ ID             : chr  "GO:0015031" "GO:0045184" "GO:0033036" "GO:0048518" ...
-#>  $ Description    : chr  "protein transport" "establishment of protein localization" "macromolecule localization" "positive regulation of biological process" ...
-#>  $ setSize        : int  10 11 19 42 77 71 11 70 16 11 ...
-#>  $ enrichmentScore: num  -0.769 -0.706 -0.61 0.557 0.55 ...
-#>  $ NES            : num  -1.87 -1.77 -1.76 1.64 1.61 ...
-#>  $ pvalue         : num  0.0041 0.00544 0.00614 0.00634 0.00475 ...
-#>  $ p.adjust       : num  0.264 0.264 0.264 0.264 0.264 ...
-#>  $ qvalue         : num  0.25 0.25 0.25 0.25 0.25 ...
-#>  $ rank           : num  7 15 15 19 28 28 7 24 7 20 ...
-#>  $ leading_edge   : chr  "tags=30%, list=7%, signal=31%" "tags=36%, list=15%, signal=35%" "tags=32%, list=15%, signal=33%" "tags=36%, list=19%, signal=50%" ...
-#>  $ core_enrichment: chr  "115201/351/284" "93974/115201/351/284" "93974/55937/115201/10551/351/284" "328/566/100/9289/54518/9048/285/181/25/51129/59/59272/51742/199/2683" ...
+#> #...nPerm     1000 
+#> #...pvalues adjusted by 'BH' with cutoff < 0.9
+#> #...202 enriched terms found
+#> 'data.frame':    202 obs. of  12 variables:
+#>  $ ID             : chr  "GO:0033036" "GO:0008104" "GO:0065007" "GO:0007154" ...
+#>  $ Description    : chr  "macromolecule localization" "intracellular protein localization" "biological regulation" "cell communication" ...
+#>  $ setSize        : int  18 15 75 52 52 67 51 60 65 40 ...
+#>  $ enrichmentScore: num  -0.615 -0.62 0.555 0.512 0.512 ...
+#>  $ NES            : num  -1.8 -1.65 1.64 1.56 1.56 ...
+#>  $ pvalue         : num  0.01044 0.01137 0.00237 0.01131 0.01131 ...
+#>  $ p.adjust       : num  0.42 0.42 0.42 0.42 0.42 ...
+#>  $ qvalue         : num  0.0495 0.0495 0.0495 0.0495 0.0495 ...
+#>  $ rank           : int  15 7 28 28 28 28 28 28 24 20 ...
+#>  $ leading_edge   : chr  "tags=33%, list=15%, signal=35%" "tags=27%, list=7%, signal=29%" "tags=36%, list=28%, signal=104%" "tags=42%, list=28%, signal=63%" ...
+#>  $ core_enrichment: chr  "93974/55937/115201/10551/351/284" "115201/10551/351/284" "328/566/100/9289/54518/9048/285/181/25/51129/9296/59/59272/51742/25814/199/267/2683/9938/976/30817/1386/405/234"| __truncated__ "566/100/9289/54518/9048/285/181/25/59/59272/51742/199/267/9938/976/30817/1386/405/23452/10159/51816/374" ...
+#>  $ log2err        : num  0.381 0.381 0.432 0.381 0.381 ...
 #> #...Citation
 #> S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, 19(11):3292-3320 
 #> 
+#> 
+#> $pval_lim
+#> [1] 0.9
 #> 
 #> attr(,"class")
 #> [1] "hd_enrichment"
@@ -166,36 +177,29 @@ enrichment <- hd_gsea(de_results,
                       ranked_by = "both",
                       pval_lim = 0.9)
 #> 'select()' returned 1:1 mapping between keys and columns
-#> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).
-#> preparing geneSet collections...
-#> GSEA analysis...
-#> Warning: There are ties in the preranked stats (22% of the list).
-#> The order of those tied genes will be arbitrary, which may produce unexpected results.
-#> Warning: All values in the stats vector are greater than zero and scoreType is "std", maybe you should switch to scoreType = "pos".
-#> leading edge analysis...
-#> done...
+#> Warning: No significant terms found in the gene set enrichment analysis. The returned object contains the (empty) enrichment result, so no plots can be produced. Consider relaxing `pval_lim` or using a larger gene list.
 
 # Access the results
 head(enrichment$enrichment@result)
-#>                    ID                         Description setSize
-#> GO:0003008 GO:0003008                      system process      17
-#> GO:0044283 GO:0044283 small molecule biosynthetic process      10
-#> GO:0003013 GO:0003013          circulatory system process      12
-#> GO:0008015 GO:0008015                   blood circulation      12
-#> GO:0080134 GO:0080134    regulation of response to stress      16
-#> GO:0002252 GO:0002252             immune effector process      12
-#>            enrichmentScore      NES      pvalue  p.adjust    qvalue rank
-#> GO:0003008       0.7487751 1.375646 0.005471063 0.7639186 0.7596414   19
-#> GO:0044283       0.7847467 1.374343 0.018755240 0.7639186 0.7596414   13
-#> GO:0003013       0.7432055 1.322340 0.028197382 0.7639186 0.7596414   10
-#> GO:0008015       0.7432055 1.322340 0.028197382 0.7639186 0.7596414   10
-#> GO:0080134       0.7162173 1.309517 0.012654474 0.7639186 0.7596414   18
-#> GO:0002252       0.7285557 1.296274 0.033232628 0.7639186 0.7596414   10
-#>                              leading_edge        core_enrichment
-#> GO:0003008 tags=29%, list=19%, signal=29% 231/290/177/81693/8312
-#> GO:0044283 tags=50%, list=13%, signal=48%    51/231/1109/189/117
-#> GO:0003013 tags=17%, list=10%, signal=17%                290/177
-#> GO:0008015 tags=17%, list=10%, signal=17%                290/177
-#> GO:0080134 tags=31%, list=18%, signal=31%     54/383/177/117/350
-#> GO:0002252 tags=25%, list=10%, signal=26%             54/383/177
+#>                    ID                             Description setSize
+#> GO:0033036 GO:0033036              macromolecule localization      18
+#> GO:0008104 GO:0008104      intracellular protein localization      15
+#> GO:0051246 GO:0051246 regulation of protein metabolic process      10
+#> GO:0000165 GO:0000165                            MAPK cascade      10
+#> GO:0042592 GO:0042592                     homeostatic process      19
+#> GO:0030335 GO:0030335   positive regulation of cell migration      11
+#>            enrichmentScore       NES     pvalue  p.adjust   qvalue rank
+#> GO:0033036      -0.8667594 -1.618639 0.01117754 0.9250806 0.411937    9
+#> GO:0008104      -0.8762718 -1.507876 0.02210625 0.9250806 0.411937    7
+#> GO:0051246      -0.8827495 -1.501269 0.08012821 0.9250806 0.411937    3
+#> GO:0000165      -0.8712859 -1.481773 0.09935897 0.9250806 0.411937    3
+#> GO:0042592      -0.7810418 -1.407670 0.04169602 0.9250806 0.411937    3
+#> GO:0030335      -0.7865683 -1.366826 0.15517241 0.9250806 0.411937    8
+#>                             leading_edge            core_enrichment   log2err
+#> GO:0033036 tags=28%, list=9%, signal=31% 55937/10551/115201/351/284 0.3807304
+#> GO:0008104 tags=27%, list=7%, signal=29%       10551/115201/351/284 0.3524879
+#> GO:0051246 tags=20%, list=3%, signal=22%                    351/284 0.2878571
+#> GO:0000165 tags=20%, list=3%, signal=22%                    351/284 0.2572065
+#> GO:0042592 tags=11%, list=3%, signal=13%                    351/284 0.3217759
+#> GO:0030335 tags=27%, list=8%, signal=28%                306/351/284 0.2114002
 ```

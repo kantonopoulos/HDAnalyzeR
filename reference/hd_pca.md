@@ -65,7 +65,7 @@ hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123)
 #> # ℹ 576 more rows
 #> 
 #> $pca_loadings
-#> # A tibble: 10,000 × 3
+#> # A tibble: 500 × 3
 #>    terms    value component
 #>    <chr>    <dbl> <chr>    
 #>  1 AARSD1 -0.133  PC1      
@@ -78,7 +78,7 @@ hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123)
 #>  8 ACP6   -0.0933 PC1      
 #>  9 ACTA2  -0.0751 PC1      
 #> 10 ACTN4  -0.0424 PC1      
-#> # ℹ 9,990 more rows
+#> # ℹ 490 more rows
 #> 
 #> $pca_variance
 #> # A tibble: 5 × 3
@@ -115,7 +115,7 @@ hd_pca(hd_object, components = 5, by_sample = FALSE, seed = 123)
 #> # ℹ 90 more rows
 #> 
 #> $pca_loadings
-#> # A tibble: 58,600 × 3
+#> # A tibble: 2,930 × 3
 #>    terms     value component
 #>    <chr>     <dbl> <chr>    
 #>  1 DA00001 -0.0373 PC1      
@@ -128,7 +128,7 @@ hd_pca(hd_object, components = 5, by_sample = FALSE, seed = 123)
 #>  8 DA00008 -0.0342 PC1      
 #>  9 DA00009 -0.0437 PC1      
 #> 10 DA00010 -0.0420 PC1      
-#> # ℹ 58,590 more rows
+#> # ℹ 2,920 more rows
 #> 
 #> $pca_variance
 #> # A tibble: 5 × 3

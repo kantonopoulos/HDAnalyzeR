@@ -1,5 +1,5 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   before_using_hdanalyzer: before_using_hdanalyzer.html
@@ -9,7 +9,7 @@ articles:
   differential_expression: differential_expression.html
   HDAnalyzeR: HDAnalyzeR.html
   post_analysis: post_analysis.html
-last_built: 2026-02-26T11:04Z
+last_built: 2026-08-17T19:30Z
 urls:
   reference: https://kantonopoulos.github.io/HDAnalyzeR/reference
   article: https://kantonopoulos.github.io/HDAnalyzeR/articles

@@ -17,7 +17,8 @@ hd_plot_cor_heatmap(
   method = "pearson",
   threshold = 0.8,
   cluster_rows = TRUE,
-  cluster_cols = TRUE
+  cluster_cols = TRUE,
+  max_heatmap_features = 1000
 )
 ```
 
@@ -55,10 +56,26 @@ hd_plot_cor_heatmap(
 
   Whether to cluster the columns. Default is TRUE.
 
+- max_heatmap_features:
+
+  The largest number of features to draw a heatmap for. Default is 1000.
+  Above this the correlation matrix and the reported pairs are still
+  returned, but the heatmap is skipped.
+
 ## Value
 
 A list with the correlation matrix, the filtered pairs and their
 correlation values, and the heatmap.
+
+## Details
+
+Drawing the heatmap requires hierarchical clustering of every feature
+and a cell per feature pair, both of which grow quadratically. Past a
+few thousand features the plot stops being readable long before it stops
+being computable, so `max_heatmap_features` caps it: beyond that the
+correlation matrix and the reported pairs are returned as usual and
+`cor_heatmap` is `NULL`. Raise the limit to force the plot, or subset
+the data to the features of interest.
 
 ## Examples
 
@@ -82,13 +99,15 @@ results$cor_matrix[seq_len(5), seq_len(5)]  # Subset of the correlation matrix
 #> ACE2     0.04  0.13  0.32  0.07 1.00
 
 results$cor_results  # Filtered protein pairs exceeding correlation threshold
+#> # A tibble: 6 × 3
 #>   Protein1 Protein2 Correlation
-#> 1  ATP5IF1    AIFM1        0.76
-#> 2    AXIN1 ARHGEF12        0.76
-#> 3    AIFM1  ATP5IF1        0.76
-#> 4 ARHGEF12    AXIN1        0.76
-#> 5 ARHGEF12    AIFM1        0.71
-#> 6    AIFM1 ARHGEF12        0.71
+#>   <chr>    <chr>          <dbl>
+#> 1 ATP5IF1  AIFM1           0.76
+#> 2 AXIN1    ARHGEF12        0.76
+#> 3 AIFM1    ATP5IF1         0.76
+#> 4 ARHGEF12 AXIN1           0.76
+#> 5 ARHGEF12 AIFM1           0.71
+#> 6 AIFM1    ARHGEF12        0.71
 
 results$cor_heatmap  # Heatmap of protein-protein correlations
 ```

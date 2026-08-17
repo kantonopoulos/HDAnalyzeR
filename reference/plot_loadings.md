@@ -6,7 +6,7 @@ plane.
 ## Usage
 
 ``` r
-plot_loadings(dim_object, plot_loadings, nloadings)
+plot_loadings(dim_object, plot_loadings, nloadings, x, y)
 ```
 
 ## Arguments
@@ -18,12 +18,22 @@ plot_loadings(dim_object, plot_loadings, nloadings)
 
 - plot_loadings:
 
-  The component to be plotted. Default is NULL.
+  The component whose strongest features should be drawn.
 
 - nloadings:
 
   The number of loadings to be plotted. Default is 5.
 
+- x:
+
+  The component on the x-axis.
+
+- y:
+
+  The component on the y-axis.
+
 ## Value
 
-A tibble with the PCA loadings to be plotted.
+A tibble with one row per selected feature and one column per plotted
+component, so that each arrow can be drawn from the origin to its
+`(x, y)` loading.

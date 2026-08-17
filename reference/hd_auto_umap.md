@@ -95,8 +95,6 @@ hd_auto_umap(hd_object, plot_color = "Disease", plot_palette = "cancers12")
 #> [1] TRUE
 #> 
 #> $umap_plot
-#> Ignoring unknown labels:
-#> • Color : "Disease"
 
 #> 
 #> attr(,"class")

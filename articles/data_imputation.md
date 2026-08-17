@@ -5,6 +5,7 @@ HDAnalyzeR offers. First of all, we will load the package, as well as
 dplyr, ggplot2 and patchwork for data manipulation and visualization.
 
 ``` r
+
 library(HDAnalyzeR)
 library(dplyr)
 library(ggplot2)
@@ -17,6 +18,7 @@ Let’s start with loading the example data and metadata that come with
 the package and initialize the HDAnalyzeR object.
 
 ``` r
+
 hd_obj <- hd_initialize(dat = example_data, 
                         metadata = example_metadata, 
                         is_wide = FALSE, 
@@ -39,6 +41,7 @@ there are any patterns in the missing data. This is important in order
 to decide how to handle them (e.g., impute or remove).
 
 ``` r
+
 na_res <- hd_na_search(hd_obj,
                        annotation_vars = c("Sex", "Age", "Disease"),
                        palette = list(Disease = "cancers12",
@@ -69,6 +72,7 @@ logically. In a real case, this check should be done to more than just
 one assay.
 
 ``` r
+
 imputed_hd_obj <- hd_impute_median(hd_obj, verbose = FALSE)
 
 plot_before <- hd_obj$data |> 
@@ -106,6 +110,7 @@ neighbors. We will use the same assay to compare the imputed data with
 the original data.
 
 ``` r
+
 imputed_hd_obj <- hd_impute_knn(hd_obj, k = 5, verbose = FALSE)
 
 plot_before <- hd_obj$data |> 
@@ -143,6 +148,7 @@ We will use the default values for the number of trees and the number of
 iterations.
 
 ``` r
+
 imputed_hd_obj <- hd_impute_missForest(hd_obj, verbose = FALSE)
 
 plot_before <- hd_obj$data |> 
@@ -191,6 +197,7 @@ variables. In this example, we will remove all rows with missing values
 in any of the assays.
 
 ``` r
+
 imputed_hd_obj <- hd_omit_na(hd_obj)
 
 plot_before <- hd_obj$data |> 
@@ -215,6 +222,7 @@ plot_before + plot_after
 ![](data_imputation_files/figure-html/unnamed-chunk-7-1.png)
 
 ``` r
+
 
 # Data after removing missing values only in specific columns
 res <- hd_omit_na(hd_obj, columns = "AARSD1")
@@ -254,10 +262,11 @@ assays before and after to pick the most suitable.
 > package and its functions.
 
 ``` r
+
 sessionInfo()
-#> R version 4.5.2 (2025-10-31)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.3 LTS
+#> Running under: Ubuntu 24.04.4 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -276,37 +285,79 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] patchwork_1.3.2  ggplot2_4.0.2    dplyr_1.2.0      HDAnalyzeR_1.0.1
+#> [1] patchwork_1.3.2  ggplot2_4.0.3    dplyr_1.2.1      glmnet_5.0      
+#> [5] Matrix_1.7-5     HDAnalyzeR_1.1.0
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] tidyselect_1.2.1     timeDate_4052.112    farver_2.1.2        
-#>  [4] S7_0.2.1             fastmap_1.2.0        digest_0.6.39       
-#>  [7] rpart_4.1.24         timechange_0.4.0     lifecycle_1.0.5     
-#> [10] survival_3.8-3       magrittr_2.0.4       compiler_4.5.2      
-#> [13] rlang_1.1.7          sass_0.4.10          rngtools_1.5.2      
-#> [16] tools_4.5.2          utf8_1.2.6           yaml_2.3.12         
-#> [19] data.table_1.18.2.1  knitr_1.51           labeling_0.4.3      
-#> [22] doRNG_1.8.6.3        htmlwidgets_1.6.4    RColorBrewer_1.1-3  
-#> [25] withr_3.0.2          purrr_1.2.1          itertools_0.1-3     
-#> [28] desc_1.4.3           nnet_7.3-20          grid_4.5.2          
-#> [31] sparsevctrs_0.3.6    future_1.69.0        globals_0.19.0      
-#> [34] scales_1.4.0         iterators_1.0.14     MASS_7.3-65         
-#> [37] cli_3.6.5            rmarkdown_2.30       ragg_1.5.0          
-#> [40] generics_0.1.4       future.apply_1.20.2  cachem_1.1.0        
-#> [43] splines_4.5.2        parallel_4.5.2       ggplotify_0.1.3     
-#> [46] yulab.utils_0.2.4    vctrs_0.7.1          hardhat_1.4.2       
-#> [49] Matrix_1.7-4         jsonlite_2.0.0       gridGraphics_0.5-1  
-#> [52] listenv_0.10.0       systemfonts_1.3.1    foreach_1.5.2       
-#> [55] gower_1.0.2          tidyr_1.3.2          jquerylib_0.1.4     
-#> [58] recipes_1.3.1        missForest_1.6.1     glue_1.8.0          
-#> [61] parallelly_1.46.1    pkgdown_2.2.0        codetools_0.2-20    
-#> [64] lubridate_1.9.5      gtable_0.3.6         tibble_3.3.1        
-#> [67] pillar_1.11.1        rappdirs_0.3.4       htmltools_0.5.9     
-#> [70] ipred_0.9-15         randomForest_4.7-1.2 lava_1.8.2          
-#> [73] R6_2.6.1             textshaping_1.0.4    Rdpack_2.6.6        
-#> [76] evaluate_1.0.5       lattice_0.22-7       rbibutils_2.4.1     
-#> [79] pheatmap_1.0.13      bslib_0.10.0         class_7.3-23        
-#> [82] Rcpp_1.1.1           prodlim_2025.04.28   ranger_0.18.0       
-#> [85] xfun_0.56            fs_1.6.6             tidyheatmaps_0.2.1  
-#> [88] pkgconfig_2.0.3
+#>   [1] matrixStats_1.5.0       fs_2.1.0                enrichplot_1.32.0      
+#>   [4] fontawesome_0.5.3       lubridate_1.9.5         sparsevctrs_0.3.6      
+#>   [7] DiceDesign_1.10         httr_1.4.8              RColorBrewer_1.1-3     
+#>  [10] doParallel_1.0.17       prabclus_2.3-5          dynamicTreeCut_1.63-1  
+#>  [13] backports_1.5.1         tools_4.6.1             doRNG_1.8.6.3          
+#>  [16] utf8_1.2.6              R6_2.6.1                mgcv_1.9-4             
+#>  [19] lazyeval_0.2.3          uwot_0.2.4              yardstick_1.4.0        
+#>  [22] withr_3.0.3             gridExtra_2.3.1         downlit_0.4.5          
+#>  [25] preprocessCore_1.74.0   WGCNA_1.74              cli_3.6.6              
+#>  [28] Biobase_2.72.0          textshaping_1.0.5       scatterpie_0.2.6       
+#>  [31] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
+#>  [34] S7_0.2.2                robustbase_0.99-7       randomForest_4.7-1.2   
+#>  [37] ggridges_0.5.7          tune_2.1.0              askpass_1.2.1          
+#>  [40] pkgdown_2.2.1           systemfonts_1.3.2       yulab.utils_0.2.4      
+#>  [43] foreign_0.8-91          gson_0.2.1              DOSE_4.6.0             
+#>  [46] parallelly_1.48.0       itertools_0.1-3         limma_3.68.5           
+#>  [49] impute_1.86.0           rstudioapi_0.19.0       RSQLite_3.53.3         
+#>  [52] shape_1.4.6.1           generics_0.1.4          gridGraphics_0.5-1     
+#>  [55] GO.db_3.23.1            ggbeeswarm_0.7.3        fansi_1.0.7            
+#>  [58] S4Vectors_0.50.1        lifecycle_1.0.5         whisker_0.4.1          
+#>  [61] yaml_2.3.12             recipes_1.3.3           qvalue_2.44.0          
+#>  [64] grid_4.6.1              blob_1.3.0              crayon_1.5.3           
+#>  [67] ggtangle_0.1.2          lattice_0.22-9          KEGGREST_1.52.2        
+#>  [70] pillar_1.11.1           knitr_1.51              fpc_2.2-14             
+#>  [73] future.apply_1.20.2     codetools_0.2-20        glue_1.8.1             
+#>  [76] ggiraph_0.9.6           rsample_1.3.2           ggfun_0.2.1            
+#>  [79] fontLiberation_0.1.0    data.table_1.18.4       vctrs_0.7.3            
+#>  [82] png_0.1-9               treeio_1.36.1           Rdpack_2.6.6           
+#>  [85] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           
+#>  [88] gower_1.0.2             xfun_0.60               rbibutils_2.4.1        
+#>  [91] prodlim_2026.03.11      tidygraph_1.3.1         Seqinfo_1.2.0          
+#>  [94] survival_3.8-6          timeDate_4052.112       aisdk_1.4.12           
+#>  [97] pheatmap_1.0.13         iterators_1.0.14        hardhat_1.4.3          
+#> [100] lava_1.9.2              statmod_1.5.2           ipred_0.9-15           
+#> [103] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            
+#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        UpSetR_1.4.1           
+#> [109] bslib_0.12.0            vipor_0.4.7             otel_0.2.0             
+#> [112] rpart_4.1.27            colorspace_2.1-3        Hmisc_5.2-6            
+#> [115] BiocGenerics_0.58.1     DBI_1.3.0               nnet_7.3-20            
+#> [118] ppsr_0.0.5              tidyselect_1.2.1        processx_3.9.0         
+#> [121] bit_4.6.0               compiler_4.6.1          curl_7.1.0             
+#> [124] httr2_1.3.0             htmlTable_2.5.0         xml2_1.6.0             
+#> [127] desc_1.4.3              fontBitstreamVera_0.1.1 checkmate_2.3.4        
+#> [130] scales_1.4.0            DEoptimR_1.2-0          callr_3.8.0            
+#> [133] rappdirs_0.3.4          stringr_1.6.0           digest_0.6.39          
+#> [136] rmarkdown_2.31          XVector_0.52.0          base64enc_0.1-6        
+#> [139] htmltools_0.5.9         pkgconfig_2.0.3         fastmap_1.2.0          
+#> [142] rlang_1.3.0             htmlwidgets_1.6.4       farver_2.1.2           
+#> [145] jquerylib_0.1.4         jsonlite_2.0.0          mclust_6.1.3           
+#> [148] GOSemSim_2.38.3         magrittr_2.0.5          Formula_1.2-6          
+#> [151] modeltools_0.2-24       ggplotify_0.1.3         tailor_0.1.0           
+#> [154] Rcpp_1.1.2              viridis_0.6.5           ape_5.8-1              
+#> [157] ggnewscale_0.5.2        gdtools_0.5.1           furrr_0.4.0            
+#> [160] stringi_1.8.9           ggraph_2.2.2            MASS_7.3-65            
+#> [163] plyr_1.8.9              org.Hs.eg.db_3.23.1     embed_1.2.2            
+#> [166] flexmix_2.3-20          tidyheatmaps_0.2.1      parallel_4.6.1         
+#> [169] listenv_1.0.0           ggrepel_0.9.8           graphlayouts_1.2.5     
+#> [172] Biostrings_2.80.1       splines_4.6.1           ps_1.9.3               
+#> [175] fastcluster_1.3.0       igraph_2.3.3            ranger_0.18.0          
+#> [178] enrichit_0.2.1          dials_1.4.4             rngtools_1.5.2         
+#> [181] reshape2_1.4.5          parsnip_1.6.0           stats4_4.6.1           
+#> [184] evaluate_1.0.5          foreach_1.5.2           missForest_1.6.1       
+#> [187] tweenr_2.0.3            tidyr_1.3.2             openssl_2.4.2          
+#> [190] purrr_1.2.2             polyclip_1.10-7         future_1.75.0          
+#> [193] ggforce_0.5.0           easyPubMed_3.1.6        RSpectra_0.16-2        
+#> [196] tidytree_0.4.8          tidydr_0.0.6            viridisLite_0.4.3      
+#> [199] class_7.3-23            ragg_1.5.2              tibble_3.3.1           
+#> [202] clusterProfiler_4.20.0  aplot_0.3.1             beeswarm_0.4.0         
+#> [205] memoise_2.0.1           AnnotationDbi_1.74.0    IRanges_2.46.0         
+#> [208] cluster_2.1.8.2         workflows_1.3.0         timechange_0.4.0       
+#> [211] globals_0.19.1
 ```

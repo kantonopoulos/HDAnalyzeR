@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="HDAnalyzeR">
 </head>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HDAnalyzeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@ This vignette will guide you through the essential steps to use the
 package from data loading to biomarker identification. Let’s get started
 by loading the package!</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kantonopoulos.github.io/HDAnalyzeR">HDAnalyzeR</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kantonopoulos.github.io/HDAnalyzeR/">HDAnalyzeR</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="how-to-get-help">How to get Help?<a class="anchor" aria-label="anchor" href="#how-to-get-help"></a>
@@ -132,29 +132,27 @@ of cancer blood plasma samples.</p>
 <code>example_metadata</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      DAid    Sample  OlinkID UniProt  Assay           Panel        NPX</span></span>
-<span><span class="co">#&gt; 1 DA00001 AML_syn_1 OID21311  Q9BTE6 AARSD1        Oncology  3.3903461</span></span>
-<span><span class="co">#&gt; 2 DA00001 AML_syn_1 OID21280  P00519   ABL1        Oncology  2.7588517</span></span>
-<span><span class="co">#&gt; 3 DA00001 AML_syn_1 OID21269  P09110  ACAA1        Oncology  1.7070090</span></span>
-<span><span class="co">#&gt; 4 DA00001 AML_syn_1 OID20159  P16112   ACAN Cardiometabolic  0.0332709</span></span>
-<span><span class="co">#&gt; 5 DA00001 AML_syn_1 OID20105  Q9BYF1   ACE2 Cardiometabolic  1.7553590</span></span>
-<span><span class="co">#&gt; 6 DA00001 AML_syn_1 OID20124  Q15067  ACOX1 Cardiometabolic -0.9192835</span></span>
-<span><span class="co">#&gt;   Assay_Warning QC_Warning PlateID</span></span>
-<span><span class="co">#&gt; 1          PASS       PASS  Run001</span></span>
-<span><span class="co">#&gt; 2          PASS       PASS  Run001</span></span>
-<span><span class="co">#&gt; 3          PASS       PASS  Run001</span></span>
-<span><span class="co">#&gt; 4          PASS       PASS  Run001</span></span>
-<span><span class="co">#&gt; 5          PASS       PASS  Run001</span></span>
-<span><span class="co">#&gt; 6          PASS       PASS  Run001</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 6 × 10</span></span>
+<span><span class="co">#&gt;   DAid    Sample    OlinkID UniProt Assay Panel     NPX Assay_Warning QC_Warning</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;     </span></span>
+<span><span class="co">#&gt; 1 DA00001 AML_syn_1 OID213… Q9BTE6  AARS… Onco…  3.39   PASS          PASS      </span></span>
+<span><span class="co">#&gt; 2 DA00001 AML_syn_1 OID212… P00519  ABL1  Onco…  2.76   PASS          PASS      </span></span>
+<span><span class="co">#&gt; 3 DA00001 AML_syn_1 OID212… P09110  ACAA1 Onco…  1.71   PASS          PASS      </span></span>
+<span><span class="co">#&gt; 4 DA00001 AML_syn_1 OID201… P16112  ACAN  Card…  0.0333 PASS          PASS      </span></span>
+<span><span class="co">#&gt; 5 DA00001 AML_syn_1 OID201… Q9BYF1  ACE2  Card…  1.76   PASS          PASS      </span></span>
+<span><span class="co">#&gt; 6 DA00001 AML_syn_1 OID201… Q15067  ACOX1 Card… -0.919  PASS          PASS      </span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: PlateID &lt;chr&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">example_metadata</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      DAid    Sample Disease   Stage Grade Sex Age  BMI Cohort</span></span>
-<span><span class="co">#&gt; 1 DA00001 AML_syn_1     AML       2  &lt;NA&gt;   F  42 22.7   UCAN</span></span>
-<span><span class="co">#&gt; 2 DA00002 AML_syn_2     AML Unknown  &lt;NA&gt;   M  69 33.1   UCAN</span></span>
-<span><span class="co">#&gt; 3 DA00003 AML_syn_3     AML       2  &lt;NA&gt;   F  61 26.2   UCAN</span></span>
-<span><span class="co">#&gt; 4 DA00004 AML_syn_4     AML Unknown  &lt;NA&gt;   M  54 28.1   UCAN</span></span>
-<span><span class="co">#&gt; 5 DA00005 AML_syn_5     AML       2  &lt;NA&gt;   F  57 21.4   UCAN</span></span>
-<span><span class="co">#&gt; 6 DA00006 AML_syn_6     AML Unknown  &lt;NA&gt;   M  86 33.9   UCAN</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 6 × 9</span></span>
+<span><span class="co">#&gt;   DAid    Sample    Disease Stage   Grade Sex     Age   BMI Cohort</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; </span></span>
+<span><span class="co">#&gt; 1 DA00001 AML_syn_1 AML     2       &lt;NA&gt;  F        42  22.7 UCAN  </span></span>
+<span><span class="co">#&gt; 2 DA00002 AML_syn_2 AML     Unknown &lt;NA&gt;  M        69  33.1 UCAN  </span></span>
+<span><span class="co">#&gt; 3 DA00003 AML_syn_3 AML     2       &lt;NA&gt;  F        61  26.2 UCAN  </span></span>
+<span><span class="co">#&gt; 4 DA00004 AML_syn_4 AML     Unknown &lt;NA&gt;  M        54  28.1 UCAN  </span></span>
+<span><span class="co">#&gt; 5 DA00005 AML_syn_5 AML     2       &lt;NA&gt;  F        57  21.4 UCAN  </span></span>
+<span><span class="co">#&gt; 6 DA00006 AML_syn_6 AML     Unknown &lt;NA&gt;  M        86  33.9 UCAN</span></span></code></pre></div>
 <p>We will initialize the HDAnalyzeR object with the data and metadata.
 The <code><a href="../reference/hd_initialize.html">hd_initialize()</a></code> function will create an object that
 will be used throughout the analysis. We will specify the sample ID,
@@ -171,22 +169,22 @@ data. In this case, the data is in long format, so we set
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See the data transformed into a wide format!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">hd_obj</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 101</span></span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 101</span></span>
 <span><span class="co">#&gt;   DAid    AARSD1  ABL1  ACAA1    ACAN   ACE2  ACOX1   ACP5   ACP6  ACTA2   ACTN4</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001   3.39  2.76  1.71   0.033<span style="text-decoration: underline;">3</span>  1.76  -<span style="color: #BB0000;">0.919</span> 1.54    2.15   2.81   0.742 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00002   1.42  1.25 -<span style="color: #BB0000;">0.816</span> -<span style="color: #BB0000;">0.459</span>   0.826 -<span style="color: #BB0000;">0.902</span> 0.647   1.30   0.798 -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00003  <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>      0.989  <span style="color: #BB0000;">NA</span>      0.330 1.37   <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00004   3.41  3.38  1.69  <span style="color: #BB0000;">NA</span>       1.52  <span style="color: #BB0000;">NA</span>     0.841   0.582  1.70   0.108 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005   5.01  5.05  0.128  0.401  -<span style="color: #BB0000;">0.933</span> -<span style="color: #BB0000;">0.584</span> 0.026<span style="text-decoration: underline;">5</span>  1.16   2.73   0.350 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006   6.83  1.18 -<span style="color: #BB0000;">1.74</span>  -<span style="color: #BB0000;">0.156</span>   1.53  -<span style="color: #BB0000;">0.721</span> 0.620   0.527  0.772 <span style="color: #BB0000;">NA</span>     </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more variables: ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;, ADA2 &lt;dbl&gt;, ADAM15 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;, ADAMTS15 &lt;dbl&gt;, ADAMTS16 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;, ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;, ADGRG1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;, AGR3 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;, AIF1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, AKT1S1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AKT3 &lt;dbl&gt;, ALCAM &lt;dbl&gt;, ALDH1A1 &lt;dbl&gt;, ALDH3A1 &lt;dbl&gt;, ALPP &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 DA00001   3.39  2.76  1.71   0.0333  1.76  -0.919 1.54    2.15   2.81   0.742 </span></span>
+<span><span class="co">#&gt; 2 DA00002   1.42  1.25 -0.816 -0.459   0.826 -0.902 0.647   1.30   0.798 -0.0659</span></span>
+<span><span class="co">#&gt; 3 DA00003  NA    NA    NA      0.989  NA      0.330 1.37   NA     NA     NA     </span></span>
+<span><span class="co">#&gt; 4 DA00004   3.41  3.38  1.69  NA       1.52  NA     0.841   0.582  1.70   0.108 </span></span>
+<span><span class="co">#&gt; 5 DA00005   5.01  5.05  0.128  0.401  -0.933 -0.584 0.0265  1.16   2.73   0.350 </span></span>
+<span><span class="co">#&gt; 6 DA00006   6.83  1.18 -1.74  -0.156   1.53  -0.721 0.620   0.527  0.772 NA     </span></span>
+<span><span class="co">#&gt; # ℹ 90 more variables: ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;, ADA2 &lt;dbl&gt;, ADAM15 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;, ADAMTS15 &lt;dbl&gt;, ADAMTS16 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;, ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;, ADGRG1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;, AGR3 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;, AIF1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, AKT1S1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AKT3 &lt;dbl&gt;, ALCAM &lt;dbl&gt;, ALDH1A1 &lt;dbl&gt;, ALDH3A1 &lt;dbl&gt;, ALPP &lt;dbl&gt;, …</span></span></code></pre></div>
 <blockquote>
 <p>📓 In real-world scenarios, you would load your own data and metadata
 files instead of using the example dataset.</p>
@@ -250,22 +248,22 @@ neighbors (KNN) with 5 neighbors via <code><a href="../reference/hd_impute_knn.h
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hd_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_impute_knn.html">hd_impute_knn</a></span><span class="op">(</span><span class="va">hd_obj</span>, k <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">hd_obj</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 101</span></span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 101</span></span>
 <span><span class="co">#&gt;   DAid    AARSD1  ABL1  ACAA1    ACAN   ACE2  ACOX1   ACP5  ACP6 ACTA2   ACTN4</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001   3.39  2.76  1.71   0.033<span style="text-decoration: underline;">3</span>  1.76  -<span style="color: #BB0000;">0.919</span> 1.54   2.15  2.81   0.742 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00002   1.42  1.25 -<span style="color: #BB0000;">0.816</span> -<span style="color: #BB0000;">0.459</span>   0.826 -<span style="color: #BB0000;">0.902</span> 0.647  1.30  0.798 -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00003   3.70  2.85  2.27   0.989   0.184  0.330 1.37   0.876 1.33   0.570 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00004   3.41  3.38  1.69   0.415   1.52   1.23  0.841  0.582 1.70   0.108 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005   5.01  5.05  0.128  0.401  -<span style="color: #BB0000;">0.933</span> -<span style="color: #BB0000;">0.584</span> 0.026<span style="text-decoration: underline;">5</span> 1.16  2.73   0.350 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006   6.83  1.18 -<span style="color: #BB0000;">1.74</span>  -<span style="color: #BB0000;">0.156</span>   1.53  -<span style="color: #BB0000;">0.721</span> 0.620  0.527 0.772  0.446 </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more variables: ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;, ADA2 &lt;dbl&gt;, ADAM15 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;, ADAMTS15 &lt;dbl&gt;, ADAMTS16 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;, ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;, ADGRG1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;, AGR3 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;, AIF1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, AKT1S1 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   AKT3 &lt;dbl&gt;, ALCAM &lt;dbl&gt;, ALDH1A1 &lt;dbl&gt;, ALDH3A1 &lt;dbl&gt;, ALPP &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 DA00001   3.39  2.76  1.71   0.0333  1.76  -0.919 1.54   2.15  2.81   0.742 </span></span>
+<span><span class="co">#&gt; 2 DA00002   1.42  1.25 -0.816 -0.459   0.826 -0.902 0.647  1.30  0.798 -0.0659</span></span>
+<span><span class="co">#&gt; 3 DA00003   3.70  2.85  2.27   0.989   0.184  0.330 1.37   0.876 1.33   0.570 </span></span>
+<span><span class="co">#&gt; 4 DA00004   3.41  3.38  1.69   0.415   1.52   1.23  0.841  0.582 1.70   0.108 </span></span>
+<span><span class="co">#&gt; 5 DA00005   5.01  5.05  0.128  0.401  -0.933 -0.584 0.0265 1.16  2.73   0.350 </span></span>
+<span><span class="co">#&gt; 6 DA00006   6.83  1.18 -1.74  -0.156   1.53  -0.721 0.620  0.527 0.772  0.446 </span></span>
+<span><span class="co">#&gt; # ℹ 90 more variables: ACY1 &lt;dbl&gt;, ADA &lt;dbl&gt;, ADA2 &lt;dbl&gt;, ADAM15 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADAM23 &lt;dbl&gt;, ADAM8 &lt;dbl&gt;, ADAMTS13 &lt;dbl&gt;, ADAMTS15 &lt;dbl&gt;, ADAMTS16 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADAMTS8 &lt;dbl&gt;, ADCYAP1R1 &lt;dbl&gt;, ADGRE2 &lt;dbl&gt;, ADGRE5 &lt;dbl&gt;, ADGRG1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   ADGRG2 &lt;dbl&gt;, ADH4 &lt;dbl&gt;, ADM &lt;dbl&gt;, AGER &lt;dbl&gt;, AGR2 &lt;dbl&gt;, AGR3 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AGRN &lt;dbl&gt;, AGRP &lt;dbl&gt;, AGXT &lt;dbl&gt;, AHCY &lt;dbl&gt;, AHSP &lt;dbl&gt;, AIF1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AIFM1 &lt;dbl&gt;, AK1 &lt;dbl&gt;, AKR1B1 &lt;dbl&gt;, AKR1C4 &lt;dbl&gt;, AKT1S1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   AKT3 &lt;dbl&gt;, ALCAM &lt;dbl&gt;, ALDH1A1 &lt;dbl&gt;, ALDH3A1 &lt;dbl&gt;, ALPP &lt;dbl&gt;, …</span></span></code></pre></div>
 <p>After imputation, we will run Principal Component Analysis (PCA) via
 <code><a href="../reference/hd_auto_pca.html">hd_auto_pca()</a></code> and Uniform Manifold Approximation and
 Projection (UMAP) via <code><a href="../reference/hd_auto_umap.html">hd_auto_umap()</a></code> to check for outliers,
@@ -279,18 +277,16 @@ scaling the data and coloring the plots by metadata variables.</p>
 <span>                       plot_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 11</span></span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 11</span></span>
 <span><span class="co">#&gt;   DAid     PC1     PC2    PC3    PC4    PC5    PC6    PC7    PC8     PC9    PC10</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00… -<span style="color: #BB0000;">3.69</span>  -<span style="color: #BB0000;">4.32</span>   -<span style="color: #BB0000;">2.30</span>  -<span style="color: #BB0000;">3.15</span>  -<span style="color: #BB0000;">2.53</span>  -<span style="color: #BB0000;">2.78</span>  -<span style="color: #BB0000;">2.77</span>   0.603 -<span style="color: #BB0000;">3.20</span>   -<span style="color: #BB0000;">0.532</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00…  4.17  -<span style="color: #BB0000;">2.70</span>    2.10  -<span style="color: #BB0000;">0.472</span> -<span style="color: #BB0000;">4.47</span>  -<span style="color: #BB0000;">1.96</span>  -<span style="color: #BB0000;">1.04</span>   1.51  -<span style="color: #BB0000;">0.229</span>  -<span style="color: #BB0000;">0.061</span><span style="color: #BB0000; text-decoration: underline;">4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00… -<span style="color: #BB0000;">3.31</span>   4.74    1.41   0.920 -<span style="color: #BB0000;">0.588</span>  0.316 -<span style="color: #BB0000;">0.103</span> -<span style="color: #BB0000;">0.441</span>  1.36    0.201 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00… -<span style="color: #BB0000;">4.78</span>   0.447   1.44   0.134 -<span style="color: #BB0000;">1.15</span>  -<span style="color: #BB0000;">0.284</span>  0.279  3.34   0.045<span style="text-decoration: underline;">2</span> -<span style="color: #BB0000;">0.866</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00… -<span style="color: #BB0000;">5.04</span>  -<span style="color: #BB0000;">3.69</span>    0.820 -<span style="color: #BB0000;">5.73</span>  -<span style="color: #BB0000;">0.697</span> -<span style="color: #BB0000;">3.87</span>  -<span style="color: #BB0000;">1.01</span>   1.96  -<span style="color: #BB0000;">0.970</span>  -<span style="color: #BB0000;">1.12</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00…  0.429  0.071<span style="text-decoration: underline;">4</span> -<span style="color: #BB0000;">1.86</span>  -<span style="color: #BB0000;">7.80</span>   0.809 -<span style="color: #BB0000;">2.89</span>  -<span style="color: #BB0000;">0.733</span>  0.381 -<span style="color: #BB0000;">0.617</span>   1.32</span></span>
-<span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_plot</span></span>
-<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">Color</span> : <span style="color: #0000BB;">"Disease"</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   &lt;chr&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 DA00… -3.69  -4.32   -2.30  -3.15  -2.53  -2.78  -2.77   0.603 -3.20   -0.532 </span></span>
+<span><span class="co">#&gt; 2 DA00…  4.17  -2.70    2.10  -0.472 -4.47  -1.96  -1.04   1.51  -0.229  -0.0614</span></span>
+<span><span class="co">#&gt; 3 DA00… -3.31   4.74    1.41   0.920 -0.588  0.316 -0.103 -0.441  1.36    0.201 </span></span>
+<span><span class="co">#&gt; 4 DA00… -4.78   0.447   1.44   0.134 -1.15  -0.284  0.279  3.34   0.0452 -0.866 </span></span>
+<span><span class="co">#&gt; 5 DA00… -5.04  -3.69    0.820 -5.73  -0.697 -3.87  -1.01   1.96  -0.970  -1.12  </span></span>
+<span><span class="co">#&gt; 6 DA00…  0.429  0.0714 -1.86  -7.80   0.809 -2.89  -0.733  0.381 -0.617   1.32</span></span>
+<span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_plot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_res</span><span class="op">$</span><span class="va">pca_loadings_plot</span></span></code></pre></div>
@@ -306,18 +302,16 @@ sex related differences.</p>
 <span>                         plot_palette <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;   DAid    UMAP1  UMAP2</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> DA00001  2.25 -<span style="color: #BB0000;">0.712</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> DA00002 -<span style="color: #BB0000;">2.23</span> -<span style="color: #BB0000;">1.45</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> DA00003  1.90  1.65 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> DA00004  2.30  1.24 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> DA00005  2.55 -<span style="color: #BB0000;">0.620</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> DA00006 -<span style="color: #BB0000;">1.32</span>  1.29</span></span>
-<span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span></span>
-<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">Color</span> : <span style="color: #0000BB;">"Sex"</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 DA00001  2.25 -0.712</span></span>
+<span><span class="co">#&gt; 2 DA00002 -2.23 -1.45 </span></span>
+<span><span class="co">#&gt; 3 DA00003  1.90  1.65 </span></span>
+<span><span class="co">#&gt; 4 DA00004  2.30  1.24 </span></span>
+<span><span class="co">#&gt; 5 DA00005  2.55 -0.620</span></span>
+<span><span class="co">#&gt; 6 DA00006 -1.32  1.29</span></span>
+<span><span class="va">umap_res</span><span class="op">$</span><span class="va">umap_plot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
@@ -342,15 +336,15 @@ Myeloid Leukemia (AML).</p>
 <span>  <span class="fu"><a href="../reference/hd_plot_volcano.html">hd_plot_volcano</a></span><span class="op">(</span>logfc_lim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">de_res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 10</span></span>
 <span><span class="co">#&gt;   Feature  logFC   CI.L  CI.R AveExpr     t  P.Value adj.P.Val     B Disease</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AZU1     1.54   1.23   1.84   0.226  9.97 9.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-22</span>  9.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-20</span>  38.5 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ADA      1.40   1.12   1.68   0.924  9.75 6.37<span style="color: #949494;">e</span><span style="color: #BB0000;">-21</span>  3.19<span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span>  36.6 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> APBB1IP  1.08   0.799  1.35  -<span style="color: #BB0000;">0.253</span>  7.62 1.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-13</span>  3.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span>  20.3 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> APEX1    1.45   1.07   1.82   0.515  7.56 1.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-13</span>  3.74<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span>  19.9 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ANGPT1  -<span style="color: #BB0000;">1.63</span>  -<span style="color: #BB0000;">2.09</span>  -<span style="color: #BB0000;">1.16</span>   1.72  -<span style="color: #BB0000;">6.87</span> 1.65<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span>  3.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  15.3 AML    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ARTN     0.826  0.572  1.08   0.423  6.38 3.60<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>  6.00<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span>  12.3 AML</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt; 1 AZU1     1.54   1.23   1.84   0.226  9.97 9.51e-22  9.51e-20  38.5 AML    </span></span>
+<span><span class="co">#&gt; 2 ADA      1.40   1.12   1.68   0.924  9.75 6.37e-21  3.19e-19  36.6 AML    </span></span>
+<span><span class="co">#&gt; 3 APBB1IP  1.08   0.799  1.35  -0.253  7.62 1.04e-13  3.45e-12  20.3 AML    </span></span>
+<span><span class="co">#&gt; 4 APEX1    1.45   1.07   1.82   0.515  7.56 1.50e-13  3.74e-12  19.9 AML    </span></span>
+<span><span class="co">#&gt; 5 ANGPT1  -1.63  -2.09  -1.16   1.72  -6.87 1.65e-11  3.29e-10  15.3 AML    </span></span>
+<span><span class="co">#&gt; 6 ARTN     0.826  0.572  1.08   0.423  6.38 3.60e-10  6.00e- 9  12.3 AML</span></span>
 <span><span class="va">de_res_aml</span><span class="op">$</span><span class="va">volcano_plot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -407,22 +401,22 @@ times but we will present only the results for AML.</p>
 <span></span>
 <span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">metrics</span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.7959184</span></span>
+<span><span class="co">#&gt; [1] 0.8435374</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $sensitivity</span></span>
-<span><span class="co">#&gt; [1] 0.9166667</span></span>
+<span><span class="co">#&gt; [1] 0.8333333</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $specificity</span></span>
-<span><span class="co">#&gt; [1] 0.7851852</span></span>
+<span><span class="co">#&gt; [1] 0.8444444</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9351852</span></span>
+<span><span class="co">#&gt; [1] 0.9277778</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $confusion_matrix</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction   0   1</span></span>
-<span><span class="co">#&gt;          0 106   1</span></span>
-<span><span class="co">#&gt;          1  29  11</span></span>
+<span><span class="co">#&gt;          0 114   2</span></span>
+<span><span class="co">#&gt;          1  21  10</span></span>
 <span><span class="va">lasso_res_aml</span><span class="op">$</span><span class="va">roc_curve</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -457,9 +451,7 @@ need to store the results in a list as before.</p>
 <span></span>
 <span><span class="va">features_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hd_plot_model_summary.html">hd_plot_model_summary</a></span><span class="op">(</span><span class="va">lasso_res</span>, class_palette <span class="op">=</span> <span class="st">"cancers12"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">metrics_barplot</span></span>
-<span><span class="co">#&gt; Ignoring unknown labels:</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">colour</span> : <span style="color: #0000BB;">"Metric"</span></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">metrics_barplot</span></span></code></pre></div>
 <p><img src="HDAnalyzeR_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features_summary</span><span class="op">$</span><span class="va">features_barplot</span></span></code></pre></div>
@@ -515,9 +507,9 @@ its functions.</p>
 </blockquote>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.2 (2025-10-31)</span></span>
+<span><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
-<span><span class="co">#&gt; Running under: Ubuntu 24.04.3 LTS</span></span>
+<span><span class="co">#&gt; Running under: Ubuntu 24.04.4 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
 <span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
@@ -536,68 +528,80 @@ its functions.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] glmnet_4.1-10    Matrix_1.7-4     HDAnalyzeR_1.0.1</span></span>
+<span><span class="co">#&gt; [1] viridis_0.6.5     viridisLite_0.4.3 patchwork_1.3.2   ggplot2_4.0.3    </span></span>
+<span><span class="co">#&gt; [5] dplyr_1.2.1       glmnet_5.0        Matrix_1.7-5      HDAnalyzeR_1.1.0 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;   [1] RcppAnnoy_0.0.23        splines_4.5.2           ggplotify_0.1.3        </span></span>
-<span><span class="co">#&gt;   [4] tibble_3.3.1            R.oo_1.27.1             polyclip_1.10-7        </span></span>
-<span><span class="co">#&gt;   [7] hardhat_1.4.2           rpart_4.1.24            sparsevctrs_0.3.6      </span></span>
-<span><span class="co">#&gt;  [10] lifecycle_1.0.5         globals_0.19.0          lattice_0.22-7         </span></span>
-<span><span class="co">#&gt;  [13] MASS_7.3-65             backports_1.5.0         SnowballC_0.7.1        </span></span>
-<span><span class="co">#&gt;  [16] magrittr_2.0.4          limma_3.66.0            sass_0.4.10            </span></span>
-<span><span class="co">#&gt;  [19] rmarkdown_2.30          jquerylib_0.1.4         yaml_2.3.12            </span></span>
-<span><span class="co">#&gt;  [22] ggtangle_0.1.1          askpass_1.2.1           reticulate_1.45.0      </span></span>
-<span><span class="co">#&gt;  [25] cowplot_1.2.0           DBI_1.3.0               RColorBrewer_1.1-3     </span></span>
-<span><span class="co">#&gt;  [28] lubridate_1.9.5         purrr_1.2.1             R.utils_2.13.0         </span></span>
-<span><span class="co">#&gt;  [31] BiocGenerics_0.56.0     yulab.utils_0.2.4       nnet_7.3-20            </span></span>
-<span><span class="co">#&gt;  [34] tweenr_2.0.3            rappdirs_0.3.4          ipred_0.9-15           </span></span>
-<span><span class="co">#&gt;  [37] gdtools_0.5.0           lava_1.8.2              IRanges_2.44.0         </span></span>
-<span><span class="co">#&gt;  [40] embed_1.2.2             S4Vectors_0.48.0        enrichplot_1.30.4      </span></span>
-<span><span class="co">#&gt;  [43] ggrepel_0.9.7           tokenizers_0.3.0        listenv_0.10.0         </span></span>
-<span><span class="co">#&gt;  [46] tidytree_0.4.7          pheatmap_1.0.13         umap_0.2.10.0          </span></span>
-<span><span class="co">#&gt;  [49] RSpectra_0.16-2         parallelly_1.46.1       pkgdown_2.2.0          </span></span>
-<span><span class="co">#&gt;  [52] codetools_0.2-20        ggforce_0.5.0           DOSE_4.4.0             </span></span>
-<span><span class="co">#&gt;  [55] tidyselect_1.2.1        shape_1.4.6.1           aplot_0.2.9            </span></span>
-<span><span class="co">#&gt;  [58] farver_2.1.2            stats4_4.5.2            Seqinfo_1.0.0          </span></span>
-<span><span class="co">#&gt;  [61] jsonlite_2.0.0          ggridges_0.5.7          survival_3.8-3         </span></span>
-<span><span class="co">#&gt;  [64] iterators_1.0.14        systemfonts_1.3.1       foreach_1.5.2          </span></span>
-<span><span class="co">#&gt;  [67] tools_4.5.2             ggnewscale_0.5.2        treeio_1.34.0          </span></span>
-<span><span class="co">#&gt;  [70] ragg_1.5.0              Rcpp_1.1.1              glue_1.8.0             </span></span>
-<span><span class="co">#&gt;  [73] prodlim_2025.04.28      gridExtra_2.3           xfun_0.56              </span></span>
-<span><span class="co">#&gt;  [76] qvalue_2.42.0           tidyheatmaps_0.2.1      dplyr_1.2.0            </span></span>
-<span><span class="co">#&gt;  [79] withr_3.0.2             fastmap_1.2.0           openssl_2.3.4          </span></span>
-<span><span class="co">#&gt;  [82] digest_0.6.39           timechange_0.4.0        R6_2.6.1               </span></span>
-<span><span class="co">#&gt;  [85] gridGraphics_0.5-1      textshaping_1.0.4       GO.db_3.22.0           </span></span>
-<span><span class="co">#&gt;  [88] RSQLite_2.4.6           R.methodsS3_1.8.2       UpSetR_1.4.0           </span></span>
-<span><span class="co">#&gt;  [91] utf8_1.2.6              tidyr_1.3.2             generics_0.1.4         </span></span>
-<span><span class="co">#&gt;  [94] fontLiberation_0.1.0    data.table_1.18.2.1     recipes_1.3.1          </span></span>
-<span><span class="co">#&gt;  [97] class_7.3-23            httr_1.4.8              htmlwidgets_1.6.4      </span></span>
-<span><span class="co">#&gt; [100] scatterpie_0.2.6        uwot_0.2.4              pkgconfig_2.0.3        </span></span>
-<span><span class="co">#&gt; [103] gtable_0.3.6            parsnip_1.4.1           timeDate_4052.112      </span></span>
-<span><span class="co">#&gt; [106] dials_1.4.2             blob_1.3.0              GPfit_1.0-9            </span></span>
-<span><span class="co">#&gt; [109] S7_0.2.1                workflows_1.3.0         XVector_0.50.0         </span></span>
-<span><span class="co">#&gt; [112] furrr_0.3.1             clusterProfiler_4.18.4  janeaustenr_1.0.0      </span></span>
-<span><span class="co">#&gt; [115] htmltools_0.5.9         fontBitstreamVera_0.1.1 fgsea_1.36.2           </span></span>
-<span><span class="co">#&gt; [118] scales_1.4.0            Biobase_2.70.0          png_0.1-8              </span></span>
-<span><span class="co">#&gt; [121] gower_1.0.2             ggfun_0.2.0             knitr_1.51             </span></span>
-<span><span class="co">#&gt; [124] reshape2_1.4.5          nlme_3.1-168            org.Hs.eg.db_3.22.0    </span></span>
-<span><span class="co">#&gt; [127] cachem_1.1.0            stringr_1.6.0           rsample_1.3.2          </span></span>
-<span><span class="co">#&gt; [130] parallel_4.5.2          AnnotationDbi_1.72.0    desc_1.4.3             </span></span>
-<span><span class="co">#&gt; [133] pillar_1.11.1           grid_4.5.2              vctrs_0.7.1            </span></span>
-<span><span class="co">#&gt; [136] tune_2.0.1              tidydr_0.0.6            cluster_2.1.8.1        </span></span>
-<span><span class="co">#&gt; [139] lhs_1.2.0               yardstick_1.3.2         evaluate_1.0.5         </span></span>
-<span><span class="co">#&gt; [142] cli_3.6.5               compiler_4.5.2          rlang_1.1.7            </span></span>
-<span><span class="co">#&gt; [145] crayon_1.5.3            tidytext_0.4.3          future.apply_1.20.2    </span></span>
-<span><span class="co">#&gt; [148] labeling_0.4.3          plyr_1.8.9              forcats_1.0.1          </span></span>
-<span><span class="co">#&gt; [151] fs_1.6.6                ggiraph_0.9.6           stringi_1.8.7          </span></span>
-<span><span class="co">#&gt; [154] BiocParallel_1.44.0     Biostrings_2.78.0       lazyeval_0.2.2         </span></span>
-<span><span class="co">#&gt; [157] fontquiver_0.2.1        GOSemSim_2.36.0         patchwork_1.3.2        </span></span>
-<span><span class="co">#&gt; [160] bit64_4.6.0-1           future_1.69.0           ggplot2_4.0.2          </span></span>
-<span><span class="co">#&gt; [163] KEGGREST_1.50.0         statmod_1.5.1           tailor_0.1.0           </span></span>
-<span><span class="co">#&gt; [166] igraph_2.2.2            broom_1.0.12            memoise_2.0.1          </span></span>
-<span><span class="co">#&gt; [169] bslib_0.10.0            ggtree_4.0.4            fastmatch_1.1-8        </span></span>
-<span><span class="co">#&gt; [172] bit_4.6.0               gson_0.1.0              ape_5.8-1              </span></span>
-<span><span class="co">#&gt; [175] DiceDesign_1.10</span></span></code></pre></div>
+<span><span class="co">#&gt;   [1] matrixStats_1.5.0       fs_2.1.0                enrichplot_1.32.0      </span></span>
+<span><span class="co">#&gt;   [4] fontawesome_0.5.3       lubridate_1.9.5         sparsevctrs_0.3.6      </span></span>
+<span><span class="co">#&gt;   [7] DiceDesign_1.10         httr_1.4.8              RColorBrewer_1.1-3     </span></span>
+<span><span class="co">#&gt;  [10] doParallel_1.0.17       prabclus_2.3-5          dynamicTreeCut_1.63-1  </span></span>
+<span><span class="co">#&gt;  [13] backports_1.5.1         tools_4.6.1             doRNG_1.8.6.3          </span></span>
+<span><span class="co">#&gt;  [16] utf8_1.2.6              R6_2.6.1                mgcv_1.9-4             </span></span>
+<span><span class="co">#&gt;  [19] lazyeval_0.2.3          uwot_0.2.4              yardstick_1.4.0        </span></span>
+<span><span class="co">#&gt;  [22] withr_3.0.3             gridExtra_2.3.1         downlit_0.4.5          </span></span>
+<span><span class="co">#&gt;  [25] preprocessCore_1.74.0   WGCNA_1.74              cli_3.6.6              </span></span>
+<span><span class="co">#&gt;  [28] Biobase_2.72.0          textshaping_1.0.5       scatterpie_0.2.6       </span></span>
+<span><span class="co">#&gt;  [31] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         </span></span>
+<span><span class="co">#&gt;  [34] S7_0.2.2                robustbase_0.99-7       randomForest_4.7-1.2   </span></span>
+<span><span class="co">#&gt;  [37] ggridges_0.5.7          tune_2.1.0              askpass_1.2.1          </span></span>
+<span><span class="co">#&gt;  [40] pkgdown_2.2.1           systemfonts_1.3.2       yulab.utils_0.2.4      </span></span>
+<span><span class="co">#&gt;  [43] foreign_0.8-91          gson_0.2.1              DOSE_4.6.0             </span></span>
+<span><span class="co">#&gt;  [46] parallelly_1.48.0       itertools_0.1-3         limma_3.68.5           </span></span>
+<span><span class="co">#&gt;  [49] impute_1.86.0           rstudioapi_0.19.0       RSQLite_3.53.3         </span></span>
+<span><span class="co">#&gt;  [52] shape_1.4.6.1           generics_0.1.4          gridGraphics_0.5-1     </span></span>
+<span><span class="co">#&gt;  [55] GO.db_3.23.1            ggbeeswarm_0.7.3        fansi_1.0.7            </span></span>
+<span><span class="co">#&gt;  [58] S4Vectors_0.50.1        lifecycle_1.0.5         whisker_0.4.1          </span></span>
+<span><span class="co">#&gt;  [61] yaml_2.3.12             recipes_1.3.3           qvalue_2.44.0          </span></span>
+<span><span class="co">#&gt;  [64] grid_4.6.1              blob_1.3.0              crayon_1.5.3           </span></span>
+<span><span class="co">#&gt;  [67] ggtangle_0.1.2          lattice_0.22-9          KEGGREST_1.52.2        </span></span>
+<span><span class="co">#&gt;  [70] pillar_1.11.1           knitr_1.51              fpc_2.2-14             </span></span>
+<span><span class="co">#&gt;  [73] future.apply_1.20.2     codetools_0.2-20        glue_1.8.1             </span></span>
+<span><span class="co">#&gt;  [76] ggiraph_0.9.6           rsample_1.3.2           ggfun_0.2.1            </span></span>
+<span><span class="co">#&gt;  [79] fontLiberation_0.1.0    data.table_1.18.4       vctrs_0.7.3            </span></span>
+<span><span class="co">#&gt;  [82] png_0.1-9               treeio_1.36.1           Rdpack_2.6.6           </span></span>
+<span><span class="co">#&gt;  [85] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           </span></span>
+<span><span class="co">#&gt;  [88] gower_1.0.2             xfun_0.60               rbibutils_2.4.1        </span></span>
+<span><span class="co">#&gt;  [91] prodlim_2026.03.11      tidygraph_1.3.1         Seqinfo_1.2.0          </span></span>
+<span><span class="co">#&gt;  [94] survival_3.8-6          timeDate_4052.112       aisdk_1.4.12           </span></span>
+<span><span class="co">#&gt;  [97] pheatmap_1.0.13         iterators_1.0.14        hardhat_1.4.3          </span></span>
+<span><span class="co">#&gt; [100] lava_1.9.2              statmod_1.5.2           ipred_0.9-15           </span></span>
+<span><span class="co">#&gt; [103] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            </span></span>
+<span><span class="co">#&gt; [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        UpSetR_1.4.1           </span></span>
+<span><span class="co">#&gt; [109] bslib_0.12.0            vipor_0.4.7             otel_0.2.0             </span></span>
+<span><span class="co">#&gt; [112] rpart_4.1.27            colorspace_2.1-3        Hmisc_5.2-6            </span></span>
+<span><span class="co">#&gt; [115] BiocGenerics_0.58.1     DBI_1.3.0               nnet_7.3-20            </span></span>
+<span><span class="co">#&gt; [118] ppsr_0.0.5              tidyselect_1.2.1        processx_3.9.0         </span></span>
+<span><span class="co">#&gt; [121] bit_4.6.0               compiler_4.6.1          curl_7.1.0             </span></span>
+<span><span class="co">#&gt; [124] httr2_1.3.0             htmlTable_2.5.0         xml2_1.6.0             </span></span>
+<span><span class="co">#&gt; [127] desc_1.4.3              fontBitstreamVera_0.1.1 checkmate_2.3.4        </span></span>
+<span><span class="co">#&gt; [130] scales_1.4.0            DEoptimR_1.2-0          callr_3.8.0            </span></span>
+<span><span class="co">#&gt; [133] rappdirs_0.3.4          stringr_1.6.0           digest_0.6.39          </span></span>
+<span><span class="co">#&gt; [136] rmarkdown_2.31          XVector_0.52.0          base64enc_0.1-6        </span></span>
+<span><span class="co">#&gt; [139] htmltools_0.5.9         pkgconfig_2.0.3         fastmap_1.2.0          </span></span>
+<span><span class="co">#&gt; [142] rlang_1.3.0             htmlwidgets_1.6.4       farver_2.1.2           </span></span>
+<span><span class="co">#&gt; [145] jquerylib_0.1.4         jsonlite_2.0.0          mclust_6.1.3           </span></span>
+<span><span class="co">#&gt; [148] GOSemSim_2.38.3         magrittr_2.0.5          Formula_1.2-6          </span></span>
+<span><span class="co">#&gt; [151] modeltools_0.2-24       ggplotify_0.1.3         tailor_0.1.0           </span></span>
+<span><span class="co">#&gt; [154] Rcpp_1.1.2              ape_5.8-1               ggnewscale_0.5.2       </span></span>
+<span><span class="co">#&gt; [157] gdtools_0.5.1           furrr_0.4.0             stringi_1.8.9          </span></span>
+<span><span class="co">#&gt; [160] ggraph_2.2.2            MASS_7.3-65             plyr_1.8.9             </span></span>
+<span><span class="co">#&gt; [163] org.Hs.eg.db_3.23.1     embed_1.2.2             flexmix_2.3-20         </span></span>
+<span><span class="co">#&gt; [166] tidyheatmaps_0.2.1      parallel_4.6.1          listenv_1.0.0          </span></span>
+<span><span class="co">#&gt; [169] ggrepel_0.9.8           graphlayouts_1.2.5      Biostrings_2.80.1      </span></span>
+<span><span class="co">#&gt; [172] splines_4.6.1           ps_1.9.3                fastcluster_1.3.0      </span></span>
+<span><span class="co">#&gt; [175] igraph_2.3.3            ranger_0.18.0           enrichit_0.2.1         </span></span>
+<span><span class="co">#&gt; [178] dials_1.4.4             rngtools_1.5.2          reshape2_1.4.5         </span></span>
+<span><span class="co">#&gt; [181] parsnip_1.6.0           stats4_4.6.1            evaluate_1.0.5         </span></span>
+<span><span class="co">#&gt; [184] foreach_1.5.2           missForest_1.6.1        tweenr_2.0.3           </span></span>
+<span><span class="co">#&gt; [187] tidyr_1.3.2             openssl_2.4.2           purrr_1.2.2            </span></span>
+<span><span class="co">#&gt; [190] polyclip_1.10-7         future_1.75.0           ggforce_0.5.0          </span></span>
+<span><span class="co">#&gt; [193] easyPubMed_3.1.6        RSpectra_0.16-2         tidytree_0.4.8         </span></span>
+<span><span class="co">#&gt; [196] tidydr_0.0.6            class_7.3-23            ragg_1.5.2             </span></span>
+<span><span class="co">#&gt; [199] tibble_3.3.1            clusterProfiler_4.20.0  aplot_0.3.1            </span></span>
+<span><span class="co">#&gt; [202] beeswarm_0.4.0          memoise_2.0.1           AnnotationDbi_1.74.0   </span></span>
+<span><span class="co">#&gt; [205] IRanges_2.46.0          cluster_2.1.8.2         workflows_1.3.0        </span></span>
+<span><span class="co">#&gt; [208] timechange_0.4.0        globals_0.19.1</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

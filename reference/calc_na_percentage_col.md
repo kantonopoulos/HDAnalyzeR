@@ -19,3 +19,9 @@ calc_na_percentage_col(dat)
 ## Value
 
 A tibble with the column names and the percentage of NAs in each column.
+
+## Details
+
+The counts are taken one column at a time rather than through a wide
+`across()` summary, which keeps the memory footprint flat on datasets
+with tens of thousands of features.

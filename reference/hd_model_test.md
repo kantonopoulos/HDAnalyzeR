@@ -131,20 +131,20 @@ model_object <- hd_model_rreg(hd_split,
 hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palette = "cancers12")
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
 #> $train_data
-#> # A tibble: 66 × 102
-#>    DAid  Disease AARSD1  ABL1   ACAA1     ACAN  ACE2   ACOX1   ACP5   ACP6 ACTA2
-#>    <chr> <fct>    <dbl> <dbl>   <dbl>    <dbl> <dbl>   <dbl>  <dbl>  <dbl> <dbl>
-#>  1 DA00… 1         6.83 1.18  -1.74   -0.156   1.53  -0.721  0.620   0.527 0.772
-#>  2 DA00… 1         4.48 4.56   4.86    0.230   2.24   2.97   2.60   -1.11  2.20 
-#>  3 DA00… 1         2.19 1.66  -0.0167 -0.567   3.77   0.369  1.38    1.09  2.09 
-#>  4 DA00… 1         4.04 1.41  -2.09    0.427   0.200  0.537  0.0262  0.105 1.73 
-#>  5 DA00… 1         1.80 1.70   2.77   -1.04    1.33  -0.0247 1.02    0.112 2.58 
-#>  6 DA00… 1         2.99 2.24  -0.180  -0.00102 0.367  0.604  0.843  -1.96  2.51 
-#>  7 DA00… 1         3.03 0.390  1.83    0.983   2.60   0.113  0.504   1.42  1.22 
-#>  8 DA00… 1         3.59 3.38   1.79   -0.303   1.59   0.604  1.71   -0.837 1.65 
-#>  9 DA00… 1         1.42 1.25  -0.816  -0.459   0.826 -0.902  0.647   1.30  0.798
-#> 10 DA00… 1         3.48 4.96   3.50   -0.338   4.48   1.26   2.18    1.62  1.79 
-#> # ℹ 56 more rows
+#> # A tibble: 60 × 102
+#>    DAid    Disease AARSD1  ABL1   ACAA1   ACAN  ACE2  ACOX1   ACP5   ACP6 ACTA2
+#>    <chr>   <fct>    <dbl> <dbl>   <dbl>  <dbl> <dbl>  <dbl>  <dbl>  <dbl> <dbl>
+#>  1 DA00002 1         1.42  1.25 -0.816  -0.459 0.826 -0.902  0.647 1.30   0.798
+#>  2 DA00011 1         3.48  4.96  3.50   -0.338 4.48   1.26   2.18  1.62   1.79 
+#>  3 DA00027 1         3.06  1.16  0.0990 -0.612 0.138  0.777  1.42  0.913  1.05 
+#>  4 DA00037 1         3.65  3.30  0.748   0.571 1.20   1.30   2.09  0.717  4.48 
+#>  5 DA00004 1         3.41  3.38  1.69   NA     1.52  NA      0.841 0.582  1.70 
+#>  6 DA00025 1         3.68  2.71  2.36    0.445 1.37   0.955 -0.324 1.51   1.82 
+#>  7 DA00043 1         2.48  1.49  0.605   0.339 0.436  0.690  1.11  0.0158 0.623
+#>  8 DA00040 1        NA    NA     0.0831  0.858 1.38   0.183  1.33  0.606  2.56 
+#>  9 DA00028 1         2.47  2.16 -0.486  NA     0.386 NA      1.38  0.536  1.86 
+#> 10 DA00016 1         1.79  1.36  0.106  -0.372 3.40  -1.19   1.77  1.07   2.00 
+#> # ℹ 50 more rows
 #> # ℹ 91 more variables: ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>, ADA2 <dbl>,
 #> #   ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>, ADAMTS15 <dbl>,
 #> #   ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>, ADGRE2 <dbl>, ADGRE5 <dbl>,
@@ -154,18 +154,18 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 #> 
 #> $test_data
 #> # A tibble: 117 × 102
-#>    DAid    Disease AARSD1   ABL1   ACAA1     ACAN     ACE2  ACOX1   ACP5   ACP6
-#>    <chr>   <fct>    <dbl>  <dbl>   <dbl>    <dbl>    <dbl>  <dbl>  <dbl>  <dbl>
-#>  1 DA00120 0         3.91  1.22   0.692   1.08     0.254    0.864  1.39   0.936
-#>  2 DA00533 0        NA    NA      0.441   0.185   -0.234   -1.26   1.30   0.792
-#>  3 DA00315 0         3.66  1.71   0.812   0.690   -0.618    1.50   1.42   2.62 
-#>  4 DA00081 0         2.82 -0.297  0.523  -0.657   -0.840    1.34  -0.473 -0.332
-#>  5 DA00239 0         2.97  2.73   2.66    1.03     0.471    0.636 -0.600  1.88 
-#>  6 DA00340 0         2.85  0.719  0.918   2.64     3.18     0.342  1.72  -2.39 
-#>  7 DA00193 0         3.14  3.01   0.926   0.0593   1.01     1.40   2.07   0.593
-#>  8 DA00061 0         1.90  2.11   0.953   1.45    -0.00630  0.357  1.60   1.24 
-#>  9 DA00203 0         3.51  0.603  1.86    0.00641  0.143    0.587 -0.383  2.00 
-#> 10 DA00246 0         3.39 -0.658 -0.0989  0.356   -1.00     0.516  0.576 -0.811
+#>    DAid    Disease AARSD1    ABL1  ACAA1    ACAN   ACE2   ACOX1   ACP5   ACP6
+#>    <chr>   <fct>    <dbl>   <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>  <dbl>
+#>  1 DA00282 0         3.81  1.02    1.02   0.220   0.292 -0.651   1.25   1.95 
+#>  2 DA00482 0        NA    NA      NA      1.27   NA      0.592   1.16  NA    
+#>  3 DA00083 0         1.73  1.43    0.684 -0.424   0.782  0.943  -0.728  1.33 
+#>  4 DA00467 0         2.95  2.75    0.409  0.0874 -0.367  0.836   2.26   2.73 
+#>  5 DA00223 0         3.57  1.72    1.88   0.535   0.631  0.732   1.57   1.35 
+#>  6 DA00034 1         3.45  2.91    1.31   0.423   0.647  1.40    0.691  0.720
+#>  7 DA00377 0         3.45  0.962   0.702  0.728   2.10   0.829   0.633  0.518
+#>  8 DA00072 0         3.78  2.58    2.01   0.241   0.168  1.47    1.04   0.925
+#>  9 DA00540 0         3.78  4.13   NA      0.833   1.61   3.50    0.820  1.61 
+#> 10 DA00497 0         3.19 -0.0932  0.470  1.15    3.26  -0.0602  0.360  0.490
 #> # ℹ 107 more rows
 #> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
 #> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
@@ -195,30 +195,30 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 #> Logistic Regression Model Specification (classification)
 #> 
 #> Main Arguments:
-#>   penalty = 0.44087827749012
-#>   mixture = 0.23890444329707
+#>   penalty = 9.80627489266804e-09
+#>   mixture = 0.0937552454718389
 #> 
 #> Computational engine: glmnet 
 #> 
 #> 
 #> $metrics
 #> $metrics$accuracy
-#> [1] 0.8205128
+#> [1] 0.8034188
 #> 
 #> $metrics$sensitivity
-#> [1] 0.625
+#> [1] 0.75
 #> 
 #> $metrics$specificity
-#> [1] 0.8348624
+#> [1] 0.8073394
 #> 
 #> $metrics$auc
-#> [1] 0.7993119
+#> [1] 0.8027523
 #> 
 #> $metrics$confusion_matrix
 #>           Truth
 #> Prediction  0  1
-#>          0 91  3
-#>          1 18  5
+#>          0 88  2
+#>          1 21  6
 #> 
 #> 
 #> $roc_curve
@@ -229,22 +229,22 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 
 #> 
 #> $mixture
-#> [1] 0.2389044
+#> [1] 0.09375525
 #> 
 #> $features
 #> # A tibble: 100 × 4
-#>    Feature Importance Sign  Scaled_Importance
-#>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ALPP       0.242   NEG              1     
-#>  2 ACAN       0.163   NEG              0.674 
-#>  3 ADA        0.127   POS              0.525 
-#>  4 ANGPT1     0.0971  NEG              0.402 
-#>  5 ARTN       0.0866  POS              0.358 
-#>  6 ANGPT2     0.0533  POS              0.221 
-#>  7 APOM       0.0508  NEG              0.210 
-#>  8 APEX1      0.0439  POS              0.182 
-#>  9 AMIGO2     0.0133  NEG              0.0549
-#> 10 ACOX1      0.00773 POS              0.0320
+#>    Feature  Importance Sign  Scaled_Importance
+#>    <fct>         <dbl> <chr>             <dbl>
+#>  1 ANGPT1        0.556 NEG               1    
+#>  2 AHCY          0.544 POS               0.979
+#>  3 ADA           0.527 POS               0.948
+#>  4 ADAM23        0.473 NEG               0.851
+#>  5 ADAMTS16      0.472 NEG               0.850
+#>  6 ATG4A         0.452 NEG               0.813
+#>  7 ARNT          0.433 POS               0.778
+#>  8 ADGRG2        0.423 NEG               0.760
+#>  9 ARTN          0.402 POS               0.722
+#> 10 ANGPTL1       0.376 NEG               0.676
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -252,18 +252,18 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 #> 
 #> $validation_data
 #> # A tibble: 118 × 102
-#>    DAid    Disease AARSD1   ABL1  ACAA1    ACAN     ACE2   ACOX1    ACP5    ACP6
-#>    <chr>   <fct>    <dbl>  <dbl>  <dbl>   <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
-#>  1 DA00001 1         3.39  2.76   1.71   0.0333  1.76    -0.919   1.54    2.15  
-#>  2 DA00003 1        NA    NA     NA      0.989  NA        0.330   1.37   NA     
-#>  3 DA00007 1        NA    NA      3.96   0.682   3.14     2.62    1.47    2.25  
-#>  4 DA00012 1         4.31  0.710 -1.44  -0.218  -0.469   -0.361  -0.0714 -1.30  
-#>  5 DA00014 1         6.34  7.25   5.12   0.0193  1.29     0.370  -0.382   0.830 
-#>  6 DA00016 1         1.79  1.36   0.106 -0.372   3.40    -1.19    1.77    1.07  
-#>  7 DA00030 1         3.31  5.38   4.82   0.266   0.606    3.12    1.22    2.13  
-#>  8 DA00038 1         2.23  1.42   0.484  1.72    1.46     0.0747  1.82    0.109 
-#>  9 DA00043 1         2.48  1.49   0.605  0.339   0.436    0.690   1.11    0.0158
-#> 10 DA00051 0         2.53  3.00   0.166  0.707  -0.00699  1.05    0.898   1.53  
+#>    DAid    Disease AARSD1  ABL1  ACAA1    ACAN   ACE2   ACOX1    ACP5     ACP6
+#>    <chr>   <fct>    <dbl> <dbl>  <dbl>   <dbl>  <dbl>   <dbl>   <dbl>    <dbl>
+#>  1 DA00005 1         5.01 5.05   0.128  0.401  -0.933 -0.584   0.0265  1.16   
+#>  2 DA00008 1         2.78 0.812 -0.552  0.982  -0.101 -0.304   0.376  -0.826  
+#>  3 DA00021 1         6.28 6.57   1.62   0.650   0.392  0.113   1.09    1.07   
+#>  4 DA00026 1         4.92 1.89   0.560  0.558   2.39   0.455   0.743  -0.955  
+#>  5 DA00029 1         4.04 1.41  -2.09   0.427   0.200  0.537   0.0262  0.105  
+#>  6 DA00031 1         2.40 3.50   2.47  -0.0788  2.25  -0.0102  0.581   1.28   
+#>  7 DA00033 1         5.36 6.08   3.00   0.536   0.324  0.744   1.66    1.49   
+#>  8 DA00036 1         1.54 1.07  -1.49  -0.171   0.553 -0.144  -0.240   0.00582
+#>  9 DA00038 1         2.23 1.42   0.484  1.72    1.46   0.0747  1.82    0.109  
+#> 10 DA00039 1         4.26 0.572 -1.97  -0.433   0.208  0.790  -0.236   1.52   
 #> # ℹ 108 more rows
 #> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
 #> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
@@ -274,22 +274,22 @@ hd_model_test(model_object, hd_object_train, hd_object_val, case = "AML", palett
 #> 
 #> $test_metrics
 #> $test_metrics$accuracy
-#> [1] 0.8728814
+#> [1] 0.779661
 #> 
 #> $test_metrics$sensitivity
-#> [1] 0.7777778
+#> [1] 0.75
 #> 
 #> $test_metrics$specificity
-#> [1] 0.8807339
+#> [1] 0.7830189
 #> 
 #> $test_metrics$auc
-#> [1] 0.8929664
+#> [1] 0.8105346
 #> 
 #> $test_metrics$confusion_matrix
 #>           Truth
 #> Prediction  0  1
-#>          0 96  2
-#>          1 13  7
+#>          0 83  3
+#>          1 23  9
 #> 
 #> 
 #> $test_roc_curve
@@ -320,48 +320,48 @@ model_object <- hd_model_rreg(hd_split,
 hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", case = NULL)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
 #> $train_data
-#> # A tibble: 349 × 102
-#>    DAid      Age AARSD1       ABL1  ACAA1     ACAN   ACE2  ACOX1   ACP5    ACP6
-#>    <chr>   <dbl>  <dbl>      <dbl>  <dbl>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>
-#>  1 DA00315    48   3.66  1.71       0.812  0.690   -0.618  1.50   1.42   2.62  
-#>  2 DA00424    45   3.75  1.64      NA      0.414    1.84   1.83   0.829  2.02  
-#>  3 DA00049    40   4.48  4.56       4.86   0.230    2.24   2.97   2.60  -1.11  
-#>  4 DA00292    48   4.25  5.63       4.43  -0.467   -0.310  2.93   0.907  3.18  
-#>  5 DA00203    44   3.51  0.603      1.86   0.00641  0.143  0.587 -0.383  2.00  
-#>  6 DA00445    44   2.98  0.680     -0.310 -0.279    1.56  -0.240 -0.368  0.0101
-#>  7 DA00221    51  NA    NA         -0.881  0.447    0.458 -0.562  0.442  0.546 
-#>  8 DA00229    52   2.86  3.89       3.42   1.26     0.883  2.70   1.13   2.60  
-#>  9 DA00023    42   2.92 -0.0000706  0.602  1.59     0.198  1.61   0.283  2.35  
-#> 10 DA00079    49   4.49  3.66      NA      1.85    NA      2.03   1.76   2.52  
-#> # ℹ 339 more rows
-#> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
-#> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
-#> #   ADAMTS15 <dbl>, ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>,
-#> #   ADGRE2 <dbl>, ADGRE5 <dbl>, ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>,
-#> #   ADM <dbl>, AGER <dbl>, AGR2 <dbl>, AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>,
-#> #   AGXT <dbl>, AHCY <dbl>, AHSP <dbl>, AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, …
-#> 
-#> $test_data
-#> # A tibble: 119 × 102
-#>    DAid     Age AARSD1   ABL1  ACAA1   ACAN   ACE2  ACOX1     ACP5   ACP6  ACTA2
-#>    <chr>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>    <dbl>  <dbl>  <dbl>
-#>  1 DA004…    51   3.63  2.89   3.73   0.481  0.319  0.712  1.48     1.90   3.60 
-#>  2 DA001…    47   3.14  1.77  NA     -0.489 -0.780  1.41   1.40     1.79  -0.298
-#>  3 DA001…    61   2.00  0.880 -0.191  0.462  0.883  1.35   1.56     1.60   0.937
-#>  4 DA003…    88   2.85  0.719  0.918  2.64   3.18   0.342  1.72    -2.39   0.614
-#>  5 DA001…    89   4.15  0.910 -0.900 -0.161  0.922  0.624 -0.298    0.791  2.03 
-#>  6 DA004…    49   1.09  0.594  1.60   0.294  1.77   0.737  1.74     0.576  1.00 
-#>  7 DA005…    56   2.74  1.01  -1.61   1.12   0.910 -2.00  -0.00928  1.39   1.93 
-#>  8 DA000…    45   2.16  0.800 -0.524 -0.350  0.289  0.726  1.31     1.50   0.495
-#>  9 DA003…    47   2.99 -0.181 -0.500  0.903  1.05  -1.58  -0.119    1.14   2.06 
-#> 10 DA002…    56   1.94 -0.530  0.551  0.645  0.916 -0.429  0.603    0.196 -0.171
-#> # ℹ 109 more rows
+#> # A tibble: 350 × 102
+#>    DAid      Age AARSD1    ABL1  ACAA1   ACAN   ACE2   ACOX1  ACP5   ACP6  ACTA2
+#>    <chr>   <dbl>  <dbl>   <dbl>  <dbl>  <dbl>  <dbl>   <dbl> <dbl>  <dbl>  <dbl>
+#>  1 DA00466    53  2.41   2.05   0.732  -0.245 -0.864  0.455  0.552  0.716  1.68 
+#>  2 DA00223    44  3.57   1.72   1.88    0.535  0.631  0.732  1.57   1.35   0.801
+#>  3 DA00034    42  3.45   2.91   1.31    0.423  0.647  1.40   0.691  0.720  1.95 
+#>  4 DA00154    43  3.81   4.06   1.40    0.293  0.239  0.980  0.557  1.77   1.08 
+#>  5 DA00152    45  1.96   0.743  1.51    0.482  1.41  -0.153  1.91   1.57   0.896
+#>  6 DA00497    46  3.19  -0.0932 0.470   1.15   3.26  -0.0602 0.360  0.490  1.17 
+#>  7 DA00212    50  2.76   0.360  0.0150 -0.458 -0.519 -1.26   1.41   1.34  -0.102
+#>  8 DA00333    41  2.54   2.71   1.12    0.611  1.10   1.16   1.19   0.578  3.77 
+#>  9 DA00455    54  2.58   2.57   0.0916  1.98   1.42   1.32   1.23   0.915  2.91 
+#> 10 DA00288    50  0.857  1.76   1.27    0.165  1.66   0.351  0.274 -0.743  3.61 
+#> # ℹ 340 more rows
 #> # ℹ 91 more variables: ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>, ADA2 <dbl>,
 #> #   ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>, ADAMTS15 <dbl>,
 #> #   ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>, ADGRE2 <dbl>, ADGRE5 <dbl>,
 #> #   ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>, ADM <dbl>, AGER <dbl>, AGR2 <dbl>,
 #> #   AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>, AGXT <dbl>, AHCY <dbl>, AHSP <dbl>,
 #> #   AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, AKR1B1 <dbl>, AKR1C4 <dbl>, …
+#> 
+#> $test_data
+#> # A tibble: 118 × 102
+#>    DAid      Age AARSD1   ABL1  ACAA1    ACAN     ACE2  ACOX1   ACP5   ACP6
+#>    <chr>   <dbl>  <dbl>  <dbl>  <dbl>   <dbl>    <dbl>  <dbl>  <dbl>  <dbl>
+#>  1 DA00482    86  NA    NA     NA      1.27   NA        0.592  1.16  NA    
+#>  2 DA00060    90   1.33  0.406  0.934  0.253   0.133    0.117  0.289  0.878
+#>  3 DA00083    48   1.73  1.43   0.684 -0.424   0.782    0.943 -0.728  1.33 
+#>  4 DA00467    86   2.95  2.75   0.409  0.0874 -0.367    0.836  2.26   2.73 
+#>  5 DA00173    48   4.48  1.47   1.25  -0.289   0.693   -0.409  1.05   1.12 
+#>  6 DA00115    86   4.94  4.33   1.14  NA      NA       NA      0.868  2.54 
+#>  7 DA00311    63   5.94  1.01  -0.279  1.04    0.666   -0.711  1.14   0.259
+#>  8 DA00196    85   2.55  2.95   0.571  0.855   0.00194  0.736 -0.251  2.24 
+#>  9 DA00365    51   2.18  0.114  2.46   0.122   1.29    -1.24   1.15   0.543
+#> 10 DA00011    54   3.48  4.96   3.50  -0.338   4.48     1.26   2.18   1.62 
+#> # ℹ 108 more rows
+#> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
+#> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
+#> #   ADAMTS15 <dbl>, ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>,
+#> #   ADGRE2 <dbl>, ADGRE5 <dbl>, ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>,
+#> #   ADM <dbl>, AGER <dbl>, AGR2 <dbl>, AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>,
+#> #   AGXT <dbl>, AHCY <dbl>, AHSP <dbl>, AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, …
 #> 
 #> $model_type
 #> [1] "regression"
@@ -384,40 +384,40 @@ hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", ca
 #> Linear Regression Model Specification (regression)
 #> 
 #> Main Arguments:
-#>   penalty = 0.0118952086562253
-#>   mixture = 0.232995977951214
+#>   penalty = 6.23789224927052e-05
+#>   mixture = 0.735192023596028
 #> 
 #> Computational engine: glmnet 
 #> 
 #> 
 #> $metrics
 #> $metrics$rmse
-#> [1] 17.70643
+#> [1] 17.44283
 #> 
 #> $metrics$rsq
-#> [1] 0.0001858973
+#> [1] 6.901766e-05
 #> 
 #> 
 #> $comparison_plot
 
 #> 
 #> $mixture
-#> [1] 0.232996
+#> [1] 0.735192
 #> 
 #> $features
 #> # A tibble: 100 × 4
 #>    Feature  Importance Sign  Scaled_Importance
 #>    <fct>         <dbl> <chr>             <dbl>
-#>  1 ARSB           3.62 NEG               1    
-#>  2 ACY1           3.28 NEG               0.905
-#>  3 AREG           3.03 POS               0.836
-#>  4 ATP6AP2        2.64 NEG               0.728
-#>  5 ATOX1          2.22 NEG               0.613
-#>  6 AGXT           2.20 NEG               0.606
-#>  7 ARHGEF12       2.19 NEG               0.604
-#>  8 ALDH1A1        2.18 POS               0.602
-#>  9 ALCAM          2.10 POS               0.581
-#> 10 APP            1.93 POS               0.533
+#>  1 ALCAM          2.67 POS               1    
+#>  2 AREG           2.50 POS               0.934
+#>  3 AARSD1         2.43 POS               0.908
+#>  4 ARHGAP25       2.38 POS               0.890
+#>  5 ATOX1          2.28 NEG               0.853
+#>  6 ARHGEF12       2.19 NEG               0.819
+#>  7 ADGRG1         2.08 NEG               0.778
+#>  8 ARID4B         2.05 POS               0.767
+#>  9 ARSB           2.04 NEG               0.762
+#> 10 ACOX1          2.00 POS               0.748
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -425,32 +425,32 @@ hd_model_test(model_object, hd_object_train, hd_object_val, variable = "Age", ca
 #> 
 #> $validation_data
 #> # A tibble: 118 × 102
-#>    DAid      Age AARSD1   ABL1  ACAA1    ACAN     ACE2   ACOX1    ACP5    ACP6
-#>    <chr>   <dbl>  <dbl>  <dbl>  <dbl>   <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
-#>  1 DA00001    42   3.39  2.76   1.71   0.0333  1.76    -0.919   1.54    2.15  
-#>  2 DA00003    61  NA    NA     NA      0.989  NA        0.330   1.37   NA     
-#>  3 DA00007    85  NA    NA      3.96   0.682   3.14     2.62    1.47    2.25  
-#>  4 DA00012    78   4.31  0.710 -1.44  -0.218  -0.469   -0.361  -0.0714 -1.30  
-#>  5 DA00014    68   6.34  7.25   5.12   0.0193  1.29     0.370  -0.382   0.830 
-#>  6 DA00016    78   1.79  1.36   0.106 -0.372   3.40    -1.19    1.77    1.07  
-#>  7 DA00030    67   3.31  5.38   4.82   0.266   0.606    3.12    1.22    2.13  
-#>  8 DA00038    69   2.23  1.42   0.484  1.72    1.46     0.0747  1.82    0.109 
-#>  9 DA00043    78   2.48  1.49   0.605  0.339   0.436    0.690   1.11    0.0158
-#> 10 DA00051    82   2.53  3.00   0.166  0.707  -0.00699  1.05    0.898   1.53  
+#>    DAid    Age AARSD1  ABL1  ACAA1    ACAN   ACE2   ACOX1    ACP5     ACP6 ACTA2
+#>    <chr> <dbl>  <dbl> <dbl>  <dbl>   <dbl>  <dbl>   <dbl>   <dbl>    <dbl> <dbl>
+#>  1 DA00…    57   5.01 5.05   0.128  0.401  -0.933 -0.584   0.0265  1.16    2.73 
+#>  2 DA00…    88   2.78 0.812 -0.552  0.982  -0.101 -0.304   0.376  -0.826   1.52 
+#>  3 DA00…    67   6.28 6.57   1.62   0.650   0.392  0.113   1.09    1.07    2.07 
+#>  4 DA00…    44   4.92 1.89   0.560  0.558   2.39   0.455   0.743  -0.955   0.458
+#>  5 DA00…    57   4.04 1.41  -2.09   0.427   0.200  0.537   0.0262  0.105   1.73 
+#>  6 DA00…    85   2.40 3.50   2.47  -0.0788  2.25  -0.0102  0.581   1.28    1.45 
+#>  7 DA00…    56   5.36 6.08   3.00   0.536   0.324  0.744   1.66    1.49    2.10 
+#>  8 DA00…    54   1.54 1.07  -1.49  -0.171   0.553 -0.144  -0.240   0.00582 1.94 
+#>  9 DA00…    69   2.23 1.42   0.484  1.72    1.46   0.0747  1.82    0.109   4.27 
+#> 10 DA00…    71   4.26 0.572 -1.97  -0.433   0.208  0.790  -0.236   1.52    0.652
 #> # ℹ 108 more rows
-#> # ℹ 92 more variables: ACTA2 <dbl>, ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>,
-#> #   ADA2 <dbl>, ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>,
-#> #   ADAMTS15 <dbl>, ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>,
-#> #   ADGRE2 <dbl>, ADGRE5 <dbl>, ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>,
-#> #   ADM <dbl>, AGER <dbl>, AGR2 <dbl>, AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>,
-#> #   AGXT <dbl>, AHCY <dbl>, AHSP <dbl>, AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, …
+#> # ℹ 91 more variables: ACTN4 <dbl>, ACY1 <dbl>, ADA <dbl>, ADA2 <dbl>,
+#> #   ADAM15 <dbl>, ADAM23 <dbl>, ADAM8 <dbl>, ADAMTS13 <dbl>, ADAMTS15 <dbl>,
+#> #   ADAMTS16 <dbl>, ADAMTS8 <dbl>, ADCYAP1R1 <dbl>, ADGRE2 <dbl>, ADGRE5 <dbl>,
+#> #   ADGRG1 <dbl>, ADGRG2 <dbl>, ADH4 <dbl>, ADM <dbl>, AGER <dbl>, AGR2 <dbl>,
+#> #   AGR3 <dbl>, AGRN <dbl>, AGRP <dbl>, AGXT <dbl>, AHCY <dbl>, AHSP <dbl>,
+#> #   AIF1 <dbl>, AIFM1 <dbl>, AK1 <dbl>, AKR1B1 <dbl>, AKR1C4 <dbl>, …
 #> 
 #> $test_metrics
 #> $test_metrics$rmse
-#> [1] 17.14835
+#> [1] 17.78093
 #> 
 #> $test_metrics$rsq
-#> [1] 0.01120922
+#> [1] 0.003564644
 #> 
 #> 
 #> $test_comparison_plot

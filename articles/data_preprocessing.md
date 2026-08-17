@@ -5,6 +5,7 @@ pipeline, which is the exploratory data analysis. Except from HDAnalyzeR
 we will import viridis for the color palettes.
 
 ``` r
+
 library(HDAnalyzeR)
 library(viridis)
 ```
@@ -26,6 +27,7 @@ Let’s start with loading the example data and metadata that come with
 the package and initialize the HDAnalyzeR object.
 
 ``` r
+
 hd_obj <- hd_initialize(dat = example_data, 
                         metadata = example_metadata, 
                         is_wide = FALSE, 
@@ -62,6 +64,7 @@ running
 [`hd_show_palettes()`](https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_show_palettes.md).
 
 ``` r
+
 qc_data <- hd_qc_summary(hd_obj, 
                          variable = "Disease", 
                          palette = list(Disease = "cancers12", Sex = "sex"), 
@@ -73,48 +76,56 @@ qc_data$data_summary$na_col_hist
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 qc_data$data_summary$na_row_hist
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-2.png)
 
 ``` r
+
 qc_data$data_summary$cor_heatmap
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-3.png)
 
 ``` r
+
 qc_data$metadata_summary$na_col_hist
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-4.png)
 
 ``` r
+
 qc_data$metadata_summary$na_row_hist
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-5.png)
 
 ``` r
+
 qc_data$metadata_summary$Sex
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-6.png)
 
 ``` r
+
 qc_data$metadata_summary$Stage
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-7.png)
 
 ``` r
+
 qc_data$metadata_summary$Age
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-3-8.png)
 
 ``` r
+
 qc_data$metadata_summary$BMI
 ```
 
@@ -162,6 +173,7 @@ hd_obj object to the `metadata` argument so the package can search the
 metadata and identify the `color` variable.
 
 ``` r
+
 pca_res <- hd_pca(hd_obj, components = 15) |> 
   hd_plot_dim(hd_obj, "PC1", "PC2", color = "Disease", palette = "cancers12", axis_variance = TRUE) |> 
   hd_plot_pca_loadings(displayed_pcs = 6, displayed_features = 10) |> 
@@ -185,12 +197,14 @@ pca_res$pca_plot
 ![](data_preprocessing_files/figure-html/unnamed-chunk-4-1.png)
 
 ``` r
+
 pca_res$pca_loadings_plot
 ```
 
 ![](data_preprocessing_files/figure-html/unnamed-chunk-4-2.png)
 
 ``` r
+
 pca_res$pca_variance_plot
 ```
 
@@ -205,6 +219,7 @@ setting the palette argument to NULL and using the `viridis` palette
 afterwards.
 
 ``` r
+
 umap_res <- hd_umap(hd_obj, components = 2) |> 
   hd_plot_dim(hd_obj, "UMAP1", "UMAP2", color = "Age", palette = NULL)
 
@@ -223,6 +238,7 @@ The wrapper functions are a bit less flexible but they are easier to use
 and require less code.
 
 ``` r
+
 umap_res <- hd_auto_umap(hd_obj, 
                          by_sample = FALSE, 
                          plot_color = "Assay",
@@ -251,10 +267,11 @@ umap_res$umap_plot
 > package and its functions.
 
 ``` r
+
 sessionInfo()
-#> R version 4.5.2 (2025-10-31)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.3 LTS
+#> Running under: Ubuntu 24.04.4 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -273,40 +290,78 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] viridis_0.6.5     viridisLite_0.4.3 HDAnalyzeR_1.0.1 
+#> [1] viridis_0.6.5     viridisLite_0.4.3 patchwork_1.3.2   ggplot2_4.0.3    
+#> [5] dplyr_1.2.1       glmnet_5.0        Matrix_1.7-5      HDAnalyzeR_1.1.0 
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] tidyselect_1.2.1    timeDate_4052.112   dplyr_1.2.0        
-#>  [4] farver_2.1.2        S7_0.2.1            fastmap_1.2.0      
-#>  [7] janeaustenr_1.0.0   digest_0.6.39       rpart_4.1.24       
-#> [10] timechange_0.4.0    lifecycle_1.0.5     tokenizers_0.3.0   
-#> [13] survival_3.8-3      magrittr_2.0.4      compiler_4.5.2     
-#> [16] rlang_1.1.7         sass_0.4.10         tools_4.5.2        
-#> [19] utf8_1.2.6          yaml_2.3.12         tidytext_0.4.3     
-#> [22] data.table_1.18.2.1 knitr_1.51          askpass_1.2.1      
-#> [25] labeling_0.4.3      htmlwidgets_1.6.4   reticulate_1.45.0  
-#> [28] RColorBrewer_1.1-3  withr_3.0.2         purrr_1.2.1        
-#> [31] desc_1.4.3          nnet_7.3-20         grid_4.5.2         
-#> [34] embed_1.2.2         future_1.69.0       ggplot2_4.0.2      
-#> [37] globals_0.19.0      scales_1.4.0        MASS_7.3-65        
-#> [40] ggridges_0.5.7      cli_3.6.5           rmarkdown_2.30     
-#> [43] ragg_1.5.0          generics_0.1.4      umap_0.2.10.0      
-#> [46] RSpectra_0.16-2     future.apply_1.20.2 cachem_1.1.0       
-#> [49] splines_4.5.2       parallel_4.5.2      ggplotify_0.1.3    
-#> [52] yulab.utils_0.2.4   vctrs_0.7.1         hardhat_1.4.2      
-#> [55] Matrix_1.7-4        jsonlite_2.0.0      gridGraphics_0.5-1 
-#> [58] listenv_0.10.0      systemfonts_1.3.1   gower_1.0.2        
-#> [61] tidyr_1.3.2         jquerylib_0.1.4     recipes_1.3.1      
-#> [64] glue_1.8.0          parallelly_1.46.1   pkgdown_2.2.0      
-#> [67] codetools_0.2-20    uwot_0.2.4          RcppAnnoy_0.0.23   
-#> [70] stringi_1.8.7       lubridate_1.9.5     gtable_0.3.6       
-#> [73] tibble_3.3.1        pillar_1.11.1       rappdirs_0.3.4     
-#> [76] htmltools_0.5.9     openssl_2.3.4       ipred_0.9-15       
-#> [79] lava_1.8.2          R6_2.6.1            textshaping_1.0.4  
-#> [82] evaluate_1.0.5      lattice_0.22-7      png_0.1-8          
-#> [85] backports_1.5.0     SnowballC_0.7.1     pheatmap_1.0.13    
-#> [88] broom_1.0.12        bslib_0.10.0        class_7.3-23       
-#> [91] Rcpp_1.1.1          gridExtra_2.3       prodlim_2025.04.28 
-#> [94] xfun_0.56           fs_1.6.6            tidyheatmaps_0.2.1 
-#> [97] pkgconfig_2.0.3
+#>   [1] matrixStats_1.5.0       fs_2.1.0                enrichplot_1.32.0      
+#>   [4] fontawesome_0.5.3       lubridate_1.9.5         sparsevctrs_0.3.6      
+#>   [7] DiceDesign_1.10         httr_1.4.8              RColorBrewer_1.1-3     
+#>  [10] doParallel_1.0.17       prabclus_2.3-5          dynamicTreeCut_1.63-1  
+#>  [13] backports_1.5.1         tools_4.6.1             doRNG_1.8.6.3          
+#>  [16] utf8_1.2.6              R6_2.6.1                mgcv_1.9-4             
+#>  [19] lazyeval_0.2.3          uwot_0.2.4              yardstick_1.4.0        
+#>  [22] withr_3.0.3             gridExtra_2.3.1         downlit_0.4.5          
+#>  [25] preprocessCore_1.74.0   WGCNA_1.74              cli_3.6.6              
+#>  [28] Biobase_2.72.0          textshaping_1.0.5       scatterpie_0.2.6       
+#>  [31] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
+#>  [34] S7_0.2.2                robustbase_0.99-7       randomForest_4.7-1.2   
+#>  [37] ggridges_0.5.7          tune_2.1.0              askpass_1.2.1          
+#>  [40] pkgdown_2.2.1           systemfonts_1.3.2       yulab.utils_0.2.4      
+#>  [43] foreign_0.8-91          gson_0.2.1              DOSE_4.6.0             
+#>  [46] parallelly_1.48.0       itertools_0.1-3         limma_3.68.5           
+#>  [49] impute_1.86.0           rstudioapi_0.19.0       RSQLite_3.53.3         
+#>  [52] shape_1.4.6.1           generics_0.1.4          gridGraphics_0.5-1     
+#>  [55] GO.db_3.23.1            ggbeeswarm_0.7.3        fansi_1.0.7            
+#>  [58] S4Vectors_0.50.1        lifecycle_1.0.5         whisker_0.4.1          
+#>  [61] yaml_2.3.12             recipes_1.3.3           qvalue_2.44.0          
+#>  [64] grid_4.6.1              blob_1.3.0              crayon_1.5.3           
+#>  [67] ggtangle_0.1.2          lattice_0.22-9          KEGGREST_1.52.2        
+#>  [70] pillar_1.11.1           knitr_1.51              fpc_2.2-14             
+#>  [73] future.apply_1.20.2     codetools_0.2-20        glue_1.8.1             
+#>  [76] ggiraph_0.9.6           rsample_1.3.2           ggfun_0.2.1            
+#>  [79] fontLiberation_0.1.0    data.table_1.18.4       vctrs_0.7.3            
+#>  [82] png_0.1-9               treeio_1.36.1           Rdpack_2.6.6           
+#>  [85] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           
+#>  [88] gower_1.0.2             xfun_0.60               rbibutils_2.4.1        
+#>  [91] prodlim_2026.03.11      tidygraph_1.3.1         Seqinfo_1.2.0          
+#>  [94] survival_3.8-6          timeDate_4052.112       aisdk_1.4.12           
+#>  [97] pheatmap_1.0.13         iterators_1.0.14        hardhat_1.4.3          
+#> [100] lava_1.9.2              statmod_1.5.2           ipred_0.9-15           
+#> [103] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            
+#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        UpSetR_1.4.1           
+#> [109] bslib_0.12.0            vipor_0.4.7             otel_0.2.0             
+#> [112] rpart_4.1.27            colorspace_2.1-3        Hmisc_5.2-6            
+#> [115] BiocGenerics_0.58.1     DBI_1.3.0               nnet_7.3-20            
+#> [118] ppsr_0.0.5              tidyselect_1.2.1        processx_3.9.0         
+#> [121] bit_4.6.0               compiler_4.6.1          curl_7.1.0             
+#> [124] httr2_1.3.0             htmlTable_2.5.0         xml2_1.6.0             
+#> [127] desc_1.4.3              fontBitstreamVera_0.1.1 checkmate_2.3.4        
+#> [130] scales_1.4.0            DEoptimR_1.2-0          callr_3.8.0            
+#> [133] rappdirs_0.3.4          stringr_1.6.0           digest_0.6.39          
+#> [136] rmarkdown_2.31          XVector_0.52.0          base64enc_0.1-6        
+#> [139] htmltools_0.5.9         pkgconfig_2.0.3         fastmap_1.2.0          
+#> [142] rlang_1.3.0             htmlwidgets_1.6.4       farver_2.1.2           
+#> [145] jquerylib_0.1.4         jsonlite_2.0.0          mclust_6.1.3           
+#> [148] GOSemSim_2.38.3         magrittr_2.0.5          Formula_1.2-6          
+#> [151] modeltools_0.2-24       ggplotify_0.1.3         tailor_0.1.0           
+#> [154] Rcpp_1.1.2              ape_5.8-1               ggnewscale_0.5.2       
+#> [157] gdtools_0.5.1           furrr_0.4.0             stringi_1.8.9          
+#> [160] ggraph_2.2.2            MASS_7.3-65             plyr_1.8.9             
+#> [163] org.Hs.eg.db_3.23.1     embed_1.2.2             flexmix_2.3-20         
+#> [166] tidyheatmaps_0.2.1      parallel_4.6.1          listenv_1.0.0          
+#> [169] ggrepel_0.9.8           graphlayouts_1.2.5      Biostrings_2.80.1      
+#> [172] splines_4.6.1           ps_1.9.3                fastcluster_1.3.0      
+#> [175] igraph_2.3.3            ranger_0.18.0           enrichit_0.2.1         
+#> [178] dials_1.4.4             rngtools_1.5.2          reshape2_1.4.5         
+#> [181] parsnip_1.6.0           stats4_4.6.1            evaluate_1.0.5         
+#> [184] foreach_1.5.2           missForest_1.6.1        tweenr_2.0.3           
+#> [187] tidyr_1.3.2             openssl_2.4.2           purrr_1.2.2            
+#> [190] polyclip_1.10-7         future_1.75.0           ggforce_0.5.0          
+#> [193] easyPubMed_3.1.6        RSpectra_0.16-2         tidytree_0.4.8         
+#> [196] tidydr_0.0.6            class_7.3-23            ragg_1.5.2             
+#> [199] tibble_3.3.1            clusterProfiler_4.20.0  aplot_0.3.1            
+#> [202] beeswarm_0.4.0          memoise_2.0.1           AnnotationDbi_1.74.0   
+#> [205] IRanges_2.46.0          cluster_2.1.8.2         workflows_1.3.0        
+#> [208] timechange_0.4.0        globals_0.19.1
 ```

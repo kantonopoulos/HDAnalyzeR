@@ -16,7 +16,8 @@ print_summary(
   na_percentage_col,
   na_percentage_row = NULL,
   cor_results = NULL,
-  cor_threshold = 0.8
+  cor_threshold = 0.8,
+  max_rows = 10
 )
 ```
 
@@ -51,6 +52,10 @@ print_summary(
 
   The reporting protein-protein correlation threshold.
 
+- max_rows:
+
+  The number of rows to show for each table. Default is 10.
+
 ## Value
 
-Prints the summary, returs NULL
+Prints the summary, returns NULL

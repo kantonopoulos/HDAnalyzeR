@@ -49,11 +49,6 @@ enrichment <- hd_gsea(de_results,
                       ranked_by = "logFC",
                       pval_lim = 0.9)
 #> 'select()' returned 1:1 mapping between keys and columns
-#> using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).
-#> preparing geneSet collections...
-#> GSEA analysis...
-#> leading edge analysis...
-#> done...
 # Remember that the data is artificial, this is why we use an absurdly high p-value cutoff
 
 # Plot the results
@@ -67,5 +62,5 @@ enrichment$gseaplot
 enrichment$cnetplot
 
 enrichment$ridgeplot
-#> Picking joint bandwidth of 0.208
+#> Picking joint bandwidth of 0.2
 ```

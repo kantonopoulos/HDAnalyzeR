@@ -89,15 +89,15 @@ hd_plot_de_summary(res, class_palette = "cancers12")
 #> ℹ Please use tidy evaluation idioms with `aes()`.
 #> ℹ See also `vignette("ggplot2-in-packages")` for more information.
 #> ℹ The deprecated feature was likely used in the UpSetR package.
-#>   Please report the issue to the authors.
+#>   Please report the issue at <https://github.com/hms-dbmi/UpSetR/issues>.
 #> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 #> ℹ Please use `linewidth` instead.
 #> ℹ The deprecated feature was likely used in the UpSetR package.
-#>   Please report the issue to the authors.
+#>   Please report the issue at <https://github.com/hms-dbmi/UpSetR/issues>.
 #> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
 #> ℹ Please use the `linewidth` argument instead.
 #> ℹ The deprecated feature was likely used in the UpSetR package.
-#>   Please report the issue to the authors.
+#>   Please report the issue at <https://github.com/hms-dbmi/UpSetR/issues>.
 #> $de_barplot
 
 #> 
@@ -127,16 +127,16 @@ hd_plot_de_summary(res, class_palette = "cancers12")
 #> # A tibble: 51 × 3
 #>    Shared_in `up/down` Feature
 #>    <chr>     <chr>     <chr>  
-#>  1 GLIOM     up        ABL1   
-#>  2 AML       up        ACAN   
-#>  3 CLL       up        ACE2   
-#>  4 AML       up        ACP6   
-#>  5 LUNGC     up        ACY1   
-#>  6 LUNGC     up        ADA    
-#>  7 GLIOM     up        ADA2   
-#>  8 GLIOM     up        ADAM15 
-#>  9 GLIOM     up        ADAM23 
-#> 10 GLIOM     up        ADAM8  
+#>  1 GLIOM     down      ABL1   
+#>  2 AML       down      ACAN   
+#>  3 CLL       down      ACE2   
+#>  4 AML       down      ACP6   
+#>  5 LUNGC     down      ACY1   
+#>  6 LUNGC     down      ADA    
+#>  7 GLIOM     down      ADA2   
+#>  8 GLIOM     down      ADAM15 
+#>  9 GLIOM     down      ADAM23 
+#> 10 GLIOM     down      ADAM8  
 #> # ℹ 41 more rows
 #> 
 #> $proteins_list_up

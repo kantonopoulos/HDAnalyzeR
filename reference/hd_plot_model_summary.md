@@ -113,8 +113,6 @@ hd_plot_model_summary(res, class_palette = "cancers12")
 
 #> 
 #> $metrics_barplot
-#> Ignoring unknown labels:
-#> • colour : "Metric"
 
 #> 
 #> $upset_plot_features
@@ -122,38 +120,38 @@ hd_plot_model_summary(res, class_palette = "cancers12")
 #> 
 #> $features_df
 #> # A tibble: 100 × 3
-#>    Shared_in                `up/down` Feature 
-#>    <chr>                    <chr>     <fct>   
-#>  1 AML&LUNGC&CLL&MYEL&GLIOM up        ACAA1   
-#>  2 AML&LUNGC&CLL&MYEL&GLIOM up        ACE2    
-#>  3 AML&LUNGC&CLL&MYEL&GLIOM up        ACOX1   
-#>  4 AML&LUNGC&CLL&MYEL&GLIOM up        ACP5    
-#>  5 AML&LUNGC&CLL&MYEL&GLIOM up        ACTN4   
-#>  6 AML&LUNGC&CLL&MYEL&GLIOM up        ACY1    
-#>  7 AML&LUNGC&CLL&MYEL&GLIOM up        ADA2    
-#>  8 AML&LUNGC&CLL&MYEL&GLIOM up        ADAM23  
-#>  9 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS13
-#> 10 AML&LUNGC&CLL&MYEL&GLIOM up        ADAMTS15
+#>    Shared_in                `up/down` Feature  
+#>    <chr>                    <chr>     <fct>    
+#>  1 AML&LUNGC&CLL&MYEL&GLIOM NA        ACAA1    
+#>  2 AML&LUNGC&CLL&MYEL&GLIOM NA        ACE2     
+#>  3 AML&LUNGC&CLL&MYEL&GLIOM NA        ACOX1    
+#>  4 AML&LUNGC&CLL&MYEL&GLIOM NA        ACTN4    
+#>  5 AML&LUNGC&CLL&MYEL&GLIOM NA        ADA2     
+#>  6 AML&LUNGC&CLL&MYEL&GLIOM NA        ADAM23   
+#>  7 AML&LUNGC&CLL&MYEL&GLIOM NA        ADAMTS15 
+#>  8 AML&LUNGC&CLL&MYEL&GLIOM NA        ADAMTS8  
+#>  9 AML&LUNGC&CLL&MYEL&GLIOM NA        ADCYAP1R1
+#> 10 AML&LUNGC&CLL&MYEL&GLIOM NA        ADGRE5   
 #> # ℹ 90 more rows
 #> 
 #> $features_list
 #> $features_list$`AML&LUNGC&CLL&MYEL&GLIOM`
-#>   [1] ANGPT1    ADGRG1    AMIGO2    ADAMTS16  AHCY      ADA       AMY2A    
-#>   [8] APEX1     AK1       ABL1      ADAM8     ANGPTL2   APBB1IP   ADH4     
-#>  [15] ANKRD54   AMFR      ADGRG2    APOM      ANXA11    ALCAM     ANGPT2   
-#>  [22] ALDH1A1   ADGRE2    AARSD1    AXL       ANPEP     ATP6V1D   AZU1     
-#>  [29] ACTA2     AMBP      APOH      AGR3      ACP6      ATG4A     ANG      
-#>  [36] APP       ARTN      ATXN10    ACAN      ARNT      ATP6V1F   ARHGAP1  
-#>  [43] AOC1      AMBN      AGRP      ADAM15    AGRN      AKR1B1    AMN      
-#>  [50] APLP1     ACAA1     ACE2      ACOX1     ACP5      ACTN4     ACY1     
-#>  [57] ADA2      ADAM23    ADAMTS13  ADAMTS15  ADAMTS8   ADCYAP1R1 ADGRE5   
-#>  [64] ADM       AGER      AGR2      AGXT      AHSP      AIF1      AIFM1    
-#>  [71] AKR1C4    AKT1S1    AKT3      ALDH3A1   ALPP      AMY2B     ANGPTL1  
-#>  [78] ANGPTL3   ANGPTL4   ANGPTL7   ANXA10    ANXA3     ANXA4     ANXA5    
-#>  [85] AOC3      AREG      ARG1      ARHGAP25  ARHGEF12  ARID4B    ARSA     
-#>  [92] ARSB      ART3      ATF2      ATOX1     ATP5IF1   ATP5PO    ATP6AP2  
-#>  [99] AXIN1     B4GALT1  
-#> 100 Levels: ACAA1 ACE2 ACOX1 ACP5 ACTN4 ACY1 ADA2 ADAM23 ADAMTS13 ... ANGPT1
+#>   [1] ANGPT1    ADGRG1    AMY2A     ADA       ADAMTS16  ADAM8     AMIGO2   
+#>   [8] AHCY      ANGPTL2   AMFR      APEX1     ALCAM     ADH4      ANPEP    
+#>  [15] AK1       ATP6V1D   ABL1      AARSD1    AXL       ANKRD54   ALDH1A1  
+#>  [22] APOH      ACP6      ATXN10    AGRN      ARHGAP1   ADGRE2    ACP5     
+#>  [29] ATG4A     ACAN      APBB1IP   ANXA5     APOM      ARNT      AMBN     
+#>  [36] AMBP      AGR3      APLP1     ANGPTL7   APP       ANXA4     ATF2     
+#>  [43] ATOX1     ADAMTS13  ANGPT2    ARTN      ANXA11    ADGRG2    AOC3     
+#>  [50] ACTA2     ADAM15    AMN       ANG       B4GALT1   ACY1      ANGPTL3  
+#>  [57] ALDH3A1   AGRP      ANXA10    ACAA1     ACE2      ACOX1     ACTN4    
+#>  [64] ADA2      ADAM23    ADAMTS15  ADAMTS8   ADCYAP1R1 ADGRE5    ADM      
+#>  [71] AGER      AGR2      AGXT      AHSP      AIF1      AIFM1     AKR1B1   
+#>  [78] AKR1C4    AKT1S1    AKT3      ALPP      AMY2B     ANGPTL1   ANGPTL4  
+#>  [85] ANXA3     AOC1      AREG      ARG1      ARHGAP25  ARHGEF12  ARID4B   
+#>  [92] ARSA      ARSB      ART3      ATP5IF1   ATP5PO    ATP6AP2   ATP6V1F  
+#>  [99] AXIN1     AZU1     
+#> 100 Levels: ACAA1 ACE2 ACOX1 ACTN4 ADA2 ADAM23 ADAMTS15 ADAMTS8 ... ANGPT1
 #> 
 #> 
 ```

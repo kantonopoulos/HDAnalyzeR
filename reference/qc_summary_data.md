@@ -16,6 +16,7 @@ qc_summary_data(
   unique_threshold = 5,
   cor_threshold = 0.8,
   cor_method = "pearson",
+  max_heatmap_features = 1000,
   verbose = TRUE
 )
 ```
@@ -43,6 +44,11 @@ qc_summary_data(
 - cor_method:
 
   The method to calculate the correlation. Default is "pearson".
+
+- max_heatmap_features:
+
+  The largest number of features to draw a correlation heatmap for.
+  Default is 1000.
 
 - verbose:
 

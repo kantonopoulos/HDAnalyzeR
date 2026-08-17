@@ -152,7 +152,7 @@ hd_model_rreg(hd_split,
               palette = "cancers12",
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
-#> Loaded glmnet 4.1-10
+#> Loaded glmnet 5.0
 #> $train_data
 #> # A tibble: 76 × 102
 #>    DAid    Disease AARSD1   ABL1  ACAA1   ACAN    ACE2  ACOX1    ACP5    ACP6
@@ -218,30 +218,30 @@ hd_model_rreg(hd_split,
 #> Logistic Regression Model Specification (classification)
 #> 
 #> Main Arguments:
-#>   penalty = 0.225833639858074
-#>   mixture = 0.282826104864944
+#>   penalty = 0.010943177604887
+#>   mixture = 0.46338636349421
 #> 
 #> Computational engine: glmnet 
 #> 
 #> 
 #> $metrics
 #> $metrics$accuracy
-#> [1] 0.9047619
+#> [1] 0.8231293
 #> 
 #> $metrics$sensitivity
 #> [1] 0.9166667
 #> 
 #> $metrics$specificity
-#> [1] 0.9037037
+#> [1] 0.8148148
 #> 
 #> $metrics$auc
-#> [1] 0.958642
+#> [1] 0.937037
 #> 
 #> $metrics$confusion_matrix
 #>           Truth
 #> Prediction   0   1
-#>          0 122   1
-#>          1  13  11
+#>          0 110   1
+#>          1  25  11
 #> 
 #> 
 #> $roc_curve
@@ -252,22 +252,22 @@ hd_model_rreg(hd_split,
 
 #> 
 #> $mixture
-#> [1] 0.2828261
+#> [1] 0.4633864
 #> 
 #> $features
 #> # A tibble: 100 × 4
-#>    Feature Importance Sign  Scaled_Importance
-#>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ANGPT1      0.313  NEG               1    
-#>  2 ADGRG1      0.245  POS               0.780
-#>  3 ADA         0.185  POS               0.589
-#>  4 AMIGO2      0.170  NEG               0.542
-#>  5 APBB1IP     0.152  POS               0.484
-#>  6 APEX1       0.137  POS               0.437
-#>  7 ANGPT2      0.137  POS               0.436
-#>  8 ABL1        0.124  POS               0.394
-#>  9 AZU1        0.112  POS               0.356
-#> 10 AHCY        0.0963 POS               0.307
+#>    Feature  Importance Sign  Scaled_Importance
+#>    <fct>         <dbl> <chr>             <dbl>
+#>  1 ANGPT1        1.46  NEG               1    
+#>  2 ADGRG1        1.03  POS               0.706
+#>  3 ADAMTS16      0.784 NEG               0.539
+#>  4 AMY2A         0.740 POS               0.508
+#>  5 ADA           0.727 POS               0.499
+#>  6 AHCY          0.702 POS               0.482
+#>  7 AMIGO2        0.697 NEG               0.479
+#>  8 ADAM8         0.622 NEG               0.427
+#>  9 ANGPTL2       0.588 POS               0.404
+#> 10 AMFR          0.540 POS               0.371
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -351,56 +351,56 @@ hd_model_rreg(hd_split,
 #> Multinomial Regression Model Specification (classification)
 #> 
 #> Main Arguments:
-#>   penalty = 4.45590449619826e-06
-#>   mixture = 0.220184963848442
+#>   penalty = 0.0743076970280854
+#>   mixture = 0.451825647806982
 #> 
 #> Computational engine: glmnet 
 #> 
 #> 
 #> $metrics
 #> $metrics$accuracy
-#> [1] 0.3673469
+#> [1] 0.3945578
 #> 
 #> $metrics$sensitivity
-#> [1] 0.3872563
+#> [1] 0.4315015
 #> 
 #> $metrics$specificity
-#> [1] 0.9424284
+#> [1] 0.9451076
 #> 
 #> $metrics$auc
 #> # A tibble: 14 × 2
 #>    Disease   AUC
 #>    <chr>   <dbl>
-#>  1 AML     0.906
-#>  2 BRC     0.772
-#>  3 CLL     0.978
-#>  4 CRC     0.905
-#>  5 CVX     0.751
-#>  6 ENDC    0.774
-#>  7 GLIOM   0.778
-#>  8 LUNGC   0.690
-#>  9 LYMPH   0.715
-#> 10 MYEL    0.964
-#> 11 OVC     0.759
-#> 12 PRC     0.732
-#> 13 macro   0.810
-#> 14 micro   0.806
+#>  1 AML     0.985
+#>  2 BRC     0.736
+#>  3 CLL     0.984
+#>  4 CRC     0.873
+#>  5 CVX     0.772
+#>  6 ENDC    0.650
+#>  7 GLIOM   0.837
+#>  8 LUNGC   0.773
+#>  9 LYMPH   0.826
+#> 10 MYEL    0.989
+#> 11 OVC     0.879
+#> 12 PRC     0.784
+#> 13 macro   0.841
+#> 14 micro   0.847
 #> 
 #> $metrics$confusion_matrix
 #>           Truth
 #> Prediction AML BRC CLL CRC CVX ENDC GLIOM LUNGC LYMPH MYEL OVC PRC
-#>      AML     8   0   0   0   0    0     1     0     2    0   1   0
-#>      BRC     0   1   0   0   0    0     0     1     1    0   0   1
-#>      CLL     0   1   7   0   0    0     0     0     1    0   0   0
-#>      CRC     0   1   0   8   0    0     0     3     1    0   1   0
-#>      CVX     0   2   1   0   4    4     0     1     2    0   2   3
-#>      ENDC    0   0   0   0   4    3     1     1     0    1   2   2
-#>      GLIOM   0   2   0   0   0    0     6     0     1    1   0   1
-#>      LUNGC   1   2   0   4   0    1     1     1     0    0   4   2
-#>      LYMPH   2   2   0   0   0    0     0     2     4    0   0   0
-#>      MYEL    1   0   0   0   2    1     2     0     1    5   0   0
-#>      OVC     0   0   0   1   1    1     2     2     2    0   3   1
-#>      PRC     0   1   1   2   3    0     1     0     1    0   0   4
+#>      AML    10   0   0   0   0    0     1     1     1    0   0   2
+#>      BRC     0   3   0   0   2    2     1     1     1    0   0   4
+#>      CLL     0   1   9   1   0    0     1     0     1    0   0   1
+#>      CRC     0   1   0   2   1    0     0     0     0    0   0   0
+#>      CVX     0   0   0   0   1    2     0     0     1    0   0   0
+#>      ENDC    0   3   0   5   3    0     1     1     0    0   4   1
+#>      GLIOM   0   1   0   1   2    1     9     1     5    0   1   2
+#>      LUNGC   0   1   0   4   1    0     0     2     1    0   0   0
+#>      LYMPH   2   0   0   0   0    0     0     1     5    0   0   0
+#>      MYEL    0   0   0   0   2    0     1     0     1    7   1   0
+#>      OVC     0   2   0   2   2    3     0     4     0    0   7   1
+#>      PRC     0   0   0   0   0    2     0     0     0    0   0   3
 #> 
 #> 
 #> $roc_curve
@@ -411,22 +411,22 @@ hd_model_rreg(hd_split,
 
 #> 
 #> $mixture
-#> [1] 0.220185
+#> [1] 0.4518256
 #> 
 #> $features
 #> # A tibble: 1,200 × 5
-#>    Class Feature  Importance Sign  Scaled_Importance
-#>    <chr> <chr>         <dbl> <chr>             <dbl>
-#>  1 AML   AHCY           2.96 POS               1    
-#>  2 AML   ANGPT1         2.61 NEG               0.883
-#>  3 AML   AK1            2.06 NEG               0.695
-#>  4 AML   APEX1          1.97 POS               0.666
-#>  5 AML   ADAM8          1.92 NEG               0.648
-#>  6 AML   ARTN           1.76 POS               0.594
-#>  7 AML   ARID4B         1.61 NEG               0.545
-#>  8 AML   ADAMTS16       1.47 NEG               0.497
-#>  9 AML   ALPP           1.43 NEG               0.483
-#> 10 AML   ADGRG1         1.32 POS               0.447
+#>    Class Feature Importance Sign  Scaled_Importance
+#>    <chr> <chr>        <dbl> <chr>             <dbl>
+#>  1 AML   ANGPT1      0.354  NEG               1    
+#>  2 AML   AZU1        0.334  POS               0.943
+#>  3 AML   ADA         0.320  POS               0.904
+#>  4 AML   ARTN        0.191  POS               0.539
+#>  5 AML   ADGRG1      0.159  POS               0.449
+#>  6 AML   APEX1       0.0525 POS               0.148
+#>  7 AML   ANGPT2      0.0445 POS               0.126
+#>  8 AML   APBB1IP     0.0376 POS               0.106
+#>  9 AML   AARSD1      0      NEG               0    
+#> 10 AML   ABL1        0      NEG               0    
 #> # ℹ 1,190 more rows
 #> 
 #> $feat_imp_plot
@@ -451,12 +451,6 @@ hd_model_rreg(hd_split,
                              "mixture"),
               verbose = FALSE)
 #> The groups in the train set are balanced. If you do not want to balance the groups, set `balance_groups = FALSE`.
-#> → A | error:   Error in `step_impute_knn()`:
-#>                Caused by error in `stopifnot()`:
-#>                ! reached elapsed time limit
-#> There were issues with some computations   A: x1
-#> There were issues with some computations   A: x1
-#> 
 #> $train_data
 #> # A tibble: 438 × 102
 #>    DAid      Age AARSD1       ABL1   ACAA1   ACAN  ACE2   ACOX1   ACP5     ACP6
@@ -522,40 +516,40 @@ hd_model_rreg(hd_split,
 #> Linear Regression Model Specification (regression)
 #> 
 #> Main Arguments:
-#>   penalty = 0.49228286213658
-#>   mixture = 0.869285719160689
+#>   penalty = 0.243559134709332
+#>   mixture = 0.760280393034918
 #> 
 #> Computational engine: glmnet 
 #> 
 #> 
 #> $metrics
 #> $metrics$rmse
-#> [1] 15.30525
+#> [1] 16.15954
 #> 
 #> $metrics$rsq
-#> [1] 0.008168707
+#> [1] 0.01350862
 #> 
 #> 
 #> $comparison_plot
 
 #> 
 #> $mixture
-#> [1] 0.8692857
+#> [1] 0.7602804
 #> 
 #> $features
 #> # A tibble: 100 × 4
 #>    Feature Importance Sign  Scaled_Importance
 #>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ALCAM        1.43  POS               1    
-#>  2 ARID4B       1.19  POS               0.833
-#>  3 ANXA10       1.17  POS               0.821
-#>  4 ANGPT2       0.964 NEG               0.676
-#>  5 AMY2A        0.913 NEG               0.640
-#>  6 AKT3         0.903 NEG               0.633
-#>  7 AOC1         0.886 POS               0.621
-#>  8 ACY1         0.876 NEG               0.614
-#>  9 AREG         0.824 POS               0.578
-#> 10 ADM          0.756 POS               0.530
+#>  1 ARID4B        1.90 POS               1    
+#>  2 ALCAM         1.81 POS               0.954
+#>  3 ANGPT2        1.55 NEG               0.812
+#>  4 ACY1          1.52 NEG               0.801
+#>  5 ANXA10        1.29 POS               0.680
+#>  6 AMY2A         1.29 NEG               0.678
+#>  7 AHSP          1.28 NEG               0.672
+#>  8 AREG          1.23 POS               0.647
+#>  9 ADAM15        1.22 POS               0.639
+#> 10 AKT3          1.19 NEG               0.624
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot

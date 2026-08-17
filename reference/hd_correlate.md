@@ -41,6 +41,12 @@ presence of missing values and the coefficient that is calculated in the
 documentation of the [`cor()`](https://rdrr.io/r/stats/cor.html)
 function in the `stats` package.
 
+When the input contains no missing values, `"pairwise.complete.obs"` is
+silently replaced by `"everything"`. The two are equivalent in that
+case, but the pairwise code path compares every pair of columns
+separately and is several times slower on datasets with thousands of
+features.
+
 ## Examples
 
 ``` r

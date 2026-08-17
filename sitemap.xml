@@ -16,13 +16,17 @@
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/apply_palette.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/background_lists.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/balance_groups.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/build_upset_plot.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_col.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calc_na_percentage_row.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/calculate_na_percentage.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_col_types.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_data.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_installed.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/check_numeric_columns.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/cluster_help.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/cor_pairs_above.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/enrichment_is_empty.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_model.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_multiclass_model.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/evaluate_regression_model.html</loc></url>
@@ -87,6 +91,10 @@
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_wgcna.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/hd_widen_data.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/index.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/message_table.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/model_importance.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/multiclass_auc.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/optional_packages.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_loadings.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_metadata_summary.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/plot_missing_values.html</loc></url>
@@ -97,7 +105,9 @@
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/print_summary.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_data.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/qc_summary_metadata.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/rank_features.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/remove_batch_effects.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/rename_ranking_to_entrezid.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_color_hd.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/scale_fill_hd.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/select_background.html</loc></url>
@@ -106,5 +116,6 @@
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rf_model.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/tune_rreg_model.html</loc></url>
 <url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/variable_imp.html</loc></url>
+<url><loc>https://kantonopoulos.github.io/HDAnalyzeR/reference/warn_no_terms.html</loc></url>
 </urlset>
 

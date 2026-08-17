@@ -71,28 +71,27 @@ hd_object <- hd_initialize(example_data, example_metadata)
 
 # Clustered data
 hd_cluster(hd_object)
-#> Warning: attributes are not identical across measure variables; they will be dropped
 #> $cluster_res
 #> # A tibble: 586 × 101
-#>    DAid    AARSD1 ARHGAP1  AKR1B1  ATOX1 ANXA11  AKT1S1 ARHGEF12  AXIN1  ANXA3
-#>    <fct>    <dbl>   <dbl>   <dbl>  <dbl>  <dbl>   <dbl>    <dbl>  <dbl>  <dbl>
-#>  1 DA00029   4.04 -1.42   -2.24   -1.86  -3.11  -0.0624   -1.51  -0.960 -2.46 
-#>  2 DA00273   2.36 -0.923  -0.801  -2.66  -3.30  -0.580    -2.15  -2.38  -2.22 
-#>  3 DA00511   1.88 -1.56    0.144  -1.07  -1.39  -2.37     -2.08  -2.05  -1.78 
-#>  4 DA00016   1.79 -0.835  -0.734  -2.36  -2.03  -2.03     -1.41  -1.33  -1.97 
-#>  5 DA00267  NA    -0.281   0.0621 -1.29  -2.73  -1.47     -2.03  -1.20  -1.16 
-#>  6 DA00494   1.98  0.0550 -1.09   -1.26  -1.58  -1.60     -0.568 -1.97  -1.18 
-#>  7 DA00250   2.92 -0.0653 -0.676  -1.18  -3.54  -1.26     -1.50  -1.56  -2.04 
-#>  8 DA00271   1.40 -0.0407  0.0906 -1.09  -1.50  -0.256    -1.19  -1.17  -0.228
-#>  9 DA00418   1.79 -0.476  -0.387  -0.241 -0.473 -0.261    -1.38  -0.886 -1.64 
-#> 10 DA00557   2.83  0.557  -0.963   0.119 -0.486  0.442    -0.601 -0.436 -0.155
+#>    DAid     ANGPT1    APP ARHGAP1  AKR1B1  ATOX1 ANXA11  AKT1S1 ARHGEF12   AXIN1
+#>    <chr>     <dbl>  <dbl>   <dbl>   <dbl>  <dbl>  <dbl>   <dbl>    <dbl>   <dbl>
+#>  1 DA00235 -0.953  -0.827  -0.537 -0.166  -0.543  0.244 -1.42     0.120  -0.0689
+#>  2 DA00279 -1.45   -1.90    0.481  0.818  -0.369  1.22  -0.700    0.169  -0.313 
+#>  3 DA00252 -1.04   -1.14    0.602 -1.39   -0.752 -0.776  0.137   -0.281   0.248 
+#>  4 DA00384 -1.36   -1.14   -0.140 -0.837  -1.06  -0.683 -0.794   -1.13   -1.88  
+#>  5 DA00342  0.0962 -0.170  -0.536 -1.10   -1.71  -0.428 -0.143    0.273  -0.376 
+#>  6 DA00357 -0.327  -1.58   NA     NA       0.356 -0.494  0.284   -0.958  -0.779 
+#>  7 DA00373 -0.0122 -0.379   0.186  0.494  -0.382 -0.387 -0.469   -0.344  -1.04  
+#>  8 DA00582 -0.479  -1.06   -1.42  -1.06   -0.681 -0.674 -0.0985  -1.66   -0.187 
+#>  9 DA00151 -1.84   -1.04    0.704  1.62   -0.213  0.149 -0.684   -1.20   -1.05  
+#> 10 DA00244  0.263  -1.66    0.246 -0.0151 -0.621 -0.440 -1.75     0.0463 -0.560 
 #> # ℹ 576 more rows
-#> # ℹ 91 more variables: ANXA4 <dbl>, AIF1 <dbl>, ATP6V1F <dbl>, AHCY <dbl>,
-#> #   ATXN10 <dbl>, ACAA1 <dbl>, ACOX1 <dbl>, AKT3 <dbl>, ARSB <dbl>,
-#> #   AIFM1 <dbl>, ATP5IF1 <dbl>, ANGPT1 <dbl>, APP <dbl>, ANKRD54 <dbl>,
-#> #   AK1 <dbl>, ATG4A <dbl>, ADAM23 <dbl>, AMIGO2 <dbl>, ADAMTS8 <dbl>,
-#> #   AGER <dbl>, ADGRG2 <dbl>, AOC3 <dbl>, AMBN <dbl>, ADCYAP1R1 <dbl>,
-#> #   AOC1 <dbl>, ANGPTL3 <dbl>, APOH <dbl>, AGR3 <dbl>, ACP6 <dbl>, AMN <dbl>, …
+#> # ℹ 91 more variables: ANXA3 <dbl>, ANXA4 <dbl>, AIF1 <dbl>, ATP6V1F <dbl>,
+#> #   AHCY <dbl>, ATXN10 <dbl>, ACAA1 <dbl>, ACOX1 <dbl>, AKT3 <dbl>, ARSB <dbl>,
+#> #   AIFM1 <dbl>, ATP5IF1 <dbl>, ACE2 <dbl>, ALDH1A1 <dbl>, ACY1 <dbl>,
+#> #   ADH4 <dbl>, AGXT <dbl>, AKR1C4 <dbl>, ALDH3A1 <dbl>, ACP5 <dbl>,
+#> #   ANGPTL1 <dbl>, ANPEP <dbl>, AMFR <dbl>, ABL1 <dbl>, APBB1IP <dbl>,
+#> #   ARHGAP25 <dbl>, APEX1 <dbl>, ARID4B <dbl>, AGR2 <dbl>, ANXA10 <dbl>, …
 #> 
 #> $cluster_rows
 #> 

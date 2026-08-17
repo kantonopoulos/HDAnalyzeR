@@ -82,8 +82,6 @@ pca_object <- hd_pca(hd_object, components = 5, by_sample = TRUE, seed = 123) |>
   hd_plot_dim(hd_object, x = "PC1", y = "PC2", color = "Disease", palette = "cancers12")
 
 pca_object$pca_plot
-#> Ignoring unknown labels:
-#> • Color : "Disease"
 
 
 # Run the UMAP analysis and plot results
@@ -91,6 +89,4 @@ umap_object <- hd_umap(hd_object, components = 2, by_sample = TRUE, seed = 123) 
  hd_plot_dim(hd_object, x = "UMAP1", y = "UMAP2", color = "Disease", palette = "cancers12")
 
  umap_object$umap_plot
-#> Ignoring unknown labels:
-#> • Color : "Disease"
 ```

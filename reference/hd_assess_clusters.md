@@ -70,7 +70,7 @@ clustering <- hd_assess_clusters(clustering, nrep = 20)
 clustering$cluster_assessment
 #> # A tibble: 4 × 4
 #>   Cluster cluster_og     n Mean_ji
-#>     <dbl>      <int> <int>   <dbl>
+#>     <int>      <int> <int>   <dbl>
 #> 1       4          4    70   0.557
 #> 2       3          3    96   0.688
 #> 3       2          1   112   0.741

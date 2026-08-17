@@ -100,7 +100,7 @@ hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "
 #> #   PC20 <dbl>
 #> 
 #> $pca_loadings
-#> # A tibble: 10,000 × 3
+#> # A tibble: 2,000 × 3
 #>    terms    value component
 #>    <chr>    <dbl> <chr>    
 #>  1 AARSD1 -0.133  PC1      
@@ -113,7 +113,7 @@ hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "
 #>  8 ACP6   -0.0933 PC1      
 #>  9 ACTA2  -0.0751 PC1      
 #> 10 ACTN4  -0.0424 PC1      
-#> # ℹ 9,990 more rows
+#> # ℹ 1,990 more rows
 #> 
 #> $pca_variance
 #> # A tibble: 20 × 3
@@ -150,8 +150,6 @@ hd_auto_pca(hd_object, components = 20, plot_color = "Disease", plot_palette = "
 
 #> 
 #> $pca_plot
-#> Ignoring unknown labels:
-#> • Color : "Disease"
 
 #> 
 #> attr(,"class")

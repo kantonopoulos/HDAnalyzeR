@@ -203,9 +203,9 @@ hd_model_rf(hd_split,
 #> Random Forest Model Specification (classification)
 #> 
 #> Main Arguments:
-#>   mtry = 22
+#>   mtry = 21
 #>   trees = 1000
-#>   min_n = 15
+#>   min_n = 17
 #> 
 #> Engine-Specific Arguments:
 #>   importance = permutation
@@ -215,22 +215,22 @@ hd_model_rf(hd_split,
 #> 
 #> $metrics
 #> $metrics$accuracy
-#> [1] 0.7755102
+#> [1] 0.755102
 #> 
 #> $metrics$sensitivity
 #> [1] 0.8333333
 #> 
 #> $metrics$specificity
-#> [1] 0.7703704
+#> [1] 0.7481481
 #> 
 #> $metrics$auc
-#> [1] 0.9283951
+#> [1] 0.9253086
 #> 
 #> $metrics$confusion_matrix
 #>           Truth
 #> Prediction   0   1
-#>          0 104   2
-#>          1  31  10
+#>          0 101   2
+#>          1  34  10
 #> 
 #> 
 #> $roc_curve
@@ -244,16 +244,16 @@ hd_model_rf(hd_split,
 #> # A tibble: 100 × 4
 #>    Feature Importance Sign  Scaled_Importance
 #>    <fct>        <dbl> <chr>             <dbl>
-#>  1 APBB1IP    0.0502  POS              1     
-#>  2 ADA        0.0364  POS              0.725 
-#>  3 AZU1       0.0162  POS              0.322 
-#>  4 ADGRG1     0.0140  POS              0.279 
-#>  5 APEX1      0.0124  POS              0.246 
-#>  6 ANGPT1     0.0108  POS              0.214 
-#>  7 ANXA3      0.00608 POS              0.121 
-#>  8 ABL1       0.00342 POS              0.0681
-#>  9 ANGPT2     0.00295 POS              0.0587
-#> 10 AIF1       0.00283 POS              0.0564
+#>  1 APBB1IP    0.0469  POS              1     
+#>  2 ADA        0.0356  POS              0.759 
+#>  3 AZU1       0.0163  POS              0.348 
+#>  4 ADGRG1     0.0134  POS              0.285 
+#>  5 APEX1      0.0114  POS              0.242 
+#>  6 ANGPT1     0.00860 POS              0.183 
+#>  7 ANXA3      0.00552 POS              0.118 
+#>  8 ABL1       0.00405 POS              0.0863
+#>  9 ANGPT2     0.00326 POS              0.0694
+#> 10 ARTN       0.00287 POS              0.0611
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -337,9 +337,9 @@ hd_model_rf(hd_split,
 #> Random Forest Model Specification (classification)
 #> 
 #> Main Arguments:
-#>   mtry = 14
+#>   mtry = 31
 #>   trees = 1000
-#>   min_n = 20
+#>   min_n = 24
 #> 
 #> Engine-Specific Arguments:
 #>   importance = permutation
@@ -349,48 +349,48 @@ hd_model_rf(hd_split,
 #> 
 #> $metrics
 #> $metrics$accuracy
-#> [1] 0.4557823
+#> [1] 0.4081633
 #> 
 #> $metrics$sensitivity
-#> [1] 0.4742675
+#> [1] 0.4243286
 #> 
 #> $metrics$specificity
-#> [1] 0.9506938
+#> [1] 0.9462306
 #> 
 #> $metrics$auc
 #> # A tibble: 14 × 2
 #>    Disease   AUC
 #>    <chr>   <dbl>
-#>  1 AML     0.954
-#>  2 BRC     0.721
-#>  3 CLL     0.963
-#>  4 CRC     0.910
-#>  5 CVX     0.827
-#>  6 ENDC    0.744
-#>  7 GLIOM   0.839
-#>  8 LUNGC   0.834
-#>  9 LYMPH   0.767
-#> 10 MYEL    0.958
-#> 11 OVC     0.842
-#> 12 PRC     0.804
-#> 13 macro   0.847
-#> 14 micro   0.850
+#>  1 AML     0.968
+#>  2 BRC     0.733
+#>  3 CLL     0.960
+#>  4 CRC     0.904
+#>  5 CVX     0.824
+#>  6 ENDC    0.739
+#>  7 GLIOM   0.838
+#>  8 LUNGC   0.845
+#>  9 LYMPH   0.777
+#> 10 MYEL    0.954
+#> 11 OVC     0.857
+#> 12 PRC     0.802
+#> 13 macro   0.850
+#> 14 micro   0.848
 #> 
 #> $metrics$confusion_matrix
 #>           Truth
 #> Prediction AML BRC CLL CRC CVX ENDC GLIOM LUNGC LYMPH MYEL OVC PRC
-#>      AML     9   0   0   0   1    0     0     0     1    0   0   1
-#>      BRC     0   1   0   0   1    1     1     0     1    1   0   3
-#>      CLL     1   2   7   2   0    2     1     0     1    0   0   0
-#>      CRC     0   1   0   8   1    0     1     1     1    0   1   0
-#>      CVX     0   0   0   0   5    2     0     0     2    0   1   3
-#>      ENDC    0   5   0   2   3    5     1     2     1    0   4   1
-#>      GLIOM   0   0   0   0   1    0     9     0     3    0   0   0
-#>      LUNGC   0   0   0   2   0    0     0     3     1    0   1   1
-#>      LYMPH   1   0   1   0   0    0     0     2     5    0   0   0
-#>      MYEL    1   1   0   0   1    0     1     0     0    5   0   0
-#>      OVC     0   1   0   1   1    0     0     3     0    1   6   1
-#>      PRC     0   1   1   0   0    0     0     0     0    0   0   4
+#>      AML     8   0   0   0   1    0     0     0     1    0   0   1
+#>      BRC     0   0   0   0   1    1     1     0     0    1   0   3
+#>      CLL     1   2   7   2   0    1     1     0     1    0   0   0
+#>      CRC     0   0   0   7   1    0     1     3     1    0   1   0
+#>      CVX     0   0   0   0   4    3     0     1     1    0   1   3
+#>      ENDC    0   5   0   2   2    2     1     1     1    0   3   1
+#>      GLIOM   0   0   0   0   1    0     9     0     4    0   0   1
+#>      LUNGC   0   1   0   3   1    0     0     3     1    1   1   1
+#>      LYMPH   2   0   1   0   0    1     0     1     5    0   0   0
+#>      MYEL    1   1   0   0   0    0     1     0     0    5   0   0
+#>      OVC     0   1   0   0   2    2     0     2     0    0   7   1
+#>      PRC     0   2   1   1   1    0     0     0     1    0   0   3
 #> 
 #> 
 #> $roc_curve
@@ -404,16 +404,16 @@ hd_model_rf(hd_split,
 #> # A tibble: 100 × 4
 #>    Feature  Importance Sign  Scaled_Importance
 #>    <fct>         <dbl> <chr>             <dbl>
-#>  1 APEX1       0.0177  POS               1    
-#>  2 ARID4B      0.00908 POS               0.514
-#>  3 ARTN        0.00719 POS               0.407
-#>  4 ADA         0.00589 POS               0.333
-#>  5 AZU1        0.00565 POS               0.320
-#>  6 ALPP        0.00468 POS               0.265
-#>  7 AHCY        0.00374 POS               0.212
-#>  8 ARHGAP25    0.00293 POS               0.166
-#>  9 ADGRG2      0.00263 POS               0.149
-#> 10 ADGRE5      0.00252 POS               0.143
+#>  1 APEX1       0.0262  POS               1    
+#>  2 ARID4B      0.0110  POS               0.419
+#>  3 ARTN        0.00857 POS               0.327
+#>  4 AZU1        0.00848 POS               0.323
+#>  5 ADA         0.00601 POS               0.229
+#>  6 ALPP        0.00537 POS               0.205
+#>  7 AHCY        0.00469 POS               0.179
+#>  8 ADGRG2      0.00398 POS               0.152
+#>  9 ARHGAP25    0.00304 POS               0.116
+#> 10 ANXA3       0.00276 POS               0.105
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot
@@ -502,9 +502,9 @@ hd_model_rf(hd_split,
 #> Random Forest Model Specification (regression)
 #> 
 #> Main Arguments:
-#>   mtry = 20
+#>   mtry = 21
 #>   trees = 1000
-#>   min_n = 10
+#>   min_n = 34
 #> 
 #> Engine-Specific Arguments:
 #>   importance = permutation
@@ -514,10 +514,10 @@ hd_model_rf(hd_split,
 #> 
 #> $metrics
 #> $metrics$rmse
-#> [1] 15.07659
+#> [1] 14.96351
 #> 
 #> $metrics$rsq
-#> [1] 0.03559442
+#> [1] 0.02408957
 #> 
 #> 
 #> $comparison_plot
@@ -525,18 +525,18 @@ hd_model_rf(hd_split,
 #> 
 #> $features
 #> # A tibble: 100 × 4
-#>    Feature Importance Sign  Scaled_Importance
-#>    <fct>        <dbl> <chr>             <dbl>
-#>  1 ALCAM        1.78  POS               1    
-#>  2 ADAMTS8      1.21  POS               0.680
-#>  3 ADAM15       1.14  POS               0.641
-#>  4 ADM          0.948 POS               0.532
-#>  5 AREG         0.843 POS               0.473
-#>  6 ARID4B       0.770 POS               0.432
-#>  7 ADAM23       0.692 POS               0.388
-#>  8 AOC3         0.605 POS               0.339
-#>  9 ALDH3A1      0.597 POS               0.335
-#> 10 APEX1        0.558 POS               0.313
+#>    Feature  Importance Sign  Scaled_Importance
+#>    <fct>         <dbl> <chr>             <dbl>
+#>  1 ALCAM         1.76  POS               1    
+#>  2 ADAM15        1.09  POS               0.619
+#>  3 ADAMTS8       0.974 POS               0.554
+#>  4 ADAM23        0.951 POS               0.541
+#>  5 ADM           0.846 POS               0.481
+#>  6 ARID4B        0.764 POS               0.435
+#>  7 AREG          0.747 POS               0.425
+#>  8 ARHGEF12      0.581 POS               0.331
+#>  9 AOC3          0.534 POS               0.304
+#> 10 ANGPT2        0.443 POS               0.252
 #> # ℹ 90 more rows
 #> 
 #> $feat_imp_plot

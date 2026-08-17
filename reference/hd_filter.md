@@ -122,7 +122,7 @@ hd_obj
 # Filter by categorical variable
 hd_filter(hd_obj, variable = "Sex", values = "F", flag = "k")
 #> Variable Sex is categorical
-#> Filtering complete. Rows remaining:366
+#> Filtering complete. Rows remaining: 366
 #> $data
 #> # A tibble: 366 × 101
 #>    DAid  AARSD1   ABL1  ACAA1    ACAN   ACE2   ACOX1    ACP5   ACP6 ACTA2  ACTN4
@@ -176,7 +176,7 @@ hd_filter(hd_obj, variable = "Sex", values = "F", flag = "k")
 # Filter by continuous variable
 hd_filter(hd_obj, variable = "Age", values = 80, flag = ">")
 #> Variable Age is continuous
-#> Filtering complete. Rows remaining:142
+#> Filtering complete. Rows remaining: 142
 #> $data
 #> # A tibble: 142 × 101
 #>    DAid  AARSD1   ABL1  ACAA1    ACAN     ACE2   ACOX1  ACP5   ACP6 ACTA2  ACTN4
