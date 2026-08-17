@@ -28,6 +28,7 @@ If you want to learn more about WGCNA, please refer to the following tutorial:
 }
 }
 \examples{
+\dontshow{if (requireNamespace("WGCNA", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Initialize an HDAnalyzeR object
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -39,4 +40,5 @@ wgcna_res$wgcna$colors
 head(wgcna_res$wgcna$MEs)
 wgcna_res$power
 wgcna_res$power_plots
+\dontshow{\}) # examplesIf}
 }

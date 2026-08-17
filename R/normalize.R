@@ -12,22 +12,27 @@
 #'
 #' @return A tibble containing the data without batch effects.
 #' @keywords internal
-remove_batch_effects <- function(wide_data,
-                                 metadata,
-                                 sample_id,
-                                 batch,
-                                 batch2 = NULL) {
-
+remove_batch_effects <- function(
+  wide_data,
+  metadata,
+  sample_id,
+  batch,
+  batch2 = NULL
+) {
   batch <- wide_data |>
-    dplyr::left_join(metadata |>
-                       dplyr::select(dplyr::any_of(c(sample_id, batch))),
-                     by = sample_id) |>
+    dplyr::left_join(
+      metadata |>
+        dplyr::select(dplyr::any_of(c(sample_id, batch))),
+      by = sample_id
+    ) |>
     dplyr::pull(batch)
   if (!is.null(batch2)) {
     batch2 <- wide_data |>
-      dplyr::left_join(metadata |>
-                         dplyr::select(dplyr::any_of(c(sample_id, batch2))),
-                       by = sample_id) |>
+      dplyr::left_join(
+        metadata |>
+          dplyr::select(dplyr::any_of(c(sample_id, batch2))),
+        by = sample_id
+      ) |>
       dplyr::pull(batch2)
   }
 
@@ -36,7 +41,11 @@ remove_batch_effects <- function(wide_data,
   transposed_mat <- t(mat_data)
 
   # Remove batch effects
-  no_batch_effects_res <- limma::removeBatchEffect(transposed_mat, batch=batch, batch2=batch2)
+  no_batch_effects_res <- limma::removeBatchEffect(
+    transposed_mat,
+    batch = batch,
+    batch2 = batch2
+  )
   transposed_no_batch_effects <- t(no_batch_effects_res)
   no_batch_effects <- tibble::as_tibble(transposed_no_batch_effects)
 
@@ -84,13 +93,14 @@ remove_batch_effects <- function(wide_data,
 #' # Center, scale and remove batch effects
 #' scaled_dat <- hd_normalize(hd_object, batch = "Cohort")
 #' scaled_dat$data
-hd_normalize <- function(dat,
-                         metadata = NULL,
-                         center = TRUE,
-                         scale = TRUE,
-                         batch = NULL,
-                         batch2 = NULL) {
-
+hd_normalize <- function(
+  dat,
+  metadata = NULL,
+  center = TRUE,
+  scale = TRUE,
+  batch = NULL,
+  batch2 = NULL
+) {
   if (inherits(dat, "HDAnalyzeR")) {
     if (is.null(dat$data)) {
       stop("The HDAnalyzeR object does not contain any data.")
@@ -101,24 +111,32 @@ hd_normalize <- function(dat,
     wide_data <- dat
   }
   id_col <- wide_data[1]
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   # Remove batch effects
   if (!is.null(batch)) {
     if (is.null(metadata)) {
-      stop("The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata.")
+      stop(
+        "The 'metadata' argument or slot of the HDAnalyzeR object is empty. Please provide the metadata."
+      )
     }
-    data_wo_batch_effects <- remove_batch_effects(wide_data,
-                                                  metadata,
-                                                  colnames(id_col),
-                                                  batch = batch,
-                                                  batch2 = batch2)
+    data_wo_batch_effects <- remove_batch_effects(
+      wide_data,
+      metadata,
+      colnames(id_col),
+      batch = batch,
+      batch2 = batch2
+    )
   } else {
     data_wo_batch_effects <- wide_data |> dplyr::select(-colnames(id_col))
   }
 
-  # Scale the data
-  scaled_data <- tibble::as_tibble(scale(data_wo_batch_effects, center = center, scale = scale))
+  # Scale the data. `scale()` records the centres and scales it used as
+  # attributes on each column; strip them so the result is a plain tibble.
+  scaled_data <- scale(data_wo_batch_effects, center = center, scale = scale) |>
+    as.data.frame() |>
+    dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric)) |>
+    tibble::as_tibble()
   names(scaled_data) <- names(data_wo_batch_effects)
 
   scaled_data <- dplyr::bind_cols(id_col, scaled_data)

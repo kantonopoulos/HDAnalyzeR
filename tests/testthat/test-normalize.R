@@ -1,73 +1,85 @@
-# Test remove_batch_effects ----------------------------------------------------
-test_that("remove_batch_effects removes batch effects", {
-  # Example based on limma example (https://rdrr.io/bioc/limma/man/removeBatchEffect.html)
-  test_data <- as.data.frame(t(matrix(rnorm(10*9), 10, 9)))
-  daid <- c(1:9)
-  batch <- c("A","A","A","B","B","B","C","C","C")
-  test_data <- test_data |>
-    dplyr::mutate(dplyr::across(1:3, ~ . + 5)) |>
-    dplyr::mutate(DAid = daid)
-  test_metadata <- tibble::tibble(DAid = daid, Batch = batch)
-  result <- remove_batch_effects(test_data, test_metadata, sample_id = "DAid", batch = "Batch")
-  test_data <- test_data |> dplyr::select(-DAid)
-  expected <- tibble::as_tibble(t(limma::removeBatchEffect(t(test_data), batch)))
-  expect_equal(result, expected)
-  # It gives warning for the `name` as my function expects a tibble with names and not a matrix like the example
+test_that("hd_normalize() centres and scales every feature column", {
+  dat <- tibble::tibble(
+    DAid = paste0("S", 1:4),
+    a = c(1, 2, 3, 4),
+    b = c(10, 20, 30, 40)
+  )
+  res <- hd_normalize(dat, center = TRUE, scale = TRUE)
+
+  expect_equal(res$DAid, dat$DAid)
+  expect_equal(mean(res$a), 0)
+  expect_equal(stats::sd(res$a), 1)
+  expect_equal(mean(res$b), 0)
+  expect_equal(stats::sd(res$b), 1)
+  # a and b are perfectly correlated, so their z-scores must be identical
+  expect_equal(res$a, res$b)
 })
 
+test_that("hd_normalize() can centre without scaling", {
+  dat <- tibble::tibble(DAid = c("S1", "S2", "S3"), a = c(1, 2, 3))
+  res <- hd_normalize(dat, center = TRUE, scale = FALSE)
 
-# Test hd_normalize ----------------------------------------------------
-test_that("hd_normalize works correctly", {
-  # Example data
-  test_data <- tibble::tibble(
-    SampleID = c("S1", "S2", "S3", "S4"),
-    Protein1 = c(10, 20, 30, 40),
-    Protein2 = c(15, 25, 35, 45)
+  expect_equal(res$a, c(-1, 0, 1))
+})
+
+test_that("hd_normalize() leaves data alone when both flags are FALSE", {
+  dat <- tibble::tibble(DAid = c("S1", "S2"), a = c(5, 9))
+  expect_equal(hd_normalize(dat, center = FALSE, scale = FALSE)$a, c(5, 9))
+})
+
+test_that("hd_normalize() preserves column names and order", {
+  dat <- tiny_wide()
+  res <- hd_normalize(dat)
+  expect_equal(colnames(res), colnames(dat))
+})
+
+test_that("hd_normalize() ignores NAs rather than propagating them everywhere", {
+  res <- hd_normalize(tiny_wide())
+  expect_equal(sum(is.na(res$f2)), 1)
+  expect_equal(sum(is.na(res$f1)), 0)
+})
+
+test_that("hd_normalize() round-trips through an HDAnalyzeR object", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- hd_normalize(hd_obj)
+
+  expect_s3_class(res, "HDAnalyzeR")
+  expect_equal(res$metadata, tiny_meta())
+  expect_equal(round(mean(res$data$f1), 10), 0)
+})
+
+test_that("hd_normalize() removes a batch effect", {
+  withr::local_seed(11)
+  n <- 40
+  batch <- rep(c("b1", "b2"), each = n / 2)
+  # a large additive offset between the two batches
+  offset <- ifelse(batch == "b1", 0, 10)
+  dat <- tibble::tibble(
+    DAid = sprintf("S%02d", seq_len(n)),
+    a = stats::rnorm(n) + offset,
+    b = stats::rnorm(n) + offset
   )
+  meta <- tibble::tibble(DAid = dat$DAid, Cohort = batch)
 
-  # Example metadata
-  test_metadata <- tibble::tibble(
-    SampleID = c("S1", "S2", "S3", "S4"),
-    Batch = c("A", "A", "B", "B"),
-    Cohort = c("X", "Z", "Y", "V")
+  before <- abs(diff(tapply(dat$a, batch, mean)))
+  corrected <- quietly(
+    hd_normalize(dat, metadata = meta, center = FALSE, scale = FALSE, batch = "Cohort")
   )
+  after <- abs(diff(tapply(corrected$a, batch, mean)))
 
-  # Initialize HDAnalyzeR object
-  hd_object <- hd_initialize(test_data, test_metadata, sample_id = "SampleID", is_wide = TRUE)
+  expect_gt(before, 5)
+  expect_lt(after, 1e-8)
+})
 
-  # Test 1: Scaling and centering without batch correction
-  result <- hd_normalize(hd_object, center = TRUE, scale = TRUE)
-  expect_equal(dim(result[["data"]]), dim(test_data))
-  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
-  expect_equal(colnames(result[["data"]])[-1], colnames(test_data)[-1])
-  expect_true(all(abs(colMeans(result[["data"]][-1])) < 1e-6)) # Mean should be approximately zero
-  expect_true(all(apply(result[["data"]][-1], 2, sd) == 1))   # Standard deviation should be 1
+test_that("hd_normalize() needs metadata to remove batch effects", {
+  expect_error(
+    hd_normalize(tiny_wide(), batch = "Cohort"),
+    "'metadata' argument or slot .* is empty"
+  )
+})
 
-  # Test 2: Batch correction with one batch column
-  result <- hd_normalize(hd_object, center = TRUE, scale = TRUE, batch = "Batch")
-  expect_equal(dim(result[["data"]]), dim(test_data))
-  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
-
-  # Test 3: Batch correction with two batch columns
-  result <- hd_normalize(hd_object, center = TRUE, scale = TRUE, batch = "Batch", batch2 = "Cohort")
-  expect_equal(dim(result[["data"]]), dim(test_data))
-  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
-
-  # Test 4: Centering without scaling
-  result <- hd_normalize(hd_object, center = TRUE, scale = FALSE)
-  expect_equal(dim(result[["data"]]), dim(test_data))
-  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
-  expect_true(all(abs(colMeans(result[["data"]][-1])) < 1e-6)) # Mean should be approximately zero
-  expect_false(all(apply(result[["data"]][-1], 2, sd) == 1))   # Standard deviation should not be 1
-
-  # Test 5: No centering or scaling
-  result <- hd_normalize(hd_object, center = FALSE, scale = FALSE)
-  expect_equal(dim(result[["data"]]), dim(test_data))
-  expect_equal(result[["data"]]$SampleID, test_data$SampleID)
-  expect_equal(result[["data"]][-1], test_data[-1]) # Data should be identical
-
-  # Edge Case: Non-HDAnalyzeR object input
-  result <- hd_normalize(test_data, metadata = test_metadata, center = TRUE, scale = TRUE)
-  expect_equal(dim(result), dim(test_data))
-  expect_equal(result$SampleID, test_data$SampleID)
+test_that("hd_normalize() rejects an empty HDAnalyzeR object", {
+  hd_obj <- hd_initialize(tiny_wide(), is_wide = TRUE)
+  hd_obj$data <- NULL
+  expect_error(hd_normalize(hd_obj), "does not contain any data")
 })

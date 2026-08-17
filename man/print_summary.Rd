@@ -11,7 +11,8 @@ print_summary(
   na_percentage_col,
   na_percentage_row = NULL,
   cor_results = NULL,
-  cor_threshold = 0.8
+  cor_threshold = 0.8,
+  max_rows = 10
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ print_summary(
 \item{cor_results}{A tibble with the filtered protein pairs and their correlation values.}
 
 \item{cor_threshold}{The reporting protein-protein correlation threshold.}
+
+\item{max_rows}{The number of rows to show for each table. Default is 10.}
 }
 \value{
-Prints the summary, returs NULL
+Prints the summary, returns NULL
 }
 \description{
 \code{print_summary()} prints the summary of the quality control results of the

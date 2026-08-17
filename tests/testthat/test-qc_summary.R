@@ -1,160 +1,153 @@
-# Test calc_na_percentages_col -------------------------------------------------
-test_that("calc_na_percentage_col calculates NA percentages", {
-  result <- calc_na_percentage_col(example_metadata)
-  expected <- tibble::tibble(
-    column = c("Grade"),
-    na_percentage = c(91.5)
+test_that("hd_qc_summary() returns a data and a metadata summary", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- quietly(hd_qc_summary(hd_obj, variable = "Disease"))
+
+  expect_s3_class(res, "hd_qc")
+  expect_named(res, c("data_summary", "metadata_summary"))
+})
+
+test_that("hd_qc_summary() reports the missing values it found", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- quietly(hd_qc_summary(hd_obj, variable = "Disease"))
+
+  na_col <- res$data_summary$na_percentage_col
+  expect_equal(na_col$column, "f2")
+  # one missing value out of six samples
+  expect_equal(na_col$na_percentage, round(100 / 6, 1))
+
+  na_row <- res$data_summary$na_percentage_row
+  expect_equal(na_row$DAid, "S3")
+})
+
+test_that("hd_qc_summary() leaves out columns without missing values", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- quietly(hd_qc_summary(hd_obj, variable = "Disease"))
+
+  expect_false("f1" %in% res$data_summary$na_percentage_col$column)
+})
+
+test_that("hd_qc_summary() attaches renderable plots", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- quietly(hd_qc_summary(hd_obj, variable = "Disease"))
+
+  expect_s3_class(res$data_summary$na_col_hist, "ggplot")
+  expect_s3_class(res$data_summary$na_row_hist, "ggplot")
+  expect_s3_class(res$data_summary$cor_heatmap, "ggplot")
+})
+
+test_that("hd_qc_summary() builds one plot per metadata variable", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  res <- quietly(hd_qc_summary(hd_obj, variable = "Disease"))
+
+  expect_true(all(c("Sex", "Age") %in% names(res$metadata_summary)))
+  expect_renderable_ggplot(res$metadata_summary$Age)
+  expect_renderable_ggplot(res$metadata_summary$Sex)
+})
+
+test_that("hd_qc_summary() needs metadata", {
+  expect_error(
+    hd_qc_summary(tiny_wide(), variable = "Disease"),
+    "'metadata' argument or slot .* is empty"
   )
-  expect_equal(result, expected)
+})
+
+test_that("hd_qc_summary() rejects an empty HDAnalyzeR object", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  hd_obj$data <- NULL
+  expect_error(hd_qc_summary(hd_obj, variable = "Disease"), "'data' slot .* is empty")
+})
+
+test_that("hd_qc_summary() is silent when verbose = FALSE", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+  expect_no_message(hd_qc_summary(hd_obj, variable = "Disease", verbose = FALSE))
 })
 
 
-test_that("calc_na_percentage_col handles dataframe with no NAs", {
-  result <- calc_na_percentage_col(example_data)
-  expected <- tibble::tibble(
-    column = character(),
-    na_percentage = numeric()
+# The printed summary ---------------------------------------------------------
+
+test_that("the printed summary renders tables rather than deparsed code", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+
+  output <- paste(
+    capture.output(
+      suppressWarnings(hd_qc_summary(hd_obj, variable = "Disease", verbose = TRUE)),
+      type = "message"
+    ),
+    collapse = "\n"
   )
-  expect_equal(result, expected)
+
+  expect_match(output, "Number of samples: 6")
+  # A tibble passed straight to message() comes out as `c("f2")` style code
+  expect_no_match(output, 'c\\("', all = FALSE)
+  # the missing-value table should be readable, naming the affected column
+  expect_match(output, "f2")
+})
+
+test_that("the printed summary labels the column type counts", {
+  hd_obj <- hd_initialize(tiny_wide(), tiny_meta(), is_wide = TRUE)
+
+  output <- paste(
+    capture.output(
+      suppressWarnings(hd_qc_summary(hd_obj, variable = "Disease", verbose = TRUE)),
+      type = "message"
+    ),
+    collapse = "\n"
+  )
+
+  expect_match(output, "continuous: [0-9]+")
 })
 
 
-# Test calc_na_percentages_row -------------------------------------------------
-test_that("calc_na_percentage_row calculates NA percentages", {
-  test_data <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    A = c(80, 44, NA, 50, 29),
-    B = c(30, NA, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
+# calc_na_percentage_col / calc_na_percentage_row ------------------------------
+
+test_that("calc_na_percentage_col() sorts by missingness and drops complete columns", {
+  dat <- tibble::tibble(
+    DAid = paste0("S", 1:4),
+    a = c(NA, NA, NA, 1),
+    b = c(NA, 2, 3, 4),
+    c = c(1, 2, 3, 4)
   )
-  result <- calc_na_percentage_row(test_data, "DAid")
-  expected <- tibble::tibble(
-    DAid = c("2", "3"),
-    na_percentage = c(20.0, 20.0)
-  )
-  expect_equal(result, expected)
+  res <- calc_na_percentage_col(dat)
+
+  expect_equal(res$column, c("a", "b"))
+  expect_equal(res$na_percentage, c(75, 25))
 })
 
+test_that("calc_na_percentage_row() counts across every column, sample id included", {
+  dat <- tibble::tibble(
+    DAid = paste0("S", 1:4),
+    a = c(NA, NA, 1, 1),
+    b = c(NA, 2, 3, 4)
+  )
+  res <- calc_na_percentage_row(dat, "DAid")
 
-test_that("calc_na_percentage_row handles dataframe with no NAs", {
-  test_data <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    A = c(80, 44, 6, 50, 29),
-    B = c(30, 5, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
-  )
-  result <- calc_na_percentage_row(test_data, "DAid")
-  expected <- tibble::tibble(
-    DAid = character(),
-    na_percentage = numeric()
-  )
-  expect_equal(result, expected)
+  # three columns in total, so two NAs is 66.7% and one is 33.3%
+  expect_equal(res$DAid, c("S1", "S2"))
+  expect_equal(res$na_percentage, c(66.7, 33.3))
 })
 
+test_that("calc_na_percentage_row() gives the same answer for any chunk size", {
+  withr::local_seed(11)
+  values <- matrix(stats::rnorm(300), ncol = 15)
+  values[sample(length(values), 30)] <- NA
+  dat <- dplyr::bind_cols(
+    tibble::tibble(DAid = paste0("S", 1:20)),
+    tibble::as_tibble(values, .name_repair = "unique")
+  )
 
-# Test qc_summary_data ---------------------------------------------------------
-test_that("qc_summary_data calculates NA percentages in cols", {
-  test_data <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    A = c(80, 44, NA, 50, 29),
-    B = c(30, NA, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
+  expect_equal(
+    calc_na_percentage_row(dat, "DAid", chunk_size = 2),
+    calc_na_percentage_row(dat, "DAid", chunk_size = 1000)
   )
-  result <- qc_summary_data(test_data, sample_id = "DAid", verbose = FALSE)
-  result <- result$na_percentage_col
-  expected <- tibble::tibble(
-    column = c("A", "B"),
-    na_percentage = c(20.0, 20.0)
-  )
-  expect_equal(result, expected)
 })
 
-test_that("qc_summary_data calculates NA percentages in rows", {
-  test_data <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    A = c(80, 44, NA, 50, 29),
-    B = c(30, NA, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
-  )
-  result <- qc_summary_data(test_data, sample_id = "DAid", verbose = FALSE)
-  result <- result$na_percentage_row
-  expected <- tibble::tibble(
-    DAid = c("2", "3"),
-    na_percentage = c(20.0, 20.0)
-  )
-  expect_equal(result, expected)
-})
+test_that("the missing value helpers cope with complete and empty inputs", {
+  complete <- tibble::tibble(DAid = c("S1", "S2"), a = c(1, 2))
+  expect_equal(nrow(calc_na_percentage_col(complete)), 0)
+  expect_equal(nrow(calc_na_percentage_row(complete, "DAid")), 0)
 
-test_that("qc_summary_data returns the correct output matrix", {
-  test_data <- data.frame(
-    DAid = 1:10,
-    Column1 = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-    Column2 = c(1, -1, 1, -1, 1, -1, 1, -1, 1, -1),
-    Column3 = c(19, 17, 15, 13, 11, 9, 7, 5, 3, 1)
-  )
-  result <- qc_summary_data(test_data, sample_id = "DAid", cor_threshold = 0.5, verbose = FALSE)
-  result <- result$cor_matrix
-  expected <- rbind(c(1, -0.17, -1), c(-0.17, 1, 0.17), c(-1, 0.17, 1))
-  rownames(expected) <- colnames(expected) <- c("Column1", "Column2", "Column3")
-  expect_equal(result, expected)
-})
-
-test_that("qc_summary_data returns the correct filtered output", {
-  test_data <- data.frame(
-    DAid = 1:10,
-    Column1 = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-    Column2 = c(1, -1, 1, -1, 1, -1, 1, -1, 1, -1),
-    Column3 = c(19, 17, 15, 13, 11, 9, 7, 5, 3, 1)
-  )
-  result <- qc_summary_data(test_data, sample_id = "DAid", cor_threshold = 0.5, verbose = FALSE)
-  result <- result$cor_results
-  expected <- data.frame(
-    Protein1 = c("Column3", "Column1"),
-    Protein2 = c("Column1", "Column3"),
-    Correlation = c(-1, -1)
-  )
-  expect_equal(result, expected)
-})
-
-
-# Test qc_summary_metadata -----------------------------------------------------
-test_that("qc_summary_metadata calculates NA percentages in cols", {
-  test_metadata <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    Disease = c("A", "B", "A", "B", "A"),
-    A = c(80, 44, NA, 50, 29),
-    B = c(30, NA, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
-  )
-  result <- qc_summary_metadata(test_metadata, sample_id = "DAid", variable = "Disease", unique_threshold = 5, verbose = FALSE)
-  result <- result$na_percentage_col
-  expected <- tibble::tibble(
-    column = c("A", "B"),
-    na_percentage = c(20.0, 20.0)
-  )
-  expect_equal(result, expected)
-})
-
-
-test_that("qc_summary_metadata calculates NA percentages in rows", {
-  test_metadata <- tibble::tibble(
-    DAid = c("1", "2", "3", "4", "5"),
-    Disease = c("A", "B", "A", "B", "A"),
-    A = c(80, 44, NA, 50, 29),
-    B = c(30, NA, 85, 70, 54),
-    C = c(7, 10, 25, 74, 49),
-    D = c(14, 0, 5, 9, 20)
-  )
-  result <- qc_summary_metadata(test_metadata, sample_id = "DAid", variable = "Disease", unique_threshold = 5, verbose = FALSE)
-  result <- result$na_percentage_row
-  expected <- tibble::tibble(
-    DAid = c("2", "3"),
-    na_percentage = c(16.7, 16.7)
-  )
-  expect_equal(result, expected)
+  empty <- complete[0, ]
+  expect_equal(nrow(calc_na_percentage_col(empty)), 0)
+  expect_equal(nrow(calc_na_percentage_row(empty, "DAid")), 0)
+  expect_named(calc_na_percentage_row(empty, "DAid"), c("DAid", "na_percentage"))
 })

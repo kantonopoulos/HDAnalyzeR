@@ -4,12 +4,14 @@
 \alias{calc_na_percentage_row}
 \title{Calculate the percentage of NAs in each row of the dataset}
 \usage{
-calc_na_percentage_row(dat, sample_id)
+calc_na_percentage_row(dat, sample_id, chunk_size = 500)
 }
 \arguments{
 \item{dat}{The input dataset.}
 
 \item{sample_id}{The name of the column containing the sample IDs.}
+
+\item{chunk_size}{The number of columns to scan at a time. Default is 500.}
 }
 \value{
 A tibble with the DAids and the percentage of NAs in each row.
@@ -17,5 +19,11 @@ A tibble with the DAids and the percentage of NAs in each row.
 \description{
 \code{calc_na_percentage_row()} calculates the percentage of NAs in each row of the input dataset.
 It filters out the rows with 0\% missing data and returns the rest in descending order.
+}
+\details{
+The counts are accumulated with \code{rowSums()} over blocks of columns instead of
+\code{rowwise()}, which evaluates once per row and becomes the dominant cost on
+datasets with thousands of samples and features. Chunking keeps the temporary
+logical matrix small regardless of how many features there are.
 }
 \keyword{internal}

@@ -69,7 +69,7 @@ hd_initialize <- function(
     wide_data <- dat
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   data_object <- list(
     data = wide_data,
@@ -214,7 +214,7 @@ hd_filter <- function(hd_obj, variable, values, flag, verbose = TRUE) {
   }
 
   if (verbose) {
-    message("Filtering complete. Rows remaining:", nrow(hd_obj$data))
+    message("Filtering complete. Rows remaining: ", nrow(hd_obj$data))
   }
 
   return(hd_obj)
@@ -265,12 +265,11 @@ hd_save_path <- function(path_name, date = FALSE) {
   if (!dir.exists(path_name)) {
     dir.create(path_name, recursive = TRUE)
 
-    # Check if the directory was created successfully
-    if (dir.exists(path_name)) {} else {
-      warning("Failed to create directory", path_name)
+    if (!dir.exists(path_name)) {
+      warning("Failed to create directory ", path_name, ".")
     }
   } else {
-    message("Directory", path_name, "already exists.")
+    message("Directory ", path_name, " already exists.")
   }
 
   return(path_name)
@@ -328,6 +327,7 @@ hd_save_data <- function(dat, path_name) {
   } else if (file_ext == "rds") {
     saveRDS(dat, path_name)
   } else if (file_ext == "xlsx") {
+    check_installed("writexl", "write xlsx files")
     writexl::write_xlsx(dat, path_name)
   }
 
@@ -368,12 +368,20 @@ hd_import_data <- function(path_name) {
     tsv = readr::read_tsv(path_name),
     txt = utils::read.table(path_name, header = TRUE, stringsAsFactors = FALSE),
     rda = {
-      load(path_name)
-      get(ls()[1])
+      # `load()` returns the names it restored; picking `ls()[1]` instead would
+      # pick up this function's own locals.
+      restored <- load(path_name)
+      get(restored[[1]])
     },
     rds = readRDS(path_name),
-    xlsx = readxl::read_excel(path_name, guess_max = 10000000),
-    parquet = arrow::read_parquet(path_name),
+    xlsx = {
+      check_installed("readxl", "read xlsx files")
+      readxl::read_excel(path_name, guess_max = 10000000)
+    },
+    parquet = {
+      check_installed("arrow", "read parquet files")
+      arrow::read_parquet(path_name)
+    },
     stop("Unsupported file type: ", file_extension)
   )
 
@@ -586,6 +594,63 @@ hd_bin_columns <- function(dat, column_types, bins = 5, round_digits = 0) {
 }
 
 
+#' Packages that are only needed by some of the functionality
+#'
+#' Named vector mapping an optional package to the repository it is installed
+#' from, so that `check_installed()` can give an actionable hint.
+#' @keywords internal
+optional_packages <- c(
+  arrow = "CRAN",
+  cluster = "CRAN",
+  clusterProfiler = "Bioconductor",
+  easyPubMed = "CRAN",
+  embed = "CRAN",
+  enrichplot = "Bioconductor",
+  fpc = "CRAN",
+  missForest = "CRAN",
+  org.Hs.eg.db = "Bioconductor",
+  ppsr = "CRAN",
+  ReactomePA = "Bioconductor",
+  readxl = "CRAN",
+  WGCNA = "CRAN",
+  writexl = "CRAN"
+)
+
+
+#' Ensure an optional package is installed
+#'
+#' `check_installed()` errors with an actionable installation hint when a package
+#' that is only listed under `Suggests` is needed but unavailable.
+#'
+#' @param package The name of the package to check.
+#' @param reason A short description of what the package is needed for.
+#'
+#' @return `invisible(TRUE)`, or an error if the package is missing.
+#' @keywords internal
+check_installed <- function(package, reason = NULL) {
+  if (requireNamespace(package, quietly = TRUE)) {
+    return(invisible(TRUE))
+  }
+
+  repository <- unname(optional_packages[package])
+  hint <- if (!is.na(repository) && repository == "Bioconductor") {
+    paste0('BiocManager::install("', package, '")')
+  } else {
+    paste0('install.packages("', package, '")')
+  }
+
+  stop(
+    "The '",
+    package,
+    "' package is required",
+    if (!is.null(reason)) paste0(" to ", reason) else "",
+    " but is not installed. Please install it with: ",
+    hint,
+    call. = FALSE
+  )
+}
+
+
 #' Check for non-numeric columns
 #'
 #' `check_numeric_columns()` checks if all columns except the first (Sample ID)
@@ -605,13 +670,21 @@ check_numeric_columns <- function(dat) {
 
   non_numeric <- NULL
   non_numeric <- names(cols_to_check)[
-    !sapply(cols_to_check, function(col) {
-      suppressWarnings({
-        # Suppress warnings during coercion
-        coerced <- as.numeric(col)
-        return(!any(is.na(coerced) & !is.na(col))) # TRUE if valid numeric after coercion
-      })
-    })
+    !vapply(
+      cols_to_check,
+      function(col) {
+        # Already-numeric columns need no coercion, which is the whole cost here
+        if (is.numeric(col)) {
+          return(TRUE)
+        }
+        suppressWarnings({
+          # Suppress warnings during coercion
+          coerced <- as.numeric(col)
+          !any(is.na(coerced) & !is.na(col)) # TRUE if valid numeric after coercion
+        })
+      },
+      logical(1)
+    )
   ]
 
   if (length(non_numeric) > 0) {
@@ -658,7 +731,7 @@ hd_log_transform <- function(dat) {
     sample_id <- colnames(dat)[1]
   }
 
-  check_numeric <- check_numeric_columns(wide_data)
+  check_numeric_columns(wide_data)
 
   # Check for negative or zero values
   if (any(wide_data[, -1] <= 0, na.rm = TRUE)) {

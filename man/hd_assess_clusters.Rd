@@ -36,6 +36,7 @@ Jaccard index below 0.5 or a sample size below 10. The remaining clusters are re
 in order of size.
 }
 \examples{
+\dontshow{if (requireNamespace("cluster", quietly = TRUE) && requireNamespace("fpc", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -47,4 +48,5 @@ clustering <- hd_assess_clusters(clustering, nrep = 20)
 
 # Access the results
 clustering$cluster_assessment
+\dontshow{\}) # examplesIf}
 }

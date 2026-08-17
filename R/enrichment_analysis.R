@@ -36,6 +36,52 @@ gene_to_entrezid <- function(gene_list, background = NULL) {
   return(list("gene_list" = gene_list, "background" = background))
 }
 
+#' Check whether an enrichment run returned anything significant
+#'
+#' `enrichment_is_empty()` reports whether a `clusterProfiler` result object is
+#' missing, has no rows, or has no term below the significance threshold.
+#'
+#' @param enrichment A `clusterProfiler` enrichment object, or `NULL`.
+#' @param pval_lim The adjusted p-value threshold used for the run.
+#'
+#' @return `TRUE` when there is nothing worth reporting, `FALSE` otherwise.
+#' @details
+#' The adjusted p-values can contain `NA`s, so the comparison has to drop them
+#' explicitly. Without `na.rm`, an all-`NA` column makes `any()` return `NA` and
+#' the surrounding `if()` fails with a missing-value error instead of reporting
+#' that nothing was enriched.
+#' @keywords internal
+enrichment_is_empty <- function(enrichment, pval_lim) {
+  if (is.null(enrichment)) {
+    return(TRUE)
+  }
+
+  result <- enrichment@result
+  if (is.null(result) || nrow(result) == 0) {
+    return(TRUE)
+  }
+
+  !any(result[["p.adjust"]] < pval_lim, na.rm = TRUE)
+}
+
+
+#' Warn that an enrichment run found nothing
+#'
+#' @param analysis The name of the analysis, used in the message.
+#'
+#' @return `invisible(NULL)`, called for the side effect.
+#' @keywords internal
+warn_no_terms <- function(analysis) {
+  warning(
+    "No significant terms found in the ",
+    analysis,
+    ". The returned object contains the (empty) enrichment result, so no plots can be produced. Consider relaxing `pval_lim` or using a larger gene list.",
+    call. = FALSE
+  )
+  invisible(NULL)
+}
+
+
 #' Over-representation analysis
 #'
 #' `hd_ora()` performs over-representation analysis (ORA) using the clusterProfiler package.
@@ -49,6 +95,10 @@ gene_to_entrezid <- function(gene_list, background = NULL) {
 #' @return A list containing the results of the ORA.
 #'
 #' @details
+#' When nothing passes the significance threshold the function warns and returns
+#' the (empty) enrichment object instead of stopping, so that a null result does
+#' not abort a longer pipeline.
+#'
 #' To perform the ORA, `clusterProfiler` package is used.
 #' The `qvalueCutoff` is set to 1 by default to prioritize filtering by adjusted
 #' p-values (p.adjust). This simplifies the workflow by ensuring a single, clear
@@ -62,7 +112,7 @@ gene_to_entrezid <- function(gene_list, background = NULL) {
 #' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -106,12 +156,8 @@ hd_ora <- function(
     background <- select_background(background)
   }
 
-  # Ensure 'clusterProfiler' package is loaded
-  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop(
-      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
-    )
-  }
+  check_installed("clusterProfiler", "run an over-representation analysis")
+  check_installed("org.Hs.eg.db", "map gene symbols to ENTREZ identifiers")
 
   conversion <- gene_to_entrezid(gene_list, background)
   gene_list <- conversion[["gene_list"]]
@@ -128,13 +174,6 @@ hd_ora <- function(
       universe = background
     )
   } else if (database == "GO") {
-    # Ensure 'org.Hs.eg.db' package is loaded
-    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop(
-        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
-      )
-    }
-
     # Perform GO enrichment analysis
     enrichment <- clusterProfiler::enrichGO(
       gene = gene_list,
@@ -145,12 +184,7 @@ hd_ora <- function(
       universe = background
     )
   } else if (database == "Reactome") {
-    # Ensure 'ReactomePA' package is loaded
-    if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop(
-        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
-      )
-    }
+    check_installed("ReactomePA", "query the Reactome database")
 
     # Perform Reactome enrichment analysis
     enrichment <- ReactomePA::enrichPathway(
@@ -162,18 +196,15 @@ hd_ora <- function(
     )
   }
 
-  if (
-    is.null(enrichment) ||
-      is.na(any(enrichment@result[["p.adjust"]])) ||
-      !any(enrichment@result[["p.adjust"]] < pval_lim)
-  ) {
-    stop("No significant terms found.")
+  if (enrichment_is_empty(enrichment, pval_lim)) {
+    warn_no_terms("over-representation analysis")
   }
 
   enrichment <- list(
     "gene_list" = gene_list,
     "background" = background,
-    "enrichment" = enrichment
+    "enrichment" = enrichment,
+    "pval_lim" = pval_lim
   )
   class(enrichment) <- "hd_enrichment"
 
@@ -202,7 +233,7 @@ hd_ora <- function(
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("enrichplot", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -225,20 +256,31 @@ hd_ora <- function(
 #' enrichment$treeplot
 #' enrichment$cnetplot
 hd_plot_ora <- function(enrichment, seed = 123) {
+  check_installed("clusterProfiler", "plot an over-representation analysis")
+  check_installed("enrichplot", "plot an over-representation analysis")
+  check_installed("org.Hs.eg.db", "map ENTREZ identifiers back to gene symbols")
+
   if (!is.null(seed)) {
     withr::local_seed(seed)
+  }
+
+  pval_lim <- enrichment[["pval_lim"]]
+  if (is.null(pval_lim)) {
+    pval_lim <- Inf
+  }
+
+  if (enrichment_is_empty(enrichment[["enrichment"]], pval_lim)) {
+    warning(
+      "No term passed the significance threshold, so there is nothing to plot.",
+      call. = FALSE
+    )
+    return(enrichment)
   }
 
   # Visualize results
   dot_plot <- clusterProfiler::dotplot(enrichment[["enrichment"]])
 
-  # Ensure 'enrichplot' package is loaded
   tree_plot <- NULL
-  if (!requireNamespace("enrichplot", quietly = TRUE)) {
-    stop(
-      "The 'enrichplot' package is required but not installed. Please install it using install.packages('enrichplot')."
-    )
-  }
   tryCatch(
     {
       tree_plot_data <- enrichplot::pairwise_termsim(enrichment[["enrichment"]])
@@ -279,6 +321,68 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 }
 
 
+#' Rank differential expression results for GSEA
+#'
+#' `rank_features()` turns a table of differential expression results into the
+#' named, decreasing vector that GSEA expects.
+#'
+#' @param de_results A tibble of differential expression results with at least a
+#' `Feature` column.
+#' @param ranked_by The column to rank by, `"logFC"`, or `"both"` for the product
+#' of the log fold change and `-log(adj.P.Val)`.
+#'
+#' @return A named numeric vector sorted in decreasing order.
+#' @keywords internal
+rank_features <- function(de_results, ranked_by = "logFC") {
+  if (ranked_by == "logFC") {
+    values <- de_results[["logFC"]]
+  } else if (ranked_by == "both") {
+    values <- de_results[["logFC"]] * -log(de_results[["adj.P.Val"]])
+  } else if (ranked_by %in% colnames(de_results)) {
+    message("The ranking will be done based on the ", ranked_by, " variable.")
+    values <- de_results[[ranked_by]]
+  } else {
+    stop(
+      "The ranking variable provided is not valid. Please provide a valid variable.",
+      call. = FALSE
+    )
+  }
+
+  sort(stats::setNames(values, de_results[["Feature"]]), decreasing = TRUE)
+}
+
+
+#' Rename a ranked gene list from gene symbols to ENTREZ identifiers
+#'
+#' `rename_ranking_to_entrezid()` keeps each score attached to its own gene.
+#'
+#' @param ranked_genes A named numeric vector, named by gene symbol.
+#'
+#' @return The same scores, named by ENTREZ identifier and sorted decreasingly.
+#' @details
+#' The symbol to identifier mapping drops genes it cannot resolve and can return
+#' several identifiers for one symbol, so the scores have to be matched by name.
+#' Renaming the vector positionally would silently attach each score to the wrong
+#' gene as soon as a single symbol failed to map.
+#' @keywords internal
+rename_ranking_to_entrezid <- function(ranked_genes) {
+  conversion <- clusterProfiler::bitr(
+    names(ranked_genes),
+    fromType = "SYMBOL",
+    toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db::org.Hs.eg.db
+  )
+
+  mapped <- stats::setNames(
+    unname(ranked_genes[conversion[["SYMBOL"]]]),
+    conversion[["ENTREZID"]]
+  )
+  mapped <- mapped[!is.na(names(mapped)) & !duplicated(names(mapped))]
+
+  sort(mapped, decreasing = TRUE)
+}
+
+
 #' Gene set enrichment analysis
 #'
 #' `hd_gsea()` performs gene set enrichment analysis (GSEA) using the clusterProfiler package.
@@ -288,9 +392,18 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' @param ontology The ontology to use when database = "GO". It can be "BP" (Biological Process), "CC" (Cellular Component), "MF" (Molecular Function), or "ALL". In the case of KEGG and Reactome, this parameter is ignored.
 #' @param ranked_by The variable to rank the proteins. It can be "logFC", "both" which is the product of logFC and -log(adj.P.Val) or a custom sorting variable. It should be however a column in the DE results tibble (`de_results` argument).
 #' @param pval_lim The p-value threshold to consider a term as significant in the enrichment analysis. Default is 0.05.
+#' @param seed Seed for reproducibility. Default is 123. Set to NULL to leave the random number generator untouched.
 #'
 #' @return A list containing the results of the GSEA.
 #' @details
+#' GSEA p-values come from a permutation test, so repeated runs on the same data
+#' return slightly different results. `seed` fixes the random number generator for
+#' the duration of the call to make a run reproducible.
+#'
+#' When nothing passes the significance threshold the function warns and returns
+#' the (empty) enrichment object instead of stopping, so that a null result does
+#' not abort a longer pipeline.
+#'
 #' To perform the GSEA, `clusterProfiler` package is used. For more information, please
 #' refer to the `clusterProfiler` documentation.
 #'
@@ -299,7 +412,7 @@ hd_plot_ora <- function(enrichment, seed = 123) {
 #' - https://yulab-smu.top/biomedical-knowledge-mining-book/enrichment-overview.html#gsea-algorithm
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -328,56 +441,29 @@ hd_gsea <- function(
   database = c("GO", "Reactome", "KEGG"),
   ontology = c("BP", "CC", "MF", "ALL"),
   ranked_by = "logFC",
-  pval_lim = 0.05
+  pval_lim = 0.05,
+  seed = 123
 ) {
   database <- match.arg(database)
   ontology <- match.arg(ontology)
+
+  if (!is.null(seed)) {
+    withr::local_seed(seed)
+  }
 
   if (inherits(de_results, "hd_de")) {
     de_results <- de_results$de_res
   }
 
-  # Prepare sorted_protein_list
-  if (ranked_by == "logFC") {
-    gene_list <- stats::setNames(de_results[["logFC"]], de_results[["Feature"]])
-  } else if (ranked_by == "both") {
-    de_results <- de_results |>
-      dplyr::mutate(
-        both = !!rlang::sym("logFC") * -log(!!rlang::sym("adj.P.Val"))
-      )
-    gene_list <- stats::setNames(
-      de_results[["adj.P.Val"]],
-      de_results[["Feature"]]
-    )
-  } else {
-    if (ranked_by %in% colnames(de_results)) {
-      message("The ranking will be done based on the", ranked_by, "variable.")
-      gene_list <- stats::setNames(
-        de_results[[ranked_by]],
-        de_results[["Feature"]]
-      )
-    } else {
-      stop(
-        "The ranking variable provided is not valid. Please provide a valid variable."
-      )
-    }
-  }
-  sorted_gene_list <- sort(gene_list, decreasing = TRUE)
+  sorted_gene_list <- rank_features(de_results, ranked_by)
 
   if (length(sorted_gene_list) == 0) {
     stop("Gene list could not be sorted. Please check the input data.")
   }
-  # Ensure 'clusterProfiler' package is loaded
-  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop(
-      "The 'clusterProfiler' package is required but not installed. Please install it using BiocManager::install('clusterProfiler')."
-    )
-  }
+  check_installed("clusterProfiler", "run a gene set enrichment analysis")
+  check_installed("org.Hs.eg.db", "map gene symbols to ENTREZ identifiers")
 
-  conversion <- gene_to_entrezid(names(sorted_gene_list), NULL)
-  gene_list <- stats::setNames(sorted_gene_list, conversion[["gene_list"]])
-  # Removed unmapped genes
-  gene_list <- gene_list[!is.na(names(gene_list))]
+  gene_list <- rename_ranking_to_entrezid(sorted_gene_list)
 
   if (database == "KEGG") {
     # Perform GSEA for KEGG
@@ -390,13 +476,6 @@ hd_gsea <- function(
       maxGSSize = 500
     )
   } else if (database == "GO") {
-    # Ensure 'org.Hs.eg.db' package is loaded
-    if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-      stop(
-        "The 'org.Hs.eg.db' package is required but not installed. Please install it using BiocManager::install('org.Hs.eg.db')."
-      )
-    }
-
     # Perform GSEA for GO
     enrichment <- clusterProfiler::gseGO(
       geneList = gene_list,
@@ -408,12 +487,7 @@ hd_gsea <- function(
       maxGSSize = 500
     )
   } else if (database == "Reactome") {
-    # Ensure 'ReactomePA' package is loaded
-    if (!requireNamespace("ReactomePA", quietly = TRUE)) {
-      stop(
-        "The 'ReactomePA' package is required but not installed. Please install it using BiocManager::install('ReactomePA')."
-      )
-    }
+    check_installed("ReactomePA", "query the Reactome database")
 
     # Perform GSEA for Reactome
     enrichment <- ReactomePA::gsePathway(
@@ -425,11 +499,15 @@ hd_gsea <- function(
     )
   }
 
-  if (!any(enrichment@result[["p.adjust"]] < pval_lim)) {
-    stop("No significant terms found.")
+  if (enrichment_is_empty(enrichment, pval_lim)) {
+    warn_no_terms("gene set enrichment analysis")
   }
 
-  enrichment <- list("gene_list" = gene_list, "enrichment" = enrichment)
+  enrichment <- list(
+    "gene_list" = gene_list,
+    "enrichment" = enrichment,
+    "pval_lim" = pval_lim
+  )
   class(enrichment) <- "hd_enrichment"
 
   return(enrichment)
@@ -454,7 +532,7 @@ hd_gsea <- function(
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("enrichplot", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' # Initialize an HDAnalyzeR object
 #' hd_object <- hd_initialize(example_data, example_metadata)
 #'
@@ -478,8 +556,25 @@ hd_gsea <- function(
 #' enrichment$cnetplot
 #' enrichment$ridgeplot
 hd_plot_gsea <- function(enrichment, seed = 123) {
+  check_installed("clusterProfiler", "plot a gene set enrichment analysis")
+  check_installed("enrichplot", "plot a gene set enrichment analysis")
+  check_installed("org.Hs.eg.db", "map ENTREZ identifiers back to gene symbols")
+
   if (!is.null(seed)) {
     withr::local_seed(seed)
+  }
+
+  pval_lim <- enrichment[["pval_lim"]]
+  if (is.null(pval_lim)) {
+    pval_lim <- Inf
+  }
+
+  if (enrichment_is_empty(enrichment[["enrichment"]], pval_lim)) {
+    warning(
+      "No term passed the significance threshold, so there is nothing to plot.",
+      call. = FALSE
+    )
+    return(enrichment)
   }
 
   # Visualize results

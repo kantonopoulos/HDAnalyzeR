@@ -1,371 +1,241 @@
-# Test hd_de_limma ---------------------------------------------------------
-test_that("hd_de_limma works with categorical variables", {
-  # Mock dataset
-  dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Protein1 = c(5, 6, 7, 8, 9),
-    Protein2 = c(10, 11, 12, 13, 14)
-  )
-
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Disease = c("AML", "AML", "CLL", "CLL", "AML"),
-    Age = c(30, 40, 50, 60, 70)
-  )
-
-  # Run differential expression analysis
-  result <- hd_de_limma(
-    dat,
-    metadata = metadata,
-    variable = "Disease",
-    case = "AML",
-    control = "CLL"
-  )
-
-  expect_s3_class(result, "hd_de")
-  expect_true("de_res" %in% names(result))
-  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
-})
-
-test_that("hd_de_limma works with continuous variables", {
-  # Mock dataset
-  dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
-    Protein1 = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-    Protein2 = c(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-  )
-
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
-    Age = c(30, 40, 50, 60, 70, 35, 45, 55, 65, 75)
-  )
-
-  # Run differential expression analysis
-  result <- hd_de_limma(
-    dat,
-    metadata = metadata,
-    variable = "Age",
-    case = NULL,
-    control = NULL
-  )
-
-  expect_s3_class(result, "hd_de")
-  expect_true("de_res" %in% names(result))
-  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
-})
-
-test_that("hd_de_limma raises an error for invalid input", {
-  dat <- data.frame(
-    SampleID = c("S1", "S2"),
-    Protein1 = c(5, 6)
-  )
-  metadata <- data.frame(
-    SampleID = c("S1", "S2"),
-    Disease = c("AML", "CLL")
-  )
-
-  expect_error(hd_de_limma(
-    dat,
-    metadata = metadata,
-    variable = "NonexistentColumn",
-    case = "AML"
-  ), "The variable is not be present in the metadata.")
-})
-
-test_that("hd_de_limma removes rows with NAs in relevant columns", {
-  dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Protein1 = c(5, 6, 7, 8, 9),
-    Protein2 = c(10, 11, 12, 13, 14)
-  )
-
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Disease = c("AML", "AML", "CLL", "CLL", NA),
-    Age = c(30, 40, NA, 60, 70)
-  )
-
-  result <- expect_warning(hd_de_limma(
-    dat,
-    metadata = metadata,
-    variable = "Disease",
-    case = "AML"
+de_object <- function(...) {
+  sd <- signal_data(...)
+  quietly(hd_de_limma(
+    sd$data, sd$metadata, variable = "Disease", case = "case"
   ))
-  suppressWarnings(result <- hd_de_limma(dat,
-                                         metadata = metadata,
-                                         variable = "Disease",
-                                         case = "AML"))
+}
 
-  expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
+# hd_de_limma -----------------------------------------------------------------
+
+test_that("hd_de_limma() returns one row per feature with the expected columns", {
+  res <- de_object()
+
+  expect_s3_class(res, "hd_de")
+  expect_setequal(res$de_res$Feature, c("up", "down", "flat", "flat2", "flat3"))
+  expect_true(all(c("logFC", "P.Value", "adj.P.Val", "Disease") %in% colnames(res$de_res)))
+  expect_true(all(res$de_res$Disease == "case"))
 })
 
-test_that("hd_de_limma works with correction variables", {
-    dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
-    Protein1 = c(5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
-    Protein2 = c(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-  )
+test_that("hd_de_limma() recovers the direction and significance of the signal", {
+  res <- de_object()
+  fc <- stats::setNames(res$de_res$logFC, res$de_res$Feature)
+  padj <- stats::setNames(res$de_res$adj.P.Val, res$de_res$Feature)
 
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"),
-    Disease = c("AML", "AML", "CLL", "CLL", "AML", "AML", "AML", "CLL", "CLL", "AML"),
-    Age = c(30, 40, 50, 60, 70, 35, 45, 55, 65, 75)
-  )
+  expect_gt(fc[["up"]], 2)
+  expect_lt(fc[["down"]], -2)
+  expect_lt(abs(fc[["flat"]]), 1)
 
-  result <- hd_de_limma(
-    dat,
-    metadata = metadata,
-    variable = "Disease",
-    case = "AML",
-    control = "CLL",
-    correct = "Age"
-  )
-
-  expect_s3_class(result, "hd_de")
-  expect_true("de_res" %in% names(result))
-  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+  expect_lt(padj[["up"]], 0.001)
+  expect_lt(padj[["down"]], 0.001)
+  expect_gt(padj[["flat"]], 0.05)
 })
 
-
-# Test hd_de_ttest ---------------------------------------------------------
-test_that("hd_de_ttest works with categorical variables", {
-  # Mock dataset
-  dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Protein1 = c(5, 6, 7, 8, 9),
-    Protein2 = c(10, 11, 12, 13, 14)
-  )
-
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Disease = c("AML", "AML", "CLL", "CLL", "AML"),
-    Age = c(30, 40, 50, 60, 70)
-  )
-
-  # Run differential expression analysis
-  result <- hd_de_ttest(
-    dat,
-    metadata = metadata,
-    variable = "Disease",
-    case = "AML",
-    control = "CLL"
-  )
-
-  expect_s3_class(result, "hd_de")
-  expect_true("de_res" %in% names(result))
-  expect_true(all(c("Feature", "logFC", "adj.P.Val") %in% colnames(result$de_res)))
+test_that("hd_de_limma() returns numeric statistics, not characters", {
+  res <- de_object()
+  for (column in c("logFC", "P.Value", "adj.P.Val", "t")) {
+    expect_type(res$de_res[[column]], "double")
+  }
 })
 
-test_that("hd_de_ttest raises an error for invalid input", {
-  dat <- data.frame(
-    SampleID = c("S1", "S2"),
-    Protein1 = c(5, 6)
-  )
-  metadata <- data.frame(
-    SampleID = c("S1", "S2"),
-    Disease = c("AML", "CLL")
-  )
-
-  expect_error(hd_de_ttest(
-    dat,
-    metadata = metadata,
-    variable = "NonexistentColumn",
-    case = "AML"
-  ), "The variable is not be present in the metadata.")
+test_that("hd_de_limma() sorts by adjusted p-value", {
+  res <- de_object()
+  expect_false(is.unsorted(res$de_res$adj.P.Val))
 })
 
-test_that("hd_de_ttest removes rows with NAs in relevant columns", {
-  dat <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Protein1 = c(5, 6, 7, 8, 9),
-    Protein2 = c(10, 11, 12, 13, 14)
-  )
+test_that("hd_de_limma() restricts the comparison to the chosen control", {
+  sd <- signal_data()
+  sd$metadata$Disease[sd$metadata$Disease == "ctrl"][1:10] <- "other"
 
-  metadata <- data.frame(
-    SampleID = c("S1", "S2", "S3", "S4", "S5"),
-    Disease = c("AML", "AML", "CLL", "CLL", NA),
-    Age = c(30, 40, NA, 60, 70)
-  )
-
-  result <- expect_warning(hd_de_ttest(
-    dat,
-    metadata = metadata,
-    variable = "Disease",
-    case = "AML"
+  res <- quietly(hd_de_limma(
+    sd$data, sd$metadata, variable = "Disease", case = "case", control = "other"
   ))
-  suppressWarnings(result <- hd_de_ttest(dat,
-                                         metadata = metadata,
-                                         variable = "Disease",
-                                         case = "AML"))
-
-  expect_true(nrow(result$de_res) > 0) # Ensure some rows were processed
+  expect_s3_class(res, "hd_de")
+  expect_equal(nrow(res$de_res), 5)
 })
 
+test_that("hd_de_limma() can correct for a categorical covariate", {
+  sd <- signal_data()
+  res <- quietly(hd_de_limma(
+    sd$data, sd$metadata, variable = "Disease", case = "case", correct = "Sex"
+  ))
 
-# Test hd_plot_volcano ---------------------------------------------------------
-test_that("hd_plot_volcano handles valid inputs correctly", {
-  # Mock DE results object
-  mock_de_object <- list(
-    de_res = tibble::tibble(
-      Feature = paste0("Protein", 1:100),
-      logFC = c(rnorm(50, 2, 1), rnorm(50, -2, 1)),
-      adj.P.Val = c(runif(50, 0, 0.04), runif(50, 0.05, 1))
-    )
-  )
-  class(mock_de_object) <- "hd_de"
-
-  # Run the function
-  result <- hd_plot_volcano(
-    de_object = mock_de_object,
-    pval_lim = 0.05,
-    logfc_lim = 1.5,
-    top_up_prot = 5,
-    top_down_prot = 5,
-    title = "Volcano Plot Test",
-    report_nproteins = TRUE
-  )
-
-  # Check class and components of the output
-  expect_true(inherits(result, "hd_de"))
-  expect_true("volcano_plot" %in% names(result))
-
-  # Verify significant proteins count in the plot subtitle
-  plot_object <- result[["volcano_plot"]]
-  title_text <- ggplot2::ggplot_build(plot_object)$plot$labels$title
-  expect_match(title_text, "Num significant up = [0-9]+")
-  expect_match(title_text, "Num significant down = [0-9]+")
+  fc <- stats::setNames(res$de_res$logFC, res$de_res$Feature)
+  expect_gt(fc[["up"]], 2)
 })
 
-test_that("hd_plot_volcano handles missing user_defined_proteins gracefully", {
-  # Mock DE results object
-  mock_de_object <- list(
-    de_res = tibble::tibble(
-      Feature = paste0("Protein", 1:50),
-      logFC = c(rnorm(25, 1.5, 0.5), rnorm(25, -1.5, 0.5)),
-      adj.P.Val = runif(50, 0, 0.05)
-    )
-  )
-  class(mock_de_object) <- "hd_de"
+test_that("hd_de_limma() can correct for a covariate with more than two levels", {
+  sd <- signal_data()
+  sd$metadata$Cohort <- rep(c("c1", "c2", "c3"), length.out = nrow(sd$metadata))
 
-  # Run the function without user_defined_proteins
-  result <- hd_plot_volcano(
-    de_object = mock_de_object,
-    user_defined_proteins = NULL
-  )
+  res <- quietly(hd_de_limma(
+    sd$data, sd$metadata, variable = "Disease", case = "case", correct = "Cohort"
+  ))
 
-  # Verify it still creates the volcano plot
-  expect_true("volcano_plot" %in% names(result))
+  expect_s3_class(res, "hd_de")
+  expect_equal(nrow(res$de_res), 5)
+  expect_gt(stats::setNames(res$de_res$logFC, res$de_res$Feature)[["up"]], 2)
 })
 
-test_that("hd_plot_volcano handles invalid de_object input", {
-  # Create an invalid input
-  invalid_de_object <- list(de_res = NULL)
+test_that("hd_de_limma() can correct for several covariates at once", {
+  sd <- signal_data()
+  res <- quietly(hd_de_limma(
+    sd$data, sd$metadata,
+    variable = "Disease", case = "case", correct = c("Sex", "Age")
+  ))
 
-  # Check for error
+  expect_equal(nrow(res$de_res), 5)
+  expect_gt(stats::setNames(res$de_res$logFC, res$de_res$Feature)[["up"]], 2)
+})
+
+test_that("hd_de_limma() supports a continuous variable of interest", {
+  sd <- signal_data()
+  # Make `up` track Age so there is a signal to find
+  sd$data$up <- sd$metadata$Age / 10 + stats::rnorm(nrow(sd$data), sd = 0.1)
+
+  res <- quietly(hd_de_limma(
+    sd$data, sd$metadata, variable = "Age", case = NULL
+  ))
+
+  expect_true("logFC" %in% colnames(res$de_res))
+  expect_equal(res$de_res$Feature[1], "up")
+  expect_lt(res$de_res$adj.P.Val[1], 0.001)
+})
+
+test_that("hd_de_limma() validates its inputs", {
+  sd <- signal_data()
+
   expect_error(
-    hd_plot_volcano(de_object = invalid_de_object),
-    "The input object is not a differential expression object."
+    hd_de_limma(sd$data, variable = "Disease", case = "case"),
+    "'metadata' argument or slot .* is empty"
   )
-})
-
-test_that("hd_plot_volcano handles empty DE results", {
-  # Create an empty DE results object
-  empty_de_object <- list(de_res = tibble::tibble())
-  class(empty_de_object) <- "hd_de"
-
-  # Check for error
   expect_error(
-    hd_plot_volcano(de_object = empty_de_object),
-    "The input object does not contain the differential expression results."
+    hd_de_limma(sd$data, sd$metadata, variable = "nope", case = "case"),
+    "variable is not"
   )
+
+  hd_obj <- hd_initialize(sd$data, sd$metadata, is_wide = TRUE)
+  hd_obj$data <- NULL
+  expect_error(hd_de_limma(hd_obj, case = "case"), "'data' slot .* is empty")
+})
+
+test_that("hd_de_limma() works from an HDAnalyzeR object", {
+  hd_obj <- signal_object()
+  res <- quietly(hd_de_limma(hd_obj, variable = "Disease", case = "case"))
+  expect_s3_class(res, "hd_de")
 })
 
 
-# Test extract_protein_list ----------------------------------------------------
-test_that("extract_protein_list works as expected", {
-  # Mock data for testing
-  mock_upset_data <- tibble::tibble(
-    Disease1 = c(1, 0, 1),
-    Disease2 = c(0, 1, 1)
-  )
-  mock_proteins <- list(
-    Disease1 = c("ProteinA", "ProteinB"),
-    Disease2 = c("ProteinB", "ProteinC")
-  )
+# hd_de_ttest -----------------------------------------------------------------
 
-  # Call the function
-  result <- extract_protein_list(mock_upset_data, mock_proteins)
+test_that("hd_de_ttest() returns numeric statistics, not characters", {
+  sd <- signal_data()
+  res <- quietly(hd_de_ttest(sd$data, sd$metadata, variable = "Disease", case = "case"))
 
-  # Expected output
-  expected_proteins_list <- list(
-    "Disease1" = c("ProteinA", "ProteinB"),
-    "Disease2" = c("ProteinB", "ProteinC"),
-    "Disease1&Disease2" = c("ProteinB")
+  for (column in c("logFC", "CI.L", "CI.R", "t", "P.Value", "adj.P.Val")) {
+    expect_type(res$de_res[[column]], "double")
+  }
+})
+
+test_that("hd_de_ttest() agrees with stats::t.test", {
+  sd <- signal_data()
+  res <- quietly(hd_de_ttest(sd$data, sd$metadata, variable = "Disease", case = "case"))
+
+  case_values <- sd$data$up[sd$metadata$Disease == "case"]
+  ctrl_values <- sd$data$up[sd$metadata$Disease == "ctrl"]
+  reference <- stats::t.test(case_values, ctrl_values)
+
+  row <- res$de_res[res$de_res$Feature == "up", ]
+  expect_equal(row$P.Value, reference$p.value)
+  expect_equal(row$logFC, mean(case_values) - mean(ctrl_values))
+  expect_equal(row$t, unname(round(reference$statistic, 2)))
+})
+
+test_that("hd_de_ttest() recovers the direction of the signal", {
+  sd <- signal_data()
+  res <- quietly(hd_de_ttest(sd$data, sd$metadata, variable = "Disease", case = "case"))
+  fc <- stats::setNames(res$de_res$logFC, res$de_res$Feature)
+
+  expect_gt(fc[["up"]], 2)
+  expect_lt(fc[["down"]], -2)
+})
+
+test_that("hd_de_ttest() applies FDR correction", {
+  sd <- signal_data()
+  res <- quietly(hd_de_ttest(sd$data, sd$metadata, variable = "Disease", case = "case"))
+
+  expect_equal(
+    res$de_res$adj.P.Val,
+    stats::p.adjust(res$de_res$P.Value, method = "fdr")[order(order(res$de_res$adj.P.Val))],
+    tolerance = 1e-12
   )
-
-  expected_proteins_df <- tibble::tibble(
-    Shared_in = c("Disease1", "Disease2", "Disease1&Disease2"),
-    `up/down` = "up", # Expected direction
-    Feature = c("ProteinA", "ProteinB", "ProteinC")
-  )
-
-  # Assertions
-  expect_type(result, "list")
-  expect_named(result, c("proteins_list", "proteins_df"))
-  expect_equal(result$proteins_list, expected_proteins_list)
-  expect_equal(result$proteins_df$Feature, expected_proteins_df$Feature)
+  expect_true(all(res$de_res$adj.P.Val >= res$de_res$P.Value))
 })
 
 
-# Test hd_plot_de_summary ------------------------------------------------------
-test_that("hd_plot_de_summary works as expected", {
-  # Mock data for testing
-  mock_de_result1 <- list(
-    de_res = tibble::tibble(
-      Feature = c("ProteinA", "ProteinB", "ProteinC"),
-      logFC = c(1.5, -1.2, 0.5),
-      adj.P.Val = c(0.01, 0.03, 0.2),
-      Disease = "AML"
-    )
-  )
-  mock_de_result2 <- list(
-    de_res = tibble::tibble(
-      Feature = c("ProteinD", "ProteinE", "ProteinF"),
-      logFC = c(-1.8, 2.0, 0.3),
-      adj.P.Val = c(0.02, 0.01, 0.25),
-      Disease = "LUNGC"
-    )
-  )
-  mock_de_results <- list("AML" = mock_de_result1, "LUNGC" = mock_de_result2)
+# hd_plot_volcano -------------------------------------------------------------
 
-  # Call the function
-  result <- hd_plot_de_summary(
-    de_results = mock_de_results,
-    variable = "Disease",
-    pval_lim = 0.05,
-    logfc_lim = 0.5
-  )
+test_that("hd_plot_volcano() attaches a renderable plot to the DE object", {
+  res <- hd_plot_volcano(de_object())
 
-  # Assertions
-  expect_type(result, "list")
-  expect_named(result, c(
-    "de_barplot", "upset_plot_up", "upset_plot_down",
-    "proteins_df_up", "proteins_df_down",
-    "proteins_list_up", "proteins_list_down"
+  expect_s3_class(res, "hd_de")
+  expect_renderable_ggplot(res$volcano_plot)
+})
+
+test_that("hd_plot_volcano() rejects objects that are not DE results", {
+  expect_error(hd_plot_volcano(list()), "not a differential expression object")
+
+  bad <- structure(list(de_res = tibble::tibble(x = 1)), class = "hd_de")
+  expect_error(hd_plot_volcano(bad), "does not contain the differential expression results")
+})
+
+test_that("hd_plot_volcano() reports the number of significant features", {
+  p <- hd_plot_volcano(de_object())$volcano_plot
+  expect_match(p$labels$title %||% "", "Num significant up = 1")
+})
+
+
+# hd_plot_de_summary ----------------------------------------------------------
+
+test_that("hd_plot_de_summary() summarises several analyses", {
+  sd <- signal_data()
+  res_a <- quietly(hd_de_limma(sd$data, sd$metadata, variable = "Disease", case = "case"))
+  res_b <- quietly(hd_de_limma(sd$data, sd$metadata, variable = "Disease", case = "ctrl"))
+
+  summary_res <- quietly(hd_plot_de_summary(
+    list(case = res_a, ctrl = res_b),
+    variable = "Disease"
   ))
 
-  # Check if plots and dataframes are created
-  expect_true("ggplot" %in% class(result$de_barplot))
-  expect_true("upset" %in% class(result$upset_plot_up))
-  expect_true("upset" %in% class(result$upset_plot_down))
+  expect_named(
+    summary_res,
+    c("de_barplot", "upset_plot_up", "upset_plot_down",
+      "proteins_df_up", "proteins_df_down",
+      "proteins_list_up", "proteins_list_down")
+  )
+  expect_renderable_ggplot(summary_res$de_barplot)
+})
 
-  # Validate protein lists
-  expect_type(result$proteins_list_up, "list")
-  expect_type(result$proteins_list_down, "list")
-  expect_true("AML" %in% names(result$proteins_list_up))
-  expect_true("LUNGC" %in% names(result$proteins_list_down))
+test_that("hd_plot_de_summary() labels up and down features correctly", {
+  sd <- signal_data()
+  res_a <- quietly(hd_de_limma(sd$data, sd$metadata, variable = "Disease", case = "case"))
+  res_b <- quietly(hd_de_limma(sd$data, sd$metadata, variable = "Disease", case = "ctrl"))
 
-  # Check dataframes
-  expect_true(all(c("Feature", "Shared_in") %in% colnames(result$proteins_df_up)))
-  expect_true(all(c("Feature", "Shared_in") %in% colnames(result$proteins_df_down)))
+  summary_res <- quietly(hd_plot_de_summary(
+    list(case = res_a, ctrl = res_b),
+    variable = "Disease"
+  ))
+
+  expect_true(all(summary_res$proteins_df_up[["up/down"]] == "up"))
+  expect_true(all(summary_res$proteins_df_down[["up/down"]] == "down"))
+})
+
+test_that("hd_plot_de_summary() puts each feature on the correct side", {
+  sd <- signal_data()
+  res_a <- quietly(hd_de_limma(sd$data, sd$metadata, variable = "Disease", case = "case"))
+
+  summary_res <- quietly(hd_plot_de_summary(list(case = res_a), variable = "Disease"))
+
+  expect_true("up" %in% summary_res$proteins_df_up$Feature)
+  expect_true("down" %in% summary_res$proteins_df_down$Feature)
+  expect_false("flat" %in% summary_res$proteins_df_up$Feature)
 })

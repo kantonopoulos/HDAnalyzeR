@@ -2,7 +2,7 @@
 title: "Machine Learning Models"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{classification}
+  %\VignetteIndexEntry{Machine Learning Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

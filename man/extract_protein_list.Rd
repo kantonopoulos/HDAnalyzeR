@@ -4,23 +4,30 @@
 \alias{extract_protein_list}
 \title{Extract protein lists from the upset data}
 \usage{
-extract_protein_list(upset_data, proteins)
+extract_protein_list(proteins, direction = NA_character_)
 }
 \arguments{
-\item{upset_data}{A tibble with the upset data.}
+\item{proteins}{A named list with the protein vector of each disease.}
 
-\item{proteins}{A list with the protein lists for each disease.}
+\item{direction}{The regulation direction to record in the \code{up/down} column,
+or \code{NA} when the features are not directional. Default is \code{NA_character_}.}
 }
 \value{
 A list with the following elements:
 \itemize{
 \item proteins_list: A list with the proteins for each combination of diseases.
-\item proteins_df: A tibble with the proteins for each combination of diseases.
+\item proteins_df: A tibble attributing each protein to the exact set of diseases
+it was found in.
 }
 }
 \description{
 \code{extract_protein_list()} extracts the protein lists from the upset data.
 It creates a list with the proteins for each combination of diseases.
 It also creates a tibble with the proteins for each combination of diseases.
+}
+\details{
+The combinations are derived from the protein lists directly rather than from
+an \code{UpSetR} membership matrix, which degenerates into a named vector as soon as
+a single disease is summarised.
 }
 \keyword{internal}

@@ -26,6 +26,7 @@ the function imputes them using the k-nearest neighbors algorithm (k = 5). The n
 to be calculated is defined by the user. The function returns a tibble with the UMAP results.
 }
 \examples{
+\dontshow{if (requireNamespace("embed", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -34,4 +35,5 @@ hd_umap(hd_object, components = 2, by_sample = TRUE, seed = 123)
 
 # Run the UMAP analysis by feature
 hd_umap(hd_object, components = 2, by_sample = FALSE, seed = 123)
+\dontshow{\}) # examplesIf}
 }

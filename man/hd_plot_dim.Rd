@@ -43,6 +43,7 @@ A ggplot object
 The points can be plotted in the PCx/PCy or UMAP1/UMAP2 space.
 }
 \examples{
+\dontshow{if (requireNamespace("embed", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create the HDAnalyzeR object providing the data and metadata
 hd_object <- hd_initialize(example_data, example_metadata)
 
@@ -57,4 +58,5 @@ umap_object <- hd_umap(hd_object, components = 2, by_sample = TRUE, seed = 123) 
  hd_plot_dim(hd_object, x = "UMAP1", y = "UMAP2", color = "Disease", palette = "cancers12")
 
  umap_object$umap_plot
+\dontshow{\}) # examplesIf}
 }

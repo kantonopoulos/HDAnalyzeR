@@ -2,7 +2,7 @@
 title: "Differential Expression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{differential_expression}
+  %\VignetteIndexEntry{Differential Expression Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

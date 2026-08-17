@@ -1,6 +1,6 @@
 Package: HDAnalyzeR
 Title: Streamlining Data Analysis for Biomarker Research
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: 
     c(
       person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", 
@@ -10,24 +10,22 @@ Authors@R:
       person("Mathias", "Uhlen", , "mathias.uhlen@scilifelab.se", role = c("aut", "cph", "fnd"),
              comment = c(ORCID = "0000-0002-4858-8056"))
     )
-Description: HDAnalyzeR accelerates and simplifies data analysis for biomarker discovery in disease research. It offers a streamlined suite of tools for tasks including differential expression analysis, classification modeling, dimensionality reduction, imputation, and data visualization. With user-friendly functions and high-quality, publication-ready plots, HDAnalyzeR enables researchers—from clinicians to bioinformaticians—to efficiently explore and interpret omics data, uncovering potential biomarkers in blood plasma with ease and accuracy.
+Description: Accelerates and simplifies data analysis for biomarker discovery in
+    disease research. Offers a streamlined suite of tools for tasks including
+    differential expression analysis, classification modeling, dimensionality
+    reduction, imputation, and data visualization. With user-friendly functions and
+    high-quality, publication-ready plots, it enables researchers—from clinicians to
+    bioinformaticians—to efficiently explore and interpret omics data, uncovering
+    potential biomarkers in blood plasma with ease and accuracy.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 biocViews: DifferentialExpression, Visualization, Classification
-Imports: 
-    arrow,
+Imports:
     broom,
-    cluster,
-    clusterProfiler,
     dials,
     dplyr,
-    easyPubMed (>= 3.0),
-    enrichplot,
-    embed,
     forcats,
-    fpc,
     ggbeeswarm,
     ggnewscale,
     ggplot2,
@@ -37,17 +35,10 @@ Imports:
     ggridges,
     glmnet,
     grDevices,
-    knitr,
     limma,
-    missForest,
-    multiROC,
     parsnip,
-    patchwork,
-    ppsr,
     ranger,
-    purrr,
     readr,
-    readxl,
     recipes,
     rlang,
     rsample,
@@ -58,27 +49,37 @@ Imports:
     tidygraph,
     tidyheatmaps,
     tidyr,
-    tidyselect,
     tidytext,
     tune,
-    umap,
     UpSetR,
     utils,
-    vip,
-    viridis,
-    WGCNA,
     withr,
     workflows,
-    writexl,
     yardstick
-Suggests: 
+Suggests:
+    arrow,
+    cluster,
+    clusterProfiler,
+    easyPubMed (>= 3.0),
+    embed,
+    enrichplot,
+    fpc,
+    knitr,
+    missForest,
     org.Hs.eg.db,
+    patchwork,
+    ppsr,
     ReactomePA,
+    readxl,
     rmarkdown,
     testthat (>= 3.0.0),
+    viridis,
+    WGCNA,
+    writexl
 Config/testthat/edition: 3
 Depends: 
     R (>= 4.5.0)
 LazyData: true
-URL: https://kantonopoulos.github.io/HDAnalyzeR, https://github.com/kantonopoulos/HDAnalyzeR, https://kantonopoulos.github.io/HDAnalyzeR/
+URL: https://kantonopoulos.github.io/HDAnalyzeR/, https://github.com/kantonopoulos/HDAnalyzeR
 BugReports: https://github.com/kantonopoulos/HDAnalyzeR/issues
+Config/roxygen2/version: 8.0.0

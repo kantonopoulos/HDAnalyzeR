@@ -4,6 +4,11 @@ logo/
 paper/
 case_studies/data
 
+# Build and check artefacts
+*.Rcheck/
+*.tar.gz
+Rplots.pdf
+
 # Files
 .RData
 .Rproj.user

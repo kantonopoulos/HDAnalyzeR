@@ -4,17 +4,23 @@
 \alias{plot_loadings}
 \title{Prepare PCA loadings to be plotted on the 2D plane}
 \usage{
-plot_loadings(dim_object, plot_loadings, nloadings)
+plot_loadings(dim_object, plot_loadings, nloadings, x, y)
 }
 \arguments{
 \item{dim_object}{A PCA object containing the PCA loadings. Created by \code{hd_pca()}.}
 
-\item{plot_loadings}{The component to be plotted. Default is NULL.}
+\item{plot_loadings}{The component whose strongest features should be drawn.}
 
 \item{nloadings}{The number of loadings to be plotted. Default is 5.}
+
+\item{x}{The component on the x-axis.}
+
+\item{y}{The component on the y-axis.}
 }
 \value{
-A tibble with the PCA loadings to be plotted.
+A tibble with one row per selected feature and one column per plotted
+component, so that each arrow can be drawn from the origin to its \verb{(x, y)}
+loading.
 }
 \description{
 \code{plot_loadings()} prepares the PCA loadings to be plotted on the 2D plane.
