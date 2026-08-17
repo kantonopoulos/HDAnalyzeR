@@ -133,13 +133,13 @@ hd_pca <- function(
   pca_step_num <- which(sapply(pca_rec$steps, inherits, what = "step_pca"))
   # `tidy()` reports the loadings of every component `prcomp()` produced, not
   # only the ones that were asked for, so trim them to match `pca_res`.
-  pca_loadings <- broom::tidy(pca_prep, number = pca_step_num) |>
+  pca_loadings <- recipes::tidy(pca_prep, number = pca_step_num) |>
     dplyr::filter(
       !!rlang::sym("component") %in% paste0("PC", seq_len(components))
     ) |>
     dplyr::select(-!!rlang::sym("id"))
 
-  pca_variance <- broom::tidy(
+  pca_variance <- recipes::tidy(
     pca_prep,
     number = pca_step_num,
     type = "variance"
@@ -219,7 +219,7 @@ hd_plot_pca_loadings <- function(
     dplyr::slice_max(abs(!!rlang::sym("value")), n = displayed_features) |>
     dplyr::ungroup() |>
     dplyr::mutate(
-      terms = tidytext::reorder_within(
+      terms = reorder_within(
         !!rlang::sym("terms"),
         abs(!!rlang::sym("value")),
         !!rlang::sym("component")
@@ -239,7 +239,7 @@ hd_plot_pca_loadings <- function(
       labels = c("TRUE" = "Positive", "FALSE" = "Negative")
     ) +
     ggplot2::facet_wrap(~component, scales = "free_y") +
-    tidytext::scale_y_reordered() +
+    scale_y_reordered() +
     ggplot2::labs(
       x = "Absolute Value of Contribution",
       y = NULL,

@@ -1082,7 +1082,7 @@ evaluate_multiclass_model <- function(
       names_to = "class",
       values_to = "probability"
     ) |>
-    dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
+    dplyr::mutate(class = sub("\\.pred_", "", class)) |>
     dplyr::filter(class == !!Variable) |>
     dplyr::select(-class) |>
     ggplot2::ggplot(ggplot2::aes(
@@ -1352,7 +1352,7 @@ variable_imp <- function(
   if (engine == 'glmnet') {
     features <- final |>
       workflows::extract_fit_parsnip() |>
-      broom::tidy() |>
+      parsnip::tidy() |>
       dplyr::filter(!!rlang::sym("term") != "(Intercept)") |>
       dplyr::select(-dplyr::any_of(c("penalty"))) |>
       dplyr::mutate(
@@ -1369,7 +1369,7 @@ variable_imp <- function(
         dplyr::mutate(
           Scaled_Importance = !!rlang::sym("Importance") /
             max(!!rlang::sym("Importance")),
-          Feature_plot = tidytext::reorder_within(
+          Feature_plot = reorder_within(
             !!rlang::sym("Feature"),
             !!rlang::sym("Importance"),
             !!rlang::sym("class")
@@ -1390,7 +1390,7 @@ variable_imp <- function(
         dplyr::mutate(
           Scaled_Importance = !!rlang::sym("Importance") /
             max(!!rlang::sym("Importance")),
-          Feature = forcats::fct_reorder(
+          Feature = fct_reorder(
             !!rlang::sym("Feature"),
             !!rlang::sym("Importance")
           )
@@ -1412,7 +1412,7 @@ variable_imp <- function(
           0,
           !!rlang::sym("Importance")
         ),
-        Variable = forcats::fct_reorder(
+        Variable = fct_reorder(
           !!rlang::sym("Variable"),
           !!rlang::sym("Importance")
         )
@@ -1517,7 +1517,7 @@ variable_imp <- function(
         )
       )) +
       ggplot2::facet_wrap(~Class, scales = "free_y") +
-      tidytext::scale_x_reordered() + # cleans axis labels
+      scale_x_reordered() + # cleans axis labels
       ggplot2::coord_flip() + # horizontal bars
       ggplot2::scale_fill_manual(values = pal, na.value = "grey80") +
       ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
@@ -2481,7 +2481,7 @@ hd_model_test <- function(
           names_to = "class",
           values_to = "probability"
         ) |>
-        dplyr::mutate(class = stringr::str_remove(class, "\\.pred_")) |>
+        dplyr::mutate(class = sub("\\.pred_", "", class)) |>
         dplyr::filter(class == !!Variable) |>
         dplyr::select(-class) |>
         ggplot2::ggplot(ggplot2::aes(

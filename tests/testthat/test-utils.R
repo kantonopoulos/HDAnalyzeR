@@ -267,6 +267,22 @@ test_that("csv, tsv and rds round-trip through save and import", {
   }
 })
 
+test_that("delimiters and quotes inside values survive a round trip", {
+  withr::local_dir(withr::local_tempdir())
+  # `write.table()` escapes an embedded quote as \" unless told to double it,
+  # which silently mangled the value on reimport.
+  dat <- tibble::tibble(
+    id = c("A", "B", "C"),
+    note = c("x, y", 'he said "hi"', "tab\tless")
+  )
+
+  for (ext in c("csv", "tsv")) {
+    path <- paste0("out/quoted.", ext)
+    expect_match(hd_save_data(dat, path), "File saved as")
+    expect_equal(quietly(hd_import_data(path)), dat)
+  }
+})
+
 test_that("hd_save_data() rejects unsupported extensions", {
   withr::local_dir(withr::local_tempdir())
   expect_error(
